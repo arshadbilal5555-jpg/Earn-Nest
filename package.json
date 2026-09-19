@@ -1,0 +1,26 @@
+{
+  "name": "earnnest",
+  "version": "2.1.0",
+  "private": true,
+  "description": "EarnNest rewards platform prototype",
+  "main": "backend/server.js",
+  "scripts": {
+    "start": "node backend/server.js",
+    "dev": "node backend/server.js",
+    "mobile:add": "npx cap add android",
+    "mobile:sync": "npx cap sync android",
+    "mobile:open": "npx cap open android",
+    "mobile:build": "npx cap sync android && cd android && ./gradlew bundleRelease",
+    "admin:reset": "node reset-admin.js"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^7.4.0"
+  },
+  "dependencies": {
+    "@capacitor/core": "^7.4.0",
+    "@capacitor/android": "^7.4.0"
+  }
+}

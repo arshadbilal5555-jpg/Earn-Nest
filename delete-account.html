@@ -1,0 +1,11 @@
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Delete EarnNest Account</title><style>
+body{font-family:Arial,sans-serif;max-width:860px;margin:0 auto;padding:32px 20px;line-height:1.65;color:#17212b;background:#f7f9f8}
+main{background:#fff;padding:28px;border-radius:16px} h1{margin-top:0} h2{margin-top:28px} a{color:#0b7a4c} .note{background:#eef7f2;padding:14px;border-radius:10px}
+form{display:grid;gap:12px;max-width:520px}input,textarea,button{font:inherit;padding:12px;border:1px solid #ccd8d2;border-radius:10px}button{background:#0b7a4c;color:#fff;border:0;cursor:pointer}.danger{background:#fff4f4;padding:14px;border-radius:10px}</style></head><body><main>
+<h1>Delete your EarnNest account</h1><p>Use this page if you no longer have access to the app. Enter the email address associated with your EarnNest account and submit a deletion request.</p>
+<div class="danger"><strong>What happens:</strong> We will verify the request and delete the account and associated personal data, subject to limited retention required for security, fraud prevention, transactions or law.</div>
+<form id="f"><label>Email<br><input id="email" type="email" required autocomplete="email"></label><label>Optional details<br><textarea id="details" rows="4" placeholder="Anything that helps us verify the request"></textarea></label><button>Submit deletion request</button></form><p id="msg"></p>
+<p><a href="/privacy.html">Privacy Policy</a> · <a href="/terms.html">Terms</a></p>
+<script>
+f.addEventListener('submit',async e=>{e.preventDefault();msg.textContent='Submitting…';try{let r=await fetch('/api/account-deletion-request',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:email.value,details:details.value})});let d=await r.json();if(!r.ok)throw Error(d.error||'Unable to submit');msg.textContent=d.message}catch(x){msg.textContent=x.message}});
+</script></main></body></html>

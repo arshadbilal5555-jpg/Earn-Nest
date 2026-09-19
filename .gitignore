@@ -1,0 +1,5 @@
+backend/earnnest.db
+backend/earnnest.db-shm
+backend/earnnest.db-wal
+.env
+node_modules/
