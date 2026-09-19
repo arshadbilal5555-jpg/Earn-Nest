@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#2563eb">
+  <title>EarnNest</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f5f7fb;
+      color: #1f2937;
+    }
+
+    .header {
+      background: #2563eb;
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .container {
+      max-width: 500px;
+      margin: 30px auto;
+      padding: 20px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 14px;
+      padding: 25px;
+      box-shadow: 0 4px 18px rgba(0,0,0,.08);
+    }
+
+    h1 {
+      margin-top: 0;
+    }
+
+    input {
+      width: 100%;
+      padding: 13px;
+      margin: 8px 0;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+
+    button {
+      width: 100%;
+      padding: 13px;
+      margin-top: 10px;
+      border: 0;
+      border-radius: 8px;
+      background: #2563eb;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #1d4ed8;
+    }
+
+    .status {
+      margin-top: 15px;
+      padding: 12px;
+      border-radius: 8px;
+      background: #eff6ff;
+      color: #1e40af;
+      display: none;
+    }
+
+    .links {
+      margin-top: 20px;
+      text-align: center;
+    }
+
+    .links a {
+      color: #2563eb;
+      text-decoration: none;
+      margin: 0 8px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="header">
+    <h1>EarnNest</h1>
+    <p>Earn • Refer • Reward</p>
+  </div>
+
+  <div class="container">
+    <div class="card">
+      <h1>Welcome to EarnNest</h1>
+      <p>Create an account or sign in to continue.</p>
+
+      <input id="email" type="email" placeholder="Email address">
+      <input id="password" type="password" placeholder="Password">
+
+      <button onclick="login()">Login</button>
+      <button onclick="register()">Create Account</button>
+
+      <div id="status" class="status"></div>
+
+      <div class="links">
+        <a href="/privacy.html">Privacy</a>
+        <a href="/terms.html">Terms</a>
+        <a href="/delete-account.html">Delete Account</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    async function login() {
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+
+      if (!email || !password) {
+        showStatus("Please enter email and password.");
+        return;
+      }
+
+      showStatus("Connecting to EarnNest...");
+
+      try {
+        const response = await fetch("/api/login", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ email, password })
+        });
+
+        const data = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+          showStatus(data.error || "Login failed.");
+          return;
+        }
+
+        showStatus("Login successful.");
+        localStorage.setItem("earnnest_user", JSON.stringify(data.user || data));
+
+      } catch (error) {
+        showStatus("Backend is not connected yet.");
+      }
+    }
+
+    async function register() {
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+
+      if (!email || !password) {
+        showStatus("Please enter email and password.");
+        return;
+      }
+
+      showStatus("Creating account...");
+
+      try {
+        const response = await fetch("/api/register", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ email, password })
+        });
+
+        const data = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+          showStatus(data.error || "Registration failed.");
+          return;
+        }
+
+        showStatus("Account created successfully.");
+      } catch (error) {
+        showStatus("Backend is not connected yet.");
+      }
+    }
+
+    function showStatus(message) {
+      const box = document.getElementById("status");
+      box.textContent = message;
+      box.style.display = "block";
+    }
+  </script>
+
+</body>
+</html>
