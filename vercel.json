@@ -1,13 +1,30 @@
 {
-  "version": 2,
+  "$schema": "https://openapi.vercel.sh/vercel.json",
   "functions": {
-    "api/index.js": { "runtime": "nodejs22.x", "maxDuration": 30 }
+    "api/index.js": {
+      "maxDuration": 30
+    }
   },
   "rewrites": [
-    { "source": "/", "destination": "/app/index.html" },
-    { "source": "/api/:path*", "destination": "/api/index.js" },
-    { "source": "/health", "destination": "/api/index.js" },
-    { "source": "/admin", "destination": "/admin/index.html" },
-    { "source": "/app", "destination": "/app/index.html" }
+    {
+      "source": "/",
+      "destination": "/app/index.html"
+    },
+    {
+      "source": "/api/:path*",
+      "destination": "/api/index.js"
+    },
+    {
+      "source": "/health",
+      "destination": "/api/index.js"
+    },
+    {
+      "source": "/admin",
+      "destination": "/admin/index.html"
+    },
+    {
+      "source": "/app",
+      "destination": "/app/index.html"
+    }
   ]
 }

@@ -14,7 +14,7 @@
     "admin:reset": "node reset-admin.js"
   },
   "engines": {
-    "node": ">=22"
+    "node": "22.x"
   },
   "devDependencies": {
     "@capacitor/cli": "^7.4.0"
