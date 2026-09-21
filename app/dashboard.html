@@ -1,979 +1,259 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
   <meta charset="UTF-8">
-
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  >
-
-  <meta
-    name="theme-color"
-    content="#2563eb"
-  >
-
-  <title>EarnNest Admin Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EarnNest Dashboard</title>
 
   <style>
-
     * {
       box-sizing: border-box;
+      margin: 0;
+      padding: 0;
     }
 
     body {
-      margin: 0;
       font-family: Arial, sans-serif;
-      background: #f5f7fb;
-      color: #1f2937;
+      min-height: 100vh;
+      color: #fff;
+      background:
+        radial-gradient(circle at top left, #123c69 0%, transparent 35%),
+        radial-gradient(circle at bottom right, #182848 0%, transparent 40%),
+        linear-gradient(135deg, #06111f, #0b1728 55%, #06101d);
     }
 
     .header {
-      background: #2563eb;
-      color: white;
-      padding: 18px 24px;
-
+      padding: 18px 25px;
       display: flex;
-      align-items: center;
       justify-content: space-between;
-
-      gap: 15px;
+      align-items: center;
+      border-bottom: 1px solid rgba(255,255,255,.1);
+      background: rgba(5,15,28,.8);
+      backdrop-filter: blur(12px);
     }
 
-    .header h1 {
-      margin: 0;
+    .logo {
       font-size: 24px;
-    }
-
-    .header small {
-      opacity: .9;
-    }
-
-    button {
-      border: 0;
-      border-radius: 8px;
-      padding: 11px 18px;
-      cursor: pointer;
-      font-size: 15px;
+      font-weight: 800;
+      color: #4ddcff;
     }
 
     .logout {
-      background: #dc2626;
+      border: 0;
+      padding: 10px 18px;
+      border-radius: 10px;
+      background: #ff4d67;
       color: white;
-      width: auto;
-    }
-
-    .logout:hover {
-      background: #b91c1c;
+      cursor: pointer;
+      font-weight: bold;
     }
 
     .container {
-      max-width: 1200px;
-      margin: 30px auto;
-      padding: 0 20px;
+      max-width: 1100px;
+      margin: auto;
+      padding: 35px 20px;
     }
 
     .welcome {
-      background: white;
-      padding: 20px;
-      border-radius: 14px;
-      margin-bottom: 20px;
-
-      box-shadow:
-        0 4px 18px rgba(0,0,0,.06);
+      margin-bottom: 25px;
     }
 
-    .welcome h2 {
-      margin: 0 0 5px;
+    .welcome h1 {
+      font-size: 32px;
+      margin-bottom: 8px;
+    }
+
+    .welcome p {
+      color: #aebdce;
     }
 
     .cards {
       display: grid;
-
-      grid-template-columns:
-        repeat(4, minmax(0, 1fr));
-
+      grid-template-columns: repeat(3, 1fr);
       gap: 18px;
-
       margin-bottom: 25px;
     }
 
-    .card {
-      background: white;
-      border-radius: 14px;
-      padding: 22px;
-
-      box-shadow:
-        0 4px 18px rgba(0,0,0,.06);
-    }
-
-    .stat-title {
-      color: #6b7280;
-      font-size: 14px;
-      margin-bottom: 10px;
-    }
-
-    .stat-value {
-      font-size: 30px;
-      font-weight: bold;
-    }
-
+    .card,
     .section {
-      background: white;
-      border-radius: 14px;
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 18px;
       padding: 22px;
+      box-shadow: 0 15px 40px rgba(0,0,0,.2);
+    }
 
-      box-shadow:
-        0 4px 18px rgba(0,0,0,.06);
+    .card h3 {
+      color: #9fb1c5;
+      font-size: 14px;
+      margin-bottom: 12px;
+    }
 
-      margin-bottom: 25px;
+    .number {
+      font-size: 30px;
+      font-weight: 800;
+      color: #4ddcff;
+    }
+
+    .sections {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 18px;
     }
 
     .section h2 {
-      margin-top: 0;
+      margin-bottom: 10px;
+      font-size: 20px;
     }
 
-    .refresh {
-      background: #2563eb;
-      color: white;
-      margin-bottom: 15px;
+    .section p {
+      color: #aebdce;
+      line-height: 1.6;
     }
 
-    .refresh:hover {
-      background: #1d4ed8;
-    }
-
-    .table-wrapper {
-      overflow-x: auto;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      min-width: 700px;
-    }
-
-    th,
-    td {
-      text-align: left;
-      padding: 12px;
-      border-bottom:
-        1px solid #e5e7eb;
-    }
-
-    th {
-      background: #f9fafb;
-    }
-
-    .badge {
-      display: inline-block;
-
-      padding: 5px 9px;
-
-      border-radius: 20px;
-
-      font-size: 12px;
-
-      background: #dbeafe;
-      color: #1d4ed8;
-    }
-
-    .status {
-      margin-bottom: 20px;
-      padding: 12px;
-
-      border-radius: 8px;
-
-      background: #eff6ff;
-      color: #1e40af;
-
+    #error {
       display: none;
+      margin-bottom: 20px;
+      padding: 15px;
+      border-radius: 10px;
+      background: rgba(255,77,103,.15);
+      color: #ff8092;
     }
 
-    .empty {
-      text-align: center;
-      padding: 25px;
-      color: #6b7280;
-    }
-
-    @media (max-width: 900px) {
-
-      .cards {
-        grid-template-columns:
-          repeat(2, minmax(0, 1fr));
-      }
-
-    }
-
-    @media (max-width: 600px) {
-
-      .header {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-
-      .logout {
-        width: 100%;
-      }
-
-      .cards {
+    @media(max-width: 750px) {
+      .cards,
+      .sections {
         grid-template-columns: 1fr;
       }
 
-      .container {
-        padding: 0 12px;
+      .welcome h1 {
+        font-size: 26px;
       }
-
     }
-
   </style>
-
 </head>
-
 
 <body>
 
-
   <header class="header">
-
-    <div>
-
-      <h1>
-        EarnNest Admin
-      </h1>
-
-      <small>
-        Administration Dashboard
-      </small>
-
-    </div>
-
-    <button
-      class="logout"
-      onclick="logout()"
-    >
-      Logout
-    </button>
-
+    <div class="logo">🪺 EarnNest</div>
+    <button class="logout" onclick="logout()">Logout</button>
   </header>
-
 
   <main class="container">
 
+    <div id="error"></div>
 
-    <!-- WELCOME -->
+    <section class="welcome">
+      <h1 id="welcome">Welcome to EarnNest</h1>
+      <p id="userEmail">Loading account...</p>
+    </section>
 
-    <div class="welcome">
-
-      <h2 id="adminName">
-        Admin Dashboard
-      </h2>
-
-      <div id="adminEmail">
-        Loading...
-      </div>
-
-    </div>
-
-
-    <!-- STATUS -->
-
-    <div
-      id="status"
-      class="status"
-    ></div>
-
-
-    <!-- STATS -->
-
-    <div class="cards">
-
+    <section class="cards">
 
       <div class="card">
-
-        <div class="stat-title">
-          Total Users
-        </div>
-
-        <div
-          id="totalUsers"
-          class="stat-value"
-        >
-          0
-        </div>
-
+        <h3>Available Coins</h3>
+        <div class="number" id="coins">0</div>
       </div>
-
 
       <div class="card">
-
-        <div class="stat-title">
-          Total Coins
-        </div>
-
-        <div
-          id="totalCoins"
-          class="stat-value"
-        >
-          0
-        </div>
-
+        <h3>Account Status</h3>
+        <div class="number">Active</div>
       </div>
-
 
       <div class="card">
-
-        <div class="stat-title">
-          Withdrawals
-        </div>
-
-        <div
-          id="totalWithdrawals"
-          class="stat-value"
-        >
-          0
-        </div>
-
-      </div>
-
-
-      <div class="card">
-
-        <div class="stat-title">
-          Pending KYC
-        </div>
-
-        <div
-          id="pendingKyc"
-          class="stat-value"
-        >
-          0
-        </div>
-
-      </div>
-
-
-    </div>
-
-
-    <!-- USERS -->
-
-    <section class="section">
-
-      <h2>
-        Users
-      </h2>
-
-      <button
-        class="refresh"
-        onclick="loadDashboard()"
-      >
-        Refresh
-      </button>
-
-      <div class="table-wrapper">
-
-        <table>
-
-          <thead>
-
-            <tr>
-
-              <th>
-                Name
-              </th>
-
-              <th>
-                Username
-              </th>
-
-              <th>
-                Email
-              </th>
-
-              <th>
-                Phone
-              </th>
-
-              <th>
-                Role
-              </th>
-
-              <th>
-                Coins
-              </th>
-
-            </tr>
-
-          </thead>
-
-          <tbody id="usersTable">
-
-            <tr>
-
-              <td
-                colspan="6"
-                class="empty"
-              >
-                Loading users...
-              </td>
-
-            </tr>
-
-          </tbody>
-
-        </table>
-
+        <h3>Referrals</h3>
+        <div class="number" id="referrals">0</div>
       </div>
 
     </section>
 
+    <section class="sections">
+
+      <div class="section">
+        <h2>🎁 Rewards</h2>
+        <p>Complete available tasks and activities to earn coins.</p>
+      </div>
+
+      <div class="section">
+        <h2>👥 Referrals</h2>
+        <p>Invite friends and earn referral rewards.</p>
+      </div>
+
+      <div class="section">
+        <h2>💰 Wallet</h2>
+        <p>Your wallet and withdrawal information will appear here.</p>
+      </div>
+
+      <div class="section">
+        <h2>👤 Account</h2>
+        <p id="accountInfo">Account information</p>
+      </div>
+
+    </section>
 
   </main>
 
-
   <script>
+    function loadDashboard() {
 
-    /* =========================
-       GET USER
-    ========================== */
+      let rawUser = localStorage.getItem("earnnest_user");
 
-    function getUser() {
+      if (!rawUser) {
+        document.getElementById("error").style.display = "block";
+        document.getElementById("error").textContent =
+          "Login information was not found. Please login again.";
 
-      try {
-
-        return JSON.parse(
-          localStorage.getItem(
-            "earnnest_user"
-          )
-        );
-
-      } catch {
-
-        return null;
-
-      }
-
-    }
-
-
-    /* =========================
-       GET TOKEN
-    ========================== */
-
-    function getToken() {
-
-      return localStorage.getItem(
-        "earnnest_token"
-      );
-
-    }
-
-
-    /* =========================
-       AUTH CHECK
-    ========================== */
-
-    async function checkAdmin() {
-
-      const user =
-        getUser();
-
-      const token =
-        getToken();
-
-
-      if (!user || !token) {
-
-        window.location.href =
-          "/";
-
-        return false;
-
-      }
-
-
-      if (
-        user.role !==
-        "admin"
-      ) {
-
-        alert(
-          "Admin access required."
-        );
-
-        window.location.href =
-          "/";
-
-        return false;
-
-      }
-
-
-      document.getElementById(
-        "adminName"
-      ).textContent =
-        "Welcome, " +
-        (user.name || "Admin");
-
-
-      document.getElementById(
-        "adminEmail"
-      ).textContent =
-        user.email || "";
-
-
-      try {
-
-        const response =
-          await fetch(
-            "/api/admin/stats",
-            {
-
-              method: "GET",
-
-              headers: {
-
-                "Authorization":
-                  "Bearer " +
-                  token
-
-              }
-
-            }
-          );
-
-
-        if (
-          response.status ===
-            401 ||
-          response.status ===
-            403
-        ) {
-
-          localStorage.removeItem(
-            "earnnest_user"
-          );
-
-          localStorage.removeItem(
-            "earnnest_token"
-          );
-
-          window.location.href =
-            "/";
-
-          return false;
-
-        }
-
-
-        return true;
-
-
-      } catch (error) {
-
-        console.error(
-          error
-        );
-
-        showStatus(
-          "Unable to verify admin account."
-        );
-
-        return false;
-
-      }
-
-    }
-
-
-    /* =========================
-       DASHBOARD
-    ========================== */
-
-    async function loadDashboard() {
-
-      const token =
-        getToken();
-
-
-      if (!token) {
-
-        window.location.href =
-          "/";
+        setTimeout(function() {
+          window.location.href = "/";
+        }, 2500);
 
         return;
-
       }
-
-
-      showStatus(
-        "Loading dashboard..."
-      );
-
 
       try {
 
-        const response =
-          await fetch(
-            "/api/admin/stats",
-            {
+        const user = JSON.parse(rawUser);
 
-              method: "GET",
+        document.getElementById("welcome").textContent =
+          "Welcome, " + (user.name || user.username || "User") + "!";
 
-              headers: {
+        document.getElementById("userEmail").textContent =
+          user.email || "";
 
-                "Authorization":
-                  "Bearer " +
-                  token
+        document.getElementById("coins").textContent =
+          user.coins || 0;
 
-              }
+        document.getElementById("referrals").textContent =
+          user.referrals || 0;
 
-            }
-          );
-
-
-        const data =
-          await response
-            .json()
-            .catch(function() {
-              return {};
-            });
-
-
-        if (!response.ok) {
-
-          if (
-            response.status ===
-              401 ||
-            response.status ===
-              403
-          ) {
-
-            logout();
-
-            return;
-
-          }
-
-
-          showStatus(
-            data.error ||
-            data.message ||
-            "Unable to load dashboard."
-          );
-
-          return;
-
-        }
-
-
-        const stats =
-          data.stats || {};
-
-
-        document.getElementById(
-          "totalUsers"
-        ).textContent =
-          stats.totalUsers || 0;
-
-
-        document.getElementById(
-          "totalCoins"
-        ).textContent =
-          stats.totalCoins || 0;
-
-
-        document.getElementById(
-          "totalWithdrawals"
-        ).textContent =
-          stats.totalWithdrawals || 0;
-
-
-        document.getElementById(
-          "pendingKyc"
-        ).textContent =
-          stats.pendingKyc || 0;
-
-
-        renderUsers(
-          data.users || []
-        );
-
-
-        hideStatus();
-
+        document.getElementById("accountInfo").textContent =
+          "Username: " + (user.username || "User") +
+          " • Email: " + (user.email || "");
 
       } catch (error) {
 
-        console.error(
-          "Dashboard error:",
-          error
-        );
+        document.getElementById("error").style.display = "block";
+        document.getElementById("error").textContent =
+          "Invalid login session. Please login again.";
 
-        showStatus(
-          "Unable to connect to server."
-        );
+        localStorage.removeItem("earnnest_user");
+        localStorage.removeItem("earnnest_token");
 
+        setTimeout(function() {
+          window.location.href = "/";
+        }, 2500);
       }
-
     }
 
-
-    /* =========================
-       USERS
-    ========================== */
-
-    function renderUsers(users) {
-
-      const table =
-        document.getElementById(
-          "usersTable"
-        );
-
-
-      table.innerHTML =
-        "";
-
-
-      if (!users.length) {
-
-        table.innerHTML = `
-
-          <tr>
-
-            <td
-              colspan="6"
-              class="empty"
-            >
-              No users found.
-            </td>
-
-          </tr>
-
-        `;
-
-        return;
-
-      }
-
-
-      users.forEach(
-        function(user) {
-
-          const row =
-            document.createElement(
-              "tr"
-            );
-
-
-          row.innerHTML = `
-
-            <td>
-              ${escapeHtml(
-                user.name || "-"
-              )}
-            </td>
-
-            <td>
-              ${escapeHtml(
-                user.username || "-"
-              )}
-            </td>
-
-            <td>
-              ${escapeHtml(
-                user.email || "-"
-              )}
-            </td>
-
-            <td>
-              ${escapeHtml(
-                user.phone || "-"
-              )}
-            </td>
-
-            <td>
-
-              <span class="badge">
-                ${escapeHtml(
-                  user.role || "user"
-                )}
-              </span>
-
-            </td>
-
-            <td>
-              ${Number(
-                user.coins || 0
-              )}
-            </td>
-
-          `;
-
-
-          table.appendChild(
-            row
-          );
-
-        }
-      );
-
+    function logout() {
+      localStorage.removeItem("earnnest_user");
+      localStorage.removeItem("earnnest_token");
+      window.location.href = "/";
     }
 
-
-    /* =========================
-       SECURITY
-    ========================== */
-
-    function escapeHtml(value) {
-
-      return String(value)
-
-        .replaceAll(
-          "&",
-          "&amp;"
-        )
-
-        .replaceAll(
-          "<",
-          "&lt;"
-        )
-
-        .replaceAll(
-          ">",
-          "&gt;"
-        )
-
-        .replaceAll(
-          '"',
-          "&quot;"
-        )
-
-        .replaceAll(
-          "'",
-          "&#039;"
-        );
-
-    }
-
-
-    /* =========================
-       STATUS
-    ========================== */
-
-    function showStatus(
-      message
-    ) {
-
-      const box =
-        document.getElementById(
-          "status"
-        );
-
-      box.textContent =
-        message;
-
-      box.style.display =
-        "block";
-
-    }
-
-
-    function hideStatus() {
-
-      const box =
-        document.getElementById(
-          "status"
-        );
-
-      box.textContent =
-        "";
-
-      box.style.display =
-        "none";
-
-    }
-
-
-    /* =========================
-       LOGOUT
-    ========================== */
-
-    async function logout() {
-
-      const token =
-        getToken();
-
-
-      try {
-
-        if (token) {
-
-          await fetch(
-            "/api/admin/logout",
-            {
-
-              method: "POST",
-
-              headers: {
-
-                "Authorization":
-                  "Bearer " +
-                  token
-
-              }
-
-            }
-          );
-
-        }
-
-      } catch (error) {
-
-        console.error(
-          error
-        );
-
-      }
-
-
-      localStorage.removeItem(
-        "earnnest_user"
-      );
-
-      localStorage.removeItem(
-        "earnnest_token"
-      );
-
-
-      window.location.href =
-        "/";
-
-    }
-
-
-    /* =========================
-       START
-    ========================== */
-
-    (async function() {
-
-      const allowed =
-        await checkAdmin();
-
-      if (allowed) {
-
-        await loadDashboard();
-
-      }
-
-    })();
-
+    loadDashboard();
   </script>
 
 </body>
-
 </html>
