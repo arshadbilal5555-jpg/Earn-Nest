@@ -87,3 +87,17 @@ After deploying the backend to your real HTTPS domain, use:
 - Support email: `support@earnnest.app` (change it in the app/legal pages if you use a different address)
 
 The exact URLs must be publicly reachable without login.
+
+
+## KYC release requirements
+
+- Users submit legal name, ID type/number, and identity documents.
+- CNIC submissions require front and back documents; passport submissions require the front document.
+- Documents are encrypted before storage when `KYC_ENCRYPTION_KEY` is configured.
+- Admin → KYC Review can view submitted documents and approve/reject with a note.
+- Set `KYC_ENCRYPTION_KEY` to a long random secret in the production environment and never commit it to Git.
+- Keep `kyc_required_for_withdrawal=true` unless your actual compliance/payment workflow permits otherwise.
+
+## Important backend deployment note
+
+The included backend currently uses Node's built-in SQLite for zero-dependency local testing. Do **not** use that SQLite file as the permanent wallet/KYC database on Vercel, because serverless storage is not a suitable persistent production database. For the live app, connect the backend to the PostgreSQL production schema (or host the SQLite backend only on infrastructure with a persistent disk). The Play Store APK/AAB can be built only after the live HTTPS API and production secrets are configured.

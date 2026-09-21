@@ -101,3 +101,7 @@ After deploying the backend/domain, publish these public pages:
 - `/delete-account.html` — external account deletion request
 
 Set the same HTTPS domain in `mobile/www/config.js` before creating the Android release.
+
+
+## Production deployment note
+The included SQLite backend is intended for local/testing use. For production wallets, withdrawals and KYC data, deploy with a persistent database/backend and configure all required environment secrets before Play Store release.
