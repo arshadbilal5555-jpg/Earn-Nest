@@ -4,12 +4,11 @@ const crypto = require('crypto');
 
 const users = new Map();
 const resetCodes = new Map();
+const adminSessions = new Map();
 
-/*
-  Admin credentials Vercel Environment Variables se li jayengi:
-  ADMIN_EMAIL
-  ADMIN_PASSWORD
-*/
+/* =========================
+   ADMIN
+========================= */
 
 const ADMIN_EMAIL = String(
   process.env.ADMIN_EMAIL || 'admin@earnnest.com'
@@ -18,6 +17,10 @@ const ADMIN_EMAIL = String(
 const ADMIN_PASSWORD = String(
   process.env.ADMIN_PASSWORD || ''
 );
+
+/* =========================
+   DEFAULT ADMIN
+========================= */
 
 users.set(ADMIN_EMAIL, {
   id: 'admin-001',
@@ -31,68 +34,90 @@ users.set(ADMIN_EMAIL, {
   createdAt: new Date().toISOString()
 });
 
-
 /* =========================
-   RESPONSE HELPER
+   RESPONSE
 ========================= */
 
 function send(res, status, data) {
   res.statusCode = status;
 
-  res.setHeader('Content-Type', 'application/json');
-  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader(
+    'Content-Type',
+    'application/json'
+  );
+
+  res.setHeader(
+    'Access-Control-Allow-Origin',
+    '*'
+  );
+
   res.setHeader(
     'Access-Control-Allow-Methods',
     'GET,POST,OPTIONS'
   );
+
   res.setHeader(
     'Access-Control-Allow-Headers',
-    'Content-Type'
+    'Content-Type, Authorization'
   );
 
   return res.end(JSON.stringify(data));
 }
 
-
 /* =========================
-   REQUEST BODY
+   BODY
 ========================= */
 
 function readBody(req) {
   return new Promise((resolve, reject) => {
+
     let body = '';
 
     req.on('data', chunk => {
+
       body += chunk;
 
       if (body.length > 1024 * 1024) {
-        reject(new Error('Request too large'));
+
+        reject(
+          new Error('Request too large')
+        );
+
         req.destroy();
       }
     });
 
     req.on('end', () => {
+
       if (!body) {
         return resolve({});
       }
 
       try {
+
         resolve(JSON.parse(body));
-      } catch (error) {
-        reject(new Error('Invalid JSON'));
+
+      } catch {
+
+        reject(
+          new Error('Invalid JSON')
+        );
+
       }
+
     });
 
     req.on('error', reject);
+
   });
 }
 
-
 /* =========================
-   PUBLIC USER DATA
+   PUBLIC USER
 ========================= */
 
 function publicUser(user) {
+
   return {
     id: user.id,
     name: user.name,
@@ -102,15 +127,15 @@ function publicUser(user) {
     role: user.role,
     coins: user.coins
   };
-}
 
+}
 
 /* =========================
    FIND USER
-   Email OR Username
 ========================= */
 
 function findUser(login) {
+
   const value = String(login || '')
     .trim()
     .toLowerCase();
@@ -120,34 +145,102 @@ function findUser(login) {
   }
 
   for (const user of users.values()) {
+
     if (
       user.email.toLowerCase() === value ||
       String(user.username || '').toLowerCase() === value
     ) {
+
       return user;
+
     }
+
   }
 
   return null;
 }
 
-
 /* =========================
-   RESEND EMAIL
+   ADMIN TOKEN
 ========================= */
 
-async function sendResetEmail(email, code) {
-  const apiKey = process.env.RESEND_API_KEY;
-  const from = process.env.EMAIL_FROM;
+function getBearerToken(req) {
+
+  const authorization =
+    req.headers.authorization || '';
+
+  if (!authorization.startsWith('Bearer ')) {
+    return '';
+  }
+
+  return authorization.substring(7).trim();
+}
+
+/* =========================
+   ADMIN SESSION
+========================= */
+
+function getAdminSession(req) {
+
+  const token =
+    getBearerToken(req);
+
+  if (!token) {
+    return null;
+  }
+
+  const session =
+    adminSessions.get(token);
+
+  if (!session) {
+    return null;
+  }
 
   /*
-    Agar Resend configured nahi hai to testing ke liye
-    code server log mein available hoga.
+    Session expiry:
+    24 hours
+  */
+
+  const age =
+    Date.now() - session.createdAt;
+
+  if (age > 24 * 60 * 60 * 1000) {
+
+    adminSessions.delete(token);
+
+    return null;
+  }
+
+  return {
+    token,
+    ...session
+  };
+}
+
+/* =========================
+   RESEND
+========================= */
+
+async function sendResetEmail(
+  email,
+  code
+) {
+
+  const apiKey =
+    process.env.RESEND_API_KEY;
+
+  const from =
+    process.env.EMAIL_FROM;
+
+  /*
+    Testing mode if Resend
+    is not configured.
   */
 
   if (!apiKey || !from) {
+
     console.log(
-      `EarnNest password reset code for ${email}: ${code}`
+      `EarnNest reset code for ${email}: ${code}`
     );
 
     return {
@@ -156,51 +249,68 @@ async function sendResetEmail(email, code) {
     };
   }
 
-  const response = await fetch(
-    'https://api.resend.com/emails',
-    {
-      method: 'POST',
+  const response =
+    await fetch(
+      'https://api.resend.com/emails',
+      {
+        method: 'POST',
 
-      headers: {
-        'Authorization': `Bearer ${apiKey}`,
-        'Content-Type': 'application/json'
-      },
+        headers: {
+          'Authorization':
+            `Bearer ${apiKey}`,
 
-      body: JSON.stringify({
-        from: from,
-        to: [email],
-        subject: 'EarnNest Password Reset Code',
+          'Content-Type':
+            'application/json'
+        },
 
-        html: `
-          <div style="font-family:Arial,sans-serif">
-            <h2>EarnNest</h2>
+        body: JSON.stringify({
 
-            <p>You requested a password reset.</p>
+          from: from,
 
-            <p>Your verification code is:</p>
+          to: [email],
 
-            <h1 style="letter-spacing:5px">
-              ${code}
-            </h1>
+          subject:
+            'EarnNest Password Reset Code',
 
-            <p>
-              This code will expire in 10 minutes.
-            </p>
+          html: `
+            <div style="font-family:Arial,sans-serif">
+              <h2>EarnNest</h2>
 
-            <p>
-              If you did not request this, you can ignore this email.
-            </p>
-          </div>
-        `
-      })
-    }
-  );
+              <p>
+                You requested a password reset.
+              </p>
+
+              <p>
+                Your verification code is:
+              </p>
+
+              <h1 style="letter-spacing:5px">
+                ${code}
+              </h1>
+
+              <p>
+                This code expires in 10 minutes.
+              </p>
+
+              <p>
+                If you did not request this,
+                you can ignore this email.
+              </p>
+            </div>
+          `
+
+        })
+
+      }
+    );
 
   if (!response.ok) {
-    const errorText = await response.text();
+
+    const errorText =
+      await response.text();
 
     console.error(
-      'Resend email error:',
+      'Resend error:',
       errorText
     );
 
@@ -215,18 +325,18 @@ async function sendResetEmail(email, code) {
   };
 }
 
-
 /* =========================
-   MAIN API
+   API
 ========================= */
 
 module.exports = async (req, res) => {
 
-  /*
-    CORS preflight
-  */
+  /* =========================
+     OPTIONS
+  ========================== */
 
   if (req.method === 'OPTIONS') {
+
     res.statusCode = 204;
 
     res.setHeader(
@@ -241,141 +351,235 @@ module.exports = async (req, res) => {
 
     res.setHeader(
       'Access-Control-Allow-Headers',
-      'Content-Type'
+      'Content-Type, Authorization'
     );
 
     return res.end();
   }
 
-
-  const path = req.url.split('?')[0];
-
+  const path =
+    req.url.split('?')[0];
 
   /* =========================
-     HEALTH CHECK
-  ========================= */
+     HEALTH
+  ========================== */
 
   if (
     req.method === 'GET' &&
     path === '/api/health'
   ) {
-    return send(res, 200, {
-      success: true,
-      ok: true,
-      service: 'EarnNest API',
-      status: 'running'
-    });
-  }
 
+    return send(res, 200, {
+
+      success: true,
+
+      ok: true,
+
+      service:
+        'EarnNest API',
+
+      status:
+        'running'
+
+    });
+
+  }
 
   /* =========================
      LOGIN
-  ========================= */
+  ========================== */
 
   if (
     req.method === 'POST' &&
     path === '/api/login'
   ) {
+
     try {
-      const body = await readBody(req);
 
-      const login = String(
-        body.email ||
-        body.username ||
-        body.login ||
-        ''
-      ).trim();
+      const body =
+        await readBody(req);
 
-      const password = String(
-        body.password || ''
-      );
+      const login =
+        String(
+          body.email ||
+          body.username ||
+          body.login ||
+          ''
+        ).trim();
+
+      const password =
+        String(
+          body.password || ''
+        );
 
       if (!login || !password) {
+
         return send(res, 400, {
+
           success: false,
-          error: 'Email/Username and password are required',
-          message: 'Email/Username and password are required'
+
+          error:
+            'Email/Username and password are required',
+
+          message:
+            'Email/Username and password are required'
+
         });
+
       }
 
-      const user = findUser(login);
+      const user =
+        findUser(login);
 
       if (!user) {
+
         return send(res, 401, {
+
           success: false,
-          error: 'Invalid email/username or password',
-          message: 'Invalid email/username or password'
+
+          error:
+            'Invalid email/username or password',
+
+          message:
+            'Invalid email/username or password'
+
         });
+
       }
 
-      if (user.password !== password) {
+      if (
+        user.password !== password
+      ) {
+
         return send(res, 401, {
+
           success: false,
-          error: 'Invalid email/username or password',
-          message: 'Invalid email/username or password'
+
+          error:
+            'Invalid email/username or password',
+
+          message:
+            'Invalid email/username or password'
+
         });
+
+      }
+
+      /*
+        Generate session token
+      */
+
+      const token =
+        crypto.randomUUID();
+
+      /*
+        Save admin session
+      */
+
+      if (
+        user.role === 'admin'
+      ) {
+
+        adminSessions.set(
+          token,
+          {
+            email: user.email,
+            userId: user.id,
+            role: user.role,
+            createdAt: Date.now()
+          }
+        );
+
       }
 
       return send(res, 200, {
+
         success: true,
-        message: 'Login successful',
 
-        token: crypto.randomUUID(),
+        message:
+          'Login successful',
 
-        user: publicUser(user)
+        token,
+
+        user:
+          publicUser(user)
+
       });
 
     } catch (error) {
-      console.error('Login error:', error);
+
+      console.error(
+        'Login error:',
+        error
+      );
 
       return send(res, 400, {
-        success: false,
-        error: error.message || 'Login request failed',
-        message: error.message || 'Login request failed'
-      });
-    }
-  }
 
+        success: false,
+
+        error:
+          error.message ||
+          'Login request failed',
+
+        message:
+          error.message ||
+          'Login request failed'
+
+      });
+
+    }
+
+  }
 
   /* =========================
      REGISTER
-  ========================= */
+  ========================== */
 
   if (
     req.method === 'POST' &&
     path === '/api/register'
   ) {
+
     try {
-      const body = await readBody(req);
 
-      const name = String(
-        body.name || ''
-      ).trim();
+      const body =
+        await readBody(req);
 
-      const username = String(
-        body.username || ''
-      ).trim().toLowerCase();
+      const name =
+        String(
+          body.name || ''
+        ).trim();
 
-      const email = String(
-        body.email || ''
-      ).trim().toLowerCase();
+      const username =
+        String(
+          body.username || ''
+        )
+        .trim()
+        .toLowerCase();
 
-      const phone = String(
-        body.phone || ''
-      ).trim();
+      const email =
+        String(
+          body.email || ''
+        )
+        .trim()
+        .toLowerCase();
 
-      const password = String(
-        body.password || ''
-      );
+      const phone =
+        String(
+          body.phone || ''
+        ).trim();
 
-      const confirmPassword = String(
-        body.confirmPassword ||
-        body.confirm_password ||
-        ''
-      );
+      const password =
+        String(
+          body.password || ''
+        );
 
-
-      /* Required fields */
+      const confirmPassword =
+        String(
+          body.confirmPassword ||
+          body.confirm_password ||
+          ''
+        );
 
       if (
         !name ||
@@ -385,226 +589,315 @@ module.exports = async (req, res) => {
         !password ||
         !confirmPassword
       ) {
+
         return send(res, 400, {
+
           success: false,
-          error: 'All fields are required',
-          message: 'All fields are required'
+
+          error:
+            'All fields are required',
+
+          message:
+            'All fields are required'
+
         });
+
       }
-
-
-      /* Name */
 
       if (name.length < 2) {
+
         return send(res, 400, {
+
           success: false,
-          error: 'Please enter your full name',
-          message: 'Please enter your full name'
-        });
-      }
 
-
-      /* Username */
-
-      if (!/^[a-zA-Z0-9_.-]{3,30}$/.test(username)) {
-        return send(res, 400, {
-          success: false,
           error:
-            'Username must be 3-30 characters and contain only letters, numbers, underscore, dot or hyphen',
+            'Please enter your full name',
+
           message:
-            'Username must be 3-30 characters and contain only letters, numbers, underscore, dot or hyphen'
+            'Please enter your full name'
+
         });
+
       }
-
-
-      /* Email */
 
       if (
-        !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+        !/^[a-zA-Z0-9_.-]{3,30}$/
+          .test(username)
       ) {
+
         return send(res, 400, {
+
           success: false,
-          error: 'Please enter a valid email address',
-          message: 'Please enter a valid email address'
+
+          error:
+            'Username must be 3-30 characters and contain only letters, numbers, underscore, dot or hyphen',
+
+          message:
+            'Username must be 3-30 characters and contain only letters, numbers, underscore, dot or hyphen'
+
         });
+
       }
 
+      if (
+        !/^[^\s@]+@[^\s@]+\.[^\s@]+$/
+          .test(email)
+      ) {
 
-      /* Phone */
+        return send(res, 400, {
+
+          success: false,
+
+          error:
+            'Please enter a valid email address',
+
+          message:
+            'Please enter a valid email address'
+
+        });
+
+      }
 
       if (phone.length < 7) {
+
         return send(res, 400, {
+
           success: false,
-          error: 'Please enter a valid phone number',
-          message: 'Please enter a valid phone number'
+
+          error:
+            'Please enter a valid phone number',
+
+          message:
+            'Please enter a valid phone number'
+
         });
+
       }
-
-
-      /* Password */
 
       if (password.length < 6) {
+
         return send(res, 400, {
+
           success: false,
+
           error:
             'Password must be at least 6 characters',
+
           message:
             'Password must be at least 6 characters'
+
         });
+
       }
 
+      if (
+        password !==
+        confirmPassword
+      ) {
 
-      /* Confirm Password */
-
-      if (password !== confirmPassword) {
         return send(res, 400, {
+
           success: false,
-          error: 'Passwords do not match',
-          message: 'Passwords do not match'
+
+          error:
+            'Passwords do not match',
+
+          message:
+            'Passwords do not match'
+
         });
+
       }
-
-
-      /* Email already exists */
 
       if (users.has(email)) {
+
         return send(res, 409, {
+
           success: false,
-          error: 'Email already registered',
-          message: 'Email already registered'
+
+          error:
+            'Email already registered',
+
+          message:
+            'Email already registered'
+
         });
+
       }
 
+      for (
+        const existingUser
+        of users.values()
+      ) {
 
-      /* Username already exists */
-
-      for (const existingUser of users.values()) {
         if (
-          String(existingUser.username || '')
-            .toLowerCase() === username
+          String(
+            existingUser.username || ''
+          ).toLowerCase() === username
         ) {
+
           return send(res, 409, {
+
             success: false,
-            error: 'Username already taken',
-            message: 'Username already taken'
+
+            error:
+              'Username already taken',
+
+            message:
+              'Username already taken'
+
           });
+
         }
+
       }
-
-
-      /* Create user */
 
       const user = {
-        id: crypto.randomUUID(),
+
+        id:
+          crypto.randomUUID(),
 
         name,
+
         username,
+
         email,
+
         phone,
 
         password,
 
-        role: 'user',
+        role:
+          'user',
 
-        coins: 0,
+        coins:
+          0,
 
-        createdAt: new Date().toISOString()
+        createdAt:
+          new Date().toISOString()
+
       };
 
-
-      users.set(email, user);
-
+      users.set(
+        email,
+        user
+      );
 
       return send(res, 201, {
+
         success: true,
 
         message:
           'Account created successfully',
 
-        user: publicUser(user)
+        user:
+          publicUser(user)
+
       });
 
     } catch (error) {
+
       console.error(
-        'Registration error:',
+        'Register error:',
         error
       );
 
       return send(res, 400, {
+
         success: false,
+
         error:
           error.message ||
           'Registration failed',
+
         message:
           error.message ||
           'Registration failed'
-      });
-    }
-  }
 
+      });
+
+    }
+
+  }
 
   /* =========================
      FORGOT PASSWORD
-  ========================= */
+  ========================== */
 
   if (
     req.method === 'POST' &&
     path === '/api/forgot-password'
   ) {
+
     try {
-      const body = await readBody(req);
 
-      const email = String(
-        body.email || ''
-      ).trim().toLowerCase();
+      const body =
+        await readBody(req);
 
+      const email =
+        String(
+          body.email || ''
+        )
+        .trim()
+        .toLowerCase();
 
       if (!email) {
+
         return send(res, 400, {
+
           success: false,
-          error: 'Email is required',
-          message: 'Email is required'
+
+          error:
+            'Email is required',
+
+          message:
+            'Email is required'
+
         });
+
       }
 
-
-      const user = users.get(email);
-
+      const user =
+        users.get(email);
 
       /*
-        Security:
-        Don't reveal whether email exists.
+        Don't reveal whether
+        account exists.
       */
 
       if (!user) {
+
         return send(res, 200, {
+
           success: true,
+
           message:
             'If this email is registered, a reset code has been sent.'
+
         });
+
       }
 
-
-      /* Generate 6 digit code */
-
-      const code = String(
-        Math.floor(
-          100000 +
-          Math.random() * 900000
-        )
-      );
-
+      const code =
+        String(
+          Math.floor(
+            100000 +
+            Math.random() *
+            900000
+          )
+        );
 
       const expiresAt =
         Date.now() +
         10 * 60 * 1000;
 
-
-      resetCodes.set(email, {
-        code,
-        expiresAt
-      });
-
+      resetCodes.set(
+        email,
+        {
+          code,
+          expiresAt
+        }
+      );
 
       const result =
         await sendResetEmail(
@@ -612,27 +905,26 @@ module.exports = async (req, res) => {
           code
         );
 
-
       const response = {
+
         success: true,
 
         message:
           'Password reset code sent to your email'
+
       };
 
+      if (
+        result.testing
+      ) {
 
-      /*
-        Only useful for testing if Resend
-        is not configured.
-      */
-
-      if (result.testing) {
-        response.testingCode = code;
+        response.testingCode =
+          code;
 
         response.message =
-          'Reset code generated for testing. Check Vercel logs.';
-      }
+          'Reset code generated for testing.';
 
+      }
 
       return send(
         res,
@@ -641,55 +933,69 @@ module.exports = async (req, res) => {
       );
 
     } catch (error) {
+
       console.error(
         'Forgot password error:',
         error
       );
 
       return send(res, 500, {
+
         success: false,
+
         error:
           error.message ||
           'Unable to send reset code',
+
         message:
           error.message ||
           'Unable to send reset code'
-      });
-    }
-  }
 
+      });
+
+    }
+
+  }
 
   /* =========================
      RESET PASSWORD
-  ========================= */
+  ========================== */
 
   if (
     req.method === 'POST' &&
     path === '/api/reset-password'
   ) {
+
     try {
-      const body = await readBody(req);
 
-      const email = String(
-        body.email || ''
-      ).trim().toLowerCase();
+      const body =
+        await readBody(req);
 
-      const code = String(
-        body.code || ''
-      ).trim();
+      const email =
+        String(
+          body.email || ''
+        )
+        .trim()
+        .toLowerCase();
 
-      const newPassword = String(
-        body.newPassword ||
-        body.password ||
-        ''
-      );
+      const code =
+        String(
+          body.code || ''
+        ).trim();
 
-      const confirmPassword = String(
-        body.confirmPassword ||
-        body.confirm_password ||
-        ''
-      );
+      const newPassword =
+        String(
+          body.newPassword ||
+          body.password ||
+          ''
+        );
 
+      const confirmPassword =
+        String(
+          body.confirmPassword ||
+          body.confirm_password ||
+          ''
+        );
 
       if (
         !email ||
@@ -697,129 +1003,321 @@ module.exports = async (req, res) => {
         !newPassword ||
         !confirmPassword
       ) {
+
         return send(res, 400, {
+
           success: false,
-          error: 'All fields are required',
-          message: 'All fields are required'
+
+          error:
+            'All fields are required',
+
+          message:
+            'All fields are required'
+
         });
+
       }
 
+      if (
+        newPassword.length < 6
+      ) {
 
-      if (newPassword.length < 6) {
         return send(res, 400, {
+
           success: false,
+
           error:
             'Password must be at least 6 characters',
+
           message:
             'Password must be at least 6 characters'
+
         });
+
       }
 
+      if (
+        newPassword !==
+        confirmPassword
+      ) {
 
-      if (newPassword !== confirmPassword) {
         return send(res, 400, {
-          success: false,
-          error: 'Passwords do not match',
-          message: 'Passwords do not match'
-        });
-      }
 
+          success: false,
+
+          error:
+            'Passwords do not match',
+
+          message:
+            'Passwords do not match'
+
+        });
+
+      }
 
       const resetData =
         resetCodes.get(email);
 
-
       if (!resetData) {
+
         return send(res, 400, {
+
           success: false,
+
           error:
             'Reset code not found or expired',
+
           message:
             'Reset code not found or expired'
-        });
-      }
 
+        });
+
+      }
 
       if (
         Date.now() >
         resetData.expiresAt
       ) {
+
         resetCodes.delete(email);
 
         return send(res, 400, {
-          success: false,
-          error: 'Reset code has expired',
-          message: 'Reset code has expired'
-        });
-      }
 
+          success: false,
+
+          error:
+            'Reset code has expired',
+
+          message:
+            'Reset code has expired'
+
+        });
+
+      }
 
       if (
         resetData.code !== code
       ) {
+
         return send(res, 400, {
+
           success: false,
-          error: 'Invalid reset code',
-          message: 'Invalid reset code'
+
+          error:
+            'Invalid reset code',
+
+          message:
+            'Invalid reset code'
+
         });
+
       }
 
-
-      const user = users.get(email);
-
+      const user =
+        users.get(email);
 
       if (!user) {
+
         resetCodes.delete(email);
 
         return send(res, 400, {
-          success: false,
-          error: 'Account not found',
-          message: 'Account not found'
-        });
-      }
 
+          success: false,
+
+          error:
+            'Account not found',
+
+          message:
+            'Account not found'
+
+        });
+
+      }
 
       user.password =
         newPassword;
 
-
       resetCodes.delete(email);
 
-
       return send(res, 200, {
+
         success: true,
 
         message:
           'Password reset successfully'
+
       });
 
     } catch (error) {
+
       console.error(
         'Reset password error:',
         error
       );
 
       return send(res, 400, {
+
         success: false,
+
         error:
           error.message ||
           'Password reset failed',
+
         message:
           error.message ||
           'Password reset failed'
+
       });
+
     }
+
   }
 
+  /* =========================
+     ADMIN STATS
+  ========================== */
+
+  if (
+    req.method === 'GET' &&
+    path === '/api/admin/stats'
+  ) {
+
+    const session =
+      getAdminSession(req);
+
+    if (!session) {
+
+      return send(res, 401, {
+
+        success: false,
+
+        error:
+          'Unauthorized admin access',
+
+        message:
+          'Unauthorized admin access'
+
+      });
+
+    }
+
+    if (
+      session.role !== 'admin' ||
+      session.email !== ADMIN_EMAIL
+    ) {
+
+      return send(res, 403, {
+
+        success: false,
+
+        error:
+          'Admin access denied',
+
+        message:
+          'Admin access denied'
+
+      });
+
+    }
+
+    const allUsers =
+      Array.from(users.values());
+
+    const normalUsers =
+      allUsers.filter(
+        user =>
+          user.role !== 'admin'
+      );
+
+    let totalCoins = 0;
+
+    normalUsers.forEach(
+      user => {
+
+        totalCoins +=
+          Number(
+            user.coins || 0
+          );
+
+      }
+    );
+
+    return send(res, 200, {
+
+      success: true,
+
+      stats: {
+
+        totalUsers:
+          normalUsers.length,
+
+        totalCoins:
+          totalCoins,
+
+        totalWithdrawals:
+          0,
+
+        pendingKyc:
+          0
+
+      },
+
+      users:
+        normalUsers.map(
+          publicUser
+        )
+
+    });
+
+  }
+
+  /* =========================
+     ADMIN LOGOUT
+  ========================== */
+
+  if (
+    req.method === 'POST' &&
+    path === '/api/admin/logout'
+  ) {
+
+    const token =
+      getBearerToken(req);
+
+    if (token) {
+
+      adminSessions.delete(
+        token
+      );
+
+    }
+
+    return send(res, 200, {
+
+      success: true,
+
+      message:
+        'Admin logged out successfully'
+
+    });
+
+  }
 
   /* =========================
      404
-  ========================= */
+  ========================== */
 
   return send(res, 404, {
+
     success: false,
-    error: 'API endpoint not found',
-    message: 'API endpoint not found',
+
+    error:
+      'API endpoint not found',
+
+    message:
+      'API endpoint not found',
+
     path
+
   });
+
 };
