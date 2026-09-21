@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <meta
+    name="theme-color"
+    content="#2563eb"
+  >
+
+  <title>EarnNest Admin Dashboard</title>
+
+  <style>
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f5f7fb;
+      color: #1f2937;
+    }
+
+    .header {
+      background: #2563eb;
+      color: white;
+      padding: 18px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 15px;
+    }
+
+    .header h1 {
+      margin: 0;
+      font-size: 24px;
+    }
+
+    .header small {
+      opacity: .9;
+    }
+
+    .logout {
+      width: auto;
+      margin: 0;
+      padding: 10px 18px;
+      background: #dc2626;
+    }
+
+    .logout:hover {
+      background: #b91c1c;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 30px auto;
+      padding: 0 20px;
+    }
+
+    .welcome {
+      background: white;
+      padding: 20px;
+      border-radius: 14px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 18px rgba(0,0,0,.06);
+    }
+
+    .welcome h2 {
+      margin: 0 0 5px;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns:
+        repeat(4, minmax(0, 1fr));
+
+      gap: 18px;
+      margin-bottom: 25px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 14px;
+      padding: 22px;
+      box-shadow: 0 4px 18px rgba(0,0,0,.06);
+    }
+
+    .stat-title {
+      color: #6b7280;
+      font-size: 14px;
+      margin-bottom: 10px;
+    }
+
+    .stat-value {
+      font-size: 30px;
+      font-weight: bold;
+    }
+
+    .section {
+      background: white;
+      border-radius: 14px;
+      padding: 22px;
+      box-shadow: 0 4px 18px rgba(0,0,0,.06);
+      margin-bottom: 25px;
+    }
+
+    .section h2 {
+      margin-top: 0;
+    }
+
+    .table-wrapper {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 700px;
+    }
+
+    th,
+    td {
+      text-align: left;
+      padding: 12px;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    th {
+      background: #f9fafb;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 5px 9px;
+      border-radius: 20px;
+      font-size: 12px;
+      background: #dbeafe;
+      color: #1d4ed8;
+    }
+
+    .status {
+      margin-bottom: 20px;
+      padding: 12px;
+      border-radius: 8px;
+      background: #eff6ff;
+      color: #1e40af;
+      display: none;
+    }
+
+    .refresh {
+      width: auto;
+      padding: 10px 18px;
+      margin: 0 0 15px;
+    }
+
+    .empty {
+      text-align: center;
+      padding: 25px;
+      color: #6b7280;
+    }
+
+    @media (max-width: 900px) {
+
+      .cards {
+        grid-template-columns:
+          repeat(2, minmax(0, 1fr));
+      }
+
+    }
+
+    @media (max-width: 600px) {
+
+      .header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .logout {
+        width: 100%;
+      }
+
+      .cards {
+        grid-template-columns: 1fr;
+      }
+
+      .container {
+        padding: 0 12px;
+      }
+
+    }
+
+  </style>
+
+</head>
+
+
+<body>
+
+
+  <!-- HEADER -->
+
+  <div class="header">
+
+    <div>
+
+      <h1>EarnNest Admin</h1>
+
+      <small>
+        Administration Dashboard
+      </small>
+
+    </div>
+
+    <button
+      class="logout"
+      onclick="logout()"
+    >
+      Logout
+    </button>
+
+  </div>
+
+
+  <!-- MAIN -->
+
+  <div class="container">
+
+
+    <!-- WELCOME -->
+
+    <div class="welcome">
+
+      <h2 id="adminName">
+        Admin Dashboard
+      </h2>
+
+      <div id="adminEmail">
+        Loading...
+      </div>
+
+    </div>
+
+
+    <!-- STATUS -->
+
+    <div
+      id="status"
+      class="status"
+    ></div>
+
+
+    <!-- STATS -->
+
+    <div class="cards">
+
+
+      <div class="card">
+
+        <div class="stat-title">
+          Total Users
+        </div>
+
+        <div
+          id="totalUsers"
+          class="stat-value"
+        >
+          0
+        </div>
+
+      </div>
+
+
+      <div class="card">
+
+        <div class="stat-title">
+          Total Coins
+        </div>
+
+        <div
+          id="totalCoins"
+          class="stat-value"
+        >
+          0
+        </div>
+
+      </div>
+
+
+      <div class="card">
+
+        <div class="stat-title">
+          Withdrawals
+        </div>
+
+        <div
+          id="totalWithdrawals"
+          class="stat-value"
+        >
+          0
+        </div>
+
+      </div>
+
+
+      <div class="card">
+
+        <div class="stat-title">
+          Pending KYC
+        </div>
+
+        <div
+          id="pendingKyc"
+          class="stat-value"
+        >
+          0
+        </div>
+
+      </div>
+
+
+    </div>
+
+
+    <!-- USERS -->
+
+    <div class="section">
+
+      <h2>
+        Users
+      </h2>
+
+      <button
+        class="refresh"
+        onclick="loadDashboard()"
+      >
+        Refresh
+      </button>
+
+      <div class="table-wrapper">
+
+        <table>
+
+          <thead>
+
+            <tr>
+
+              <th>
+                Name
+              </th>
+
+              <th>
+                Username
+              </th>
+
+              <th>
+                Email
+              </th>
+
+              <th>
+                Phone
+              </th>
+
+              <th>
+                Role
+              </th>
+
+              <th>
+                Coins
+              </th>
+
+            </tr>
+
+          </thead>
+
+          <tbody id="usersTable">
+
+            <tr>
+
+              <td
+                colspan="6"
+                class="empty"
+              >
+                Loading users...
+              </td>
+
+            </tr>
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+    </div>
+
+
+  </div>
+
+
+  <script>
+
+
+    /* =========================
+       AUTH CHECK
+    ========================== */
+
+    function getUser() {
+
+      try {
+
+        return JSON.parse(
+          localStorage.getItem(
+            "earnnest_user"
+          )
+        );
+
+      } catch (error) {
+
+        return null;
+
+      }
+    }
+
+
+    function getToken() {
+
+      return localStorage.getItem(
+        "earnnest_token"
+      );
+
+    }
+
+
+    /* =========================
+       ADMIN CHECK
+    ========================== */
+
+    async function checkAdmin() {
+
+      const user =
+        getUser();
+
+      const token =
+        getToken();
+
+
+      if (!user || !token) {
+
+        window.location.href = "/";
+
+        return false;
+      }
+
+
+      if (user.role !== "admin") {
+
+        alert(
+          "Admin access required."
+        );
+
+        window.location.href = "/";
+
+        return false;
+      }
+
+
+      document.getElementById(
+        "adminName"
+      ).textContent =
+        "Welcome, " +
+        (user.name || "Admin");
+
+
+      document.getElementById(
+        "adminEmail"
+      ).textContent =
+        user.email || "";
+
+
+      /*
+        Server-side verification
+      */
+
+      try {
+
+        const response =
+          await fetch(
+            "/api/admin/stats",
+            {
+
+              method: "GET",
+
+              headers: {
+
+                "Authorization":
+                  "Bearer " + token
+
+              }
+
+            }
+          );
+
+
+        if (response.status === 401 ||
+            response.status === 403) {
+
+          localStorage.removeItem(
+            "earnnest_user"
+          );
+
+          localStorage.removeItem(
+            "earnnest_token"
+          );
+
+          window.location.href = "/";
+
+          return false;
+        }
+
+
+        return true;
+
+
+      } catch (error) {
+
+        console.error(
+          "Admin verification error:",
+          error
+        );
+
+        showStatus(
+          "Unable to verify admin account."
+        );
+
+        return false;
+
+      }
+
+    }
+
+
+    /* =========================
+       LOAD DASHBOARD
+    ========================== */
+
+    async function loadDashboard() {
+
+      const token =
+        getToken();
+
+
+      if (!token) {
+
+        window.location.href = "/";
+
+        return;
+      }
+
+
+      showStatus(
+        "Loading dashboard..."
+      );
+
+
+      try {
+
+        const response =
+          await fetch(
+            "/api/admin/stats",
+            {
+
+              method: "GET",
+
+              headers: {
+
+                "Authorization":
+                  "Bearer " + token
+
+              }
+
+            }
+          );
+
+
+        const data =
+          await response.json()
+            .catch(function() {
+              return {};
+            });
+
+
+        if (!response.ok) {
+
+          if (
+            response.status === 401 ||
+            response.status === 403
+          ) {
+
+            logout();
+
+            return;
+
+          }
+
+
+          showStatus(
+            data.error ||
+            data.message ||
+            "Unable to load dashboard."
+          );
+
+          return;
+        }
+
+
+        /*
+          Statistics
+        */
+
+        document.getElementById(
+          "totalUsers"
+        ).textContent =
+          data.stats.totalUsers || 0;
+
+
+        document.getElementById(
+          "totalCoins"
+        ).textContent =
+          data.stats.totalCoins || 0;
+
+
+        document.getElementById(
+          "totalWithdrawals"
+        ).textContent =
+          data.stats.totalWithdrawals || 0;
+
+
+        document.getElementById(
+          "pendingKyc"
+        ).textContent =
+          data.stats.pendingKyc || 0;
+
+
+        /*
+          Users
+        */
+
+        renderUsers(
+          data.users || []
+        );
+
+
+        hideStatus();
+
+
+      } catch (error) {
+
+        console.error(
+          "Dashboard error:",
+          error
+        );
+
+        showStatus(
+          "Unable to connect to server."
+        );
+
+      }
+
+    }
+
+
+    /* =========================
+       USERS TABLE
+    ========================== */
+
+    function renderUsers(users) {
+
+      const table =
+        document.getElementById(
+          "usersTable"
+        );
+
+
+      table.innerHTML = "";
+
+
+      if (!users.length) {
+
+        table.innerHTML = `
+          <tr>
+            <td
+              colspan="6"
+              class="empty"
+            >
+              No users found.
+            </td>
+          </tr>
+        `;
+
+        return;
+      }
+
+
+      users.forEach(function(user) {
+
+        const row =
+          document.createElement("tr");
+
+
+        row.innerHTML = `
+
+          <td>
+            ${escapeHtml(user.name || "-")}
+          </td>
+
+          <td>
+            ${escapeHtml(user.username || "-")}
+          </td>
+
+          <td>
+            ${escapeHtml(user.email || "-")}
+          </td>
+
+          <td>
+            ${escapeHtml(user.phone || "-")}
+          </td>
+
+          <td>
+            <span class="badge">
+              ${escapeHtml(user.role || "user")}
+            </span>
+          </td>
+
+          <td>
+            ${Number(user.coins || 0)}
+          </td>
+
+        `;
+
+
+        table.appendChild(row);
+
+      });
+
+    }
+
+
+    /* =========================
+       HTML SECURITY
+    ========================== */
+
+    function escapeHtml(value) {
+
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+
+    }
+
+
+    /* =========================
+       STATUS
+    ========================== */
+
+    function showStatus(message) {
+
+      const box =
+        document.getElementById(
+          "status"
+        );
+
+      box.textContent =
+        message;
+
+      box.style.display =
+        "block";
+
+    }
+
+
+    function hideStatus() {
+
+      const box =
+        document.getElementById(
+          "status"
+        );
+
+      box.textContent =
+        "";
+
+      box.style.display =
+        "none";
+
+    }
+
+
+    /* =========================
+       LOGOUT
+    ========================== */
+
+    function logout() {
+
+      localStorage.removeItem(
+        "earnnest_user"
+      );
+
+      localStorage.removeItem(
+        "earnnest_token"
+      );
+
+      window.location.href =
+        "/";
+
+    }
+
+
+    /* =========================
+       START
+    ========================== */
+
+    (async function() {
+
+      const allowed =
+        await checkAdmin();
+
+      if (allowed) {
+
+        await loadDashboard();
+
+      }
+
+    })();
+
+
+  </script>
+
+</body>
+
+</html>
