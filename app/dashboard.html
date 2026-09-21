@@ -1,259 +1,1722 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>EarnNest Dashboard</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EarnNest - Dashboard</title>
 
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+<style>
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+}
 
-    body {
-      font-family: Arial, sans-serif;
-      min-height: 100vh;
-      color: #fff;
-      background:
-        radial-gradient(circle at top left, #123c69 0%, transparent 35%),
-        radial-gradient(circle at bottom right, #182848 0%, transparent 40%),
-        linear-gradient(135deg, #06111f, #0b1728 55%, #06101d);
-    }
+:root{
+  --bg:#07111f;
+  --panel:#0d1b2d;
+  --panel2:#10243a;
+  --border:rgba(255,255,255,.09);
+  --text:#f5f9ff;
+  --muted:#91a4ba;
+  --primary:#20d9ff;
+  --primary2:#477cff;
+  --success:#36d399;
+  --warning:#ffc857;
+  --danger:#ff5c78;
+}
 
-    .header {
-      padding: 18px 25px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 1px solid rgba(255,255,255,.1);
-      background: rgba(5,15,28,.8);
-      backdrop-filter: blur(12px);
-    }
+body{
+  font-family:Inter,Arial,sans-serif;
+  background:
+    radial-gradient(circle at 10% 0%,rgba(32,217,255,.13),transparent 28%),
+    radial-gradient(circle at 90% 15%,rgba(71,124,255,.15),transparent 30%),
+    linear-gradient(145deg,#050c16,#071525 55%,#08101d);
+  color:var(--text);
+  min-height:100vh;
+}
 
-    .logo {
-      font-size: 24px;
-      font-weight: 800;
-      color: #4ddcff;
-    }
+button{
+  font-family:inherit;
+}
 
-    .logout {
-      border: 0;
-      padding: 10px 18px;
-      border-radius: 10px;
-      background: #ff4d67;
-      color: white;
-      cursor: pointer;
-      font-weight: bold;
-    }
+.app{
+  display:flex;
+  min-height:100vh;
+}
 
-    .container {
-      max-width: 1100px;
-      margin: auto;
-      padding: 35px 20px;
-    }
+/* SIDEBAR */
 
-    .welcome {
-      margin-bottom: 25px;
-    }
+.sidebar{
+  width:245px;
+  position:fixed;
+  left:0;
+  top:0;
+  bottom:0;
+  padding:22px 15px;
+  background:rgba(7,17,31,.94);
+  border-right:1px solid var(--border);
+  backdrop-filter:blur(20px);
+  z-index:20;
+}
 
-    .welcome h1 {
-      font-size: 32px;
-      margin-bottom: 8px;
-    }
+.brand{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:8px 12px 25px;
+  font-size:22px;
+  font-weight:800;
+}
 
-    .welcome p {
-      color: #aebdce;
-    }
+.logo{
+  width:42px;
+  height:42px;
+  display:grid;
+  place-items:center;
+  border-radius:13px;
+  background:linear-gradient(135deg,var(--primary),var(--primary2));
+  box-shadow:0 8px 25px rgba(32,217,255,.22);
+  font-size:22px;
+}
 
-    .cards {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 18px;
-      margin-bottom: 25px;
-    }
+.brand span{
+  color:var(--primary);
+}
 
-    .card,
-    .section {
-      background: rgba(255,255,255,.06);
-      border: 1px solid rgba(255,255,255,.1);
-      border-radius: 18px;
-      padding: 22px;
-      box-shadow: 0 15px 40px rgba(0,0,0,.2);
-    }
+.menu{
+  display:flex;
+  flex-direction:column;
+  gap:7px;
+}
 
-    .card h3 {
-      color: #9fb1c5;
-      font-size: 14px;
-      margin-bottom: 12px;
-    }
+.menu button{
+  width:100%;
+  border:0;
+  background:transparent;
+  color:var(--muted);
+  padding:13px 14px;
+  border-radius:12px;
+  text-align:left;
+  cursor:pointer;
+  font-size:14px;
+  font-weight:600;
+  transition:.2s;
+}
 
-    .number {
-      font-size: 30px;
-      font-weight: 800;
-      color: #4ddcff;
-    }
+.menu button:hover,
+.menu button.active{
+  background:linear-gradient(90deg,rgba(32,217,255,.14),rgba(71,124,255,.08));
+  color:#fff;
+}
 
-    .sections {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 18px;
-    }
+.menu-icon{
+  width:25px;
+  display:inline-block;
+}
 
-    .section h2 {
-      margin-bottom: 10px;
-      font-size: 20px;
-    }
+/* MAIN */
 
-    .section p {
-      color: #aebdce;
-      line-height: 1.6;
-    }
+.main{
+  margin-left:245px;
+  width:calc(100% - 245px);
+  min-height:100vh;
+}
 
-    #error {
-      display: none;
-      margin-bottom: 20px;
-      padding: 15px;
-      border-radius: 10px;
-      background: rgba(255,77,103,.15);
-      color: #ff8092;
-    }
+.topbar{
+  height:76px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:0 28px;
+  border-bottom:1px solid var(--border);
+  background:rgba(5,13,24,.72);
+  backdrop-filter:blur(20px);
+  position:sticky;
+  top:0;
+  z-index:10;
+}
 
-    @media(max-width: 750px) {
-      .cards,
-      .sections {
-        grid-template-columns: 1fr;
-      }
+.mobile-menu{
+  display:none;
+  border:0;
+  background:transparent;
+  color:#fff;
+  font-size:25px;
+  cursor:pointer;
+}
 
-      .welcome h1 {
-        font-size: 26px;
-      }
-    }
-  </style>
+.top-title{
+  font-size:18px;
+  font-weight:700;
+}
+
+.user-top{
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+
+.avatar{
+  width:40px;
+  height:40px;
+  border-radius:50%;
+  display:grid;
+  place-items:center;
+  background:linear-gradient(135deg,#20d9ff,#477cff);
+  color:#fff;
+  font-weight:800;
+}
+
+.logout{
+  border:1px solid rgba(255,92,120,.25);
+  background:rgba(255,92,120,.08);
+  color:#ff8ca0;
+  border-radius:9px;
+  padding:9px 13px;
+  cursor:pointer;
+}
+
+.content{
+  padding:28px;
+  max-width:1450px;
+  margin:auto;
+}
+
+/* SECTIONS */
+
+.page{
+  display:none;
+}
+
+.page.active{
+  display:block;
+}
+
+/* DASHBOARD */
+
+.hero{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:20px;
+  margin-bottom:25px;
+}
+
+.hero h1{
+  font-size:29px;
+  margin-bottom:7px;
+}
+
+.hero p{
+  color:var(--muted);
+}
+
+.hero-badge{
+  background:rgba(54,211,153,.1);
+  color:var(--success);
+  border:1px solid rgba(54,211,153,.2);
+  border-radius:20px;
+  padding:8px 14px;
+  font-size:13px;
+}
+
+.balance-card{
+  background:
+    radial-gradient(circle at 100% 0%,rgba(32,217,255,.28),transparent 38%),
+    linear-gradient(135deg,#102c45,#0b1930);
+  border:1px solid rgba(32,217,255,.18);
+  border-radius:22px;
+  padding:26px;
+  margin-bottom:20px;
+  box-shadow:0 20px 60px rgba(0,0,0,.22);
+}
+
+.balance-top{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.balance-label{
+  color:#a9bad0;
+  font-size:14px;
+}
+
+.balance{
+  font-size:42px;
+  font-weight:850;
+  margin:8px 0;
+}
+
+.balance span{
+  color:var(--primary);
+  font-size:20px;
+}
+
+.balance-sub{
+  color:#8fa8c1;
+  font-size:13px;
+}
+
+.withdraw-btn{
+  border:0;
+  padding:12px 18px;
+  border-radius:11px;
+  color:#03111c;
+  font-weight:800;
+  background:linear-gradient(135deg,var(--primary),#65a7ff);
+  cursor:pointer;
+}
+
+.stats{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:15px;
+  margin-bottom:25px;
+}
+
+.stat{
+  background:rgba(255,255,255,.045);
+  border:1px solid var(--border);
+  border-radius:17px;
+  padding:20px;
+}
+
+.stat-icon{
+  font-size:24px;
+  margin-bottom:13px;
+}
+
+.stat-title{
+  color:var(--muted);
+  font-size:13px;
+  margin-bottom:7px;
+}
+
+.stat-value{
+  font-size:23px;
+  font-weight:800;
+}
+
+.grid2{
+  display:grid;
+  grid-template-columns:1.4fr 1fr;
+  gap:18px;
+}
+
+.panel{
+  background:rgba(255,255,255,.045);
+  border:1px solid var(--border);
+  border-radius:18px;
+  padding:20px;
+}
+
+.panel-title{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:18px;
+}
+
+.panel-title h2{
+  font-size:17px;
+}
+
+.view{
+  border:0;
+  background:transparent;
+  color:var(--primary);
+  cursor:pointer;
+}
+
+/* TASKS */
+
+.task-grid,
+.survey-grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:16px;
+}
+
+.task{
+  background:rgba(255,255,255,.045);
+  border:1px solid var(--border);
+  border-radius:17px;
+  padding:19px;
+}
+
+.task-head{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:13px;
+}
+
+.task h3{
+  font-size:16px;
+}
+
+.reward{
+  color:var(--success);
+  font-weight:800;
+  white-space:nowrap;
+}
+
+.task p{
+  color:var(--muted);
+  font-size:13px;
+  line-height:1.6;
+  margin-bottom:16px;
+}
+
+.action{
+  border:0;
+  border-radius:9px;
+  padding:10px 15px;
+  background:linear-gradient(135deg,var(--primary),var(--primary2));
+  color:#fff;
+  cursor:pointer;
+  font-weight:700;
+}
+
+/* HISTORY */
+
+.history{
+  width:100%;
+  border-collapse:collapse;
+}
+
+.history th,
+.history td{
+  padding:14px 10px;
+  text-align:left;
+  border-bottom:1px solid var(--border);
+  font-size:13px;
+}
+
+.history th{
+  color:var(--muted);
+}
+
+.earned{
+  color:var(--success);
+  font-weight:700;
+}
+
+/* PROFILE */
+
+.profile{
+  display:grid;
+  grid-template-columns:280px 1fr;
+  gap:20px;
+}
+
+.profile-card{
+  text-align:center;
+}
+
+.big-avatar{
+  width:90px;
+  height:90px;
+  margin:5px auto 15px;
+  border-radius:50%;
+  display:grid;
+  place-items:center;
+  font-size:30px;
+  font-weight:800;
+  background:linear-gradient(135deg,var(--primary),var(--primary2));
+}
+
+.profile-card h2{
+  margin-bottom:5px;
+}
+
+.profile-card p{
+  color:var(--muted);
+  font-size:13px;
+}
+
+.form{
+  display:grid;
+  gap:15px;
+}
+
+.form-group label{
+  display:block;
+  color:var(--muted);
+  font-size:13px;
+  margin-bottom:7px;
+}
+
+.form-group input{
+  width:100%;
+  padding:12px 13px;
+  background:#081625;
+  border:1px solid var(--border);
+  color:#fff;
+  border-radius:10px;
+  outline:none;
+}
+
+.form-group input:focus{
+  border-color:rgba(32,217,255,.5);
+}
+
+/* REFERRAL */
+
+.referral-box{
+  background:linear-gradient(135deg,rgba(32,217,255,.1),rgba(71,124,255,.08));
+  border:1px solid rgba(32,217,255,.16);
+  padding:25px;
+  border-radius:18px;
+}
+
+.ref-code{
+  font-size:27px;
+  font-weight:850;
+  color:var(--primary);
+  margin:12px 0;
+}
+
+.copy{
+  border:0;
+  padding:10px 16px;
+  border-radius:9px;
+  background:var(--primary);
+  color:#00121c;
+  font-weight:800;
+  cursor:pointer;
+}
+
+/* WALLET */
+
+.wallet-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:16px;
+  margin-bottom:20px;
+}
+
+.wallet-box{
+  background:rgba(255,255,255,.045);
+  border:1px solid var(--border);
+  border-radius:17px;
+  padding:20px;
+}
+
+.wallet-box p{
+  color:var(--muted);
+  font-size:13px;
+  margin-bottom:8px;
+}
+
+.wallet-box strong{
+  font-size:25px;
+}
+
+/* KYC */
+
+.kyc-status{
+  padding:18px;
+  border-radius:14px;
+  background:rgba(255,200,87,.08);
+  border:1px solid rgba(255,200,87,.15);
+  color:var(--warning);
+  margin-bottom:18px;
+}
+
+/* MOBILE */
+
+@media(max-width:1000px){
+
+  .stats{
+    grid-template-columns:repeat(2,1fr);
+  }
+
+  .grid2{
+    grid-template-columns:1fr;
+  }
+
+  .profile{
+    grid-template-columns:1fr;
+  }
+}
+
+@media(max-width:750px){
+
+  .sidebar{
+    transform:translateX(-100%);
+    transition:.25s;
+  }
+
+  .sidebar.open{
+    transform:translateX(0);
+  }
+
+  .main{
+    margin-left:0;
+    width:100%;
+  }
+
+  .mobile-menu{
+    display:block;
+  }
+
+  .top-title{
+    display:none;
+  }
+
+  .topbar{
+    padding:0 15px;
+  }
+
+  .content{
+    padding:18px 14px 35px;
+  }
+
+  .hero{
+    align-items:flex-start;
+    flex-direction:column;
+  }
+
+  .hero h1{
+    font-size:25px;
+  }
+
+  .balance-top{
+    align-items:flex-start;
+    flex-direction:column;
+    gap:18px;
+  }
+
+  .balance{
+    font-size:34px;
+  }
+
+  .stats{
+    grid-template-columns:1fr 1fr;
+  }
+
+  .task-grid,
+  .survey-grid,
+  .wallet-grid{
+    grid-template-columns:1fr;
+  }
+
+  .history{
+    min-width:650px;
+  }
+
+  .table-wrap{
+    overflow-x:auto;
+  }
+
+  .user-top .username{
+    display:none;
+  }
+}
+</style>
 </head>
 
 <body>
 
-  <header class="header">
-    <div class="logo">🪺 EarnNest</div>
+<div class="app">
+
+<!-- SIDEBAR -->
+
+<aside class="sidebar" id="sidebar">
+
+  <div class="brand">
+    <div class="logo">🪺</div>
+    Earn<span>Nest</span>
+  </div>
+
+  <nav class="menu">
+
+    <button class="active" onclick="showPage('home',this)">
+      <span class="menu-icon">🏠</span> Dashboard
+    </button>
+
+    <button onclick="showPage('tasks',this)">
+      <span class="menu-icon">🎯</span> Tasks
+    </button>
+
+    <button onclick="showPage('surveys',this)">
+      <span class="menu-icon">📝</span> Surveys
+    </button>
+
+    <button onclick="showPage('wallet',this)">
+      <span class="menu-icon">💳</span> Wallet
+    </button>
+
+    <button onclick="showPage('referrals',this)">
+      <span class="menu-icon">👥</span> Referrals
+    </button>
+
+    <button onclick="showPage('history',this)">
+      <span class="menu-icon">📊</span> Earnings
+    </button>
+
+    <button onclick="showPage('profile',this)">
+      <span class="menu-icon">👤</span> Profile
+    </button>
+
+    <button onclick="showPage('kyc',this)">
+      <span class="menu-icon">🪪</span> KYC
+    </button>
+
+  </nav>
+
+</aside>
+
+<!-- MAIN -->
+
+<main class="main">
+
+<header class="topbar">
+
+  <button class="mobile-menu" onclick="toggleMenu()">☰</button>
+
+  <div class="top-title" id="pageTitle">Dashboard</div>
+
+  <div class="user-top">
+    <span class="username" id="topName">User</span>
+    <div class="avatar" id="topAvatar">U</div>
     <button class="logout" onclick="logout()">Logout</button>
-  </header>
+  </div>
 
-  <main class="container">
+</header>
 
-    <div id="error"></div>
+<div class="content">
 
-    <section class="welcome">
-      <h1 id="welcome">Welcome to EarnNest</h1>
-      <p id="userEmail">Loading account...</p>
-    </section>
+<!-- DASHBOARD -->
 
-    <section class="cards">
+<section class="page active" id="home">
 
-      <div class="card">
-        <h3>Available Coins</h3>
-        <div class="number" id="coins">0</div>
+  <div class="hero">
+    <div>
+      <h1 id="welcome">Welcome to EarnNest 👋</h1>
+      <p>Complete tasks, surveys and activities to grow your balance.</p>
+    </div>
+
+    <div class="hero-badge">● Account Active</div>
+  </div>
+
+  <div class="balance-card">
+
+    <div class="balance-top">
+
+      <div>
+        <div class="balance-label">Available Balance</div>
+
+        <div class="balance">
+          <span id="mainBalance">0</span>
+          <span>Coins</span>
+        </div>
+
+        <div class="balance-sub">
+          Minimum withdrawal: 1,000 coins
+        </div>
       </div>
 
-      <div class="card">
-        <h3>Account Status</h3>
-        <div class="number">Active</div>
+      <button class="withdraw-btn" onclick="showPageByName('wallet')">
+        Withdraw
+      </button>
+
+    </div>
+
+  </div>
+
+  <div class="stats">
+
+    <div class="stat">
+      <div class="stat-icon">💰</div>
+      <div class="stat-title">Total Earned</div>
+      <div class="stat-value" id="totalEarned">0</div>
+    </div>
+
+    <div class="stat">
+      <div class="stat-icon">🎯</div>
+      <div class="stat-title">Tasks Completed</div>
+      <div class="stat-value" id="tasksCompleted">0</div>
+    </div>
+
+    <div class="stat">
+      <div class="stat-icon">📝</div>
+      <div class="stat-title">Surveys Completed</div>
+      <div class="stat-value" id="surveysCompleted">0</div>
+    </div>
+
+    <div class="stat">
+      <div class="stat-icon">👥</div>
+      <div class="stat-title">Referrals</div>
+      <div class="stat-value" id="referralCount">0</div>
+    </div>
+
+  </div>
+
+  <div class="grid2">
+
+    <div class="panel">
+
+      <div class="panel-title">
+        <h2>🔥 Available Tasks</h2>
+        <button class="view" onclick="showPageByName('tasks')">View All</button>
       </div>
 
-      <div class="card">
-        <h3>Referrals</h3>
-        <div class="number" id="referrals">0</div>
+      <div class="task-grid">
+
+        <div class="task">
+          <div class="task-head">
+            <h3>Daily Check-in</h3>
+            <div class="reward">+50</div>
+          </div>
+          <p>Open your EarnNest account once every day.</p>
+          <button class="action" onclick="completeTask(50,'Daily Check-in')">
+            Claim
+          </button>
+        </div>
+
+        <div class="task">
+          <div class="task-head">
+            <h3>Profile Complete</h3>
+            <div class="reward">+100</div>
+          </div>
+          <p>Complete your account profile information.</p>
+          <button class="action" onclick="completeTask(100,'Profile Complete')">
+            Start
+          </button>
+        </div>
+
       </div>
 
-    </section>
+    </div>
 
-    <section class="sections">
+    <div class="panel">
 
-      <div class="section">
-        <h2>🎁 Rewards</h2>
-        <p>Complete available tasks and activities to earn coins.</p>
+      <div class="panel-title">
+        <h2>💎 Quick Actions</h2>
       </div>
 
-      <div class="section">
-        <h2>👥 Referrals</h2>
-        <p>Invite friends and earn referral rewards.</p>
+      <div class="task">
+
+        <h3>Daily Bonus</h3>
+
+        <p>
+          Come back every day to claim your daily reward.
+        </p>
+
+        <button class="action" onclick="dailyBonus()">
+          Claim Daily Bonus
+        </button>
+
       </div>
 
-      <div class="section">
-        <h2>💰 Wallet</h2>
-        <p>Your wallet and withdrawal information will appear here.</p>
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- TASKS -->
+
+<section class="page" id="tasks">
+
+  <div class="hero">
+    <div>
+      <h1>🎯 Tasks</h1>
+      <p>Complete available activities and earn coins.</p>
+    </div>
+  </div>
+
+  <div class="task-grid">
+
+    <div class="task">
+      <div class="task-head">
+        <h3>Daily Check-in</h3>
+        <div class="reward">+50</div>
+      </div>
+      <p>Check in to your EarnNest account every day.</p>
+      <button class="action" onclick="completeTask(50,'Daily Check-in')">Claim Reward</button>
+    </div>
+
+    <div class="task">
+      <div class="task-head">
+        <h3>Complete Profile</h3>
+        <div class="reward">+100</div>
+      </div>
+      <p>Complete your profile details.</p>
+      <button class="action" onclick="completeTask(100,'Complete Profile')">Complete</button>
+    </div>
+
+    <div class="task">
+      <div class="task-head">
+        <h3>App Visit</h3>
+        <div class="reward">+25</div>
+      </div>
+      <p>Visit EarnNest and check your account.</p>
+      <button class="action" onclick="completeTask(25,'App Visit')">Claim</button>
+    </div>
+
+    <div class="task">
+      <div class="task-head">
+        <h3>Weekly Activity</h3>
+        <div class="reward">+250</div>
+      </div>
+      <p>Maintain activity throughout the week.</p>
+      <button class="action" onclick="completeTask(250,'Weekly Activity')">Start</button>
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- SURVEYS -->
+
+<section class="page" id="surveys">
+
+  <div class="hero">
+    <div>
+      <h1>📝 Surveys</h1>
+      <p>Participate in surveys and earn rewards.</p>
+    </div>
+  </div>
+
+  <div class="survey-grid">
+
+    <div class="task">
+      <div class="task-head">
+        <h3>Quick Opinion Survey</h3>
+        <div class="reward">+150</div>
+      </div>
+      <p>Share your opinion in this short survey.</p>
+      <button class="action" onclick="completeSurvey(150,'Quick Opinion Survey')">
+        Start Survey
+      </button>
+    </div>
+
+    <div class="task">
+      <div class="task-head">
+        <h3>Shopping Survey</h3>
+        <div class="reward">+300</div>
+      </div>
+      <p>Answer questions about shopping preferences.</p>
+      <button class="action" onclick="completeSurvey(300,'Shopping Survey')">
+        Start Survey
+      </button>
+    </div>
+
+    <div class="task">
+      <div class="task-head">
+        <h3>Technology Survey</h3>
+        <div class="reward">+250</div>
+      </div>
+      <p>Tell us about your technology usage.</p>
+      <button class="action" onclick="completeSurvey(250,'Technology Survey')">
+        Start Survey
+      </button>
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- WALLET -->
+
+<section class="page" id="wallet">
+
+  <div class="hero">
+    <div>
+      <h1>💳 Wallet</h1>
+      <p>Manage your balance and withdrawals.</p>
+    </div>
+  </div>
+
+  <div class="wallet-grid">
+
+    <div class="wallet-box">
+      <p>Available Balance</p>
+      <strong id="walletBalance">0</strong>
+    </div>
+
+    <div class="wallet-box">
+      <p>Pending Withdrawal</p>
+      <strong>0</strong>
+    </div>
+
+    <div class="wallet-box">
+      <p>Total Withdrawn</p>
+      <strong>0</strong>
+    </div>
+
+  </div>
+
+  <div class="panel">
+
+    <div class="panel-title">
+      <h2>Withdrawal Request</h2>
+    </div>
+
+    <div class="form">
+
+      <div class="form-group">
+        <label>Amount (Coins)</label>
+        <input id="withdrawAmount" type="number" placeholder="Minimum 1000 coins">
       </div>
 
-      <div class="section">
-        <h2>👤 Account</h2>
-        <p id="accountInfo">Account information</p>
+      <div class="form-group">
+        <label>Payment Method</label>
+        <input id="paymentMethod" placeholder="JazzCash / Easypaisa / Bank">
       </div>
 
-    </section>
+      <div class="form-group">
+        <label>Account Number</label>
+        <input id="paymentAccount" placeholder="Enter account number">
+      </div>
 
-  </main>
+      <button class="action" onclick="requestWithdrawal()">
+        Request Withdrawal
+      </button>
 
-  <script>
-    function loadDashboard() {
+    </div>
 
-      let rawUser = localStorage.getItem("earnnest_user");
+  </div>
 
-      if (!rawUser) {
-        document.getElementById("error").style.display = "block";
-        document.getElementById("error").textContent =
-          "Login information was not found. Please login again.";
+</section>
 
-        setTimeout(function() {
-          window.location.href = "/";
-        }, 2500);
 
-        return;
-      }
+<!-- REFERRALS -->
 
-      try {
+<section class="page" id="referrals">
 
-        const user = JSON.parse(rawUser);
+  <div class="hero">
+    <div>
+      <h1>👥 Referrals</h1>
+      <p>Invite friends and earn referral rewards.</p>
+    </div>
+  </div>
 
-        document.getElementById("welcome").textContent =
-          "Welcome, " + (user.name || user.username || "User") + "!";
+  <div class="referral-box">
 
-        document.getElementById("userEmail").textContent =
-          user.email || "";
+    <div>Share your referral code</div>
 
-        document.getElementById("coins").textContent =
-          user.coins || 0;
+    <div class="ref-code" id="refCode">EARNUSER</div>
 
-        document.getElementById("referrals").textContent =
-          user.referrals || 0;
+    <p style="color:var(--muted);line-height:1.6">
+      Invite friends using your referral code. Referral rewards will be
+      credited according to the EarnNest referral rules.
+    </p>
 
-        document.getElementById("accountInfo").textContent =
-          "Username: " + (user.username || "User") +
-          " • Email: " + (user.email || "");
+    <br>
 
-      } catch (error) {
+    <button class="copy" onclick="copyReferral()">
+      Copy Referral Code
+    </button>
 
-        document.getElementById("error").style.display = "block";
-        document.getElementById("error").textContent =
-          "Invalid login session. Please login again.";
+  </div>
 
-        localStorage.removeItem("earnnest_user");
-        localStorage.removeItem("earnnest_token");
+  <br>
 
-        setTimeout(function() {
-          window.location.href = "/";
-        }, 2500);
-      }
+  <div class="stats">
+
+    <div class="stat">
+      <div class="stat-icon">👤</div>
+      <div class="stat-title">Total Referrals</div>
+      <div class="stat-value" id="refTotal">0</div>
+    </div>
+
+    <div class="stat">
+      <div class="stat-icon">💰</div>
+      <div class="stat-title">Referral Earnings</div>
+      <div class="stat-value">0</div>
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- HISTORY -->
+
+<section class="page" id="history">
+
+  <div class="hero">
+    <div>
+      <h1>📊 Earnings History</h1>
+      <p>See your latest rewards and activities.</p>
+    </div>
+  </div>
+
+  <div class="panel">
+
+    <div class="table-wrap">
+
+      <table class="history">
+
+        <thead>
+          <tr>
+            <th>Activity</th>
+            <th>Type</th>
+            <th>Reward</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+
+        <tbody id="historyBody">
+
+          <tr>
+            <td>No activity yet</td>
+            <td>-</td>
+            <td>0</td>
+            <td>-</td>
+          </tr>
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- PROFILE -->
+
+<section class="page" id="profile">
+
+  <div class="hero">
+    <div>
+      <h1>👤 My Profile</h1>
+      <p>Manage your personal information.</p>
+    </div>
+  </div>
+
+  <div class="profile">
+
+    <div class="panel profile-card">
+
+      <div class="big-avatar" id="bigAvatar">U</div>
+
+      <h2 id="profileName">User</h2>
+
+      <p id="profileEmail">user@email.com</p>
+
+      <br>
+
+      <div class="hero-badge">● Active Account</div>
+
+    </div>
+
+    <div class="panel">
+
+      <div class="panel-title">
+        <h2>Personal Information</h2>
+      </div>
+
+      <div class="form">
+
+        <div class="form-group">
+          <label>Full Name</label>
+          <input id="profileFullName">
+        </div>
+
+        <div class="form-group">
+          <label>Username</label>
+          <input id="profileUsername" disabled>
+        </div>
+
+        <div class="form-group">
+          <label>Email</label>
+          <input id="profileEmailInput" disabled>
+        </div>
+
+        <div class="form-group">
+          <label>Phone</label>
+          <input id="profilePhone">
+        </div>
+
+        <button class="action" onclick="saveProfile()">
+          Save Profile
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- KYC -->
+
+<section class="page" id="kyc">
+
+  <div class="hero">
+    <div>
+      <h1>🪪 KYC Verification</h1>
+      <p>Verify your identity for account and withdrawal services.</p>
+    </div>
+  </div>
+
+  <div class="panel">
+
+    <div class="kyc-status">
+      ● Verification status: Not Submitted
+    </div>
+
+    <div class="form">
+
+      <div class="form-group">
+        <label>Full Legal Name</label>
+        <input id="kycName" placeholder="Enter your legal name">
+      </div>
+
+      <div class="form-group">
+        <label>CNIC / Identity Number</label>
+        <input id="kycId" placeholder="Enter identity number">
+      </div>
+
+      <div class="form-group">
+        <label>Document</label>
+        <input type="file" id="kycFile">
+      </div>
+
+      <button class="action" onclick="submitKyc()">
+        Submit Verification
+      </button>
+
+    </div>
+
+  </div>
+
+</section>
+
+</div>
+</main>
+</div>
+
+
+<script>
+
+let user = null;
+
+let state = {
+  balance: 0,
+  totalEarned: 0,
+  tasksCompleted: 0,
+  surveysCompleted: 0,
+  referrals: 0,
+  history: []
+};
+
+
+/* LOAD USER */
+
+function loadUser(){
+
+  const raw = localStorage.getItem("earnnest_user");
+
+  if(!raw){
+    window.location.href="/";
+    return;
+  }
+
+  try{
+
+    user = JSON.parse(raw);
+
+  }catch(e){
+
+    localStorage.removeItem("earnnest_user");
+    localStorage.removeItem("earnnest_token");
+    window.location.href="/";
+    return;
+
+  }
+
+  state.balance = Number(user.coins || 0);
+  state.totalEarned = Number(user.totalEarned || 0);
+  state.tasksCompleted = Number(user.tasksCompleted || 0);
+  state.surveysCompleted = Number(user.surveysCompleted || 0);
+  state.referrals = Number(user.referrals || 0);
+
+  const saved = localStorage.getItem("earnnest_state");
+
+  if(saved){
+
+    try{
+
+      const parsed = JSON.parse(saved);
+
+      state = {
+        ...state,
+        ...parsed
+      };
+
+    }catch(e){}
+
+  }
+
+  updateUI();
+}
+
+
+/* UPDATE UI */
+
+function updateUI(){
+
+  const name = user.name || user.username || "User";
+
+  document.getElementById("welcome").textContent =
+    "Welcome, " + name + " 👋";
+
+  document.getElementById("topName").textContent = name;
+
+  const initial =
+    name.charAt(0).toUpperCase();
+
+  document.getElementById("topAvatar").textContent = initial;
+  document.getElementById("bigAvatar").textContent = initial;
+
+  document.getElementById("profileName").textContent = name;
+
+  document.getElementById("profileEmail").textContent =
+    user.email || "";
+
+  document.getElementById("profileFullName").value =
+    user.name || "";
+
+  document.getElementById("profileUsername").value =
+    user.username || "";
+
+  document.getElementById("profileEmailInput").value =
+    user.email || "";
+
+  document.getElementById("profilePhone").value =
+    user.phone || "";
+
+  document.getElementById("mainBalance").textContent =
+    state.balance.toLocaleString();
+
+  document.getElementById("walletBalance").textContent =
+    state.balance.toLocaleString();
+
+  document.getElementById("totalEarned").textContent =
+    state.totalEarned.toLocaleString();
+
+  document.getElementById("tasksCompleted").textContent =
+    state.tasksCompleted;
+
+  document.getElementById("surveysCompleted").textContent =
+    state.surveysCompleted;
+
+  document.getElementById("referralCount").textContent =
+    state.referrals;
+
+  document.getElementById("refTotal").textContent =
+    state.referrals;
+
+  document.getElementById("refCode").textContent =
+    user.referralCode ||
+    "EARN" + (user.username || "USER").toUpperCase();
+
+  renderHistory();
+}
+
+
+/* SAVE STATE */
+
+function saveState(){
+
+  localStorage.setItem(
+    "earnnest_state",
+    JSON.stringify(state)
+  );
+
+}
+
+
+/* NAVIGATION */
+
+function showPage(page, button){
+
+  document.querySelectorAll(".page")
+    .forEach(x => x.classList.remove("active"));
+
+  const target = document.getElementById(page);
+
+  if(target){
+    target.classList.add("active");
+  }
+
+  document.querySelectorAll(".menu button")
+    .forEach(x => x.classList.remove("active"));
+
+  if(button){
+    button.classList.add("active");
+  }
+
+  const titles = {
+    home:"Dashboard",
+    tasks:"Tasks",
+    surveys:"Surveys",
+    wallet:"Wallet",
+    referrals:"Referrals",
+    history:"Earnings",
+    profile:"Profile",
+    kyc:"KYC Verification"
+  };
+
+  document.getElementById("pageTitle").textContent =
+    titles[page] || "EarnNest";
+
+  document.getElementById("sidebar")
+    .classList.remove("open");
+
+  window.scrollTo({
+    top:0,
+    behavior:"smooth"
+  });
+}
+
+
+function showPageByName(page){
+
+  const buttons =
+    document.querySelectorAll(".menu button");
+
+  buttons.forEach(button => {
+
+    const text =
+      button.textContent.toLowerCase();
+
+    if(
+      (page==="home" && text.includes("dashboard")) ||
+      text.includes(page)
+    ){
+      showPage(page,button);
     }
 
-    function logout() {
-      localStorage.removeItem("earnnest_user");
-      localStorage.removeItem("earnnest_token");
-      window.location.href = "/";
-    }
+  });
 
-    loadDashboard();
-  </script>
+}
+
+
+/* TASK */
+
+function completeTask(reward,name){
+
+  state.balance += reward;
+  state.totalEarned += reward;
+  state.tasksCompleted++;
+
+  state.history.unshift({
+    name:name,
+    type:"Task",
+    reward:reward,
+    date:new Date().toLocaleString()
+  });
+
+  saveState();
+  updateUI();
+
+  alert(
+    "Task completed successfully!\n+" +
+    reward +
+    " coins added."
+  );
+}
+
+
+/* SURVEY */
+
+function completeSurvey(reward,name){
+
+  state.balance += reward;
+  state.totalEarned += reward;
+  state.surveysCompleted++;
+
+  state.history.unshift({
+    name:name,
+    type:"Survey",
+    reward:reward,
+    date:new Date().toLocaleString()
+  });
+
+  saveState();
+  updateUI();
+
+  alert(
+    "Survey completed!\n+" +
+    reward +
+    " coins added."
+  );
+}
+
+
+/* DAILY BONUS */
+
+function dailyBonus(){
+
+  const today =
+    new Date().toISOString().slice(0,10);
+
+  const last =
+    localStorage.getItem("earnnest_daily_bonus");
+
+  if(last === today){
+
+    alert("Today's bonus has already been claimed.");
+
+    return;
+  }
+
+  const reward = 50;
+
+  state.balance += reward;
+  state.totalEarned += reward;
+
+  state.history.unshift({
+    name:"Daily Bonus",
+    type:"Bonus",
+    reward:reward,
+    date:new Date().toLocaleString()
+  });
+
+  localStorage.setItem(
+    "earnnest_daily_bonus",
+    today
+  );
+
+  saveState();
+  updateUI();
+
+  alert(
+    "Daily bonus claimed!\n+" +
+    reward +
+    " coins."
+  );
+}
+
+
+/* HISTORY */
+
+function renderHistory(){
+
+  const body =
+    document.getElementById("historyBody");
+
+  if(!state.history.length){
+
+    body.innerHTML = `
+      <tr>
+        <td>No activity yet</td>
+        <td>-</td>
+        <td>0</td>
+        <td>-</td>
+      </tr>
+    `;
+
+    return;
+  }
+
+  body.innerHTML =
+    state.history.slice(0,30).map(item => `
+
+      <tr>
+        <td>${escapeHtml(item.name)}</td>
+        <td>${escapeHtml(item.type)}</td>
+        <td class="earned">+${item.reward}</td>
+        <td>${escapeHtml(item.date)}</td>
+      </tr>
+
+    `).join("");
+}
+
+
+/* PROFILE */
+
+function saveProfile(){
+
+  const name =
+    document.getElementById("profileFullName").value.trim();
+
+  const phone =
+    document.getElementById("profilePhone").value.trim();
+
+  if(!name){
+
+    alert("Please enter your name.");
+    return;
+
+  }
+
+  user.name = name;
+  user.phone = phone;
+
+  localStorage.setItem(
+    "earnnest_user",
+    JSON.stringify(user)
+  );
+
+  updateUI();
+
+  alert("Profile updated successfully.");
+}
+
+
+/* REFERRAL */
+
+function copyReferral(){
+
+  const code =
+    document.getElementById("refCode").textContent;
+
+  navigator.clipboard.writeText(code)
+    .then(() => {
+      alert("Referral code copied.");
+    })
+    .catch(() => {
+      alert("Referral code: " + code);
+    });
+
+}
+
+
+/* WITHDRAWAL */
+
+function requestWithdrawal(){
+
+  const amount =
+    Number(document.getElementById("withdrawAmount").value);
+
+  const method =
+    document.getElementById("paymentMethod").value.trim();
+
+  const account =
+    document.getElementById("paymentAccount").value.trim();
+
+  if(amount < 1000){
+
+    alert("Minimum withdrawal is 1,000 coins.");
+    return;
+
+  }
+
+  if(amount > state.balance){
+
+    alert("Insufficient balance.");
+    return;
+
+  }
+
+  if(!method || !account){
+
+    alert("Please complete payment information.");
+    return;
+
+  }
+
+  /*
+    This is currently a UI/testing request.
+    Real withdrawal processing must be connected
+    to the backend/database/payment provider.
+  */
+
+  alert(
+    "Withdrawal request prepared.\n\n" +
+    "Amount: " + amount +
+    " coins\n" +
+    "Method: " + method
+  );
+
+}
+
+
+/* KYC */
+
+function submitKyc(){
+
+  const name =
+    document.getElementById("kycName").value.trim();
+
+  const id =
+    document.getElementById("kycId").value.trim();
+
+  const file =
+    document.getElementById("kycFile").files[0];
+
+  if(!name || !id || !file){
+
+    alert(
+      "Please complete all KYC fields and select a document."
+    );
+
+    return;
+
+  }
+
+  /*
+    Real KYC upload must be sent securely
+    to the backend/storage service.
+  */
+
+  alert(
+    "KYC form is ready for backend submission."
+  );
+
+}
+
+
+/* MOBILE MENU */
+
+function toggleMenu(){
+
+  document.getElementById("sidebar")
+    .classList.toggle("open");
+
+}
+
+
+/* LOGOUT */
+
+function logout(){
+
+  localStorage.removeItem("earnnest_user");
+  localStorage.removeItem("earnnest_token");
+  localStorage.removeItem("earnnest_state");
+
+  window.location.href="/";
+
+}
+
+
+/* SECURITY */
+
+function escapeHtml(value){
+
+  return String(value)
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#039;");
+
+}
+
+
+/* START */
+
+loadUser();
+
+</script>
 
 </body>
 </html>
