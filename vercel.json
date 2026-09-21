@@ -11,16 +11,20 @@
       "destination": "/app/index.html"
     },
     {
+      "source": "/admin.html",
+      "destination": "/app/admin.html"
+    },
+    {
+      "source": "/admin",
+      "destination": "/app/admin.html"
+    },
+    {
       "source": "/api/:path*",
       "destination": "/api/index.js"
     },
     {
       "source": "/health",
       "destination": "/api/index.js"
-    },
-    {
-      "source": "/admin",
-      "destination": "/admin/index.html"
     },
     {
       "source": "/app",
