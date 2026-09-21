@@ -7,18 +7,6 @@
   },
   "rewrites": [
     {
-      "source": "/",
-      "destination": "/app/index.html"
-    },
-    {
-      "source": "/admin.html",
-      "destination": "/app/admin.html"
-    },
-    {
-      "source": "/admin",
-      "destination": "/app/admin.html"
-    },
-    {
       "source": "/api/:path*",
       "destination": "/api/index.js"
     },
@@ -27,8 +15,16 @@
       "destination": "/api/index.js"
     },
     {
-      "source": "/app",
+      "source": "/",
       "destination": "/app/index.html"
+    },
+    {
+      "source": "/admin",
+      "destination": "/app/admin.html"
+    },
+    {
+      "source": "/admin.html",
+      "destination": "/app/admin.html"
     }
   ]
 }
