@@ -1,13 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#2563eb">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <meta
+    name="theme-color"
+    content="#2563eb"
+  >
 
   <title>EarnNest</title>
 
   <style>
+
     * {
       box-sizing: border-box;
     }
@@ -28,11 +39,6 @@
 
     .header h1 {
       margin: 0;
-      font-size: 30px;
-    }
-
-    .header p {
-      margin: 6px 0 0;
     }
 
     .container {
@@ -45,7 +51,8 @@
       background: white;
       border-radius: 14px;
       padding: 25px;
-      box-shadow: 0 4px 18px rgba(0,0,0,.08);
+      box-shadow:
+        0 4px 18px rgba(0,0,0,.08);
     }
 
     h2 {
@@ -122,7 +129,6 @@
       background: #eff6ff;
       color: #1e40af;
       display: none;
-      word-break: break-word;
     }
 
     .links {
@@ -146,14 +152,21 @@
       font-size: 14px;
       color: #6b7280;
     }
+
   </style>
+
 </head>
 
 <body>
 
   <div class="header">
+
     <h1>EarnNest</h1>
-    <p>Earn • Refer • Reward</p>
+
+    <p>
+      Earn • Refer • Reward
+    </p>
+
   </div>
 
 
@@ -162,13 +175,16 @@
     <div class="card">
 
 
-      <!-- =========================
-           LOGIN
-      ========================== -->
+      <!-- LOGIN -->
 
-      <div id="loginForm" class="form active">
+      <div
+        id="loginForm"
+        class="form active"
+      >
 
-        <h2>Welcome to EarnNest</h2>
+        <h2>
+          Welcome to EarnNest
+        </h2>
 
         <p>
           Sign in to continue.
@@ -215,13 +231,16 @@
       </div>
 
 
-      <!-- =========================
-           CREATE ACCOUNT
-      ========================== -->
+      <!-- REGISTER -->
 
-      <div id="registerForm" class="form">
+      <div
+        id="registerForm"
+        class="form"
+      >
 
-        <h2>Create Account</h2>
+        <h2>
+          Create Account
+        </h2>
 
         <p>
           Create your EarnNest account.
@@ -283,13 +302,16 @@
       </div>
 
 
-      <!-- =========================
-           FORGOT PASSWORD
-      ========================== -->
+      <!-- FORGOT -->
 
-      <div id="forgotForm" class="form">
+      <div
+        id="forgotForm"
+        class="form"
+      >
 
-        <h2>Forgot Password</h2>
+        <h2>
+          Forgot Password
+        </h2>
 
         <p>
           Enter your email address to reset your password.
@@ -302,7 +324,9 @@
           autocomplete="email"
         >
 
-        <button onclick="requestPasswordReset()">
+        <button
+          onclick="requestPasswordReset()"
+        >
           Send Reset Code
         </button>
 
@@ -316,16 +340,19 @@
       </div>
 
 
-      <!-- =========================
-           RESET PASSWORD
-      ========================== -->
+      <!-- RESET -->
 
-      <div id="resetForm" class="form">
+      <div
+        id="resetForm"
+        class="form"
+      >
 
-        <h2>Reset Password</h2>
+        <h2>
+          Reset Password
+        </h2>
 
         <p>
-          Enter the reset code and your new password.
+          Enter your reset code and new password.
         </p>
 
         <input
@@ -364,15 +391,11 @@
       </div>
 
 
-      <!-- STATUS -->
-
       <div
         id="status"
         class="status"
       ></div>
 
-
-      <!-- LEGAL LINKS -->
 
       <div class="links">
 
@@ -401,7 +424,7 @@
 
 
     /* =========================
-       SHOW FORM
+       FORM
     ========================== */
 
     function showForm(formId) {
@@ -410,23 +433,18 @@
         .querySelectorAll(".form")
         .forEach(function(form) {
 
-          form.classList.remove("active");
+          form.classList.remove(
+            "active"
+          );
 
         });
 
-      const form =
-        document.getElementById(formId);
-
-      if (form) {
-        form.classList.add("active");
-      }
+      document
+        .getElementById(formId)
+        .classList.add("active");
 
       hideStatus();
 
-      window.scrollTo({
-        top: 0,
-        behavior: "smooth"
-      });
     }
 
 
@@ -437,25 +455,32 @@
     function showStatus(message) {
 
       const box =
-        document.getElementById("status");
+        document.getElementById(
+          "status"
+        );
 
       box.textContent =
-        message || "Something went wrong.";
+        message;
 
       box.style.display =
         "block";
+
     }
 
 
     function hideStatus() {
 
       const box =
-        document.getElementById("status");
+        document.getElementById(
+          "status"
+        );
 
-      box.textContent = "";
+      box.textContent =
+        "";
 
       box.style.display =
         "none";
+
     }
 
 
@@ -467,54 +492,71 @@
 
       const loginValue =
         document
-          .getElementById("loginEmail")
+          .getElementById(
+            "loginEmail"
+          )
           .value
           .trim();
 
       const password =
         document
-          .getElementById("loginPassword")
+          .getElementById(
+            "loginPassword"
+          )
           .value;
 
 
-      if (!loginValue || !password) {
+      if (
+        !loginValue ||
+        !password
+      ) {
 
         showStatus(
           "Please enter email/username and password."
         );
 
         return;
+
       }
 
 
-      showStatus("Logging in...");
+      showStatus(
+        "Logging in..."
+      );
 
 
       try {
 
         const response =
-          await fetch("/api/login", {
+          await fetch(
+            "/api/login",
+            {
 
-            method: "POST",
+              method: "POST",
 
-            headers: {
-              "Content-Type":
-                "application/json"
-            },
+              headers: {
+                "Content-Type":
+                  "application/json"
+              },
 
-            body: JSON.stringify({
+              body:
+                JSON.stringify({
 
-              email: loginValue,
+                  email:
+                    loginValue,
 
-              password: password
+                  password:
+                    password
 
-            })
+                })
 
-          });
+            }
+          );
 
 
         const data =
-          await response.json()
+          await response
+            .json()
             .catch(function() {
               return {};
             });
@@ -529,13 +571,25 @@
           );
 
           return;
+
+        }
+
+
+        if (!data.user) {
+
+          showStatus(
+            "Invalid login response."
+          );
+
+          return;
+
         }
 
 
         localStorage.setItem(
           "earnnest_user",
           JSON.stringify(
-            data.user || data
+            data.user
           )
         );
 
@@ -550,14 +604,41 @@
         }
 
 
+        /*
+          ADMIN REDIRECT
+        */
+
+        if (
+          data.user.role ===
+          "admin"
+        ) {
+
+          showStatus(
+            "Admin login successful. Opening dashboard..."
+          );
+
+
+          setTimeout(
+            function() {
+
+              window.location.href =
+                "/admin.html";
+
+            },
+            500
+          );
+
+          return;
+
+        }
+
+
+        /*
+          Normal user
+        */
+
         showStatus(
           "Login successful."
-        );
-
-
-        console.log(
-          "EarnNest user:",
-          data.user
         );
 
 
@@ -585,36 +666,48 @@
 
       const name =
         document
-          .getElementById("registerName")
+          .getElementById(
+            "registerName"
+          )
           .value
           .trim();
 
       const username =
         document
-          .getElementById("registerUsername")
+          .getElementById(
+            "registerUsername"
+          )
           .value
           .trim();
 
       const email =
         document
-          .getElementById("registerEmail")
+          .getElementById(
+            "registerEmail"
+          )
           .value
           .trim();
 
       const phone =
         document
-          .getElementById("registerPhone")
+          .getElementById(
+            "registerPhone"
+          )
           .value
           .trim();
 
       const password =
         document
-          .getElementById("registerPassword")
+          .getElementById(
+            "registerPassword"
+          )
           .value;
 
       const confirmPassword =
         document
-          .getElementById("registerConfirmPassword")
+          .getElementById(
+            "registerConfirmPassword"
+          )
           .value;
 
 
@@ -632,26 +725,34 @@
         );
 
         return;
+
       }
 
 
-      if (password.length < 6) {
+      if (
+        password.length < 6
+      ) {
 
         showStatus(
           "Password must be at least 6 characters."
         );
 
         return;
+
       }
 
 
-      if (password !== confirmPassword) {
+      if (
+        password !==
+        confirmPassword
+      ) {
 
         showStatus(
           "Passwords do not match."
         );
 
         return;
+
       }
 
 
@@ -663,37 +764,41 @@
       try {
 
         const response =
-          await fetch("/api/register", {
+          await fetch(
+            "/api/register",
+            {
 
-            method: "POST",
+              method: "POST",
 
-            headers: {
-              "Content-Type":
-                "application/json"
-            },
+              headers: {
+                "Content-Type":
+                  "application/json"
+              },
 
-            body: JSON.stringify({
+              body:
+                JSON.stringify({
 
-              name: name,
+                  name,
 
-              username: username,
+                  username,
 
-              email: email,
+                  email,
 
-              phone: phone,
+                  phone,
 
-              password: password,
+                  password,
 
-              confirmPassword:
-                confirmPassword
+                  confirmPassword
 
-            })
+                })
 
-          });
+            }
+          );
 
 
         const data =
-          await response.json()
+          await response
+            .json()
             .catch(function() {
               return {};
             });
@@ -708,6 +813,7 @@
           );
 
           return;
+
         }
 
 
@@ -717,22 +823,31 @@
 
 
         document
-          .getElementById("loginEmail")
-          .value = email;
+          .getElementById(
+            "loginEmail"
+          )
+          .value =
+          email;
 
 
         document
-          .getElementById("loginPassword")
-          .value = "";
+          .getElementById(
+            "loginPassword"
+          )
+          .value =
+          "";
 
 
-        setTimeout(function() {
+        setTimeout(
+          function() {
 
-          showForm(
-            "loginForm"
-          );
+            showForm(
+              "loginForm"
+            );
 
-        }, 1200);
+          },
+          1200
+        );
 
 
       } catch (error) {
@@ -759,7 +874,9 @@
 
       const email =
         document
-          .getElementById("forgotEmail")
+          .getElementById(
+            "forgotEmail"
+          )
           .value
           .trim();
 
@@ -771,10 +888,12 @@
         );
 
         return;
+
       }
 
 
-      resetEmail = email;
+      resetEmail =
+        email;
 
 
       showStatus(
@@ -796,16 +915,18 @@
                   "application/json"
               },
 
-              body: JSON.stringify({
-                email: email
-              })
+              body:
+                JSON.stringify({
+                  email
+                })
 
             }
           );
 
 
         const data =
-          await response.json()
+          await response
+            .json()
             .catch(function() {
               return {};
             });
@@ -820,16 +941,13 @@
           );
 
           return;
+
         }
 
 
-        /*
-          Testing mode:
-          If Resend is not configured,
-          API may return testingCode.
-        */
-
-        if (data.testingCode) {
+        if (
+          data.testingCode
+        ) {
 
           showStatus(
             "Testing reset code: " +
@@ -846,13 +964,16 @@
         }
 
 
-        setTimeout(function() {
+        setTimeout(
+          function() {
 
-          showForm(
-            "resetForm"
-          );
+            showForm(
+              "resetForm"
+            );
 
-        }, 1500);
+          },
+          1200
+        );
 
 
       } catch (error) {
@@ -879,18 +1000,24 @@
 
       const code =
         document
-          .getElementById("resetCode")
+          .getElementById(
+            "resetCode"
+          )
           .value
           .trim();
 
       const newPassword =
         document
-          .getElementById("newPassword")
+          .getElementById(
+            "newPassword"
+          )
           .value;
 
       const confirmPassword =
         document
-          .getElementById("confirmNewPassword")
+          .getElementById(
+            "confirmNewPassword"
+          )
           .value;
 
 
@@ -901,6 +1028,7 @@
         );
 
         return;
+
       }
 
 
@@ -915,16 +1043,20 @@
         );
 
         return;
+
       }
 
 
-      if (newPassword.length < 6) {
+      if (
+        newPassword.length < 6
+      ) {
 
         showStatus(
           "Password must be at least 6 characters."
         );
 
         return;
+
       }
 
 
@@ -938,6 +1070,7 @@
         );
 
         return;
+
       }
 
 
@@ -960,26 +1093,27 @@
                   "application/json"
               },
 
-              body: JSON.stringify({
+              body:
+                JSON.stringify({
 
-                email: resetEmail,
+                  email:
+                    resetEmail,
 
-                code: code,
+                  code,
 
-                newPassword:
                   newPassword,
 
-                confirmPassword:
                   confirmPassword
 
-              })
+                })
 
             }
           );
 
 
         const data =
-          await response.json()
+          await response
+            .json()
             .catch(function() {
               return {};
             });
@@ -994,6 +1128,7 @@
           );
 
           return;
+
         }
 
 
@@ -1003,25 +1138,35 @@
 
 
         document
-          .getElementById("loginEmail")
-          .value = resetEmail;
+          .getElementById(
+            "loginEmail"
+          )
+          .value =
+          resetEmail;
 
 
         document
-          .getElementById("loginPassword")
-          .value = "";
+          .getElementById(
+            "loginPassword"
+          )
+          .value =
+          "";
 
 
-        resetEmail = "";
+        resetEmail =
+          "";
 
 
-        setTimeout(function() {
+        setTimeout(
+          function() {
 
-          showForm(
-            "loginForm"
-          );
+            showForm(
+              "loginForm"
+            );
 
-        }, 1200);
+          },
+          1200
+        );
 
 
       } catch (error) {
@@ -1042,4 +1187,5 @@
   </script>
 
 </body>
+
 </html>
