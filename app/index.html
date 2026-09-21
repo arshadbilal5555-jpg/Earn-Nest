@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#2563eb">
   <title>EarnNest</title>
+
   <style>
     * {
       box-sizing: border-box;
@@ -24,6 +25,10 @@
       text-align: center;
     }
 
+    .header h1 {
+      margin: 0;
+    }
+
     .container {
       max-width: 500px;
       margin: 30px auto;
@@ -37,8 +42,20 @@
       box-shadow: 0 4px 18px rgba(0,0,0,.08);
     }
 
-    h1 {
+    h2 {
       margin-top: 0;
+    }
+
+    p {
+      line-height: 1.5;
+    }
+
+    .form {
+      display: none;
+    }
+
+    .form.active {
+      display: block;
     }
 
     input {
@@ -48,6 +65,11 @@
       border: 1px solid #d1d5db;
       border-radius: 8px;
       font-size: 16px;
+      outline: none;
+    }
+
+    input:focus {
+      border-color: #2563eb;
     }
 
     button {
@@ -64,6 +86,27 @@
 
     button:hover {
       background: #1d4ed8;
+    }
+
+    button.secondary {
+      background: #6b7280;
+    }
+
+    button.secondary:hover {
+      background: #4b5563;
+    }
+
+    .text-button {
+      background: none;
+      color: #2563eb;
+      padding: 5px;
+      margin-top: 12px;
+    }
+
+    .text-button:hover {
+      background: none;
+      color: #1d4ed8;
+      text-decoration: underline;
     }
 
     .status {
@@ -83,7 +126,18 @@
     .links a {
       color: #2563eb;
       text-decoration: none;
-      margin: 0 8px;
+      margin: 0 6px;
+      font-size: 14px;
+    }
+
+    .divider {
+      margin: 18px 0;
+      border-top: 1px solid #e5e7eb;
+    }
+
+    .small {
+      font-size: 14px;
+      color: #6b7280;
     }
   </style>
 </head>
@@ -97,14 +151,156 @@
 
   <div class="container">
     <div class="card">
-      <h1>Welcome to EarnNest</h1>
-      <p>Create an account or sign in to continue.</p>
 
-      <input id="email" type="email" placeholder="Email address">
-      <input id="password" type="password" placeholder="Password">
+      <!-- LOGIN -->
+      <div id="loginForm" class="form active">
+        <h2>Welcome to EarnNest</h2>
+        <p>Sign in to continue.</p>
 
-      <button onclick="login()">Login</button>
-      <button onclick="register()">Create Account</button>
+        <input
+          id="loginEmail"
+          type="text"
+          placeholder="Email or Username"
+          autocomplete="username"
+        >
+
+        <input
+          id="loginPassword"
+          type="password"
+          placeholder="Password"
+          autocomplete="current-password"
+        >
+
+        <button onclick="login()">Login</button>
+
+        <button class="text-button" onclick="showForm('forgotForm')">
+          Forgot Password?
+        </button>
+
+        <div class="divider"></div>
+
+        <p class="small">Don't have an account?</p>
+
+        <button class="secondary" onclick="showForm('registerForm')">
+          Create Account
+        </button>
+      </div>
+
+
+      <!-- CREATE ACCOUNT -->
+      <div id="registerForm" class="form">
+        <h2>Create Account</h2>
+        <p>Create your EarnNest account.</p>
+
+        <input
+          id="registerName"
+          type="text"
+          placeholder="Full Name"
+          autocomplete="name"
+        >
+
+        <input
+          id="registerUsername"
+          type="text"
+          placeholder="Username"
+          autocomplete="username"
+        >
+
+        <input
+          id="registerEmail"
+          type="email"
+          placeholder="Email Address"
+          autocomplete="email"
+        >
+
+        <input
+          id="registerPhone"
+          type="tel"
+          placeholder="Phone Number"
+          autocomplete="tel"
+        >
+
+        <input
+          id="registerPassword"
+          type="password"
+          placeholder="Password"
+          autocomplete="new-password"
+        >
+
+        <input
+          id="registerConfirmPassword"
+          type="password"
+          placeholder="Confirm Password"
+          autocomplete="new-password"
+        >
+
+        <button onclick="register()">
+          Create Account
+        </button>
+
+        <button class="secondary" onclick="showForm('loginForm')">
+          Back to Login
+        </button>
+      </div>
+
+
+      <!-- FORGOT PASSWORD -->
+      <div id="forgotForm" class="form">
+        <h2>Forgot Password</h2>
+        <p>Enter your email address to reset your password.</p>
+
+        <input
+          id="forgotEmail"
+          type="email"
+          placeholder="Email Address"
+          autocomplete="email"
+        >
+
+        <button onclick="requestPasswordReset()">
+          Send Reset Code
+        </button>
+
+        <button class="secondary" onclick="showForm('loginForm')">
+          Back to Login
+        </button>
+      </div>
+
+
+      <!-- RESET PASSWORD -->
+      <div id="resetForm" class="form">
+        <h2>Reset Password</h2>
+        <p>Enter the reset code and your new password.</p>
+
+        <input
+          id="resetCode"
+          type="text"
+          placeholder="Verification Code"
+          autocomplete="one-time-code"
+        >
+
+        <input
+          id="newPassword"
+          type="password"
+          placeholder="New Password"
+          autocomplete="new-password"
+        >
+
+        <input
+          id="confirmNewPassword"
+          type="password"
+          placeholder="Confirm New Password"
+          autocomplete="new-password"
+        >
+
+        <button onclick="resetPassword()">
+          Reset Password
+        </button>
+
+        <button class="secondary" onclick="showForm('loginForm')">
+          Back to Login
+        </button>
+      </div>
+
 
       <div id="status" class="status"></div>
 
@@ -113,83 +309,401 @@
         <a href="/terms.html">Terms</a>
         <a href="/delete-account.html">Delete Account</a>
       </div>
+
     </div>
   </div>
 
+
   <script>
+
+    let resetEmail = "";
+
+
+    function showForm(formId) {
+      document.querySelectorAll(".form").forEach(function(form) {
+        form.classList.remove("active");
+      });
+
+      document.getElementById(formId).classList.add("active");
+
+      hideStatus();
+
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+      });
+    }
+
+
+    function showStatus(message) {
+      const box = document.getElementById("status");
+
+      box.textContent = message;
+      box.style.display = "block";
+    }
+
+
+    function hideStatus() {
+      const box = document.getElementById("status");
+
+      box.textContent = "";
+      box.style.display = "none";
+    }
+
+
     async function login() {
-      const email = document.getElementById("email").value.trim();
-      const password = document.getElementById("password").value;
+
+      const email = document
+        .getElementById("loginEmail")
+        .value
+        .trim();
+
+      const password = document
+        .getElementById("loginPassword")
+        .value;
 
       if (!email || !password) {
-        showStatus("Please enter email and password.");
+        showStatus("Please enter email/username and password.");
         return;
       }
 
-      showStatus("Connecting to EarnNest...");
+      showStatus("Logging in...");
 
       try {
+
         const response = await fetch("/api/login", {
           method: "POST",
           headers: {
             "Content-Type": "application/json"
           },
-          body: JSON.stringify({ email, password })
+          body: JSON.stringify({
+            email: email,
+            password: password
+          })
         });
 
-        const data = await response.json().catch(() => ({}));
+        const data = await response.json().catch(function() {
+          return {};
+        });
 
         if (!response.ok) {
           showStatus(data.error || "Login failed.");
           return;
         }
 
+        localStorage.setItem(
+          "earnnest_user",
+          JSON.stringify(data.user || data)
+        );
+
         showStatus("Login successful.");
-        localStorage.setItem("earnnest_user", JSON.stringify(data.user || data));
+
+        /*
+         * Dashboard redirect will be connected
+         * after the backend authentication is fixed.
+         */
 
       } catch (error) {
-        showStatus("Backend is not connected yet.");
+
+        console.error(error);
+
+        showStatus(
+          "Unable to connect to EarnNest server."
+        );
       }
     }
 
-    async function register() {
-      const email = document.getElementById("email").value.trim();
-      const password = document.getElementById("password").value;
 
-      if (!email || !password) {
-        showStatus("Please enter email and password.");
+    async function register() {
+
+      const name = document
+        .getElementById("registerName")
+        .value
+        .trim();
+
+      const username = document
+        .getElementById("registerUsername")
+        .value
+        .trim();
+
+      const email = document
+        .getElementById("registerEmail")
+        .value
+        .trim();
+
+      const phone = document
+        .getElementById("registerPhone")
+        .value
+        .trim();
+
+      const password = document
+        .getElementById("registerPassword")
+        .value;
+
+      const confirmPassword = document
+        .getElementById("registerConfirmPassword")
+        .value;
+
+
+      if (
+        !name ||
+        !username ||
+        !email ||
+        !phone ||
+        !password ||
+        !confirmPassword
+      ) {
+        showStatus("Please complete all fields.");
         return;
       }
 
+
+      if (password !== confirmPassword) {
+        showStatus("Passwords do not match.");
+        return;
+      }
+
+
+      if (password.length < 6) {
+        showStatus("Password must be at least 6 characters.");
+        return;
+      }
+
+
       showStatus("Creating account...");
 
+
       try {
+
         const response = await fetch("/api/register", {
           method: "POST",
           headers: {
             "Content-Type": "application/json"
           },
-          body: JSON.stringify({ email, password })
+          body: JSON.stringify({
+            name: name,
+            username: username,
+            email: email,
+            phone: phone,
+            password: password
+          })
         });
 
-        const data = await response.json().catch(() => ({}));
+
+        const data = await response.json().catch(function() {
+          return {};
+        });
+
 
         if (!response.ok) {
           showStatus(data.error || "Registration failed.");
           return;
         }
 
-        showStatus("Account created successfully.");
+
+        showStatus(
+          "Account created successfully. You can now login."
+        );
+
+
+        setTimeout(function() {
+          document.getElementById("loginEmail").value = email;
+
+          showForm("loginForm");
+        }, 1200);
+
+
       } catch (error) {
-        showStatus("Backend is not connected yet.");
+
+        console.error(error);
+
+        showStatus(
+          "Unable to connect to EarnNest server."
+        );
       }
     }
 
-    function showStatus(message) {
-      const box = document.getElementById("status");
-      box.textContent = message;
-      box.style.display = "block";
+
+    async function requestPasswordReset() {
+
+      const email = document
+        .getElementById("forgotEmail")
+        .value
+        .trim();
+
+
+      if (!email) {
+        showStatus("Please enter your email address.");
+        return;
+      }
+
+
+      resetEmail = email;
+
+      showStatus("Sending reset code...");
+
+
+      try {
+
+        const response = await fetch(
+          "/api/forgot-password",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              email: email
+            })
+          }
+        );
+
+
+        const data = await response.json().catch(function() {
+          return {};
+        });
+
+
+        if (!response.ok) {
+          showStatus(
+            data.error || "Unable to send reset code."
+          );
+          return;
+        }
+
+
+        showStatus(
+          data.message ||
+          "Reset code sent. Please check your email."
+        );
+
+
+        setTimeout(function() {
+          showForm("resetForm");
+        }, 1000);
+
+
+      } catch (error) {
+
+        console.error(error);
+
+        showStatus(
+          "Unable to connect to EarnNest server."
+        );
+      }
     }
+
+
+    async function resetPassword() {
+
+      const code = document
+        .getElementById("resetCode")
+        .value
+        .trim();
+
+      const newPassword = document
+        .getElementById("newPassword")
+        .value;
+
+      const confirmPassword = document
+        .getElementById("confirmNewPassword")
+        .value;
+
+
+      if (!resetEmail) {
+        showStatus(
+          "Please request a password reset first."
+        );
+        return;
+      }
+
+
+      if (!code || !newPassword || !confirmPassword) {
+        showStatus(
+          "Please complete all fields."
+        );
+        return;
+      }
+
+
+      if (newPassword !== confirmPassword) {
+        showStatus(
+          "Passwords do not match."
+        );
+        return;
+      }
+
+
+      if (newPassword.length < 6) {
+        showStatus(
+          "Password must be at least 6 characters."
+        );
+        return;
+      }
+
+
+      showStatus("Resetting password...");
+
+
+      try {
+
+        const response = await fetch(
+          "/api/reset-password",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              email: resetEmail,
+              code: code,
+              password: newPassword
+            })
+          }
+        );
+
+
+        const data = await response.json().catch(function() {
+          return {};
+        });
+
+
+        if (!response.ok) {
+          showStatus(
+            data.error || "Password reset failed."
+          );
+          return;
+        }
+
+
+        showStatus(
+          "Password reset successfully. Please login."
+        );
+
+
+        setTimeout(function() {
+
+          document.getElementById("loginEmail").value =
+            resetEmail;
+
+          document.getElementById("loginPassword").value =
+            "";
+
+          showForm("loginForm");
+
+        }, 1200);
+
+
+      } catch (error) {
+
+        console.error(error);
+
+        showStatus(
+          "Unable to connect to EarnNest server."
+        );
+      }
+    }
+
   </script>
 
 </body>
