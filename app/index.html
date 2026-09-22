@@ -3,219 +3,356 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#0f172a">
+  <meta name="theme-color" content="#071a12">
+  <meta name="description" content="EarnNest - Earn rewards, complete tasks and grow your balance.">
   <title>EarnNest - Earn. Grow. Reward.</title>
 
   <style>
-    *{box-sizing:border-box}
+    * {
+      box-sizing: border-box;
+    }
 
-    body{
-      margin:0;
-      min-height:100vh;
-      font-family:Inter,Arial,sans-serif;
-      color:#fff;
+    html,
+    body {
+      margin: 0;
+      min-height: 100%;
+    }
+
+    body {
+      min-height: 100vh;
+      font-family: Inter, Arial, Helvetica, sans-serif;
+      color: #fff;
       background:
-        radial-gradient(circle at 15% 20%,rgba(37,99,235,.35),transparent 35%),
-        radial-gradient(circle at 85% 80%,rgba(6,182,212,.25),transparent 35%),
-        linear-gradient(135deg,#020617,#0f172a 55%,#172554);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      padding:24px;
+        radial-gradient(circle at 10% 15%, rgba(16, 185, 129, .25), transparent 30%),
+        radial-gradient(circle at 90% 80%, rgba(6, 182, 212, .22), transparent 32%),
+        radial-gradient(circle at 50% 50%, rgba(34, 197, 94, .08), transparent 45%),
+        linear-gradient(135deg, #020617 0%, #071a12 48%, #082f24 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      overflow-x: hidden;
     }
 
-    .page{
-      width:100%;
-      max-width:1100px;
-      display:grid;
-      grid-template-columns:1fr 430px;
-      gap:50px;
-      align-items:center;
+    body::before,
+    body::after {
+      content: "";
+      position: fixed;
+      width: 380px;
+      height: 380px;
+      border-radius: 50%;
+      pointer-events: none;
+      filter: blur(70px);
+      opacity: .28;
+      animation: float 8s ease-in-out infinite alternate;
     }
 
-    .brand{
-      padding:20px;
+    body::before {
+      background: #10b981;
+      top: -180px;
+      left: -150px;
     }
 
-    .logo{
-      width:72px;
-      height:72px;
-      border-radius:22px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      background:linear-gradient(135deg,#2563eb,#06b6d4);
-      box-shadow:0 15px 45px rgba(37,99,235,.35);
-      font-size:38px;
-      margin-bottom:22px;
+    body::after {
+      background: #06b6d4;
+      right: -160px;
+      bottom: -180px;
+      animation-delay: 2s;
     }
 
-    .brand h1{
-      font-size:58px;
-      margin:0 0 12px;
-      letter-spacing:-2px;
-    }
-
-    .brand h1 span{
-      color:#38bdf8;
-    }
-
-    .brand p{
-      max-width:550px;
-      color:#cbd5e1;
-      font-size:19px;
-      line-height:1.7;
-    }
-
-    .features{
-      display:flex;
-      flex-wrap:wrap;
-      gap:12px;
-      margin-top:25px;
-    }
-
-    .feature{
-      padding:10px 15px;
-      border:1px solid rgba(255,255,255,.12);
-      background:rgba(255,255,255,.06);
-      border-radius:30px;
-      color:#dbeafe;
-      font-size:14px;
-    }
-
-    .panel{
-      background:rgba(255,255,255,.96);
-      color:#0f172a;
-      border-radius:26px;
-      padding:30px;
-      box-shadow:0 30px 80px rgba(0,0,0,.35);
-    }
-
-    .panel-head{
-      text-align:center;
-      margin-bottom:24px;
-    }
-
-    .panel-head h2{
-      margin:0 0 7px;
-      font-size:28px;
-    }
-
-    .panel-head p{
-      margin:0;
-      color:#64748b;
-    }
-
-    .form{display:none}
-    .form.active{display:block}
-
-    label{
-      display:block;
-      font-size:13px;
-      font-weight:700;
-      margin:14px 0 7px;
-      color:#334155;
-    }
-
-    input{
-      width:100%;
-      padding:14px 15px;
-      border:1px solid #dbe3ef;
-      border-radius:12px;
-      outline:none;
-      font-size:15px;
-      background:#f8fafc;
-      transition:.2s;
-    }
-
-    input:focus{
-      border-color:#2563eb;
-      box-shadow:0 0 0 4px rgba(37,99,235,.1);
-      background:#fff;
-    }
-
-    .btn{
-      width:100%;
-      border:0;
-      border-radius:12px;
-      padding:14px;
-      margin-top:18px;
-      font-size:16px;
-      font-weight:700;
-      color:white;
-      cursor:pointer;
-      background:linear-gradient(135deg,#2563eb,#0891b2);
-      box-shadow:0 10px 25px rgba(37,99,235,.2);
-    }
-
-    .btn:hover{
-      transform:translateY(-1px);
-    }
-
-    .links{
-      text-align:center;
-      margin-top:18px;
-      display:flex;
-      justify-content:center;
-      gap:14px;
-      flex-wrap:wrap;
-    }
-
-    .links button{
-      border:0;
-      background:none;
-      color:#2563eb;
-      cursor:pointer;
-      font-weight:600;
-    }
-
-    .message{
-      display:none;
-      margin:15px 0;
-      padding:12px;
-      border-radius:10px;
-      font-size:14px;
-    }
-
-    .message.show{display:block}
-    .message.error{
-      background:#fee2e2;
-      color:#991b1b;
-    }
-
-    .message.success{
-      background:#dcfce7;
-      color:#166534;
-    }
-
-    .mini{
-      text-align:center;
-      margin-top:20px;
-      color:#94a3b8;
-      font-size:12px;
-    }
-
-    @media(max-width:850px){
-      .page{
-        grid-template-columns:1fr;
-        max-width:520px;
+    @keyframes float {
+      from {
+        transform: translate3d(0, 0, 0);
       }
 
-      .brand{
-        text-align:center;
+      to {
+        transform: translate3d(35px, 25px, 0);
+      }
+    }
+
+    .page {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 1120px;
+      display: grid;
+      grid-template-columns: 1fr 430px;
+      gap: 60px;
+      align-items: center;
+    }
+
+    .brand {
+      padding: 25px;
+    }
+
+    .logo {
+      width: 82px;
+      height: 82px;
+      border-radius: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #10b981, #06b6d4);
+      box-shadow:
+        0 20px 50px rgba(16, 185, 129, .25),
+        inset 0 1px 0 rgba(255, 255, 255, .35);
+      margin-bottom: 25px;
+    }
+
+    .logo svg {
+      width: 52px;
+      height: 52px;
+    }
+
+    .brand h1 {
+      margin: 0 0 14px;
+      font-size: clamp(44px, 6vw, 66px);
+      line-height: 1;
+      letter-spacing: -3px;
+      font-weight: 800;
+    }
+
+    .brand h1 span {
+      color: #34d399;
+    }
+
+    .brand p {
+      max-width: 580px;
+      margin: 0;
+      color: #cbd5e1;
+      font-size: 19px;
+      line-height: 1.75;
+    }
+
+    .features {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 11px;
+      margin-top: 28px;
+    }
+
+    .feature {
+      padding: 10px 15px;
+      border: 1px solid rgba(255, 255, 255, .10);
+      background: rgba(255, 255, 255, .055);
+      backdrop-filter: blur(12px);
+      border-radius: 30px;
+      color: #d1fae5;
+      font-size: 14px;
+    }
+
+    .panel {
+      width: 100%;
+      background: rgba(255, 255, 255, .97);
+      color: #0f172a;
+      border: 1px solid rgba(255, 255, 255, .3);
+      border-radius: 28px;
+      padding: 30px;
+      box-shadow: 0 30px 90px rgba(0, 0, 0, .4);
+      backdrop-filter: blur(20px);
+    }
+
+    .panel-head {
+      text-align: center;
+      margin-bottom: 22px;
+    }
+
+    .panel-head h2 {
+      margin: 0 0 7px;
+      font-size: 29px;
+      letter-spacing: -.5px;
+    }
+
+    .panel-head p {
+      margin: 0;
+      color: #64748b;
+      font-size: 14px;
+    }
+
+    .form {
+      display: none;
+    }
+
+    .form.active {
+      display: block;
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 700;
+      margin: 15px 0 7px;
+      color: #334155;
+    }
+
+    input {
+      width: 100%;
+      padding: 14px 15px;
+      border: 1px solid #dbe3ef;
+      border-radius: 12px;
+      outline: none;
+      font-size: 15px;
+      color: #0f172a;
+      background: #f8fafc;
+      transition: .2s ease;
+    }
+
+    input:hover {
+      border-color: #cbd5e1;
+    }
+
+    input:focus {
+      border-color: #10b981;
+      box-shadow: 0 0 0 4px rgba(16, 185, 129, .12);
+      background: #fff;
+    }
+
+    .btn {
+      width: 100%;
+      border: 0;
+      border-radius: 13px;
+      padding: 14px;
+      margin-top: 20px;
+      font-size: 16px;
+      font-weight: 750;
+      color: #fff;
+      cursor: pointer;
+      background: linear-gradient(135deg, #059669, #06b6d4);
+      box-shadow: 0 12px 28px rgba(5, 150, 105, .22);
+      transition: .2s ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 16px 32px rgba(5, 150, 105, .28);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    .btn:disabled {
+      opacity: .65;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .links {
+      text-align: center;
+      margin-top: 18px;
+      display: flex;
+      justify-content: center;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .links button {
+      border: 0;
+      padding: 0;
+      background: none;
+      color: #059669;
+      cursor: pointer;
+      font-weight: 650;
+      font-size: 13px;
+    }
+
+    .links button:hover {
+      text-decoration: underline;
+    }
+
+    .message {
+      display: none;
+      margin: 15px 0;
+      padding: 12px 14px;
+      border-radius: 11px;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .message.show {
+      display: block;
+    }
+
+    .message.error {
+      background: #fee2e2;
+      color: #991b1b;
+      border: 1px solid #fecaca;
+    }
+
+    .message.success {
+      background: #dcfce7;
+      color: #166534;
+      border: 1px solid #bbf7d0;
+    }
+
+    .mini {
+      text-align: center;
+      margin-top: 22px;
+      color: #94a3b8;
+      font-size: 12px;
+    }
+
+    .secure {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 6px;
+      margin-top: 10px;
+      color: #64748b;
+      font-size: 11px;
+    }
+
+    @media (max-width: 850px) {
+      body {
+        padding: 18px;
       }
 
-      .brand h1{
-        font-size:44px;
+      .page {
+        grid-template-columns: 1fr;
+        max-width: 530px;
+        gap: 20px;
       }
 
-      .brand p{
-        margin-left:auto;
-        margin-right:auto;
+      .brand {
+        text-align: center;
+        padding: 10px;
       }
 
-      .features{
-        justify-content:center;
+      .logo {
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      .brand h1 {
+        font-size: 48px;
+      }
+
+      .brand p {
+        margin-left: auto;
+        margin-right: auto;
+        font-size: 16px;
+      }
+
+      .features {
+        justify-content: center;
+      }
+
+      .panel {
+        padding: 25px 21px;
+      }
+    }
+
+    @media (max-width: 420px) {
+      body {
+        padding: 12px;
+      }
+
+      .brand h1 {
+        font-size: 42px;
+      }
+
+      .panel {
+        border-radius: 22px;
       }
     }
   </style>
@@ -223,425 +360,864 @@
 
 <body>
 
-<div class="page">
+  <main class="page">
 
-  <section class="brand">
-    <div class="logo">🪺</div>
+    <!-- BRAND -->
+    <section class="brand">
 
-    <h1>Earn<span>Nest</span></h1>
+      <div class="logo" aria-label="EarnNest logo">
+        <svg viewBox="0 0 64 64" fill="none" aria-hidden="true">
+          <path
+            d="M13 28C13 19.716 19.716 13 28 13H36C44.284 13 51 19.716 51 28V39C51 47.284 44.284 54 36 54H28C19.716 54 13 47.284 13 39V28Z"
+            fill="white"
+            fill-opacity=".95"
+          />
+          <path
+            d="M21 31C25 27 30 27 34 31C38 35 43 35 47 31"
+            stroke="#059669"
+            stroke-width="4"
+            stroke-linecap="round"
+          />
+          <circle cx="25" cy="23" r="3" fill="#06B6D4"/>
+          <circle cx="39" cy="23" r="3" fill="#10B981"/>
+        </svg>
+      </div>
 
-    <p>
-      Earn rewards, complete tasks, grow your balance and manage
-      everything from one simple and modern platform.
-    </p>
+      <h1>Earn<span>Nest</span></h1>
 
-    <div class="features">
-      <div class="feature">🎁 Daily Rewards</div>
-      <div class="feature">💰 Earn Coins</div>
-      <div class="feature">🤝 Referrals</div>
-      <div class="feature">🔐 Secure Account</div>
-    </div>
-  </section>
+      <p>
+        Earn rewards, complete tasks, grow your balance and manage
+        everything from one simple and modern platform.
+      </p>
 
-  <section class="panel">
+      <div class="features">
+        <div class="feature">🎁 Daily Rewards</div>
+        <div class="feature">💰 Earn Coins</div>
+        <div class="feature">📋 Tasks & Surveys</div>
+        <div class="feature">🤝 Referrals</div>
+        <div class="feature">🔐 Secure Account</div>
+      </div>
 
-    <div class="panel-head">
-      <h2 id="formTitle">Welcome Back</h2>
-      <p id="formSubtitle">Login to your EarnNest account</p>
-    </div>
+    </section>
 
-    <div id="message" class="message"></div>
+    <!-- AUTH PANEL -->
+    <section class="panel">
 
-    <!-- LOGIN -->
+      <div class="panel-head">
+        <h2 id="formTitle">Welcome Back</h2>
+        <p id="formSubtitle">Login to your EarnNest account</p>
+      </div>
 
-    <form id="loginForm" class="form active">
+      <div id="message" class="message" role="alert"></div>
 
-      <label>Email or Username</label>
-      <input id="loginEmail" type="text" required autocomplete="username">
+      <!-- LOGIN -->
+      <form id="loginForm" class="form active" novalidate>
 
-      <label>Password</label>
-      <input id="loginPassword" type="password" required autocomplete="current-password">
+        <label for="loginEmail">Email or Username</label>
+        <input
+          id="loginEmail"
+          type="text"
+          required
+          autocomplete="username"
+          placeholder="Enter email or username"
+        >
 
-      <button class="btn" type="submit">
-        Login
-      </button>
+        <label for="loginPassword">Password</label>
+        <input
+          id="loginPassword"
+          type="password"
+          required
+          autocomplete="current-password"
+          placeholder="Enter password"
+        >
 
-      <div class="links">
-        <button type="button" onclick="showForm('forgot')">
-          Forgot Password?
+        <button id="loginButton" class="btn" type="submit">
+          Login
         </button>
 
-        <button type="button" onclick="showForm('register')">
+        <div class="links">
+          <button type="button" onclick="showForm('forgot')">
+            Forgot Password?
+          </button>
+
+          <button type="button" onclick="showForm('register')">
+            Create Account
+          </button>
+        </div>
+
+      </form>
+
+      <!-- REGISTER -->
+      <form id="registerForm" class="form" novalidate>
+
+        <label for="regName">Full Name</label>
+        <input
+          id="regName"
+          type="text"
+          required
+          autocomplete="name"
+          placeholder="Your full name"
+        >
+
+        <label for="regUsername">Username</label>
+        <input
+          id="regUsername"
+          type="text"
+          required
+          autocomplete="username"
+          placeholder="Choose a username"
+        >
+
+        <label for="regEmail">Email</label>
+        <input
+          id="regEmail"
+          type="email"
+          required
+          autocomplete="email"
+          placeholder="you@example.com"
+        >
+
+        <label for="regPhone">Phone Number</label>
+        <input
+          id="regPhone"
+          type="tel"
+          required
+          autocomplete="tel"
+          placeholder="Phone number"
+        >
+
+        <label for="regPassword">Password</label>
+        <input
+          id="regPassword"
+          type="password"
+          required
+          autocomplete="new-password"
+          placeholder="Create a password"
+        >
+
+        <label for="regConfirm">Confirm Password</label>
+        <input
+          id="regConfirm"
+          type="password"
+          required
+          autocomplete="new-password"
+          placeholder="Confirm password"
+        >
+
+        <button id="registerButton" class="btn" type="submit">
           Create Account
         </button>
-      </div>
 
-    </form>
+        <div class="links">
+          <button type="button" onclick="showForm('login')">
+            Already have an account? Login
+          </button>
+        </div>
 
-    <!-- REGISTER -->
+      </form>
 
-    <form id="registerForm" class="form">
+      <!-- FORGOT -->
+      <form id="forgotForm" class="form" novalidate>
 
-      <label>Full Name</label>
-      <input id="regName" type="text" required>
+        <label for="forgotEmail">Email</label>
+        <input
+          id="forgotEmail"
+          type="email"
+          required
+          autocomplete="email"
+          placeholder="Enter your email"
+        >
 
-      <label>Username</label>
-      <input id="regUsername" type="text" required>
-
-      <label>Email</label>
-      <input id="regEmail" type="email" required>
-
-      <label>Phone Number</label>
-      <input id="regPhone" type="tel" required>
-
-      <label>Password</label>
-      <input id="regPassword" type="password" required>
-
-      <label>Confirm Password</label>
-      <input id="regConfirm" type="password" required>
-
-      <button class="btn" type="submit">
-        Create Account
-      </button>
-
-      <div class="links">
-        <button type="button" onclick="showForm('login')">
-          Already have an account? Login
-        </button>
-      </div>
-
-    </form>
-
-    <!-- FORGOT -->
-
-    <form id="forgotForm" class="form">
-
-      <label>Email</label>
-      <input id="forgotEmail" type="email" required>
-
-      <button class="btn" type="submit">
-        Send Reset Code
-      </button>
-
-      <div class="links">
-        <button type="button" onclick="showForm('reset')">
-          I already have a code
+        <button id="forgotButton" class="btn" type="submit">
+          Send Reset Code
         </button>
 
-        <button type="button" onclick="showForm('login')">
-          Back to Login
+        <div class="links">
+          <button type="button" onclick="showForm('reset')">
+            I already have a code
+          </button>
+
+          <button type="button" onclick="showForm('login')">
+            Back to Login
+          </button>
+        </div>
+
+      </form>
+
+      <!-- RESET -->
+      <form id="resetForm" class="form" novalidate>
+
+        <label for="resetEmail">Email</label>
+        <input
+          id="resetEmail"
+          type="email"
+          required
+          autocomplete="email"
+          placeholder="Your email"
+        >
+
+        <label for="resetCode">Verification Code</label>
+        <input
+          id="resetCode"
+          type="text"
+          maxlength="6"
+          inputmode="numeric"
+          required
+          placeholder="6-digit code"
+        >
+
+        <label for="newPassword">New Password</label>
+        <input
+          id="newPassword"
+          type="password"
+          required
+          autocomplete="new-password"
+          placeholder="New password"
+        >
+
+        <label for="newConfirm">Confirm Password</label>
+        <input
+          id="newConfirm"
+          type="password"
+          required
+          autocomplete="new-password"
+          placeholder="Confirm password"
+        >
+
+        <button id="resetButton" class="btn" type="submit">
+          Reset Password
         </button>
+
+        <div class="links">
+          <button type="button" onclick="showForm('login')">
+            Back to Login
+          </button>
+        </div>
+
+      </form>
+
+      <div class="secure">
+        🔒 Your account connection is protected
       </div>
 
-    </form>
-
-    <!-- RESET -->
-
-    <form id="resetForm" class="form">
-
-      <label>Email</label>
-      <input id="resetEmail" type="email" required>
-
-      <label>Verification Code</label>
-      <input id="resetCode" type="text" maxlength="6" required>
-
-      <label>New Password</label>
-      <input id="newPassword" type="password" required>
-
-      <label>Confirm Password</label>
-      <input id="newConfirm" type="password" required>
-
-      <button class="btn" type="submit">
-        Reset Password
-      </button>
-
-      <div class="links">
-        <button type="button" onclick="showForm('login')">
-          Back to Login
-        </button>
+      <div class="mini">
+        © 2026 EarnNest. All rights reserved.
       </div>
 
-    </form>
+    </section>
 
-    <div class="mini">
-      © 2026 EarnNest. All rights reserved.
-    </div>
-
-  </section>
-
-</div>
+  </main>
 
 <script>
+"use strict";
 
-const $ = id => document.getElementById(id);
+/* =========================================================
+   BASIC HELPERS
+========================================================= */
 
-function showMessage(text,type="error"){
-  const box=$("message");
-  box.textContent=text;
-  box.className="message show "+type;
+const $ = (id) => document.getElementById(id);
+
+function showMessage(text, type = "error") {
+  const box = $("message");
+
+  if (!box) return;
+
+  box.textContent = text || "";
+  box.className = "message show " + type;
 }
 
-function clearMessage(){
-  $("message").className="message";
+function clearMessage() {
+  const box = $("message");
+
+  if (!box) return;
+
+  box.textContent = "";
+  box.className = "message";
 }
 
-function showForm(name){
+function setButtonLoading(button, loading, normalText) {
+  if (!button) return;
+
+  button.disabled = loading;
+  button.textContent = loading ? "Please wait..." : normalText;
+}
+
+/* =========================================================
+   FORM SWITCHING
+========================================================= */
+
+function showForm(name) {
 
   clearMessage();
 
-  document.querySelectorAll(".form").forEach(x=>{
-    x.classList.remove("active");
+  document.querySelectorAll(".form").forEach((form) => {
+    form.classList.remove("active");
   });
 
-  $(name+"Form").classList.add("active");
+  const target = $(name + "Form");
 
-  const titles={
-    login:["Welcome Back","Login to your EarnNest account"],
-    register:["Create Account","Join EarnNest and start earning"],
-    forgot:["Forgot Password","Receive a verification code"],
-    reset:["Reset Password","Create your new password"]
+  if (!target) return;
+
+  target.classList.add("active");
+
+  const titles = {
+    login: [
+      "Welcome Back",
+      "Login to your EarnNest account"
+    ],
+    register: [
+      "Create Account",
+      "Join EarnNest and start earning"
+    ],
+    forgot: [
+      "Forgot Password",
+      "Receive a verification code"
+    ],
+    reset: [
+      "Reset Password",
+      "Create your new password"
+    ]
   };
 
-  $("formTitle").textContent=titles[name][0];
-  $("formSubtitle").textContent=titles[name][1];
+  if (titles[name]) {
+    $("formTitle").textContent = titles[name][0];
+    $("formSubtitle").textContent = titles[name][1];
+  }
 }
 
-async function request(url,options={}){
+/* =========================================================
+   API REQUEST
+========================================================= */
 
-  const response=await fetch(url,{
+async function request(url, options = {}) {
+
+  const headers = {
+    "Content-Type": "application/json",
+    ...(options.headers || {})
+  };
+
+  const response = await fetch(url, {
     ...options,
-    headers:{
-      "Content-Type":"application/json",
-      ...(options.headers||{})
-    }
+    headers,
+    credentials: "same-origin"
   });
 
-  let data={};
+  let data = {};
 
-  try{
-    data=await response.json();
-  }catch{}
+  try {
+    data = await response.json();
+  } catch (error) {
+    data = {};
+  }
 
-  return {response,data};
+  return {
+    response,
+    data
+  };
 }
 
-/* LOGIN */
+/* =========================================================
+   SAVE AUTHENTICATION
+========================================================= */
 
-$("loginForm").addEventListener("submit",async e=>{
+function saveAuthentication(user, token) {
 
-  e.preventDefault();
+  if (user) {
+    localStorage.setItem(
+      "earnnest_user",
+      JSON.stringify(user)
+    );
+  }
+
+  if (token) {
+
+    /*
+      Save the token under all keys used by the
+      current EarnNest pages.
+    */
+
+    localStorage.setItem(
+      "earnNestToken",
+      token
+    );
+
+    localStorage.setItem(
+      "earnnest_token",
+      token
+    );
+
+    localStorage.setItem(
+      "token",
+      token
+    );
+
+    localStorage.setItem(
+      "authToken",
+      token
+    );
+  }
+}
+
+/* =========================================================
+   LOGIN
+========================================================= */
+
+$("loginForm").addEventListener("submit", async (event) => {
+
+  event.preventDefault();
   clearMessage();
 
-  const login=$("loginEmail").value.trim();
-  const password=$("loginPassword").value;
+  const login = $("loginEmail").value.trim();
+  const password = $("loginPassword").value;
 
-  try{
+  if (!login) {
+    showMessage("Please enter your email or username.");
+    $("loginEmail").focus();
+    return;
+  }
 
-    const {response,data}=await request("/api/login",{
-      method:"POST",
-      body:JSON.stringify({
-        login,
-        email:login,
-        password
+  if (!password) {
+    showMessage("Please enter your password.");
+    $("loginPassword").focus();
+    return;
+  }
+
+  const button = $("loginButton");
+
+  setButtonLoading(
+    button,
+    true,
+    "Login"
+  );
+
+  try {
+
+    const result = await request("/api/login", {
+      method: "POST",
+      body: JSON.stringify({
+        login: login,
+        email: login,
+        password: password
       })
     });
 
-    if(!response.ok){
-      showMessage(data.message||data.error||"Login failed.");
+    const response = result.response;
+    const data = result.data;
+
+    console.log("EarnNest login response:", {
+      status: response.status,
+      success: data.success,
+      user: data.user ? {
+        id: data.user.id,
+        username: data.user.username,
+        role: data.user.role
+      } : null
+    });
+
+    if (!response.ok) {
+
+      showMessage(
+        data.message ||
+        data.error ||
+        "Login failed."
+      );
+
       return;
     }
 
-    if(!data.user){
-      showMessage("Login response is invalid.");
+    if (!data.user) {
+
+      showMessage(
+        "Login response is missing user information."
+      );
+
       return;
     }
 
-    localStorage.setItem(
-      "earnnest_user",
-      JSON.stringify(data.user)
+    if (!data.token) {
+
+      showMessage(
+        "Login successful, but authentication token was not received."
+      );
+
+      console.error(
+        "Login API did not return a token:",
+        data
+      );
+
+      return;
+    }
+
+    /*
+      Save user + token before redirect.
+    */
+    saveAuthentication(
+      data.user,
+      data.token
     );
 
-    if(data.token){
-      localStorage.setItem(
-        "earnnest_token",
-        data.token
-      );
-    }
-
-    showMessage("Login successful. Opening your account...","success");
+    showMessage(
+      "Login successful. Opening your account...",
+      "success"
+    );
 
     /*
       IMPORTANT:
-      Redirect is based on role returned by API.
+      Use actual files in the /app folder.
     */
 
-    setTimeout(()=>{
+    setTimeout(() => {
 
-      if(data.user.role==="admin"){
-        window.location.replace("/admin");
-      }else{
-        window.location.replace("/dashboard");
+      if (
+        String(data.user.role || "").toLowerCase() === "admin"
+      ) {
+
+        window.location.replace(
+          "/app/Admin.html"
+        );
+
+      } else {
+
+        window.location.replace(
+          "/app/dashboard.html"
+        );
       }
 
-    },300);
+    }, 500);
 
-  }catch(error){
+  } catch (error) {
 
-    console.error(error);
-    showMessage("Unable to connect to EarnNest server.");
+    console.error(
+      "EarnNest login error:",
+      error
+    );
 
+    showMessage(
+      "Unable to connect to EarnNest server."
+    );
+
+  } finally {
+
+    setButtonLoading(
+      button,
+      false,
+      "Login"
+    );
   }
 
 });
 
-/* REGISTER */
+/* =========================================================
+   REGISTER
+========================================================= */
 
-$("registerForm").addEventListener("submit",async e=>{
+$("registerForm").addEventListener("submit", async (event) => {
 
-  e.preventDefault();
+  event.preventDefault();
   clearMessage();
 
-  const password=$("regPassword").value;
-  const confirm=$("regConfirm").value;
+  const name = $("regName").value.trim();
+  const username = $("regUsername").value.trim();
+  const email = $("regEmail").value.trim();
+  const phone = $("regPhone").value.trim();
+  const password = $("regPassword").value;
+  const confirm = $("regConfirm").value;
 
-  if(password!==confirm){
+  if (!name) {
+    showMessage("Please enter your full name.");
+    return;
+  }
+
+  if (!username) {
+    showMessage("Please enter a username.");
+    return;
+  }
+
+  if (!email) {
+    showMessage("Please enter your email.");
+    return;
+  }
+
+  if (!phone) {
+    showMessage("Please enter your phone number.");
+    return;
+  }
+
+  if (!password) {
+    showMessage("Please enter a password.");
+    return;
+  }
+
+  if (password !== confirm) {
     showMessage("Passwords do not match.");
     return;
   }
 
-  try{
+  const button = $("registerButton");
 
-    const {response,data}=await request("/api/register",{
-      method:"POST",
-      body:JSON.stringify({
-        name:$("regName").value.trim(),
-        username:$("regUsername").value.trim(),
-        email:$("regEmail").value.trim(),
-        phone:$("regPhone").value.trim(),
+  setButtonLoading(
+    button,
+    true,
+    "Create Account"
+  );
+
+  try {
+
+    const result = await request("/api/register", {
+      method: "POST",
+      body: JSON.stringify({
+        name,
+        username,
+        email,
+        phone,
         password,
-        confirmPassword:confirm
+        confirmPassword: confirm
       })
     });
 
-    if(!response.ok){
-      showMessage(data.message||data.error||"Registration failed.");
+    const response = result.response;
+    const data = result.data;
+
+    if (!response.ok) {
+
+      showMessage(
+        data.message ||
+        data.error ||
+        "Registration failed."
+      );
+
       return;
     }
 
     showMessage(
+      data.message ||
       "Account created successfully. Please login.",
       "success"
     );
 
-    $("loginEmail").value=$("regEmail").value.trim();
+    $("loginEmail").value = email;
 
-    setTimeout(()=>{
+    setTimeout(() => {
       showForm("login");
-    },1000);
+    }, 1000);
 
-  }catch(error){
+  } catch (error) {
 
-    console.error(error);
-    showMessage("Unable to connect to server.");
+    console.error(
+      "Registration error:",
+      error
+    );
 
+    showMessage(
+      "Unable to connect to EarnNest server."
+    );
+
+  } finally {
+
+    setButtonLoading(
+      button,
+      false,
+      "Create Account"
+    );
   }
 
 });
 
-/* FORGOT */
+/* =========================================================
+   FORGOT PASSWORD
+========================================================= */
 
-$("forgotForm").addEventListener("submit",async e=>{
+$("forgotForm").addEventListener("submit", async (event) => {
 
-  e.preventDefault();
+  event.preventDefault();
   clearMessage();
 
-  const email=$("forgotEmail").value.trim();
+  const email = $("forgotEmail").value.trim();
 
-  try{
+  if (!email) {
+    showMessage("Please enter your email.");
+    return;
+  }
 
-    const {response,data}=await request("/api/forgot-password",{
-      method:"POST",
-      body:JSON.stringify({email})
-    });
+  const button = $("forgotButton");
 
-    if(!response.ok){
-      showMessage(data.message||data.error||"Unable to send reset code.");
+  setButtonLoading(
+    button,
+    true,
+    "Send Reset Code"
+  );
+
+  try {
+
+    const result = await request(
+      "/api/forgot-password",
+      {
+        method: "POST",
+        body: JSON.stringify({
+          email
+        })
+      }
+    );
+
+    const response = result.response;
+    const data = result.data;
+
+    if (!response.ok) {
+
+      showMessage(
+        data.message ||
+        data.error ||
+        "Unable to send reset code."
+      );
+
       return;
     }
 
-    $("resetEmail").value=email;
+    $("resetEmail").value = email;
 
-    let message=data.message||"Reset code sent.";
+    let message =
+      data.message ||
+      "Reset code sent successfully.";
 
-    if(data.testingCode){
-      message+=" Testing code: "+data.testingCode;
+    if (data.testingCode) {
+      message +=
+        " Testing code: " +
+        data.testingCode;
     }
 
-    showMessage(message,"success");
+    showMessage(
+      message,
+      "success"
+    );
 
-    setTimeout(()=>{
+    setTimeout(() => {
       showForm("reset");
-    },1000);
+    }, 1000);
 
-  }catch(error){
+  } catch (error) {
 
-    console.error(error);
-    showMessage("Unable to connect to server.");
+    console.error(
+      "Forgot password error:",
+      error
+    );
 
+    showMessage(
+      "Unable to connect to EarnNest server."
+    );
+
+  } finally {
+
+    setButtonLoading(
+      button,
+      false,
+      "Send Reset Code"
+    );
   }
 
 });
 
-/* RESET */
+/* =========================================================
+   RESET PASSWORD
+========================================================= */
 
-$("resetForm").addEventListener("submit",async e=>{
+$("resetForm").addEventListener("submit", async (event) => {
 
-  e.preventDefault();
+  event.preventDefault();
   clearMessage();
 
-  const password=$("newPassword").value;
-  const confirm=$("newConfirm").value;
+  const email = $("resetEmail").value.trim();
+  const code = $("resetCode").value.trim();
+  const password = $("newPassword").value;
+  const confirm = $("newConfirm").value;
 
-  if(password!==confirm){
+  if (!email) {
+    showMessage("Please enter your email.");
+    return;
+  }
+
+  if (!code) {
+    showMessage("Please enter the verification code.");
+    return;
+  }
+
+  if (!password) {
+    showMessage("Please enter a new password.");
+    return;
+  }
+
+  if (password !== confirm) {
     showMessage("Passwords do not match.");
     return;
   }
 
-  try{
+  const button = $("resetButton");
 
-    const {response,data}=await request("/api/reset-password",{
-      method:"POST",
-      body:JSON.stringify({
-        email:$("resetEmail").value.trim(),
-        code:$("resetCode").value.trim(),
-        newPassword:password,
-        confirmPassword:confirm
-      })
-    });
+  setButtonLoading(
+    button,
+    true,
+    "Reset Password"
+  );
 
-    if(!response.ok){
-      showMessage(data.message||data.error||"Password reset failed.");
+  try {
+
+    const result = await request(
+      "/api/reset-password",
+      {
+        method: "POST",
+        body: JSON.stringify({
+          email,
+          code,
+          newPassword: password,
+          confirmPassword: confirm
+        })
+      }
+    );
+
+    const response = result.response;
+    const data = result.data;
+
+    if (!response.ok) {
+
+      showMessage(
+        data.message ||
+        data.error ||
+        "Password reset failed."
+      );
+
       return;
     }
 
     showMessage(
+      data.message ||
       "Password reset successfully. Please login.",
       "success"
     );
 
-    setTimeout(()=>{
+    setTimeout(() => {
       showForm("login");
-    },1200);
+    }, 1200);
 
-  }catch(error){
+  } catch (error) {
 
-    console.error(error);
-    showMessage("Unable to connect to server.");
+    console.error(
+      "Password reset error:",
+      error
+    );
 
+    showMessage(
+      "Unable to connect to EarnNest server."
+    );
+
+  } finally {
+
+    setButtonLoading(
+      button,
+      false,
+      "Reset Password"
+    );
   }
 
 });
-
 </script>
 
 </body>
