@@ -23,7 +23,7 @@
   "dependencies": {
     "@capacitor/core": "^7.4.0",
     "@capacitor/android": "^7.4.0",
-    "@neondatabase/serverless": "^1.0.2"
+    "@neondatabase/serverless": "^0.10.4"
   }
 }
 ```
