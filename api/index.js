@@ -50,31 +50,12 @@ function getBearer(req) {
   return header.slice(7).trim();
 }
 
-async function getAdmin(req) {
-  const token = getBearer(req);
-
-  if (!token) {
-    return null;
-  }
-
-  try {
-    const rows = await sql`
-      SELECT u.*
-      FROM admin_sessions s
-      JOIN users u ON u.id = s.user_id
-      WHERE s.token = ${token}
-        AND s.expires_at > NOW()
-        AND u.role = 'admin'
-      LIMIT 1
-    `;
-
-    return rows[0] || null;
-  } catch {
-    return null;
-  }
-}
+/* =========================================================
+   ENSURE ADMIN
+========================================================= */
 
 async function ensureAdmin() {
+
   await sql`
     INSERT INTO users
       (id, name, username, email, phone, password, role, coins)
@@ -104,16 +85,220 @@ async function ensureAdmin() {
   `;
 }
 
+
+/* =========================================================
+   EXTRA REWARD TABLE
+   This table safely stores task/survey/bonus claims.
+========================================================= */
+
+async function ensureRewardTable() {
+
+  await sql`
+    CREATE TABLE IF NOT EXISTS reward_claims (
+      id TEXT PRIMARY KEY,
+      user_id TEXT NOT NULL,
+      reward_type TEXT NOT NULL,
+      reference_key TEXT NOT NULL,
+      title TEXT NOT NULL,
+      amount INTEGER NOT NULL,
+      created_at TIMESTAMPTZ DEFAULT NOW(),
+      UNIQUE(user_id, reward_type, reference_key)
+    )
+  `;
+
+  await sql`
+    CREATE INDEX IF NOT EXISTS reward_claims_user_idx
+    ON reward_claims(user_id)
+  `;
+}
+
+
+/* =========================================================
+   GET USER FROM SESSION
+========================================================= */
+
+async function getSessionUser(req) {
+
+  const token = getBearer(req);
+
+  if (!token) {
+    return null;
+  }
+
+  const rows = await sql`
+    SELECT
+      u.*
+    FROM admin_sessions s
+    JOIN users u
+      ON u.id = s.user_id
+    WHERE
+      s.token = ${token}
+      AND s.expires_at > NOW()
+    LIMIT 1
+  `;
+
+  return rows[0] || null;
+}
+
+
+/* =========================================================
+   WALLET
+========================================================= */
+
+async function getWallet(userId) {
+
+  let rows = await sql`
+    SELECT *
+    FROM wallets
+    WHERE user_id = ${userId}
+    LIMIT 1
+  `;
+
+  if (!rows.length) {
+
+    await sql`
+      INSERT INTO wallets
+        (user_id, balance, total_earned, total_withdrawn)
+      VALUES
+        (${userId}, 0, 0, 0)
+    `;
+
+    rows = await sql`
+      SELECT *
+      FROM wallets
+      WHERE user_id = ${userId}
+      LIMIT 1
+    `;
+  }
+
+  return rows[0];
+}
+
+
+/* =========================================================
+   CREDIT REWARD
+========================================================= */
+
+async function creditReward({
+  userId,
+  type,
+  referenceKey,
+  title,
+  amount
+}) {
+
+  if (!Number.isInteger(amount) || amount <= 0) {
+    throw new Error('Invalid reward amount');
+  }
+
+  const claimId = crypto.randomUUID();
+
+  /*
+    Insert claim first.
+    UNIQUE(user_id, reward_type, reference_key)
+    prevents duplicate rewards.
+  */
+
+  try {
+
+    await sql`
+      INSERT INTO reward_claims
+        (
+          id,
+          user_id,
+          reward_type,
+          reference_key,
+          title,
+          amount
+        )
+      VALUES
+        (
+          ${claimId},
+          ${userId},
+          ${type},
+          ${referenceKey},
+          ${title},
+          ${amount}
+        )
+    `;
+
+  } catch (error) {
+
+    /*
+      PostgreSQL duplicate violation.
+    */
+
+    if (error.code === '23505') {
+      return {
+        duplicate: true
+      };
+    }
+
+    throw error;
+  }
+
+
+  /*
+    Update wallet.
+  */
+
+  await sql`
+    UPDATE wallets
+    SET
+      balance = COALESCE(balance, 0) + ${amount},
+      total_earned = COALESCE(total_earned, 0) + ${amount},
+      updated_at = NOW()
+    WHERE user_id = ${userId}
+  `;
+
+
+  /*
+    Keep users.coins synchronized because
+    existing admin dashboard reads this field.
+  */
+
+  await sql`
+    UPDATE users
+    SET
+      coins = COALESCE(
+        (
+          SELECT balance
+          FROM wallets
+          WHERE user_id = ${userId}
+        ),
+        0
+      )
+    WHERE id = ${userId}
+  `;
+
+
+  return {
+    duplicate: false,
+    amount
+  };
+}
+
+
+/* =========================================================
+   MAIN API
+========================================================= */
+
 module.exports = async (req, res) => {
 
   if (req.method === 'OPTIONS') {
+
     res.statusCode = 204;
 
-    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader(
+      'Access-Control-Allow-Origin',
+      '*'
+    );
+
     res.setHeader(
       'Access-Control-Allow-Methods',
       'GET,POST,OPTIONS'
     );
+
     res.setHeader(
       'Access-Control-Allow-Headers',
       'Content-Type, Authorization'
@@ -122,18 +307,21 @@ module.exports = async (req, res) => {
     return res.end();
   }
 
+
   const path = req.url.split('?')[0];
+
 
   try {
 
-    /* =========================
+    /* =====================================================
        HEALTH
-    ========================= */
+    ===================================================== */
 
     if (
       req.method === 'GET' &&
       path === '/api/health'
     ) {
+
       const result = await sql`
         SELECT NOW() AS database_time
       `;
@@ -148,15 +336,18 @@ module.exports = async (req, res) => {
       });
     }
 
-    /* =========================
+
+    /* =====================================================
        DATABASE INITIALIZATION
-    ========================= */
+    ===================================================== */
 
     await ensureAdmin();
+    await ensureRewardTable();
 
-    /* =========================
+
+    /* =====================================================
        LOGIN
-    ========================= */
+    ===================================================== */
 
     if (
       req.method === 'POST' &&
@@ -174,12 +365,14 @@ module.exports = async (req, res) => {
       const password = String(body.password || '');
 
       if (!login || !password) {
+
         return send(res, 400, {
           success: false,
           message:
             'Email/username and password are required'
         });
       }
+
 
       let rows = await sql`
         SELECT *
@@ -188,7 +381,9 @@ module.exports = async (req, res) => {
         LIMIT 1
       `;
 
+
       if (!rows.length) {
+
         rows = await sql`
           SELECT *
           FROM users
@@ -197,9 +392,12 @@ module.exports = async (req, res) => {
         `;
       }
 
+
       const user = rows[0];
 
+
       if (!user || user.password !== password) {
+
         return send(res, 401, {
           success: false,
           message:
@@ -207,53 +405,68 @@ module.exports = async (req, res) => {
         });
       }
 
-      let token = null;
 
-      if (user.role === 'admin') {
+      /*
+        Create session for BOTH admin and normal users.
+      */
 
-        token = createToken();
+      const token = createToken();
 
-        await sql`
-          INSERT INTO admin_sessions
-            (user_id, token, expires_at)
-          VALUES
-            (
-              ${user.id},
-              ${token},
-              NOW() + INTERVAL '24 hours'
-            )
-        `;
-      }
-
-      const walletRows = await sql`
-        SELECT *
-        FROM wallets
-        WHERE user_id = ${user.id}
-        LIMIT 1
+      await sql`
+        INSERT INTO admin_sessions
+          (user_id, token, expires_at)
+        VALUES
+          (
+            ${user.id},
+            ${token},
+            NOW() + INTERVAL '30 days'
+          )
       `;
 
-      const wallet = walletRows[0];
+
+      const wallet = await getWallet(user.id);
+
 
       return send(res, 200, {
+
         success: true,
+
         message: 'Login successful',
+
         token,
+
         user: {
+
           id: user.id,
+
           name: user.name,
+
           username: user.username,
+
           email: user.email,
+
           phone: user.phone,
+
           role: user.role,
-          coins: Number(user.coins || 0),
-          balance: Number(wallet?.balance || 0)
+
+          coins: Number(wallet?.balance || 0),
+
+          balance: Number(wallet?.balance || 0),
+
+          totalEarned:
+            Number(wallet?.total_earned || 0),
+
+          totalWithdrawn:
+            Number(wallet?.total_withdrawn || 0)
         }
+
       });
     }
 
-    /* =========================
+
+    /* =====================================================
        REGISTER
-    ========================= */
+    ===================================================== */
 
     if (
       req.method === 'POST' &&
@@ -263,13 +476,22 @@ module.exports = async (req, res) => {
       const body = await readBody(req);
 
       const name = clean(body.name);
+
       const username =
         clean(body.username).toLowerCase();
-      const userEmail = email(body.email);
-      const phone = clean(body.phone);
-      const password = String(body.password || '');
+
+      const userEmail =
+        email(body.email);
+
+      const phone =
+        clean(body.phone);
+
+      const password =
+        String(body.password || '');
+
       const confirm =
         String(body.confirmPassword || '');
+
 
       if (
         !name ||
@@ -279,13 +501,16 @@ module.exports = async (req, res) => {
         !password ||
         !confirm
       ) {
+
         return send(res, 400, {
           success: false,
           message: 'All fields are required'
         });
       }
 
+
       if (password.length < 6) {
+
         return send(res, 400, {
           success: false,
           message:
@@ -293,12 +518,16 @@ module.exports = async (req, res) => {
         });
       }
 
+
       if (password !== confirm) {
+
         return send(res, 400, {
           success: false,
-          message: 'Passwords do not match'
+          message:
+            'Passwords do not match'
         });
       }
+
 
       const existingEmail = await sql`
         SELECT id
@@ -307,12 +536,16 @@ module.exports = async (req, res) => {
         LIMIT 1
       `;
 
+
       if (existingEmail.length) {
+
         return send(res, 409, {
           success: false,
-          message: 'Email already registered'
+          message:
+            'Email already registered'
         });
       }
+
 
       const existingUsername = await sql`
         SELECT id
@@ -321,14 +554,20 @@ module.exports = async (req, res) => {
         LIMIT 1
       `;
 
+
       if (existingUsername.length) {
+
         return send(res, 409, {
           success: false,
-          message: 'Username already registered'
+          message:
+            'Username already registered'
         });
       }
 
-      const userId = 'user-' + crypto.randomUUID();
+
+      const userId =
+        'user-' + crypto.randomUUID();
+
 
       await sql`
         INSERT INTO users
@@ -355,6 +594,7 @@ module.exports = async (req, res) => {
           )
       `;
 
+
       await sql`
         INSERT INTO wallets
           (
@@ -372,39 +612,578 @@ module.exports = async (req, res) => {
           )
       `;
 
+
       return send(res, 201, {
+
         success: true,
-        message: 'Account created successfully',
+
+        message:
+          'Account created successfully',
+
         user: {
+
           id: userId,
+
           name,
+
           username,
+
           email: userEmail,
+
           phone,
+
           role: 'user',
+
           coins: 0,
+
           balance: 0
+
         }
+
       });
     }
 
-    /* =========================
+
+    /* =====================================================
+       USER PROFILE
+    ===================================================== */
+
+    if (
+      req.method === 'GET' &&
+      path === '/api/profile'
+    ) {
+
+      const user =
+        await getSessionUser(req);
+
+
+      if (!user) {
+
+        return send(res, 401, {
+          success: false,
+          message:
+            'Invalid or expired session'
+        });
+      }
+
+
+      const wallet =
+        await getWallet(user.id);
+
+
+      return send(res, 200, {
+
+        success: true,
+
+        user: {
+
+          id: user.id,
+
+          name: user.name,
+
+          username: user.username,
+
+          email: user.email,
+
+          phone: user.phone,
+
+          role: user.role,
+
+          coins:
+            Number(wallet?.balance || 0),
+
+          balance:
+            Number(wallet?.balance || 0),
+
+          totalEarned:
+            Number(wallet?.total_earned || 0),
+
+          totalWithdrawn:
+            Number(wallet?.total_withdrawn || 0)
+
+        }
+
+      });
+    }
+
+
+    /* =====================================================
+       WALLET
+    ===================================================== */
+
+    if (
+      req.method === 'GET' &&
+      path === '/api/wallet'
+    ) {
+
+      const user =
+        await getSessionUser(req);
+
+
+      if (!user) {
+
+        return send(res, 401, {
+          success: false,
+          message:
+            'Authentication required'
+        });
+      }
+
+
+      const wallet =
+        await getWallet(user.id);
+
+
+      return send(res, 200, {
+
+        success: true,
+
+        wallet: {
+
+          balance:
+            Number(wallet?.balance || 0),
+
+          totalEarned:
+            Number(wallet?.total_earned || 0),
+
+          totalWithdrawn:
+            Number(wallet?.total_withdrawn || 0)
+
+        }
+
+      });
+    }
+
+
+    /* =====================================================
+       COMPLETE TASK
+    ===================================================== */
+
+    if (
+      req.method === 'POST' &&
+      path === '/api/tasks/complete'
+    ) {
+
+      const user =
+        await getSessionUser(req);
+
+
+      if (!user) {
+
+        return send(res, 401, {
+          success: false,
+          message:
+            'Authentication required'
+        });
+      }
+
+
+      if (user.role === 'admin') {
+
+        return send(res, 403, {
+          success: false,
+          message:
+            'Admin cannot claim user rewards'
+        });
+      }
+
+
+      const body =
+        await readBody(req);
+
+
+      const taskId =
+        clean(body.taskId);
+
+      const taskName =
+        clean(body.name);
+
+      const reward =
+        Number(body.reward);
+
+
+      const allowedTasks = {
+
+        'daily-checkin': {
+          name: 'Daily Check-in',
+          reward: 50
+        },
+
+        'complete-profile': {
+          name: 'Complete Profile',
+          reward: 100
+        },
+
+        'app-visit': {
+          name: 'App Visit',
+          reward: 25
+        },
+
+        'weekly-activity': {
+          name: 'Weekly Activity',
+          reward: 250
+        }
+
+      };
+
+
+      const task =
+        allowedTasks[taskId];
+
+
+      if (!task) {
+
+        return send(res, 400, {
+          success: false,
+          message:
+            'Invalid task'
+        });
+      }
+
+
+      /*
+        Never trust reward sent by browser.
+      */
+
+      const result =
+        await creditReward({
+
+          userId: user.id,
+
+          type: 'task',
+
+          referenceKey: taskId,
+
+          title: task.name,
+
+          amount: task.reward
+
+        });
+
+
+      if (result.duplicate) {
+
+        return send(res, 409, {
+          success: false,
+          message:
+            'This task has already been claimed.'
+        });
+      }
+
+
+      const wallet =
+        await getWallet(user.id);
+
+
+      return send(res, 200, {
+
+        success: true,
+
+        message:
+          'Task reward credited successfully',
+
+        reward: task.reward,
+
+        wallet: {
+
+          balance:
+            Number(wallet.balance || 0),
+
+          totalEarned:
+            Number(wallet.total_earned || 0)
+
+        }
+
+      });
+    }
+
+
+    /* =====================================================
+       COMPLETE SURVEY
+    ===================================================== */
+
+    if (
+      req.method === 'POST' &&
+      path === '/api/surveys/complete'
+    ) {
+
+      const user =
+        await getSessionUser(req);
+
+
+      if (!user) {
+
+        return send(res, 401, {
+          success: false,
+          message:
+            'Authentication required'
+        });
+      }
+
+
+      const body =
+        await readBody(req);
+
+
+      const surveyId =
+        clean(body.surveyId);
+
+
+      const allowedSurveys = {
+
+        'quick-opinion': {
+          name: 'Quick Opinion Survey',
+          reward: 150
+        },
+
+        'shopping-survey': {
+          name: 'Shopping Survey',
+          reward: 300
+        },
+
+        'technology-survey': {
+          name: 'Technology Survey',
+          reward: 250
+        }
+
+      };
+
+
+      const survey =
+        allowedSurveys[surveyId];
+
+
+      if (!survey) {
+
+        return send(res, 400, {
+          success: false,
+          message:
+            'Invalid survey'
+        });
+      }
+
+
+      const result =
+        await creditReward({
+
+          userId: user.id,
+
+          type: 'survey',
+
+          referenceKey: surveyId,
+
+          title: survey.name,
+
+          amount: survey.reward
+
+        });
+
+
+      if (result.duplicate) {
+
+        return send(res, 409, {
+          success: false,
+          message:
+            'This survey has already been completed.'
+        });
+      }
+
+
+      const wallet =
+        await getWallet(user.id);
+
+
+      return send(res, 200, {
+
+        success: true,
+
+        message:
+          'Survey reward credited successfully',
+
+        reward:
+          survey.reward,
+
+        wallet: {
+
+          balance:
+            Number(wallet.balance || 0),
+
+          totalEarned:
+            Number(wallet.total_earned || 0)
+
+        }
+
+      });
+    }
+
+
+    /* =====================================================
+       DAILY BONUS
+    ===================================================== */
+
+    if (
+      req.method === 'POST' &&
+      path === '/api/daily-bonus'
+    ) {
+
+      const user =
+        await getSessionUser(req);
+
+
+      if (!user) {
+
+        return send(res, 401, {
+          success: false,
+          message:
+            'Authentication required'
+        });
+      }
+
+
+      /*
+        UTC date keeps the reward server-controlled.
+      */
+
+      const today =
+        new Date().toISOString().slice(0, 10);
+
+
+      const result =
+        await creditReward({
+
+          userId: user.id,
+
+          type: 'daily_bonus',
+
+          referenceKey: today,
+
+          title: 'Daily Bonus',
+
+          amount: 50
+
+        });
+
+
+      if (result.duplicate) {
+
+        return send(res, 409, {
+          success: false,
+          message:
+            'Today’s bonus has already been claimed.'
+        });
+      }
+
+
+      const wallet =
+        await getWallet(user.id);
+
+
+      return send(res, 200, {
+
+        success: true,
+
+        message:
+          'Daily bonus credited successfully',
+
+        reward: 50,
+
+        wallet: {
+
+          balance:
+            Number(wallet.balance || 0),
+
+          totalEarned:
+            Number(wallet.total_earned || 0)
+
+        }
+
+      });
+    }
+
+
+    /* =====================================================
+       EARNINGS HISTORY
+    ===================================================== */
+
+    if (
+      req.method === 'GET' &&
+      path === '/api/earnings'
+    ) {
+
+      const user =
+        await getSessionUser(req);
+
+
+      if (!user) {
+
+        return send(res, 401, {
+          success: false,
+          message:
+            'Authentication required'
+        });
+      }
+
+
+      const rows = await sql`
+        SELECT
+          id,
+          reward_type,
+          title,
+          amount,
+          created_at
+        FROM reward_claims
+        WHERE user_id = ${user.id}
+        ORDER BY created_at DESC
+        LIMIT 100
+      `;
+
+
+      return send(res, 200, {
+
+        success: true,
+
+        earnings:
+          rows.map(row => ({
+
+            id: row.id,
+
+            type: row.reward_type,
+
+            name: row.title,
+
+            reward:
+              Number(row.amount || 0),
+
+            date: row.created_at
+
+          }))
+
+      });
+    }
+
+
+    /* =====================================================
        ADMIN STATS
-    ========================= */
+    ===================================================== */
 
     if (
       req.method === 'GET' &&
       path === '/api/admin/stats'
     ) {
 
-      const admin = await getAdmin(req);
+      const admin =
+        await getSessionUser(req);
 
-      if (!admin) {
+
+      if (!admin || admin.role !== 'admin') {
+
         return send(res, 403, {
           success: false,
-          message: 'Admin access required'
+          message:
+            'Admin access required'
         });
       }
+
 
       const users = await sql`
         SELECT
@@ -421,6 +1200,7 @@ module.exports = async (req, res) => {
         ORDER BY created_at DESC
       `;
 
+
       const totals = await sql`
         SELECT
           COUNT(*)::int AS total_users,
@@ -429,11 +1209,13 @@ module.exports = async (req, res) => {
         WHERE role != 'admin'
       `;
 
+
       const withdrawals = await sql`
         SELECT
           COUNT(*)::int AS total_withdrawals
         FROM withdrawals
       `;
+
 
       const pendingKyc = await sql`
         SELECT
@@ -442,15 +1224,22 @@ module.exports = async (req, res) => {
         WHERE status = 'pending'
       `;
 
+
       return send(res, 200, {
+
         success: true,
 
         stats: {
+
           totalUsers:
-            Number(totals[0]?.total_users || 0),
+            Number(
+              totals[0]?.total_users || 0
+            ),
 
           totalCoins:
-            Number(totals[0]?.total_coins || 0),
+            Number(
+              totals[0]?.total_coins || 0
+            ),
 
           totalWithdrawals:
             Number(
@@ -458,133 +1247,112 @@ module.exports = async (req, res) => {
             ),
 
           pendingKyc:
-            Number(pendingKyc[0]?.pending_kyc || 0)
+            Number(
+              pendingKyc[0]?.pending_kyc || 0
+            )
+
         },
 
-        users: users.map(user => ({
-          id: user.id,
-          name: user.name,
-          username: user.username,
-          email: user.email,
-          phone: user.phone,
-          role: user.role,
-          coins: Number(user.coins || 0),
-          createdAt: user.created_at
-        }))
+        users:
+          users.map(user => ({
+
+            id: user.id,
+
+            name: user.name,
+
+            username: user.username,
+
+            email: user.email,
+
+            phone: user.phone,
+
+            role: user.role,
+
+            coins:
+              Number(user.coins || 0),
+
+            createdAt:
+              user.created_at
+
+          }))
+
       });
     }
 
-    /* =========================
-       ADMIN LOGOUT
-    ========================= */
+
+    /* =====================================================
+       ADMIN LOGOUT / USER LOGOUT
+    ===================================================== */
 
     if (
       req.method === 'POST' &&
       path === '/api/admin/logout'
     ) {
 
-      const token = getBearer(req);
+      const token =
+        getBearer(req);
+
 
       if (token) {
+
         await sql`
           DELETE FROM admin_sessions
           WHERE token = ${token}
         `;
       }
 
+
       return send(res, 200, {
+
         success: true,
+
         message: 'Logged out'
+
       });
     }
 
-    /* =========================
-       USER PROFILE
-    ========================= */
 
-    if (
-      req.method === 'GET' &&
-      path === '/api/profile'
-    ) {
-
-      const token = getBearer(req);
-
-      if (!token) {
-        return send(res, 401, {
-          success: false,
-          message: 'Authentication required'
-        });
-      }
-
-      const rows = await sql`
-        SELECT *
-        FROM admin_sessions
-        WHERE token = ${token}
-          AND expires_at > NOW()
-        LIMIT 1
-      `;
-
-      if (!rows.length) {
-        return send(res, 401, {
-          success: false,
-          message: 'Invalid or expired session'
-        });
-      }
-
-      const userRows = await sql`
-        SELECT *
-        FROM users
-        WHERE id = ${rows[0].user_id}
-        LIMIT 1
-      `;
-
-      const user = userRows[0];
-
-      if (!user) {
-        return send(res, 404, {
-          success: false,
-          message: 'User not found'
-        });
-      }
-
-      return send(res, 200, {
-        success: true,
-        user: {
-          id: user.id,
-          name: user.name,
-          username: user.username,
-          email: user.email,
-          phone: user.phone,
-          role: user.role,
-          coins: Number(user.coins || 0)
-        }
-      });
-    }
+    /* =====================================================
+       404
+    ===================================================== */
 
     return send(res, 404, {
+
       success: false,
-      message: 'API endpoint not found'
+
+      message:
+        'API endpoint not found'
+
     });
 
   } catch (error) {
 
-    console.error('EarnNest API error:', error);
+    console.error(
+      'EarnNest API error:',
+      error
+    );
+
 
     return send(res, 500, {
+
       success: false,
-      message: 'Server error',
+
+      message:
+        'Server error',
+
       error:
         process.env.NODE_ENV === 'development'
           ? error.message
           : undefined
+
     });
   }
 };
 
 
-/* =========================
+/* =========================================================
    READ JSON BODY
-========================= */
+========================================================= */
 
 function readBody(req) {
 
@@ -597,24 +1365,43 @@ function readBody(req) {
       body += chunk;
 
       if (body.length > 1024 * 1024) {
-        reject(new Error('Request too large'));
+
+        reject(
+          new Error('Request too large')
+        );
+
         req.destroy();
       }
     });
 
+
     req.on('end', () => {
 
       if (!body) {
+
         return resolve({});
+
       }
+
 
       try {
-        resolve(JSON.parse(body));
+
+        resolve(
+          JSON.parse(body)
+        );
+
       } catch {
-        reject(new Error('Invalid JSON'));
+
+        reject(
+          new Error('Invalid JSON')
+        );
+
       }
+
     });
 
+
     req.on('error', reject);
+
   });
 }
