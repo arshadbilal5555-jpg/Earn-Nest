@@ -1,4 +1,87 @@
 async function requestWithdrawal() {
+  const amountInput =
+    document.getElementById('withdrawAmount');
+
+  const methodInput =
+    document.getElementById('paymentMethod');
+
+  const accountInput =
+    document.getElementById('paymentAccount');
+
+  const amount =
+    Number(amountInput.value);
+
+  const paymentMethod =
+    methodInput.value.trim();
+
+  const accountNumber =
+    accountInput.value.trim();
+
+  if (!Number.isInteger(amount) || amount < 1000) {
+    toast(
+      'Minimum withdrawal is 1,000 Coins.',
+      true
+    );
+    return;
+  }
+
+  if (!paymentMethod) {
+    toast(
+      'Please enter/select a payment method.',
+      true
+    );
+    return;
+  }
+
+  if (!accountNumber || accountNumber.length < 5) {
+    toast(
+      'Please enter a valid account number.',
+      true
+    );
+    return;
+  }
+
+  try {
+    const data = await api('/withdraw', {
+      method: 'POST',
+      body: JSON.stringify({
+        amount: amount,
+        paymentMethod: paymentMethod,
+        accountNumber: accountNumber
+      })
+    });
+
+    if (!data.success) {
+      toast(
+        data.message || 'Withdrawal request failed.',
+        true
+      );
+      return;
+    }
+
+    toast(
+      data.message ||
+      'Withdrawal request submitted successfully.'
+    );
+
+    amountInput.value = '';
+    accountInput.value = '';
+
+    await loadWallet();
+
+  } catch (error) {
+    console.error(
+      'Withdrawal error:',
+      error
+    );
+
+    toast(
+      error.message ||
+      'Unable to submit withdrawal request.',
+      true
+    );
+  }
+}
   const amountInput = document.getElementById('withdrawAmount');
   const methodInput = document.getElementById('paymentMethod');
   const accountInput = document.getElementById('paymentAccount');
