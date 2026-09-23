@@ -1325,78 +1325,62 @@ async function loadEarnings() {
 
 
 /* =========================
+  /* =========================
    WITHDRAWAL
 ========================= */
 
 async function requestWithdrawal() {
+  const amountInput = document.getElementById('withdrawAmount');
+  const methodInput = document.getElementById('paymentMethod');
+  const accountInput = document.getElementById('paymentAccount');
 
-  const amountInput =
-    document.getElementById('withdrawAmount');
-
-  const methodInput =
-    document.getElementById('paymentMethod');
-
-  const accountInput =
-    document.getElementById('paymentAccount');
-
-  const amount =
-    Number(amountInput.value);
-
-  const method =
-    methodInput.value.trim();
-
-  const account =
-    accountInput.value.trim();
+  const amount = Number(amountInput.value);
+  const method = methodInput.value.trim();
+  const account = accountInput.value.trim();
 
   if (!amount || amount <= 0) {
-
-    toast(
-      'Please enter a valid amount.',
-      true
-    );
-
+    toast('Please enter a valid amount.', true);
     return;
   }
 
   if (!method) {
-
-    toast(
-      'Please select a payment method.',
-      true
-    );
-
+    toast('Please select a payment method.', true);
     return;
   }
 
   if (!account) {
+    toast('Please enter your payment account.', true);
+    return;
+  }
 
-    toast(
-      'Please enter your payment account.',
-      true
-    );
+  let paymentMethod = '';
 
+  if (method === 'easypaisa') {
+    paymentMethod = 'Easypaisa';
+  } else if (method === 'jazzcash') {
+    paymentMethod = 'JazzCash';
+  } else if (method === 'bank') {
+    paymentMethod = 'Bank Transfer';
+  } else {
+    toast('Invalid payment method.', true);
     return;
   }
 
   try {
-
     const data = await api('/withdraw', {
       method: 'POST',
       body: JSON.stringify({
-        amount: amount,
-        paymentMethod: method,
-        paymentAccount: account
+        amount: Math.floor(amount),
+        paymentMethod: paymentMethod,
+        accountNumber: account
       })
     });
 
     if (!data.success) {
-
       toast(
-        data.message ||
-        'Withdrawal request failed.',
+        data.message || 'Withdrawal request failed.',
         true
       );
-
       return;
     }
 
@@ -1412,8 +1396,7 @@ async function requestWithdrawal() {
     await loadWallet();
 
   } catch (error) {
-
-    console.error(error);
+    console.error('Withdrawal error:', error);
 
     toast(
       error.message ||
@@ -1422,8 +1405,6 @@ async function requestWithdrawal() {
     );
   }
 }
-
-
 /* =========================
    LOGOUT
 ========================= */
