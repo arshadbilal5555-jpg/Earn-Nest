@@ -48,7 +48,7 @@ function readBody(req) {
 
       try {
         resolve(JSON.parse(body));
-      } catch (error) {
+      } catch {
         reject(new Error('Invalid JSON'));
       }
     });
@@ -78,7 +78,6 @@ module.exports = async function handler(req, res) {
   }
 
   try {
-
     const token = getToken(req);
 
     if (!token) {
@@ -90,10 +89,12 @@ module.exports = async function handler(req, res) {
 
     const body = await readBody(req);
 
-    const amount = Number(body.amount || 0);
+    const amount = Math.floor(Number(body.amount || 0));
+
     const paymentMethod = String(
       body.paymentMethod || ''
     ).trim();
+
     const accountNumber = String(
       body.accountNumber || body.account || ''
     ).trim();
@@ -102,6 +103,13 @@ module.exports = async function handler(req, res) {
       return send(res, 400, {
         success: false,
         message: 'Valid withdrawal amount is required'
+      });
+    }
+
+    if (amount < 1000) {
+      return send(res, 400, {
+        success: false,
+        message: 'Minimum withdrawal amount is 1000 coins'
       });
     }
 
@@ -147,20 +155,44 @@ module.exports = async function handler(req, res) {
       });
     }
 
-    const userId = String(
-      sessions[0].user_id
-    );
+    const userId = String(sessions[0].user_id);
+
+    /*
+     * Make sure the withdrawal table has the required columns.
+     * This also fixes older databases where the table already existed
+     * without payment_method/account_number.
+     */
 
     await sql`
       CREATE TABLE IF NOT EXISTS withdrawals (
         id BIGSERIAL PRIMARY KEY,
         user_id TEXT NOT NULL,
         amount INTEGER NOT NULL,
-        payment_method TEXT NOT NULL,
-        account_number TEXT NOT NULL,
+        payment_method TEXT,
+        account_number TEXT,
         status TEXT NOT NULL DEFAULT 'pending',
         created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
       )
+    `;
+
+    await sql`
+      ALTER TABLE withdrawals
+      ADD COLUMN IF NOT EXISTS payment_method TEXT
+    `;
+
+    await sql`
+      ALTER TABLE withdrawals
+      ADD COLUMN IF NOT EXISTS account_number TEXT
+    `;
+
+    await sql`
+      ALTER TABLE withdrawals
+      ADD COLUMN IF NOT EXISTS status TEXT DEFAULT 'pending'
+    `;
+
+    await sql`
+      ALTER TABLE withdrawals
+      ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT NOW()
     `;
 
     const walletResult = await sql`
@@ -191,6 +223,25 @@ module.exports = async function handler(req, res) {
       });
     }
 
+    /*
+     * Prevent duplicate pending withdrawal.
+     */
+
+    const pending = await sql`
+      SELECT id
+      FROM withdrawals
+      WHERE user_id = ${userId}
+        AND status = 'pending'
+      LIMIT 1
+    `;
+
+    if (pending.length) {
+      return send(res, 400, {
+        success: false,
+        message: 'You already have a pending withdrawal request'
+      });
+    }
+
     const withdrawal = await sql`
       INSERT INTO withdrawals (
         user_id,
@@ -201,7 +252,7 @@ module.exports = async function handler(req, res) {
       )
       VALUES (
         ${userId},
-        ${Math.floor(amount)},
+        ${amount},
         ${paymentMethod},
         ${accountNumber},
         'pending'
@@ -210,6 +261,7 @@ module.exports = async function handler(req, res) {
         id,
         amount,
         payment_method,
+        account_number,
         status,
         created_at
     `;
@@ -217,9 +269,9 @@ module.exports = async function handler(req, res) {
     await sql`
       UPDATE wallets
       SET
-        balance = COALESCE(balance, 0) - ${Math.floor(amount)},
+        balance = COALESCE(balance, 0) - ${amount},
         total_withdrawn =
-          COALESCE(total_withdrawn, 0) + ${Math.floor(amount)}
+          COALESCE(total_withdrawn, 0) + ${amount}
       WHERE user_id = ${userId}
     `;
 
@@ -230,6 +282,7 @@ module.exports = async function handler(req, res) {
         id: String(withdrawal[0].id),
         amount: Number(withdrawal[0].amount),
         paymentMethod: withdrawal[0].payment_method,
+        accountNumber: withdrawal[0].account_number,
         status: withdrawal[0].status,
         createdAt: withdrawal[0].created_at
       }
