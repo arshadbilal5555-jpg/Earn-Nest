@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 
@@ -34,11 +35,9 @@
       background: #2563eb;
       color: white;
       padding: 18px 24px;
-
       display: flex;
       align-items: center;
       justify-content: space-between;
-
       gap: 15px;
     }
 
@@ -54,15 +53,18 @@
     button {
       border: 0;
       border-radius: 8px;
-      padding: 11px 18px;
+      padding: 10px 14px;
       cursor: pointer;
-      font-size: 15px;
+      font-size: 14px;
+    }
+
+    button:hover {
+      opacity: .9;
     }
 
     .logout {
       background: #dc2626;
       color: white;
-      width: auto;
     }
 
     .logout:hover {
@@ -70,7 +72,7 @@
     }
 
     .container {
-      max-width: 1200px;
+      max-width: 1250px;
       margin: 30px auto;
       padding: 0 20px;
     }
@@ -80,9 +82,7 @@
       padding: 20px;
       border-radius: 14px;
       margin-bottom: 20px;
-
-      box-shadow:
-        0 4px 18px rgba(0,0,0,.06);
+      box-shadow: 0 4px 18px rgba(0,0,0,.06);
     }
 
     .welcome h2 {
@@ -91,12 +91,9 @@
 
     .cards {
       display: grid;
-
       grid-template-columns:
-        repeat(4, minmax(0, 1fr));
-
+        repeat(5, minmax(0, 1fr));
       gap: 18px;
-
       margin-bottom: 25px;
     }
 
@@ -104,9 +101,7 @@
       background: white;
       border-radius: 14px;
       padding: 22px;
-
-      box-shadow:
-        0 4px 18px rgba(0,0,0,.06);
+      box-shadow: 0 4px 18px rgba(0,0,0,.06);
     }
 
     .stat-title {
@@ -116,7 +111,7 @@
     }
 
     .stat-value {
-      font-size: 30px;
+      font-size: 28px;
       font-weight: bold;
     }
 
@@ -124,10 +119,7 @@
       background: white;
       border-radius: 14px;
       padding: 22px;
-
-      box-shadow:
-        0 4px 18px rgba(0,0,0,.06);
-
+      box-shadow: 0 4px 18px rgba(0,0,0,.06);
       margin-bottom: 25px;
     }
 
@@ -141,10 +133,6 @@
       margin-bottom: 15px;
     }
 
-    .refresh:hover {
-      background: #1d4ed8;
-    }
-
     .table-wrapper {
       overflow-x: auto;
     }
@@ -152,15 +140,15 @@
     table {
       width: 100%;
       border-collapse: collapse;
-      min-width: 700px;
+      min-width: 750px;
     }
 
     th,
     td {
       text-align: left;
       padding: 12px;
-      border-bottom:
-        1px solid #e5e7eb;
+      border-bottom: 1px solid #e5e7eb;
+      vertical-align: middle;
     }
 
     th {
@@ -169,26 +157,45 @@
 
     .badge {
       display: inline-block;
-
       padding: 5px 9px;
-
       border-radius: 20px;
-
       font-size: 12px;
-
       background: #dbeafe;
       color: #1d4ed8;
+    }
+
+    .badge.pending {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .badge.approved {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .badge.rejected {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .approve {
+      background: #16a34a;
+      color: white;
+      margin-right: 5px;
+    }
+
+    .reject {
+      background: #dc2626;
+      color: white;
     }
 
     .status {
       margin-bottom: 20px;
       padding: 12px;
-
       border-radius: 8px;
-
       background: #eff6ff;
       color: #1e40af;
-
       display: none;
     }
 
@@ -198,16 +205,25 @@
       color: #6b7280;
     }
 
-    @media (max-width: 900px) {
+    .info-box {
+      background: #eff6ff;
+      color: #1e40af;
+      padding: 14px;
+      border-radius: 10px;
+      margin-bottom: 15px;
+      line-height: 1.5;
+    }
+
+    @media (max-width: 1100px) {
 
       .cards {
         grid-template-columns:
-          repeat(2, minmax(0, 1fr));
+          repeat(3, minmax(0, 1fr));
       }
 
     }
 
-    @media (max-width: 600px) {
+    @media (max-width: 700px) {
 
       .header {
         flex-direction: column;
@@ -219,11 +235,19 @@
       }
 
       .cards {
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr 1fr;
       }
 
       .container {
         padding: 0 12px;
+      }
+
+    }
+
+    @media (max-width: 450px) {
+
+      .cards {
+        grid-template-columns: 1fr;
       }
 
     }
@@ -236,511 +260,179 @@
 <body>
 
 
-  <header class="header">
+<header class="header">
 
-    <div>
+  <div>
 
-      <h1>
-        EarnNest Admin
-      </h1>
+    <h1>
+      EarnNest Admin
+    </h1>
 
-      <small>
-        Administration Dashboard
-      </small>
+    <small>
+      Administration Dashboard
+    </small>
+
+  </div>
+
+  <button
+    class="logout"
+    onclick="logout()"
+  >
+    Logout
+  </button>
+
+</header>
+
+
+<main class="container">
+
+
+  <!-- WELCOME -->
+
+  <div class="welcome">
+
+    <h2 id="adminName">
+      Admin Dashboard
+    </h2>
+
+    <div id="adminEmail">
+      Loading...
+    </div>
+
+  </div>
+
+
+  <!-- STATUS -->
+
+  <div
+    id="status"
+    class="status"
+  ></div>
+
+
+  <!-- STATISTICS -->
+
+  <div class="cards">
+
+
+    <div class="card">
+
+      <div class="stat-title">
+        Total Users
+      </div>
+
+      <div
+        id="totalUsers"
+        class="stat-value"
+      >
+        0
+      </div>
 
     </div>
+
+
+    <div class="card">
+
+      <div class="stat-title">
+        Total Coins
+      </div>
+
+      <div
+        id="totalCoins"
+        class="stat-value"
+      >
+        0
+      </div>
+
+    </div>
+
+
+    <div class="card">
+
+      <div class="stat-title">
+        Total Withdrawals
+      </div>
+
+      <div
+        id="totalWithdrawals"
+        class="stat-value"
+      >
+        0
+      </div>
+
+    </div>
+
+
+    <div class="card">
+
+      <div class="stat-title">
+        Pending Withdrawals
+      </div>
+
+      <div
+        id="pendingWithdrawals"
+        class="stat-value"
+      >
+        0
+      </div>
+
+    </div>
+
+
+    <div class="card">
+
+      <div class="stat-title">
+        Pending KYC
+      </div>
+
+      <div
+        id="pendingKyc"
+        class="stat-value"
+      >
+        0
+      </div>
+
+    </div>
+
+
+  </div>
+
+
+  <!-- USERS -->
+
+  <section class="section">
+
+    <h2>
+      Users
+    </h2>
 
     <button
-      class="logout"
-      onclick="logout()"
+      class="refresh"
+      onclick="loadDashboard()"
     >
-      Logout
+      Refresh Users
     </button>
 
-  </header>
+    <div class="table-wrapper">
 
+      <table>
 
-  <main class="container">
+        <thead>
 
+          <tr>
 
-    <!-- WELCOME -->
+            <th>Name</th>
+            <th>Username</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Role</th>
+            <th>Coins</th>
 
-    <div class="welcome">
+          </tr>
 
-      <h2 id="adminName">
-        Admin Dashboard
-      </h2>
+        </thead>
 
-      <div id="adminEmail">
-        Loading...
-      </div>
-
-    </div>
-
-
-    <!-- STATUS -->
-
-    <div
-      id="status"
-      class="status"
-    ></div>
-
-
-    <!-- STATS -->
-
-    <div class="cards">
-
-
-      <div class="card">
-
-        <div class="stat-title">
-          Total Users
-        </div>
-
-        <div
-          id="totalUsers"
-          class="stat-value"
-        >
-          0
-        </div>
-
-      </div>
-
-
-      <div class="card">
-
-        <div class="stat-title">
-          Total Coins
-        </div>
-
-        <div
-          id="totalCoins"
-          class="stat-value"
-        >
-          0
-        </div>
-
-      </div>
-
-
-      <div class="card">
-
-        <div class="stat-title">
-          Withdrawals
-        </div>
-
-        <div
-          id="totalWithdrawals"
-          class="stat-value"
-        >
-          0
-        </div>
-
-      </div>
-
-
-      <div class="card">
-
-        <div class="stat-title">
-          Pending KYC
-        </div>
-
-        <div
-          id="pendingKyc"
-          class="stat-value"
-        >
-          0
-        </div>
-
-      </div>
-
-
-    </div>
-
-
-    <!-- USERS -->
-
-    <section class="section">
-
-      <h2>
-        Users
-      </h2>
-
-      <button
-        class="refresh"
-        onclick="loadDashboard()"
-      >
-        Refresh
-      </button>
-
-      <div class="table-wrapper">
-
-        <table>
-
-          <thead>
-
-            <tr>
-
-              <th>
-                Name
-              </th>
-
-              <th>
-                Username
-              </th>
-
-              <th>
-                Email
-              </th>
-
-              <th>
-                Phone
-              </th>
-
-              <th>
-                Role
-              </th>
-
-              <th>
-                Coins
-              </th>
-
-            </tr>
-
-          </thead>
-
-          <tbody id="usersTable">
-
-            <tr>
-
-              <td
-                colspan="6"
-                class="empty"
-              >
-                Loading users...
-              </td>
-
-            </tr>
-
-          </tbody>
-
-        </table>
-
-      </div>
-
-    </section>
-
-
-  </main>
-
-
-  <script>
-
-    /* =========================
-       GET USER
-    ========================== */
-
-    function getUser() {
-
-      try {
-
-        return JSON.parse(
-          localStorage.getItem(
-            "earnnest_user"
-          )
-        );
-
-      } catch {
-
-        return null;
-
-      }
-
-    }
-
-
-    /* =========================
-       GET TOKEN
-    ========================== */
-
-    function getToken() {
-
-      return localStorage.getItem(
-        "earnnest_token"
-      );
-
-    }
-
-
-    /* =========================
-       AUTH CHECK
-    ========================== */
-
-    async function checkAdmin() {
-
-      const user =
-        getUser();
-
-      const token =
-        getToken();
-
-
-      if (!user || !token) {
-
-        window.location.href =
-          "/";
-
-        return false;
-
-      }
-
-
-      if (
-        user.role !==
-        "admin"
-      ) {
-
-        alert(
-          "Admin access required."
-        );
-
-        window.location.href =
-          "/";
-
-        return false;
-
-      }
-
-
-      document.getElementById(
-        "adminName"
-      ).textContent =
-        "Welcome, " +
-        (user.name || "Admin");
-
-
-      document.getElementById(
-        "adminEmail"
-      ).textContent =
-        user.email || "";
-
-
-      try {
-
-        const response =
-          await fetch(
-            "/api/admin/stats",
-            {
-
-              method: "GET",
-
-              headers: {
-
-                "Authorization":
-                  "Bearer " +
-                  token
-
-              }
-
-            }
-          );
-
-
-        if (
-          response.status ===
-            401 ||
-          response.status ===
-            403
-        ) {
-
-          localStorage.removeItem(
-            "earnnest_user"
-          );
-
-          localStorage.removeItem(
-            "earnnest_token"
-          );
-
-          window.location.href =
-            "/";
-
-          return false;
-
-        }
-
-
-        return true;
-
-
-      } catch (error) {
-
-        console.error(
-          error
-        );
-
-        showStatus(
-          "Unable to verify admin account."
-        );
-
-        return false;
-
-      }
-
-    }
-
-
-    /* =========================
-       DASHBOARD
-    ========================== */
-
-    async function loadDashboard() {
-
-      const token =
-        getToken();
-
-
-      if (!token) {
-
-        window.location.href =
-          "/";
-
-        return;
-
-      }
-
-
-      showStatus(
-        "Loading dashboard..."
-      );
-
-
-      try {
-
-        const response =
-          await fetch(
-            "/api/admin/stats",
-            {
-
-              method: "GET",
-
-              headers: {
-
-                "Authorization":
-                  "Bearer " +
-                  token
-
-              }
-
-            }
-          );
-
-
-        const data =
-          await response
-            .json()
-            .catch(function() {
-              return {};
-            });
-
-
-        if (!response.ok) {
-
-          if (
-            response.status ===
-              401 ||
-            response.status ===
-              403
-          ) {
-
-            logout();
-
-            return;
-
-          }
-
-
-          showStatus(
-            data.error ||
-            data.message ||
-            "Unable to load dashboard."
-          );
-
-          return;
-
-        }
-
-
-        const stats =
-          data.stats || {};
-
-
-        document.getElementById(
-          "totalUsers"
-        ).textContent =
-          stats.totalUsers || 0;
-
-
-        document.getElementById(
-          "totalCoins"
-        ).textContent =
-          stats.totalCoins || 0;
-
-
-        document.getElementById(
-          "totalWithdrawals"
-        ).textContent =
-          stats.totalWithdrawals || 0;
-
-
-        document.getElementById(
-          "pendingKyc"
-        ).textContent =
-          stats.pendingKyc || 0;
-
-
-        renderUsers(
-          data.users || []
-        );
-
-
-        hideStatus();
-
-
-      } catch (error) {
-
-        console.error(
-          "Dashboard error:",
-          error
-        );
-
-        showStatus(
-          "Unable to connect to server."
-        );
-
-      }
-
-    }
-
-
-    /* =========================
-       USERS
-    ========================== */
-
-    function renderUsers(users) {
-
-      const table =
-        document.getElementById(
-          "usersTable"
-        );
-
-
-      table.innerHTML =
-        "";
-
-
-      if (!users.length) {
-
-        table.innerHTML = `
+        <tbody id="usersTable">
 
           <tr>
 
@@ -748,232 +440,1046 @@
               colspan="6"
               class="empty"
             >
-              No users found.
+              Loading users...
             </td>
 
           </tr>
 
-        `;
+        </tbody>
+
+      </table>
+
+    </div>
+
+  </section>
+
+
+  <!-- WITHDRAWALS -->
+
+  <section class="section">
+
+    <h2>
+      Withdrawals
+    </h2>
+
+    <div class="info-box">
+
+      Users submit withdrawal requests from their wallet.
+      Admin can review each request and approve or reject it.
+      Approved requests should then be paid to the user's
+      selected payment account.
+
+    </div>
+
+    <button
+      class="refresh"
+      onclick="loadWithdrawals()"
+    >
+      Refresh Withdrawals
+    </button>
+
+    <div class="table-wrapper">
+
+      <table>
+
+        <thead>
+
+          <tr>
+
+            <th>User</th>
+            <th>Amount</th>
+            <th>Payment Method</th>
+            <th>Account</th>
+            <th>Status</th>
+            <th>Date</th>
+            <th>Action</th>
+
+          </tr>
+
+        </thead>
+
+        <tbody id="withdrawalsTable">
+
+          <tr>
+
+            <td
+              colspan="7"
+              class="empty"
+            >
+              Loading withdrawals...
+            </td>
+
+          </tr>
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+  </section>
+
+
+</main>
+
+
+<script>
+
+
+/* =========================
+   GET USER
+========================= */
+
+function getUser() {
+
+  try {
+
+    return JSON.parse(
+      localStorage.getItem(
+        "earnnest_user"
+      )
+    );
+
+  } catch {
+
+    return null;
+
+  }
+
+}
+
+
+/* =========================
+   GET TOKEN
+========================= */
+
+function getToken() {
+
+  return localStorage.getItem(
+    "earnnest_token"
+  );
+
+}
+
+
+/* =========================
+   AUTH CHECK
+========================= */
+
+async function checkAdmin() {
+
+  const user =
+    getUser();
+
+  const token =
+    getToken();
+
+
+  if (!user || !token) {
+
+    window.location.href = "/";
+
+    return false;
+
+  }
+
+
+  if (
+    user.role !== "admin"
+  ) {
+
+    alert(
+      "Admin access required."
+    );
+
+    window.location.href = "/";
+
+    return false;
+
+  }
+
+
+  document.getElementById(
+    "adminName"
+  ).textContent =
+    "Welcome, " +
+    (user.name || "Admin");
+
+
+  document.getElementById(
+    "adminEmail"
+  ).textContent =
+    user.email || "";
+
+
+  return true;
+
+}
+
+
+/* =========================
+   DASHBOARD
+========================= */
+
+async function loadDashboard() {
+
+  const token =
+    getToken();
+
+
+  if (!token) {
+
+    window.location.href = "/";
+
+    return;
+
+  }
+
+
+  showStatus(
+    "Loading dashboard..."
+  );
+
+
+  try {
+
+    const response =
+      await fetch(
+        "/api/admin/stats",
+        {
+
+          method: "GET",
+
+          headers: {
+
+            "Authorization":
+              "Bearer " +
+              token
+
+          }
+
+        }
+      );
+
+
+    const data =
+      await response
+        .json()
+        .catch(function() {
+          return {};
+        });
+
+
+    if (!response.ok) {
+
+      if (
+        response.status === 401 ||
+        response.status === 403
+      ) {
+
+        logout();
 
         return;
 
       }
 
 
-      users.forEach(
-        function(user) {
+      showStatus(
+        data.error ||
+        data.message ||
+        "Unable to load dashboard."
+      );
 
-          const row =
-            document.createElement(
-              "tr"
-            );
+      return;
 
-
-          row.innerHTML = `
-
-            <td>
-              ${escapeHtml(
-                user.name || "-"
-              )}
-            </td>
-
-            <td>
-              ${escapeHtml(
-                user.username || "-"
-              )}
-            </td>
-
-            <td>
-              ${escapeHtml(
-                user.email || "-"
-              )}
-            </td>
-
-            <td>
-              ${escapeHtml(
-                user.phone || "-"
-              )}
-            </td>
-
-            <td>
-
-              <span class="badge">
-                ${escapeHtml(
-                  user.role || "user"
-                )}
-              </span>
-
-            </td>
-
-            <td>
-              ${Number(
-                user.coins || 0
-              )}
-            </td>
-
-          `;
+    }
 
 
-          table.appendChild(
-            row
-          );
+    const stats =
+      data.stats || {};
+
+
+    document.getElementById(
+      "totalUsers"
+    ).textContent =
+      stats.totalUsers || 0;
+
+
+    document.getElementById(
+      "totalCoins"
+    ).textContent =
+      stats.totalCoins || 0;
+
+
+    document.getElementById(
+      "totalWithdrawals"
+    ).textContent =
+      stats.totalWithdrawals || 0;
+
+
+    document.getElementById(
+      "pendingWithdrawals"
+    ).textContent =
+      stats.pendingWithdrawals || 0;
+
+
+    document.getElementById(
+      "pendingKyc"
+    ).textContent =
+      stats.pendingKyc || 0;
+
+
+    renderUsers(
+      data.users || []
+    );
+
+
+    hideStatus();
+
+
+  } catch (error) {
+
+    console.error(
+      "Dashboard error:",
+      error
+    );
+
+    showStatus(
+      "Unable to connect to server."
+    );
+
+  }
+
+}
+
+
+/* =========================
+   USERS
+========================= */
+
+function renderUsers(users) {
+
+  const table =
+    document.getElementById(
+      "usersTable"
+    );
+
+
+  table.innerHTML = "";
+
+
+  if (!users.length) {
+
+    table.innerHTML = `
+
+      <tr>
+
+        <td
+          colspan="6"
+          class="empty"
+        >
+          No users found.
+        </td>
+
+      </tr>
+
+    `;
+
+    return;
+
+  }
+
+
+  users.forEach(
+    function(user) {
+
+      const row =
+        document.createElement(
+          "tr"
+        );
+
+
+      row.innerHTML = `
+
+        <td>
+          ${escapeHtml(
+            user.name || "-"
+          )}
+        </td>
+
+        <td>
+          ${escapeHtml(
+            user.username || "-"
+          )}
+        </td>
+
+        <td>
+          ${escapeHtml(
+            user.email || "-"
+          )}
+        </td>
+
+        <td>
+          ${escapeHtml(
+            user.phone || "-"
+          )}
+        </td>
+
+        <td>
+
+          <span class="badge">
+            ${escapeHtml(
+              user.role || "user"
+            )}
+          </span>
+
+        </td>
+
+        <td>
+          ${Number(
+            user.coins || 0
+          )}
+        </td>
+
+      `;
+
+
+      table.appendChild(
+        row
+      );
+
+    }
+  );
+
+}
+
+
+/* =========================
+   LOAD WITHDRAWALS
+========================= */
+
+async function loadWithdrawals() {
+
+  const token =
+    getToken();
+
+
+  if (!token) {
+
+    window.location.href = "/";
+
+    return;
+
+  }
+
+
+  const table =
+    document.getElementById(
+      "withdrawalsTable"
+    );
+
+
+  table.innerHTML = `
+
+    <tr>
+
+      <td
+        colspan="7"
+        class="empty"
+      >
+        Loading withdrawals...
+      </td>
+
+    </tr>
+
+  `;
+
+
+  try {
+
+    const response =
+      await fetch(
+        "/api/admin/withdrawals",
+        {
+
+          method: "GET",
+
+          headers: {
+
+            "Authorization":
+              "Bearer " +
+              token
+
+          }
 
         }
       );
 
-    }
+
+    const data =
+      await response
+        .json()
+        .catch(function() {
+          return {};
+        });
 
 
-    /* =========================
-       SECURITY
-    ========================== */
+    if (!response.ok) {
 
-    function escapeHtml(value) {
+      table.innerHTML = `
 
-      return String(value)
+        <tr>
 
-        .replaceAll(
-          "&",
-          "&amp;"
-        )
+          <td
+            colspan="7"
+            class="empty"
+          >
 
-        .replaceAll(
-          "<",
-          "&lt;"
-        )
-
-        .replaceAll(
-          ">",
-          "&gt;"
-        )
-
-        .replaceAll(
-          '"',
-          "&quot;"
-        )
-
-        .replaceAll(
-          "'",
-          "&#039;"
-        );
-
-    }
-
-
-    /* =========================
-       STATUS
-    ========================== */
-
-    function showStatus(
-      message
-    ) {
-
-      const box =
-        document.getElementById(
-          "status"
-        );
-
-      box.textContent =
-        message;
-
-      box.style.display =
-        "block";
-
-    }
-
-
-    function hideStatus() {
-
-      const box =
-        document.getElementById(
-          "status"
-        );
-
-      box.textContent =
-        "";
-
-      box.style.display =
-        "none";
-
-    }
-
-
-    /* =========================
-       LOGOUT
-    ========================== */
-
-    async function logout() {
-
-      const token =
-        getToken();
-
-
-      try {
-
-        if (token) {
-
-          await fetch(
-            "/api/admin/logout",
-            {
-
-              method: "POST",
-
-              headers: {
-
-                "Authorization":
-                  "Bearer " +
-                  token
-
-              }
-
+            ${
+              escapeHtml(
+                data.message ||
+                data.error ||
+                "Unable to load withdrawals."
+              )
             }
-          );
 
-        }
+          </td>
 
-      } catch (error) {
+        </tr>
 
-        console.error(
-          error
-        );
+      `;
 
-      }
-
-
-      localStorage.removeItem(
-        "earnnest_user"
-      );
-
-      localStorage.removeItem(
-        "earnnest_token"
-      );
-
-
-      window.location.href =
-        "/";
+      return;
 
     }
 
 
-    /* =========================
-       START
-    ========================== */
+    renderWithdrawals(
+      data.withdrawals || []
+    );
 
-    (async function() {
 
-      const allowed =
-        await checkAdmin();
+  } catch (error) {
 
-      if (allowed) {
+    console.error(
+      "Withdrawals error:",
+      error
+    );
 
-        await loadDashboard();
+
+    table.innerHTML = `
+
+      <tr>
+
+        <td
+          colspan="7"
+          class="empty"
+        >
+          Unable to connect to server.
+        </td>
+
+      </tr>
+
+    `;
+
+  }
+
+}
+
+
+/* =========================
+   RENDER WITHDRAWALS
+========================= */
+
+function renderWithdrawals(
+  withdrawals
+) {
+
+  const table =
+    document.getElementById(
+      "withdrawalsTable"
+    );
+
+
+  table.innerHTML = "";
+
+
+  if (!withdrawals.length) {
+
+    table.innerHTML = `
+
+      <tr>
+
+        <td
+          colspan="7"
+          class="empty"
+        >
+          No withdrawal requests found.
+        </td>
+
+      </tr>
+
+    `;
+
+    return;
+
+  }
+
+
+  withdrawals.forEach(
+    function(item) {
+
+      const row =
+        document.createElement(
+          "tr"
+        );
+
+
+      const status =
+        String(
+          item.status || "pending"
+        ).toLowerCase();
+
+
+      let actionButtons = "-";
+
+
+      if (
+        status === "pending"
+      ) {
+
+        actionButtons = `
+
+          <button
+            class="approve"
+            onclick="approveWithdrawal('${escapeHtml(item.id)}')"
+          >
+            Approve
+          </button>
+
+          <button
+            class="reject"
+            onclick="rejectWithdrawal('${escapeHtml(item.id)}')"
+          >
+            Reject
+          </button>
+
+        `;
 
       }
 
-    })();
 
-  </script>
+      const statusClass =
+        status === "approved"
+          ? "approved"
+          : status === "rejected"
+            ? "rejected"
+            : "pending";
+
+
+      row.innerHTML = `
+
+        <td>
+
+          ${escapeHtml(
+            item.name ||
+            item.email ||
+            item.user_id ||
+            "-"
+          )}
+
+        </td>
+
+
+        <td>
+
+          <strong>
+            ${Number(
+              item.amount || 0
+            )}
+          </strong>
+
+          coins
+
+        </td>
+
+
+        <td>
+
+          ${escapeHtml(
+            item.payment_method ||
+            item.paymentMethod ||
+            "-"
+          )}
+
+        </td>
+
+
+        <td>
+
+          ${escapeHtml(
+            item.account_number ||
+            item.accountNumber ||
+            "-"
+          )}
+
+        </td>
+
+
+        <td>
+
+          <span
+            class="badge ${statusClass}"
+          >
+            ${escapeHtml(status)}
+          </span>
+
+        </td>
+
+
+        <td>
+
+          ${escapeHtml(
+            item.created_at ||
+            item.createdAt ||
+            "-"
+          )}
+
+        </td>
+
+
+        <td>
+
+          ${actionButtons}
+
+        </td>
+
+      `;
+
+
+      table.appendChild(
+        row
+      );
+
+    }
+  );
+
+}
+
+
+/* =========================
+   APPROVE
+========================= */
+
+async function approveWithdrawal(
+  id
+) {
+
+  const confirmed =
+    confirm(
+      "Approve this withdrawal request?"
+    );
+
+
+  if (!confirmed) {
+    return;
+  }
+
+
+  await processWithdrawal(
+    id,
+    "approve"
+  );
+
+}
+
+
+/* =========================
+   REJECT
+========================= */
+
+async function rejectWithdrawal(
+  id
+) {
+
+  const confirmed =
+    confirm(
+      "Reject this withdrawal request?"
+    );
+
+
+  if (!confirmed) {
+    return;
+  }
+
+
+  await processWithdrawal(
+    id,
+    "reject"
+  );
+
+}
+
+
+/* =========================
+   PROCESS WITHDRAWAL
+========================= */
+
+async function processWithdrawal(
+  id,
+  action
+) {
+
+  const token =
+    getToken();
+
+
+  if (!token) {
+
+    window.location.href = "/";
+
+    return;
+
+  }
+
+
+  try {
+
+    const response =
+      await fetch(
+        "/api/admin/withdrawals/" +
+        action,
+        {
+
+          method: "POST",
+
+          headers: {
+
+            "Content-Type":
+              "application/json",
+
+            "Authorization":
+              "Bearer " +
+              token
+
+          },
+
+          body: JSON.stringify({
+            id: id
+          })
+
+        }
+      );
+
+
+    const data =
+      await response
+        .json()
+        .catch(function() {
+          return {};
+        });
+
+
+    if (!response.ok) {
+
+      alert(
+        data.message ||
+        data.error ||
+        "Withdrawal action failed."
+      );
+
+      return;
+
+    }
+
+
+    alert(
+      data.message ||
+      "Withdrawal updated successfully."
+    );
+
+
+    await loadWithdrawals();
+
+    await loadDashboard();
+
+
+  } catch (error) {
+
+    console.error(
+      "Withdrawal action error:",
+      error
+    );
+
+
+    alert(
+      "Unable to connect to server."
+    );
+
+  }
+
+}
+
+
+/* =========================
+   SECURITY
+========================= */
+
+function escapeHtml(value) {
+
+  return String(value)
+
+    .replaceAll(
+      "&",
+      "&amp;"
+    )
+
+    .replaceAll(
+      "<",
+      "&lt;"
+    )
+
+    .replaceAll(
+      ">",
+      "&gt;"
+    )
+
+    .replaceAll(
+      '"',
+      "&quot;"
+    )
+
+    .replaceAll(
+      "'",
+      "&#039;"
+    );
+
+}
+
+
+/* =========================
+   STATUS
+========================= */
+
+function showStatus(
+  message
+) {
+
+  const box =
+    document.getElementById(
+      "status"
+    );
+
+
+  box.textContent =
+    message;
+
+
+  box.style.display =
+    "block";
+
+}
+
+
+function hideStatus() {
+
+  const box =
+    document.getElementById(
+      "status"
+    );
+
+
+  box.textContent =
+    "";
+
+
+  box.style.display =
+    "none";
+
+}
+
+
+/* =========================
+   LOGOUT
+========================= */
+
+async function logout() {
+
+  const token =
+    getToken();
+
+
+  try {
+
+    if (token) {
+
+      await fetch(
+        "/api/admin/logout",
+        {
+
+          method: "POST",
+
+          headers: {
+
+            "Authorization":
+              "Bearer " +
+              token
+
+          }
+
+        }
+      );
+
+    }
+
+  } catch (error) {
+
+    console.error(
+      error
+    );
+
+  }
+
+
+  localStorage.removeItem(
+    "earnnest_user"
+  );
+
+
+  localStorage.removeItem(
+    "earnnest_token"
+  );
+
+
+  window.location.href =
+    "/";
+
+}
+
+
+/* =========================
+   START
+========================= */
+
+(async function() {
+
+  const allowed =
+    await checkAdmin();
+
+
+  if (allowed) {
+
+    await loadDashboard();
+
+    await loadWithdrawals();
+
+  }
+
+})();
+
+</script>
 
 </body>
 
 </html>
+```
