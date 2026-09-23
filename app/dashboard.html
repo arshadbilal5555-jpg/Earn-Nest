@@ -586,13 +586,83 @@
         >
       </div>
 
-      <button class="action-btn" onclick="requestWithdrawal()">
-        Request Withdrawal
-      </button>
+     async function requestWithdrawal() {
+  const amountInput = document.getElementById('withdrawAmount');
+  const methodInput = document.getElementById('paymentMethod');
+  const accountInput = document.getElementById('paymentAccount');
 
-    </div>
+  const amount = Number(amountInput.value);
+  const method = methodInput.value.trim();
+  const account = accountInput.value.trim();
 
-  </section>
+  if (!amount || amount <= 0) {
+    toast('Please enter a valid amount.', true);
+    return;
+  }
+
+  if (!method) {
+    toast('Please select a payment method.', true);
+    return;
+  }
+
+  if (!account) {
+    toast('Please enter your payment account.', true);
+    return;
+  }
+
+  // Convert frontend values to backend values
+  let paymentMethod = '';
+
+  if (method === 'easypaisa') {
+    paymentMethod = 'Easypaisa';
+  } else if (method === 'jazzcash') {
+    paymentMethod = 'JazzCash';
+  } else if (method === 'bank') {
+    paymentMethod = 'Bank Transfer';
+  } else {
+    toast('Invalid payment method.', true);
+    return;
+  }
+
+  try {
+    const data = await api('/withdraw', {
+      method: 'POST',
+      body: JSON.stringify({
+        amount: Math.floor(amount),
+        paymentMethod: paymentMethod,
+        accountNumber: account
+      })
+    });
+
+    if (!data.success) {
+      toast(
+        data.message || 'Withdrawal request failed.',
+        true
+      );
+      return;
+    }
+
+    toast(
+      data.message ||
+      'Withdrawal request submitted successfully.'
+    );
+
+    amountInput.value = '';
+    methodInput.value = '';
+    accountInput.value = '';
+
+    await loadWallet();
+
+  } catch (error) {
+    console.error('Withdrawal error:', error);
+
+    toast(
+      error.message ||
+      'Withdrawal request failed.',
+      true
+    );
+  }
+}
 
 
   <!-- EARNINGS -->
