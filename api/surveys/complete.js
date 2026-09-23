@@ -13,7 +13,6 @@ res.setHeader(
 'Access-Control-Allow-Headers',
 'Content-Type, Authorization'
 );
-
 res.end(JSON.stringify(data));
 }
 
@@ -98,7 +97,7 @@ return res.end();
 if (req.method !== 'POST') {
 return send(res, 405, {
 success: false,
-message: 'Method not allowed. Use POST.'
+message: 'Method not allowed'
 });
 }
 
@@ -137,15 +136,29 @@ if (!survey) {
 }
 
 /*
-  Find the logged-in user.
-*/
-const sessionRows = await sql`
-  SELECT user_id
-  FROM admin_sessions
-  WHERE token = ${token}
-    AND expires_at > NOW()
-  LIMIT 1
-`;
+ * STEP 1
+ * Check session.
+ */
+let sessionRows;
+
+try {
+
+  sessionRows = await sql`
+    SELECT user_id
+    FROM admin_sessions
+    WHERE token = ${token}
+      AND expires_at > NOW()
+    LIMIT 1
+  `;
+
+} catch (error) {
+
+  return send(res, 500, {
+    success: false,
+    step: 'session_lookup',
+    error: error.message
+  });
+}
 
 if (!sessionRows.length) {
   return send(res, 401, {
@@ -159,92 +172,133 @@ const userId = String(
 );
 
 /*
-  Create survey claims table.
+ * STEP 2
+ * Check/create survey table.
+ */
+try {
 
-  One user can complete the same survey once per day.
-*/
-await sql`
-  CREATE TABLE IF NOT EXISTS survey_claims (
-    id BIGSERIAL PRIMARY KEY,
-    user_id TEXT NOT NULL,
-    survey_id TEXT NOT NULL,
-    period_key TEXT NOT NULL,
-    reward INTEGER NOT NULL,
-    claimed_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    UNIQUE(user_id, survey_id, period_key)
-  )
-`;
+  await sql`
+    CREATE TABLE IF NOT EXISTS survey_claims (
+      id BIGSERIAL PRIMARY KEY,
+      user_id TEXT NOT NULL,
+      survey_id TEXT NOT NULL,
+      period_key TEXT NOT NULL,
+      reward INTEGER NOT NULL,
+      claimed_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      UNIQUE(user_id, survey_id, period_key)
+    )
+  `;
 
-/*
-  Today's period.
-*/
+} catch (error) {
+
+  return send(res, 500, {
+    success: false,
+    step: 'survey_table',
+    error: error.message
+  });
+}
+
 const periodKey =
   'day:' + new Date().toISOString().slice(0, 10);
 
 /*
-  Make sure the wallet exists.
-*/
-await sql`
-  INSERT INTO wallets (
-    user_id,
-    balance,
-    total_earned,
-    total_withdrawn
-  )
-  VALUES (
-    ${userId},
-    0,
-    0,
-    0
-  )
-  ON CONFLICT (user_id)
-  DO NOTHING
-`;
+ * STEP 3
+ * Make sure wallet exists.
+ */
+try {
 
-/*
-  Check whether this survey was already completed today.
-*/
-const existing = await sql`
-  SELECT id
-  FROM survey_claims
-  WHERE user_id = ${userId}
-    AND survey_id = ${surveyId}
-    AND period_key = ${periodKey}
-  LIMIT 1
-`;
+  await sql`
+    INSERT INTO wallets (
+      user_id,
+      balance,
+      total_earned,
+      total_withdrawn
+    )
+    VALUES (
+      ${userId},
+      0,
+      0,
+      0
+    )
+    ON CONFLICT (user_id)
+    DO NOTHING
+  `;
 
-if (existing.length) {
-  return send(res, 409, {
+} catch (error) {
+
+  return send(res, 500, {
     success: false,
-    message: 'Survey already completed today'
+    step: 'wallet_insert',
+    error: error.message
   });
 }
 
 /*
-  Record the survey claim.
-*/
-const claim = await sql`
-  INSERT INTO survey_claims (
-    user_id,
-    survey_id,
-    period_key,
-    reward
-  )
-  VALUES (
-    ${userId},
-    ${surveyId},
-    ${periodKey},
-    ${survey.reward}
-  )
-  ON CONFLICT (user_id, survey_id, period_key)
-  DO NOTHING
-  RETURNING id
-`;
+ * STEP 4
+ * Check duplicate.
+ */
+try {
+
+  const existing = await sql`
+    SELECT id
+    FROM survey_claims
+    WHERE user_id = ${userId}
+      AND survey_id = ${surveyId}
+      AND period_key = ${periodKey}
+    LIMIT 1
+  `;
+
+  if (existing.length) {
+    return send(res, 409, {
+      success: false,
+      message: 'Survey already completed today'
+    });
+  }
+
+} catch (error) {
+
+  return send(res, 500, {
+    success: false,
+    step: 'duplicate_check',
+    error: error.message
+  });
+}
 
 /*
-  If another request completed it first,
-  don't give another reward.
-*/
+ * STEP 5
+ * Record claim.
+ */
+let claim;
+
+try {
+
+  claim = await sql`
+    INSERT INTO survey_claims (
+      user_id,
+      survey_id,
+      period_key,
+      reward
+    )
+    VALUES (
+      ${userId},
+      ${surveyId},
+      ${periodKey},
+      ${survey.reward}
+    )
+    ON CONFLICT (user_id, survey_id, period_key)
+    DO NOTHING
+    RETURNING id
+  `;
+
+} catch (error) {
+
+  return send(res, 500, {
+    success: false,
+    step: 'claim_insert',
+    error: error.message
+  });
+}
+
 if (!claim.length) {
   return send(res, 409, {
     success: false,
@@ -253,24 +307,43 @@ if (!claim.length) {
 }
 
 /*
-  Add the reward to the wallet.
-*/
-const walletResult = await sql`
-  UPDATE wallets
-  SET
-    balance =
-      COALESCE(balance, 0) + ${survey.reward},
+ * STEP 6
+ * Add reward.
+ */
+let walletResult;
 
-    total_earned =
-      COALESCE(total_earned, 0) + ${survey.reward}
+try {
 
-  WHERE user_id = ${userId}
+  walletResult = await sql`
+    UPDATE wallets
+    SET
+      balance =
+        COALESCE(balance, 0) + ${survey.reward},
 
-  RETURNING
-    balance,
-    total_earned,
-    total_withdrawn
-`;
+      total_earned =
+        COALESCE(total_earned, 0) + ${survey.reward}
+
+    WHERE user_id = ${userId}
+
+    RETURNING
+      balance,
+      total_earned,
+      total_withdrawn
+  `;
+
+} catch (error) {
+
+  await sql`
+    DELETE FROM survey_claims
+    WHERE id = ${claim[0].id}
+  `;
+
+  return send(res, 500, {
+    success: false,
+    step: 'wallet_update',
+    error: error.message
+  });
+}
 
 if (!walletResult.length) {
 
@@ -281,39 +354,26 @@ if (!walletResult.length) {
 
   return send(res, 500, {
     success: false,
-    message: 'Wallet could not be updated'
+    step: 'wallet_not_found',
+    error: 'Wallet update returned no rows'
   });
 }
 
 const wallet = walletResult[0];
 
 return send(res, 200, {
-
   success: true,
-
-  message:
-    `${survey.title} completed successfully`,
-
+  message: `${survey.title} completed successfully`,
   survey: {
     id: surveyId,
     title: survey.title,
     reward: survey.reward
   },
-
   wallet: {
-    balance: Number(
-      wallet.balance || 0
-    ),
-
-    totalEarned: Number(
-      wallet.total_earned || 0
-    ),
-
-    totalWithdrawn: Number(
-      wallet.total_withdrawn || 0
-    )
+    balance: Number(wallet.balance || 0),
+    totalEarned: Number(wallet.total_earned || 0),
+    totalWithdrawn: Number(wallet.total_withdrawn || 0)
   }
-
 });
 ```
 
@@ -321,13 +381,14 @@ return send(res, 200, {
 
 ```
 console.error(
-  'Survey completion API error:',
+  'Survey diagnostic error:',
   error
 );
 
 return send(res, 500, {
   success: false,
-  message: 'Server error'
+  step: 'unknown',
+  error: error.message
 });
 ```
 
