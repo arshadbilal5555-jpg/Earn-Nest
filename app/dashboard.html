@@ -1,2402 +1,305 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#07130e">
-<meta name="description" content="EarnNest - Rewards, Tasks, Surveys and Withdrawals">
-<title>EarnNest — Dashboard</title>
-
-<style>
-:root{
-  --bg:#06110c;
-  --bg2:#0a1912;
-  --card:rgba(14,31,22,.82);
-  --card2:rgba(18,39,28,.9);
-  --border:rgba(92,220,142,.16);
-  --green:#35e879;
-  --green2:#18b95a;
-  --green3:#8affb4;
-  --text:#f4fff8;
-  --muted:#9bb3a4;
-  --danger:#ff6674;
-  --warning:#ffc857;
-  --shadow:0 20px 60px rgba(0,0,0,.35);
-}
-
-*{
-  box-sizing:border-box;
-  margin:0;
-  padding:0;
-}
-
-html{
-  scroll-behavior:smooth;
-}
-
-body{
-  font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
-  background:
-    radial-gradient(circle at 10% 10%,rgba(53,232,121,.13),transparent 28%),
-    radial-gradient(circle at 90% 20%,rgba(24,185,90,.10),transparent 25%),
-    radial-gradient(circle at 50% 100%,rgba(53,232,121,.08),transparent 30%),
-    linear-gradient(135deg,#030a07,#07130e 45%,#04100a);
-  background-attachment:fixed;
-  color:var(--text);
-  min-height:100vh;
-  overflow-x:hidden;
-}
-
-/* Animated wallpaper */
-body::before,
-body::after{
-  content:"";
-  position:fixed;
-  width:420px;
-  height:420px;
-  border-radius:50%;
-  filter:blur(90px);
-  opacity:.13;
-  pointer-events:none;
-  z-index:-1;
-  animation:float 12s ease-in-out infinite alternate;
-}
-
-body::before{
-  background:#35e879;
-  top:-170px;
-  left:-160px;
-}
-
-body::after{
-  background:#00b85c;
-  right:-180px;
-  bottom:-180px;
-  animation-delay:2s;
-}
-
-@keyframes float{
-  from{transform:translate(0,0) scale(1)}
-  to{transform:translate(40px,25px) scale(1.12)}
-}
-
-button,
-input,
-select{
-  font:inherit;
-}
-
-button{
-  cursor:pointer;
-}
-
-a{
-  color:inherit;
-  text-decoration:none;
-}
-
-/* Header */
-.topbar{
-  position:sticky;
-  top:0;
-  z-index:100;
-  height:76px;
-  border-bottom:1px solid var(--border);
-  background:rgba(4,13,9,.82);
-  backdrop-filter:blur(20px);
-}
-
-.topbar-inner{
-  max-width:1400px;
-  height:100%;
-  margin:auto;
-  padding:0 22px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-}
-
-.brand{
-  display:flex;
-  align-items:center;
-  gap:12px;
-}
-
-.logo{
-  width:46px;
-  height:46px;
-  border-radius:14px;
-  display:grid;
-  place-items:center;
-  background:linear-gradient(145deg,#45f68a,#0cae52);
-  box-shadow:0 10px 30px rgba(53,232,121,.24);
-  position:relative;
-  overflow:hidden;
-}
-
-.logo::after{
-  content:"";
-  position:absolute;
-  width:65px;
-  height:16px;
-  background:rgba(255,255,255,.22);
-  transform:rotate(-45deg);
-  top:3px;
-  left:-25px;
-}
-
-.logo svg{
-  width:29px;
-  height:29px;
-  position:relative;
-  z-index:2;
-}
-
-.brand-text strong{
-  display:block;
-  font-size:20px;
-  letter-spacing:-.5px;
-}
-
-.brand-text span{
-  color:var(--muted);
-  font-size:11px;
-}
-
-.header-actions{
-  display:flex;
-  align-items:center;
-  gap:10px;
-}
-
-.icon-btn{
-  width:42px;
-  height:42px;
-  border:1px solid var(--border);
-  background:rgba(255,255,255,.04);
-  color:white;
-  border-radius:12px;
-  display:grid;
-  place-items:center;
-}
-
-.icon-btn:hover{
-  background:rgba(53,232,121,.1);
-  border-color:rgba(53,232,121,.35);
-}
-
-.logout-btn{
-  border:1px solid rgba(255,102,116,.2);
-  background:rgba(255,102,116,.07);
-  color:#ff9ca5;
-  padding:10px 15px;
-  border-radius:11px;
-}
-
-/* Layout */
-.layout{
-  max-width:1400px;
-  margin:auto;
-  display:grid;
-  grid-template-columns:240px 1fr;
-  min-height:calc(100vh - 76px);
-}
-
-/* Sidebar */
-.sidebar{
-  border-right:1px solid var(--border);
-  padding:25px 16px;
-  background:rgba(4,15,10,.45);
-}
-
-.user-mini{
-  padding:16px;
-  margin-bottom:22px;
-  border:1px solid var(--border);
-  border-radius:18px;
-  background:rgba(255,255,255,.025);
-}
-
-.avatar{
-  width:45px;
-  height:45px;
-  border-radius:50%;
-  display:grid;
-  place-items:center;
-  background:linear-gradient(145deg,#36ed7d,#0a9e49);
-  color:#031008;
-  font-weight:900;
-  margin-bottom:10px;
-}
-
-.user-mini strong{
-  display:block;
-  font-size:14px;
-}
-
-.user-mini span{
-  display:block;
-  color:var(--muted);
-  font-size:11px;
-  margin-top:4px;
-  overflow:hidden;
-  text-overflow:ellipsis;
-}
-
-.nav{
-  display:flex;
-  flex-direction:column;
-  gap:6px;
-}
-
-.nav button{
-  border:1px solid transparent;
-  background:transparent;
-  color:var(--muted);
-  padding:13px 14px;
-  border-radius:12px;
-  text-align:left;
-  display:flex;
-  align-items:center;
-  gap:11px;
-}
-
-.nav button:hover,
-.nav button.active{
-  background:rgba(53,232,121,.09);
-  color:var(--green3);
-  border-color:rgba(53,232,121,.13);
-}
-
-.nav-icon{
-  width:20px;
-  text-align:center;
-}
-
-/* Main */
-.main{
-  padding:30px;
-  min-width:0;
-}
-
-.welcome{
-  margin-bottom:25px;
-}
-
-.welcome h1{
-  font-size:31px;
-  letter-spacing:-1px;
-}
-
-.welcome p{
-  color:var(--muted);
-  margin-top:7px;
-}
-
-/* Cards */
-.cards{
-  display:grid;
-  grid-template-columns:repeat(4,1fr);
-  gap:16px;
-  margin-bottom:22px;
-}
-
-.stat{
-  position:relative;
-  overflow:hidden;
-  border:1px solid var(--border);
-  border-radius:21px;
-  background:linear-gradient(145deg,rgba(18,42,29,.88),rgba(8,22,14,.88));
-  padding:22px;
-  box-shadow:var(--shadow);
-}
-
-.stat::after{
-  content:"";
-  position:absolute;
-  width:100px;
-  height:100px;
-  border-radius:50%;
-  background:rgba(53,232,121,.08);
-  right:-35px;
-  top:-35px;
-}
-
-.stat-label{
-  color:var(--muted);
-  font-size:12px;
-  margin-bottom:12px;
-}
-
-.stat-value{
-  font-size:28px;
-  font-weight:800;
-  letter-spacing:-.7px;
-}
-
-.stat-value span{
-  color:var(--green);
-  font-size:13px;
-  margin-left:3px;
-}
-
-.stat-icon{
-  position:absolute;
-  right:18px;
-  bottom:17px;
-  font-size:25px;
-}
-
-/* Sections */
-.section{
-  display:none;
-}
-
-.section.active{
-  display:block;
-}
-
-.grid-2{
-  display:grid;
-  grid-template-columns:1.4fr .8fr;
-  gap:18px;
-}
-
-.panel{
-  border:1px solid var(--border);
-  border-radius:22px;
-  background:var(--card);
-  box-shadow:var(--shadow);
-  padding:22px;
-  margin-bottom:18px;
-}
-
-.panel-head{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:12px;
-  margin-bottom:18px;
-}
-
-.panel-head h2{
-  font-size:18px;
-}
-
-.panel-head p{
-  color:var(--muted);
-  font-size:12px;
-}
-
-/* Hero */
-.balance-hero{
-  min-height:245px;
-  padding:30px;
-  border-radius:25px;
-  border:1px solid rgba(53,232,121,.2);
-  background:
-    radial-gradient(circle at 90% 20%,rgba(53,232,121,.22),transparent 30%),
-    linear-gradient(145deg,#103822,#07170e);
-  position:relative;
-  overflow:hidden;
-}
-
-.balance-hero::before{
-  content:"";
-  position:absolute;
-  width:220px;
-  height:220px;
-  border-radius:50%;
-  border:1px solid rgba(138,255,180,.12);
-  right:-70px;
-  bottom:-100px;
-}
-
-.balance-hero .small{
-  color:#a8c7b4;
-  font-size:13px;
-}
-
-.balance{
-  font-size:48px;
-  font-weight:900;
-  margin:10px 0 7px;
-  letter-spacing:-2px;
-}
-
-.coins{
-  color:var(--green);
-  font-size:14px;
-}
-
-.earn-btn{
-  margin-top:22px;
-  padding:12px 19px;
-  border:0;
-  border-radius:12px;
-  color:#031008;
-  font-weight:800;
-  background:linear-gradient(135deg,#55f68e,#18b95a);
-  box-shadow:0 12px 30px rgba(53,232,121,.2);
-}
-
-.earn-btn:hover{
-  transform:translateY(-1px);
-}
-
-/* Daily bonus */
-.bonus{
-  background:
-    radial-gradient(circle at 100% 0,rgba(255,200,87,.12),transparent 35%),
-    var(--card);
-}
-
-.bonus-icon{
-  font-size:42px;
-  margin-bottom:12px;
-}
-
-.bonus h3{
-  font-size:20px;
-}
-
-.bonus p{
-  color:var(--muted);
-  font-size:13px;
-  line-height:1.6;
-  margin-top:8px;
-}
-
-.bonus button{
-  width:100%;
-  margin-top:18px;
-}
-
-/* Task cards */
-.items{
-  display:grid;
-  grid-template-columns:repeat(2,1fr);
-  gap:13px;
-}
-
-.item{
-  padding:17px;
-  border:1px solid var(--border);
-  border-radius:17px;
-  background:rgba(255,255,255,.025);
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:14px;
-  transition:.2s;
-}
-
-.item:hover{
-  border-color:rgba(53,232,121,.3);
-  transform:translateY(-2px);
-}
-
-.item-left{
-  display:flex;
-  align-items:center;
-  gap:12px;
-  min-width:0;
-}
-
-.item-icon{
-  width:44px;
-  height:44px;
-  flex:0 0 44px;
-  border-radius:13px;
-  display:grid;
-  place-items:center;
-  background:rgba(53,232,121,.1);
-  font-size:21px;
-}
-
-.item-title{
-  font-weight:700;
-  font-size:14px;
-}
-
-.item-sub{
-  color:var(--muted);
-  font-size:11px;
-  margin-top:4px;
-}
-
-.reward{
-  color:var(--green);
-  font-weight:800;
-  white-space:nowrap;
-  font-size:13px;
-}
-
-.small-action{
-  border:1px solid rgba(53,232,121,.2);
-  background:rgba(53,232,121,.08);
-  color:var(--green3);
-  padding:8px 11px;
-  border-radius:9px;
-  font-size:11px;
-  margin-top:7px;
-}
-
-.small-action:hover{
-  background:rgba(53,232,121,.15);
-}
-
-.small-action:disabled{
-  opacity:.5;
-  cursor:not-allowed;
-}
-
-/* Forms */
-.form-grid{
-  display:grid;
-  grid-template-columns:repeat(2,1fr);
-  gap:15px;
-}
-
-.field{
-  margin-bottom:15px;
-}
-
-.field label{
-  display:block;
-  color:#bfd2c6;
-  font-size:12px;
-  margin-bottom:7px;
-}
-
-.field input,
-.field select{
-  width:100%;
-  border:1px solid var(--border);
-  outline:none;
-  background:#07150d;
-  color:white;
-  padding:13px 14px;
-  border-radius:12px;
-}
-
-.field input:focus,
-.field select:focus{
-  border-color:rgba(53,232,121,.5);
-  box-shadow:0 0 0 3px rgba(53,232,121,.07);
-}
-
-.primary{
-  border:0;
-  background:linear-gradient(135deg,#4cf388,#17b858);
-  color:#031008;
-  font-weight:850;
-  padding:13px 18px;
-  border-radius:12px;
-  width:100%;
-}
-
-.primary:hover{
-  filter:brightness(1.07);
-}
-
-/* Profile */
-.profile-row{
-  display:flex;
-  justify-content:space-between;
-  gap:20px;
-  padding:15px 0;
-  border-bottom:1px solid rgba(255,255,255,.06);
-}
-
-.profile-row:last-child{
-  border-bottom:0;
-}
-
-.profile-row span{
-  color:var(--muted);
-}
-
-.profile-row strong{
-  text-align:right;
-}
-
-/* Tables */
-.table-wrap{
-  overflow-x:auto;
-}
-
-table{
-  width:100%;
-  border-collapse:collapse;
-  min-width:600px;
-}
-
-th,
-td{
-  padding:13px 10px;
-  text-align:left;
-  border-bottom:1px solid rgba(255,255,255,.06);
-  font-size:12px;
-}
-
-th{
-  color:#91aa9c;
-  font-weight:600;
-}
-
-td{
-  color:#e3f0e8;
-}
-
-.status{
-  display:inline-flex;
-  padding:5px 9px;
-  border-radius:20px;
-  font-size:10px;
-  background:rgba(53,232,121,.08);
-  color:var(--green3);
-}
-
-.status.pending{
-  color:#ffd87b;
-  background:rgba(255,200,87,.09);
-}
-
-.status.rejected{
-  color:#ff9ca5;
-  background:rgba(255,102,116,.09);
-}
-
-/* Empty */
-.empty{
-  text-align:center;
-  padding:35px 15px;
-  color:var(--muted);
-}
-
-/* Toast */
-.toast{
-  position:fixed;
-  right:22px;
-  bottom:22px;
-  z-index:999;
-  max-width:360px;
-  padding:14px 17px;
-  border:1px solid rgba(53,232,121,.25);
-  border-radius:13px;
-  background:#0b2115;
-  box-shadow:0 20px 50px rgba(0,0,0,.4);
-  color:#eafff1;
-  opacity:0;
-  transform:translateY(20px);
-  pointer-events:none;
-  transition:.25s;
-  font-size:13px;
-}
-
-.toast.show{
-  opacity:1;
-  transform:translateY(0);
-}
-
-.toast.error{
-  border-color:rgba(255,102,116,.35);
-  background:#281014;
-}
-
-/* Loading */
-.loading{
-  opacity:.6;
-  pointer-events:none;
-}
-
-/* Mobile */
-.mobile-menu{
-  display:none;
-}
-
-@media(max-width:1100px){
-  .cards{
-    grid-template-columns:repeat(2,1fr);
-  }
-
-  .grid-2{
-    grid-template-columns:1fr;
-  }
-}
-
-@media(max-width:800px){
-  .topbar{
-    height:68px;
-  }
-
-  .mobile-menu{
-    display:grid;
-  }
-
-  .layout{
-    grid-template-columns:1fr;
-  }
-
-  .sidebar{
-    position:fixed;
-    top:68px;
-    left:-270px;
-    bottom:0;
-    width:255px;
-    z-index:90;
-    transition:.25s;
-    box-shadow:30px 0 70px rgba(0,0,0,.35);
-  }
-
-  .sidebar.open{
-    left:0;
-  }
-
-  .main{
-    padding:20px 15px;
-  }
-
-  .cards{
-    grid-template-columns:1fr 1fr;
-    gap:10px;
-  }
-
-  .stat{
-    padding:17px;
-  }
-
-  .stat-value{
-    font-size:22px;
-  }
-
-  .items,
-  .form-grid{
-    grid-template-columns:1fr;
-  }
-
-  .balance{
-    font-size:38px;
-  }
-
-  .welcome h1{
-    font-size:25px;
-  }
-
-  .logout-btn{
-    display:none;
-  }
-}
-
-@media(max-width:480px){
-  .cards{
-    grid-template-columns:1fr;
-  }
-
-  .brand-text span{
-    display:none;
-  }
-
-  .panel,
-  .balance-hero{
-    padding:18px;
-    border-radius:18px;
-  }
-
-  .item{
-    align-items:flex-start;
-    flex-direction:column;
-  }
-
-  .item-right{
-    width:100%;
-  }
-
-  .small-action{
-    width:100%;
-  }
-}
-</style>
-</head>
-
-<body>
-
-<header class="topbar">
-  <div class="topbar-inner">
-
-    <div class="brand">
-      <button class="icon-btn mobile-menu" onclick="toggleSidebar()">☰</button>
-
-      <div class="logo">
-        <svg viewBox="0 0 48 48" fill="none">
-          <path d="M24 5L42 15V33L24 43L6 33V15L24 5Z"
-                fill="rgba(2,30,14,.85)"/>
-          <path d="M15 28L21 34L34 19"
-                stroke="#8AFFB4"
-                stroke-width="5"
-                stroke-linecap="round"
-                stroke-linejoin="round"/>
-          <circle cx="24" cy="14" r="3" fill="#fff"/>
-        </svg>
-      </div>
-
-      <div class="brand-text">
-        <strong>EarnNest</strong>
-        <span>Rewards & Earnings</span>
-      </div>
-    </div>
-
-    <div class="header-actions">
-      <button class="icon-btn" onclick="showSection('earnings')">↗</button>
-      <button class="logout-btn" onclick="logout()">Logout</button>
-    </div>
-
-  </div>
-</header>
-
-
-<div class="layout">
-
-  <!-- SIDEBAR -->
-  <aside class="sidebar" id="sidebar">
-
-    <div class="user-mini">
-      <div class="avatar" id="avatar">E</div>
-      <strong id="sideName">EarnNest User</strong>
-      <span id="sideEmail">Loading...</span>
-    </div>
-
-    <nav class="nav">
-
-      <button class="active" data-section="home"
-              onclick="showSection('home')">
-        <span class="nav-icon">⌂</span>
-        Dashboard
-      </button>
-
-      <button data-section="tasks"
-              onclick="showSection('tasks')">
-        <span class="nav-icon">✓</span>
-        Tasks
-      </button>
-
-      <button data-section="surveys"
-              onclick="showSection('surveys')">
-        <span class="nav-icon">▤</span>
-        Surveys
-      </button>
-
-      <button data-section="wallet"
-              onclick="showSection('wallet')">
-        <span class="nav-icon">◈</span>
-        Wallet
-      </button>
-
-      <button data-section="earnings"
-              onclick="showSection('earnings')">
-        <span class="nav-icon">↗</span>
-        Earnings
-      </button>
-
-      <button data-section="profile"
-              onclick="showSection('profile')">
-        <span class="nav-icon">●</span>
-        Profile
-      </button>
-
-    </nav>
-
-  </aside>
-
-
-  <!-- MAIN -->
-  <main class="main">
-
-    <div class="welcome">
-      <h1>Welcome back, <span id="welcomeName">User</span> 👋</h1>
-      <p>Complete tasks, earn coins and manage your rewards.</p>
-    </div>
-
-
-    <!-- STAT CARDS -->
-    <div class="cards">
-
-      <div class="stat">
-        <div class="stat-label">Available Balance</div>
-        <div class="stat-value">
-          <span id="balance">0</span>
-          <span>Coins</span>
-        </div>
-        <div class="stat-icon">💰</div>
-      </div>
-
-      <div class="stat">
-        <div class="stat-label">Total Earned</div>
-        <div class="stat-value">
-          <span id="totalEarned">0</span>
-          <span>Coins</span>
-        </div>
-        <div class="stat-icon">📈</div>
-      </div>
-
-      <div class="stat">
-        <div class="stat-label">Pending Withdrawal</div>
-        <div class="stat-value">
-          <span id="pendingWithdrawal">0</span>
-          <span>Coins</span>
-        </div>
-        <div class="stat-icon">⏳</div>
-      </div>
-
-      <div class="stat">
-        <div class="stat-label">Total Withdrawn</div>
-        <div class="stat-value">
-          <span id="totalWithdrawn">0</span>
-          <span>Coins</span>
-        </div>
-        <div class="stat-icon">💸</div>
-      </div>
-
-    </div>
-
-
-    <!-- HOME -->
-    <section class="section active" id="section-home">
-
-      <div class="grid-2">
-
-        <div>
-
-          <div class="balance-hero">
-            <div class="small">Your current rewards balance</div>
-
-            <div class="balance">
-              <span id="heroBalance">0</span>
-            </div>
-
-            <div class="coins">EarnNest Coins</div>
-
-            <button class="earn-btn"
-                    onclick="showSection('tasks')">
-              Start Earning →
-            </button>
-          </div>
-
-
-          <div class="panel">
-            <div class="panel-head">
-              <div>
-                <h2>Quick Tasks</h2>
-                <p>Complete activities and earn Coins.</p>
-              </div>
-
-              <button class="small-action"
-                      onclick="showSection('tasks')">
-                View All
-              </button>
-            </div>
-
-            <div class="items" id="quickTasks"></div>
-          </div>
-
-        </div>
-
-
-        <div>
-
-          <div class="panel bonus">
-            <div class="bonus-icon">🎁</div>
-            <h3>Daily Bonus</h3>
-            <p>
-              Claim your daily reward once every day
-              and keep building your balance.
-            </p>
-
-            <button class="primary"
-                    id="dailyBonusBtn"
-                    onclick="claimDailyBonus()">
-              Claim 50 Coins
-            </button>
-          </div>
-
-
-          <div class="panel">
-            <div class="panel-head">
-              <div>
-                <h2>Account</h2>
-                <p>Your EarnNest profile</p>
-              </div>
-            </div>
-
-            <div class="profile-row">
-              <span>Username</span>
-              <strong id="homeUsername">—</strong>
-            </div>
-
-            <div class="profile-row">
-              <span>Email</span>
-              <strong id="homeEmail">—</strong>
-            </div>
-
-            <div class="profile-row">
-              <span>Account Type</span>
-              <strong>Member</strong>
-            </div>
-
-          </div>
-
-        </div>
-
-      </div>
-
-    </section>
-
-
-    <!-- TASKS -->
-    <section class="section" id="section-tasks">
-
-      <div class="panel">
-
-        <div class="panel-head">
-          <div>
-            <h2>Available Tasks</h2>
-            <p>Complete tasks to earn rewards.</p>
-          </div>
-        </div>
-
-        <div class="items" id="tasksList"></div>
-
-      </div>
-
-    </section>
-
-
-    <!-- SURVEYS -->
-    <section class="section" id="section-surveys">
-
-      <div class="panel">
-
-        <div class="panel-head">
-          <div>
-            <h2>Paid Surveys</h2>
-            <p>Share your opinion and earn Coins.</p>
-          </div>
-        </div>
-
-        <div class="items" id="surveysList"></div>
-
-      </div>
-
-    </section>
-
-
-    <!-- WALLET -->
-    <section class="section" id="section-wallet">
-
-      <div class="grid-2">
-
-        <div class="panel">
-
-          <div class="panel-head">
-            <div>
-              <h2>Withdraw Rewards</h2>
-              <p>Minimum withdrawal is 1,000 Coins.</p>
-            </div>
-          </div>
-
-          <div class="field">
-            <label>Amount (Coins)</label>
-            <input
-              type="number"
-              id="withdrawAmount"
-              min="1000"
-              step="1"
-              placeholder="1000"
-            >
-          </div>
-
-          <div class="field">
-            <label>Payment Method</label>
-
-            <select id="paymentMethod">
-              <option value="">Select method</option>
-              <option value="JazzCash">JazzCash</option>
-              <option value="Easypaisa">Easypaisa</option>
-              <option value="Bank Transfer">Bank Transfer</option>
-            </select>
-          </div>
-
-          <div class="field">
-            <label>Account Number / IBAN</label>
-
-            <input
-              type="text"
-              id="paymentAccount"
-              placeholder="Enter account number"
-            >
-          </div>
-
-          <button
-            class="primary"
-            onclick="requestWithdrawal()">
-            Request Withdrawal
-          </button>
-
-        </div>
-
-
-        <div class="panel">
-
-          <div class="panel-head">
-            <div>
-              <h2>Wallet Summary</h2>
-              <p>Current withdrawal status.</p>
-            </div>
-          </div>
-
-          <div class="profile-row">
-            <span>Available</span>
-            <strong>
-              <span id="walletBalance">0</span> Coins
-            </strong>
-          </div>
-
-          <div class="profile-row">
-            <span>Pending</span>
-            <strong>
-              <span id="walletPending">0</span> Coins
-            </strong>
-          </div>
-
-          <div class="profile-row">
-            <span>Withdrawn</span>
-            <strong>
-              <span id="walletWithdrawn">0</span> Coins
-            </strong>
-          </div>
-
-        </div>
-
-      </div>
-
-
-      <div class="panel">
-
-        <div class="panel-head">
-          <div>
-            <h2>Withdrawal History</h2>
-            <p>Your recent withdrawal requests.</p>
-          </div>
-        </div>
-
-        <div class="table-wrap">
-
-          <table>
-            <thead>
-              <tr>
-                <th>Amount</th>
-                <th>Method</th>
-                <th>Account</th>
-                <th>Status</th>
-                <th>Date</th>
-              </tr>
-            </thead>
-
-            <tbody id="withdrawalHistory">
-            </tbody>
-
-          </table>
-
-        </div>
-
-      </div>
-
-    </section>
-
-
-    <!-- EARNINGS -->
-    <section class="section" id="section-earnings">
-
-      <div class="panel">
-
-        <div class="panel-head">
-          <div>
-            <h2>Earnings History</h2>
-            <p>Your latest rewards and completed activities.</p>
-          </div>
-        </div>
-
-        <div class="table-wrap">
-
-          <table>
-            <thead>
-              <tr>
-                <th>Activity</th>
-                <th>Type</th>
-                <th>Reward</th>
-                <th>Date</th>
-              </tr>
-            </thead>
-
-            <tbody id="earningsHistory">
-            </tbody>
-
-          </table>
-
-        </div>
-
-      </div>
-
-    </section>
-
-
-    <!-- PROFILE -->
-    <section class="section" id="section-profile">
-
-      <div class="panel">
-
-        <div class="panel-head">
-          <div>
-            <h2>My Profile</h2>
-            <p>Your EarnNest account information.</p>
-          </div>
-        </div>
-
-        <div class="profile-row">
-          <span>Name</span>
-          <strong id="profileName">—</strong>
-        </div>
-
-        <div class="profile-row">
-          <span>Username</span>
-          <strong id="profileUsername">—</strong>
-        </div>
-
-        <div class="profile-row">
-          <span>Email</span>
-          <strong id="profileEmail">—</strong>
-        </div>
-
-        <div class="profile-row">
-          <span>Phone</span>
-          <strong id="profilePhone">—</strong>
-        </div>
-
-        <div class="profile-row">
-          <span>Balance</span>
-          <strong>
-            <span id="profileBalance">0</span> Coins
-          </strong>
-        </div>
-
-      </div>
-
-    </section>
-
-  </main>
-
-</div>
-
-
-<div class="toast" id="toast"></div>
-
-
-<script>
 'use strict';
 
-/*
-  EarnNest Dashboard
-  API is served from the same Vercel domain.
-*/
+const { neon } = require('@neondatabase/serverless');
 
-const API_BASE = '/api';
+const sql = neon(process.env.DATABASE_URL);
 
-let currentUser = null;
-
-
-/* =========================
-   HELPERS
-========================= */
-
-function getToken(){
-  return localStorage.getItem('earnNestToken') ||
-         localStorage.getItem('token') ||
-         localStorage.getItem('authToken') ||
-         '';
-}
-
-
-function saveToken(token){
-  localStorage.setItem('earnNestToken', token);
-  localStorage.setItem('token', token);
-}
-
-
-function clearToken(){
-  localStorage.removeItem('earnNestToken');
-  localStorage.removeItem('token');
-  localStorage.removeItem('authToken');
-}
-
-
-async function api(path, options = {}){
-
-  const token = getToken();
-
-  const headers = {
-    'Content-Type':'application/json',
-    ...(options.headers || {})
-  };
-
-  if(token){
-    headers.Authorization = 'Bearer ' + token;
-  }
-
-  const response = await fetch(
-    API_BASE + path,
-    {
-      ...options,
-      headers
-    }
+function send(res, status, data) {
+  res.statusCode = status;
+  res.setHeader('Content-Type', 'application/json');
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'POST,OPTIONS');
+  res.setHeader(
+    'Access-Control-Allow-Headers',
+    'Content-Type, Authorization'
   );
-
-  let data = {};
-
-  try{
-    data = await response.json();
-  }catch{
-    data = {};
-  }
-
-  if(response.status === 401){
-    clearToken();
-    window.location.href = '/app/index.html';
-    throw new Error(
-      data.message || 'Session expired. Please login again.'
-    );
-  }
-
-  if(!response.ok){
-    throw new Error(
-      data.message ||
-      data.error ||
-      'Request failed.'
-    );
-  }
-
-  return data;
+  res.end(JSON.stringify(data));
 }
 
+function getToken(req) {
+  const auth = req.headers.authorization || '';
 
-function toast(message, error = false){
-
-  const el = document.getElementById('toast');
-
-  el.textContent = message;
-  el.className = 'toast show' +
-    (error ? ' error' : '');
-
-  clearTimeout(window.toastTimer);
-
-  window.toastTimer = setTimeout(()=>{
-    el.className = 'toast';
-  },3500);
+  return auth.startsWith('Bearer ')
+    ? auth.slice(7).trim()
+    : '';
 }
 
+function readBody(req) {
+  return new Promise((resolve, reject) => {
+    let body = '';
 
-function formatCoins(value){
-  return Number(value || 0).toLocaleString();
-}
+    req.on('data', chunk => {
+      body += chunk;
 
-
-function escapeHtml(value){
-
-  return String(value ?? '')
-    .replaceAll('&','&amp;')
-    .replaceAll('<','&lt;')
-    .replaceAll('>','&gt;')
-    .replaceAll('"','&quot;')
-    .replaceAll("'","&#039;");
-}
-
-
-function formatDate(value){
-
-  if(!value) return '—';
-
-  const date = new Date(value);
-
-  if(Number.isNaN(date.getTime())){
-    return String(value);
-  }
-
-  return date.toLocaleDateString(
-    undefined,
-    {
-      year:'numeric',
-      month:'short',
-      day:'numeric'
-    }
-  );
-}
-
-
-/* =========================
-   NAVIGATION
-========================= */
-
-function showSection(name){
-
-  document.querySelectorAll('.section')
-    .forEach(section=>{
-      section.classList.remove('active');
+      if (body.length > 1024 * 1024) {
+        reject(new Error('Request too large'));
+        req.destroy();
+      }
     });
 
-  const target =
-    document.getElementById('section-' + name);
+    req.on('end', () => {
+      if (!body) {
+        resolve({});
+        return;
+      }
 
-  if(target){
-    target.classList.add('active');
-  }
-
-  document.querySelectorAll('.nav button')
-    .forEach(button=>{
-      button.classList.toggle(
-        'active',
-        button.dataset.section === name
-      );
+      try {
+        resolve(JSON.parse(body));
+      } catch {
+        reject(new Error('Invalid JSON'));
+      }
     });
 
-  document.getElementById('sidebar')
-    .classList.remove('open');
-
-  if(name === 'wallet'){
-    loadWallet();
-    loadWithdrawals();
-  }
-
-  if(name === 'earnings'){
-    loadEarnings();
-  }
+    req.on('error', reject);
+  });
 }
 
+const SURVEYS = {
+  'quick-opinion': {
+    title: 'Quick Opinion Survey',
+    reward: 150
+  },
 
-function toggleSidebar(){
+  'shopping-survey': {
+    title: 'Shopping Survey',
+    reward: 300
+  },
 
-  document.getElementById('sidebar')
-    .classList.toggle('open');
-}
+  'technology-survey': {
+    title: 'Technology Survey',
+    reward: 250
+  }
+};
 
+module.exports = async (req, res) => {
 
-/* =========================
-   PROFILE
-========================= */
+  if (req.method === 'OPTIONS') {
+    res.statusCode = 204;
 
-async function loadProfile(){
-
-  const data = await api('/profile');
-
-  currentUser = data.user;
-
-  const name =
-    currentUser.name ||
-    currentUser.username ||
-    'User';
-
-  const username =
-    currentUser.username || '—';
-
-  const email =
-    currentUser.email || '—';
-
-  const phone =
-    currentUser.phone || '—';
-
-  document.getElementById('welcomeName')
-    .textContent = name;
-
-  document.getElementById('sideName')
-    .textContent = name;
-
-  document.getElementById('sideEmail')
-    .textContent = email;
-
-  document.getElementById('homeUsername')
-    .textContent = username;
-
-  document.getElementById('homeEmail')
-    .textContent = email;
-
-  document.getElementById('profileName')
-    .textContent = name;
-
-  document.getElementById('profileUsername')
-    .textContent = username;
-
-  document.getElementById('profileEmail')
-    .textContent = email;
-
-  document.getElementById('profilePhone')
-    .textContent = phone;
-
-  document.getElementById('avatar')
-    .textContent =
-      name.charAt(0).toUpperCase();
-
-  updateBalances(currentUser);
-}
-
-
-function updateBalances(user){
-
-  const balance =
-    Number(
-      user.balance ??
-      user.coins ??
-      0
+    res.setHeader(
+      'Access-Control-Allow-Origin',
+      '*'
     );
 
-  document.getElementById('balance')
-    .textContent = formatCoins(balance);
-
-  document.getElementById('heroBalance')
-    .textContent = formatCoins(balance);
-
-  document.getElementById('profileBalance')
-    .textContent = formatCoins(balance);
-
-  if(user.totalEarned !== undefined){
-    document.getElementById('totalEarned')
-      .textContent =
-        formatCoins(user.totalEarned);
-  }
-
-  if(user.totalWithdrawn !== undefined){
-    document.getElementById('totalWithdrawn')
-      .textContent =
-        formatCoins(user.totalWithdrawn);
-  }
-}
-
-
-/* =========================
-   WALLET
-========================= */
-
-async function loadWallet(){
-
-  try{
-
-    const data =
-      await api('/wallet');
-
-    const wallet =
-      data.wallet || {};
-
-    const balance =
-      Number(wallet.balance || 0);
-
-    const totalEarned =
-      Number(wallet.totalEarned || 0);
-
-    const pending =
-      Number(wallet.pendingWithdrawal || 0);
-
-    const withdrawn =
-      Number(wallet.totalWithdrawn || 0);
-
-    document.getElementById('balance')
-      .textContent =
-        formatCoins(balance);
-
-    document.getElementById('heroBalance')
-      .textContent =
-        formatCoins(balance);
-
-    document.getElementById('totalEarned')
-      .textContent =
-        formatCoins(totalEarned);
-
-    document.getElementById('pendingWithdrawal')
-      .textContent =
-        formatCoins(pending);
-
-    document.getElementById('totalWithdrawn')
-      .textContent =
-        formatCoins(withdrawn);
-
-    document.getElementById('walletBalance')
-      .textContent =
-        formatCoins(balance);
-
-    document.getElementById('walletPending')
-      .textContent =
-        formatCoins(pending);
-
-    document.getElementById('walletWithdrawn')
-      .textContent =
-        formatCoins(withdrawn);
-
-    document.getElementById('profileBalance')
-      .textContent =
-        formatCoins(balance);
-
-  }catch(error){
-
-    console.error(error);
-
-    toast(
-      error.message ||
-      'Unable to load wallet.',
-      true
-    );
-  }
-}
-
-
-/* =========================
-   WITHDRAWAL
-========================= */
-
-async function requestWithdrawal(){
-
-  const amountInput =
-    document.getElementById('withdrawAmount');
-
-  const methodInput =
-    document.getElementById('paymentMethod');
-
-  const accountInput =
-    document.getElementById('paymentAccount');
-
-  const amount =
-    Number(amountInput.value);
-
-  const paymentMethod =
-    methodInput.value.trim();
-
-  const accountNumber =
-    accountInput.value.trim();
-
-
-  if(!Number.isInteger(amount) || amount < 1000){
-
-    toast(
-      'Minimum withdrawal is 1,000 Coins.',
-      true
+    res.setHeader(
+      'Access-Control-Allow-Methods',
+      'POST,OPTIONS'
     );
 
-    return;
-  }
-
-
-  if(!paymentMethod){
-
-    toast(
-      'Please select a payment method.',
-      true
+    res.setHeader(
+      'Access-Control-Allow-Headers',
+      'Content-Type, Authorization'
     );
 
-    return;
+    return res.end();
   }
 
-
-  if(!accountNumber || accountNumber.length < 5){
-
-    toast(
-      'Please enter a valid account number.',
-      true
-    );
-
-    return;
+  if (req.method !== 'POST') {
+    return send(res, 405, {
+      success: false,
+      message: 'Method not allowed. Use POST.'
+    });
   }
 
+  try {
 
-  try{
+    // Authentication
+    const token = getToken(req);
 
-    const data =
-      await api('/withdraw',{
-        method:'POST',
-        body:JSON.stringify({
-          amount:amount,
-          paymentMethod:paymentMethod,
-          accountNumber:accountNumber
-        })
+    if (!token) {
+      return send(res, 401, {
+        success: false,
+        message: 'Authentication required'
       });
-
-
-    if(!data.success){
-
-      toast(
-        data.message ||
-        'Withdrawal request failed.',
-        true
-      );
-
-      return;
     }
 
+    // Read request
+    const body = await readBody(req);
 
-    toast(
-      data.message ||
-      'Withdrawal request submitted successfully.'
-    );
+    const surveyId =
+      String(body.surveyId || '').trim();
 
+    if (!surveyId) {
+      return send(res, 400, {
+        success: false,
+        message: 'Survey ID is required'
+      });
+    }
 
-    amountInput.value = '';
-    accountInput.value = '';
+    // Check survey
+    const survey = SURVEYS[surveyId];
 
+    if (!survey) {
+      return send(res, 400, {
+        success: false,
+        message: 'Invalid survey'
+      });
+    }
 
-    await loadWallet();
-    await loadWithdrawals();
+    // Find logged-in user
+    const sessionRows = await sql`
+      SELECT user_id
+      FROM admin_sessions
+      WHERE token = ${token}
+        AND expires_at > NOW()
+      LIMIT 1
+    `;
 
-  }catch(error){
+    if (!sessionRows.length) {
+      return send(res, 401, {
+        success: false,
+        message: 'Invalid or expired session'
+      });
+    }
+
+    const userId =
+      String(sessionRows[0].user_id);
+
+    // Create survey completion table
+    await sql`
+      CREATE TABLE IF NOT EXISTS survey_completions (
+        id BIGSERIAL PRIMARY KEY,
+        user_id TEXT NOT NULL,
+        survey_id TEXT NOT NULL,
+        reward INTEGER NOT NULL,
+        completed_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        UNIQUE(user_id, survey_id)
+      )
+    `;
+
+    // Make sure old BIGINT version is converted to TEXT
+    try {
+      await sql`
+        ALTER TABLE survey_completions
+        ALTER COLUMN user_id TYPE TEXT
+        USING user_id::TEXT
+      `;
+    } catch (error) {
+      console.log(
+        'survey_completions user_id type:',
+        error.message
+      );
+    }
+
+    // Check duplicate
+    const existing = await sql`
+      SELECT id
+      FROM survey_completions
+      WHERE user_id = ${userId}
+        AND survey_id = ${surveyId}
+      LIMIT 1
+    `;
+
+    if (existing.length) {
+      return send(res, 409, {
+        success: false,
+        message: 'Survey already completed'
+      });
+    }
+
+    // Make sure wallet exists
+    await sql`
+      INSERT INTO wallets (
+        user_id,
+        balance,
+        total_earned,
+        total_withdrawn
+      )
+      VALUES (
+        ${userId},
+        0,
+        0,
+        0
+      )
+      ON CONFLICT (user_id)
+      DO NOTHING
+    `;
+
+    // Record completion
+    await sql`
+      INSERT INTO survey_completions (
+        user_id,
+        survey_id,
+        reward
+      )
+      VALUES (
+        ${userId},
+        ${surveyId},
+        ${survey.reward}
+      )
+    `;
+
+    // Add reward to wallet
+    const walletResult = await sql`
+      UPDATE wallets
+      SET
+        balance =
+          COALESCE(balance, 0) + ${survey.reward},
+
+        total_earned =
+          COALESCE(total_earned, 0) + ${survey.reward}
+
+      WHERE user_id = ${userId}
+
+      RETURNING
+        balance,
+        total_earned,
+        total_withdrawn
+    `;
+
+    if (!walletResult.length) {
+
+      await sql`
+        DELETE FROM survey_completions
+        WHERE user_id = ${userId}
+          AND survey_id = ${surveyId}
+      `;
+
+      return send(res, 500, {
+        success: false,
+        message: 'Wallet not found'
+      });
+    }
+
+    const wallet = walletResult[0];
+
+    return send(res, 200, {
+      success: true,
+
+      message:
+        `${survey.title} completed successfully`,
+
+      survey: {
+        id: surveyId,
+        title: survey.title,
+        reward: survey.reward
+      },
+
+      wallet: {
+        balance: Number(
+          wallet.balance || 0
+        ),
+
+        totalEarned: Number(
+          wallet.total_earned || 0
+        ),
+
+        totalWithdrawn: Number(
+          wallet.total_withdrawn || 0
+        )
+      }
+    });
+
+  } catch (error) {
 
     console.error(
-      'Withdrawal error:',
+      'Survey completion API error:',
       error
     );
 
-    toast(
-      error.message ||
-      'Unable to submit withdrawal request.',
-      true
-    );
-  }
-}
-
-
-/* =========================
-   WITHDRAWAL HISTORY
-========================= */
-
-async function loadWithdrawals(){
-
-  const body =
-    document.getElementById('withdrawalHistory');
-
-  if(!body) return;
-
-  try{
-
-    const data =
-      await api('/withdrawals');
-
-    const rows =
-      data.withdrawals || [];
-
-    if(!rows.length){
-
-      body.innerHTML = `
-        <tr>
-          <td colspan="5">
-            <div class="empty">
-              No withdrawal requests yet.
-            </div>
-          </td>
-        </tr>
-      `;
-
-      return;
-    }
-
-
-    body.innerHTML =
-      rows.map(row=>{
-
-        const status =
-          String(row.status || 'pending')
-            .toLowerCase();
-
-        return `
-          <tr>
-            <td>
-              <strong>
-                ${formatCoins(row.amount)}
-              </strong>
-              Coins
-            </td>
-
-            <td>
-              ${escapeHtml(row.paymentMethod || row.payment_method || '—')}
-            </td>
-
-            <td>
-              ${escapeHtml(row.accountNumber || row.account_number || '—')}
-            </td>
-
-            <td>
-              <span class="status ${status}">
-                ${escapeHtml(
-                  status.charAt(0).toUpperCase() +
-                  status.slice(1)
-                )}
-              </span>
-            </td>
-
-            <td>
-              ${formatDate(row.createdAt || row.created_at)}
-            </td>
-          </tr>
-        `;
-
-      }).join('');
-
-  }catch(error){
-
-    console.error(error);
-
-    body.innerHTML = `
-      <tr>
-        <td colspan="5">
-          <div class="empty">
-            Unable to load withdrawal history.
-          </div>
-        </td>
-      </tr>
-    `;
-  }
-}
-
-
-/* =========================
-   TASKS
-========================= */
-
-const TASKS = [
-
-  {
-    id:'daily-check-in',
-    title:'Daily Check-in',
-    reward:50,
-    icon:'📅',
-    description:'Check in every day.'
-  },
-
-  {
-    id:'complete-profile',
-    title:'Complete Profile',
-    reward:100,
-    icon:'👤',
-    description:'Complete your profile.'
-  },
-
-  {
-    id:'app-visit',
-    title:'App Visit',
-    reward:25,
-    icon:'📱',
-    description:'Visit EarnNest today.'
-  },
-
-  {
-    id:'weekly-activity',
-    title:'Weekly Activity',
-    reward:250,
-    icon:'🔥',
-    description:'Complete weekly activity.'
-  }
-
-];
-
-
-function renderTasks(){
-
-  const container =
-    document.getElementById('tasksList');
-
-  const quick =
-    document.getElementById('quickTasks');
-
-
-  const html =
-    TASKS.map(task=>`
-
-      <div class="item">
-
-        <div class="item-left">
-
-          <div class="item-icon">
-            ${task.icon}
-          </div>
-
-          <div>
-            <div class="item-title">
-              ${escapeHtml(task.title)}
-            </div>
-
-            <div class="item-sub">
-              ${escapeHtml(task.description)}
-            </div>
-          </div>
-
-        </div>
-
-        <div class="item-right">
-
-          <div class="reward">
-            +${formatCoins(task.reward)} Coins
-          </div>
-
-          <button
-            class="small-action"
-            onclick="completeTask('${task.id}',this)">
-            Claim
-          </button>
-
-        </div>
-
-      </div>
-
-    `).join('');
-
-
-  if(container){
-    container.innerHTML = html;
-  }
-
-  if(quick){
-    quick.innerHTML =
-      TASKS.slice(0,4)
-        .map(task=>`
-
-          <div class="item">
-
-            <div class="item-left">
-
-              <div class="item-icon">
-                ${task.icon}
-              </div>
-
-              <div>
-                <div class="item-title">
-                  ${escapeHtml(task.title)}
-                </div>
-
-                <div class="item-sub">
-                  +${formatCoins(task.reward)} Coins
-                </div>
-              </div>
-
-            </div>
-
-          </div>
-
-        `).join('');
-  }
-}
-
-
-async function completeTask(taskId, button){
-
-  try{
-
-    button.disabled = true;
-    button.textContent = 'Processing...';
-
-    const data =
-      await api('/tasks/complete',{
-        method:'POST',
-        body:JSON.stringify({
-          taskId:taskId
-        })
-      });
-
-
-    if(!data.success){
-
-      toast(
-        data.message ||
-        'Unable to complete task.',
-        true
-      );
-
-      button.disabled = false;
-      button.textContent = 'Claim';
-
-      return;
-    }
-
-
-    toast(
-      data.message ||
-      'Task reward credited successfully.'
-    );
-
-
-    if(data.wallet){
-      updateBalances({
-        balance:data.wallet.balance,
-        totalEarned:data.wallet.totalEarned
-      });
-    }
-
-    await loadWallet();
-
-    button.textContent = 'Claimed';
-
-  }catch(error){
-
-    console.error(error);
-
-    button.disabled = false;
-    button.textContent = 'Claim';
-
-    toast(
-      error.message ||
-      'Task could not be completed.',
-      true
-    );
-  }
-}
-
-
-/* =========================
-   SURVEYS
-========================= */
-
-const SURVEYS = [
-
-  {
-    id:'quick-opinion',
-    title:'Quick Opinion Survey',
-    reward:150,
-    icon:'💬',
-    description:'Share a quick opinion.'
-  },
-
-  {
-    id:'shopping-survey',
-    title:'Shopping Survey',
-    reward:300,
-    icon:'🛒',
-    description:'Tell us about shopping.'
-  },
-
-  {
-    id:'technology-survey',
-    title:'Technology Survey',
-    reward:250,
-    icon:'💻',
-    description:'Share your tech preferences.'
-  }
-
-];
-
-
-function renderSurveys(){
-
-  const container =
-    document.getElementById('surveysList');
-
-  if(!container) return;
-
-
-  container.innerHTML =
-    SURVEYS.map(survey=>`
-
-      <div class="item">
-
-        <div class="item-left">
-
-          <div class="item-icon">
-            ${survey.icon}
-          </div>
-
-          <div>
-            <div class="item-title">
-              ${escapeHtml(survey.title)}
-            </div>
-
-            <div class="item-sub">
-              ${escapeHtml(survey.description)}
-            </div>
-          </div>
-
-        </div>
-
-        <div class="item-right">
-
-          <div class="reward">
-            +${formatCoins(survey.reward)} Coins
-          </div>
-
-          <button
-            class="small-action"
-            onclick="completeSurvey('${survey.id}',this)">
-            Start
-          </button>
-
-        </div>
-
-      </div>
-
-    `).join('');
-}
-
-
-async function completeSurvey(surveyId, button){
-
-  try{
-
-    button.disabled = true;
-    button.textContent = 'Processing...';
-
-    const data =
-      await api('/surveys/complete',{
-        method:'POST',
-        body:JSON.stringify({
-          surveyId:surveyId
-        })
-      });
-
-
-    if(!data.success){
-
-      toast(
-        data.message ||
-        'Survey could not be completed.',
-        true
-      );
-
-      button.disabled = false;
-      button.textContent = 'Start';
-
-      return;
-    }
-
-
-    toast(
-      data.message ||
-      'Survey reward credited successfully.'
-    );
-
-
-    await loadWallet();
-
-    button.textContent = 'Completed';
-
-  }catch(error){
-
-    console.error(error);
-
-    button.disabled = false;
-    button.textContent = 'Start';
-
-    toast(
-      error.message ||
-      'Survey failed.',
-      true
-    );
-  }
-}
-
-
-/* =========================
-   DAILY BONUS
-========================= */
-
-async function claimDailyBonus(){
-
-  const button =
-    document.getElementById('dailyBonusBtn');
-
-  try{
-
-    button.disabled = true;
-    button.textContent = 'Checking...';
-
-
-    const data =
-      await api('/daily-bonus',{
-        method:'POST'
-      });
-
-
-    if(!data.success){
-
-      toast(
-        data.message ||
-        'Daily bonus unavailable.',
-        true
-      );
-
-      button.disabled = false;
-      button.textContent = 'Claim 50 Coins';
-
-      return;
-    }
-
-
-    toast(
-      data.message ||
-      'Daily bonus credited successfully.'
-    );
-
-
-    button.textContent = 'Claimed Today';
-
-    await loadWallet();
-
-  }catch(error){
-
-    console.error(error);
-
-    button.disabled = false;
-    button.textContent = 'Claim 50 Coins';
-
-    toast(
-      error.message ||
-      'Unable to claim daily bonus.',
-      true
-    );
-  }
-}
-
-
-/* =========================
-   EARNINGS
-========================= */
-
-async function loadEarnings(){
-
-  const body =
-    document.getElementById('earningsHistory');
-
-  if(!body) return;
-
-
-  try{
-
-    const data =
-      await api('/earnings');
-
-    const rows =
-      data.earnings || [];
-
-
-    if(!rows.length){
-
-      body.innerHTML = `
-        <tr>
-          <td colspan="4">
-            <div class="empty">
-              No earnings yet.
-            </div>
-          </td>
-        </tr>
-      `;
-
-      return;
-    }
-
-
-    body.innerHTML =
-      rows.map(row=>`
-
-        <tr>
-
-          <td>
-            <strong>
-              ${escapeHtml(row.name || 'Reward')}
-            </strong>
-          </td>
-
-          <td>
-            ${escapeHtml(row.type || 'reward')}
-          </td>
-
-          <td>
-            <span class="reward">
-              +${formatCoins(row.reward)} Coins
-            </span>
-          </td>
-
-          <td>
-            ${formatDate(row.date)}
-          </td>
-
-        </tr>
-
-      `).join('');
-
-  }catch(error){
-
-    console.error(error);
-
-    body.innerHTML = `
-      <tr>
-        <td colspan="4">
-          <div class="empty">
-            Unable to load earnings.
-          </div>
-        </td>
-      </tr>
-    `;
-  }
-}
-
-
-/* =========================
-   LOGOUT
-========================= */
-
-async function logout(){
-
-  try{
-    await api('/admin/logout',{
-      method:'POST'
+    return send(res, 500, {
+      success: false,
+      message: 'Server error'
     });
-  }catch(error){
-    console.log('Logout request:',error);
   }
-
-  clearToken();
-
-  window.location.href =
-    '/app/index.html';
-}
-
-
-/* =========================
-   START
-========================= */
-
-async function init(){
-
-  if(!getToken()){
-
-    window.location.href =
-      '/app/index.html';
-
-    return;
-  }
-
-
-  renderTasks();
-  renderSurveys();
-
-
-  try{
-
-    await loadProfile();
-    await loadWallet();
-
-  }catch(error){
-
-    console.error(error);
-
-    return;
-  }
-}
-
-
-document.addEventListener(
-  'DOMContentLoaded',
-  init
-);
-</script>
-
-</body>
-</html>
+};
