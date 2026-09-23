@@ -6,27 +6,13 @@ const sql = neon(process.env.DATABASE_URL);
 
 function send(res, status, data) {
   res.statusCode = status;
-
-  res.setHeader(
-    'Content-Type',
-    'application/json'
-  );
-
-  res.setHeader(
-    'Access-Control-Allow-Origin',
-    '*'
-  );
-
-  res.setHeader(
-    'Access-Control-Allow-Methods',
-    'POST,OPTIONS'
-  );
-
+  res.setHeader('Content-Type', 'application/json');
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'POST,OPTIONS');
   res.setHeader(
     'Access-Control-Allow-Headers',
     'Content-Type, Authorization'
   );
-
   res.end(JSON.stringify(data));
 }
 
@@ -69,19 +55,19 @@ function readBody(req) {
 }
 
 const SURVEYS = {
-  'survey-1': {
-    title: 'EarnNest Survey',
-    reward: 100
-  },
-
-  'survey-2': {
-    title: 'Daily Opinion Survey',
+  'quick-opinion': {
+    title: 'Quick Opinion Survey',
     reward: 150
   },
 
-  'survey-3': {
-    title: 'User Feedback Survey',
-    reward: 200
+  'shopping-survey': {
+    title: 'Shopping Survey',
+    reward: 300
+  },
+
+  'technology-survey': {
+    title: 'Technology Survey',
+    reward: 250
   }
 };
 
@@ -117,10 +103,7 @@ module.exports = async (req, res) => {
 
   try {
 
-    // -----------------------------------------
     // Authentication
-    // -----------------------------------------
-
     const token = getToken(req);
 
     if (!token) {
@@ -130,10 +113,7 @@ module.exports = async (req, res) => {
       });
     }
 
-    // -----------------------------------------
-    // Request body
-    // -----------------------------------------
-
+    // Read request
     const body = await readBody(req);
 
     const surveyId =
@@ -146,10 +126,7 @@ module.exports = async (req, res) => {
       });
     }
 
-    // -----------------------------------------
-    // Find survey
-    // -----------------------------------------
-
+    // Check survey
     const survey = SURVEYS[surveyId];
 
     if (!survey) {
@@ -159,10 +136,7 @@ module.exports = async (req, res) => {
       });
     }
 
-    // -----------------------------------------
     // Find logged-in user
-    // -----------------------------------------
-
     const sessionRows = await sql`
       SELECT user_id
       FROM admin_sessions
@@ -181,10 +155,7 @@ module.exports = async (req, res) => {
     const userId =
       String(sessionRows[0].user_id);
 
-    // -----------------------------------------
     // Create survey completion table
-    // -----------------------------------------
-
     await sql`
       CREATE TABLE IF NOT EXISTS survey_completions (
         id BIGSERIAL PRIMARY KEY,
@@ -196,10 +167,7 @@ module.exports = async (req, res) => {
       )
     `;
 
-    // -----------------------------------------
-    // Fix old BIGINT user_id if necessary
-    // -----------------------------------------
-
+    // Make sure old BIGINT version is converted to TEXT
     try {
       await sql`
         ALTER TABLE survey_completions
@@ -208,15 +176,12 @@ module.exports = async (req, res) => {
       `;
     } catch (error) {
       console.log(
-        'survey_completions user_id type check:',
+        'survey_completions user_id type:',
         error.message
       );
     }
 
-    // -----------------------------------------
-    // Check duplicate completion
-    // -----------------------------------------
-
+    // Check duplicate
     const existing = await sql`
       SELECT id
       FROM survey_completions
@@ -226,17 +191,13 @@ module.exports = async (req, res) => {
     `;
 
     if (existing.length) {
-
       return send(res, 409, {
         success: false,
         message: 'Survey already completed'
       });
     }
 
-    // -----------------------------------------
     // Make sure wallet exists
-    // -----------------------------------------
-
     await sql`
       INSERT INTO wallets (
         user_id,
@@ -254,10 +215,7 @@ module.exports = async (req, res) => {
       DO NOTHING
     `;
 
-    // -----------------------------------------
-    // Record survey completion
-    // -----------------------------------------
-
+    // Record completion
     await sql`
       INSERT INTO survey_completions (
         user_id,
@@ -271,20 +229,15 @@ module.exports = async (req, res) => {
       )
     `;
 
-    // -----------------------------------------
-    // Add reward
-    // -----------------------------------------
-
+    // Add reward to wallet
     const walletResult = await sql`
       UPDATE wallets
       SET
         balance =
-          COALESCE(balance, 0)
-          + ${survey.reward},
+          COALESCE(balance, 0) + ${survey.reward},
 
         total_earned =
-          COALESCE(total_earned, 0)
-          + ${survey.reward}
+          COALESCE(total_earned, 0) + ${survey.reward}
 
       WHERE user_id = ${userId}
 
@@ -308,15 +261,9 @@ module.exports = async (req, res) => {
       });
     }
 
-    const wallet =
-      walletResult[0];
-
-    // -----------------------------------------
-    // Success
-    // -----------------------------------------
+    const wallet = walletResult[0];
 
     return send(res, 200, {
-
       success: true,
 
       message:
@@ -329,16 +276,18 @@ module.exports = async (req, res) => {
       },
 
       wallet: {
-        balance:
-          Number(wallet.balance || 0),
+        balance: Number(
+          wallet.balance || 0
+        ),
 
-        totalEarned:
-          Number(wallet.total_earned || 0),
+        totalEarned: Number(
+          wallet.total_earned || 0
+        ),
 
-        totalWithdrawn:
-          Number(wallet.total_withdrawn || 0)
+        totalWithdrawn: Number(
+          wallet.total_withdrawn || 0
+        )
       }
-
     });
 
   } catch (error) {
