@@ -1,10 +1,9 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#2563eb">
+
   <title>EarnNest Dashboard</title>
 
   <style>
@@ -14,234 +13,155 @@
 
     body {
       margin: 0;
-      font-family: Arial, Helvetica, sans-serif;
+      font-family: Arial, sans-serif;
       background: #f4f7fb;
-      color: #172033;
+      color: #1f2937;
     }
 
-    button,
-    input,
-    select {
-      font: inherit;
-    }
-
-    button {
-      cursor: pointer;
-    }
-
-    .app {
-      min-height: 100vh;
-    }
-
-    .topbar {
-      height: 64px;
-      background: #ffffff;
-      border-bottom: 1px solid #e5e7eb;
+    header {
+      background: #111827;
+      color: white;
+      padding: 16px 20px;
       display: flex;
-      align-items: center;
       justify-content: space-between;
-      padding: 0 22px;
+      align-items: center;
       position: sticky;
       top: 0;
-      z-index: 20;
+      z-index: 100;
     }
 
-    .brand {
+    header h1 {
+      margin: 0;
       font-size: 22px;
-      font-weight: 800;
-      color: #2563eb;
-    }
-
-    .menu-btn {
-      display: none;
-      border: 0;
-      background: transparent;
-      font-size: 25px;
     }
 
     .logout-btn {
-      border: 0;
       background: #ef4444;
-      color: #fff;
-      padding: 9px 15px;
-      border-radius: 8px;
-      font-weight: 600;
-    }
-
-    .layout {
-      display: flex;
-      min-height: calc(100vh - 64px);
-    }
-
-    .sidebar {
-      width: 230px;
-      background: #111827;
-      color: #fff;
-      padding: 18px 12px;
-      flex-shrink: 0;
-    }
-
-    .nav-btn {
-      width: 100%;
-      display: block;
-      text-align: left;
+      color: white;
       border: 0;
-      background: transparent;
-      color: #d1d5db;
-      padding: 12px 14px;
-      margin-bottom: 5px;
+      padding: 9px 14px;
       border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: auto;
+      padding: 20px;
+    }
+
+    .welcome {
+      background: white;
+      padding: 20px;
+      border-radius: 14px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 10px rgba(0,0,0,.06);
+    }
+
+    .welcome h2 {
+      margin: 0 0 6px;
+    }
+
+    .balance-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    .balance-card {
+      background: white;
+      padding: 20px;
+      border-radius: 14px;
+      box-shadow: 0 2px 10px rgba(0,0,0,.06);
+    }
+
+    .balance-card h3 {
+      margin: 0 0 8px;
+      font-size: 14px;
+      color: #6b7280;
+    }
+
+    .balance-card strong {
+      font-size: 25px;
+    }
+
+    .nav {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+
+    .nav button {
+      border: 0;
+      padding: 11px 16px;
+      border-radius: 9px;
+      background: #e5e7eb;
+      cursor: pointer;
       font-weight: 600;
     }
 
-    .nav-btn:hover,
-    .nav-btn.active {
-      background: #2563eb;
-      color: #fff;
-    }
-
-    .main {
-      flex: 1;
-      padding: 25px;
-      max-width: 1300px;
-      margin: 0 auto;
-      width: 100%;
+    .nav button.active {
+      background: #111827;
+      color: white;
     }
 
     .section {
       display: none;
+      background: white;
+      padding: 20px;
+      border-radius: 14px;
+      box-shadow: 0 2px 10px rgba(0,0,0,.06);
+      margin-bottom: 20px;
     }
 
     .section.active {
       display: block;
     }
 
-    .page-title {
-      margin: 0 0 7px;
-      font-size: 28px;
-    }
-
-    .page-subtitle {
-      margin: 0 0 22px;
-      color: #6b7280;
-    }
-
-    .cards {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 16px;
-      margin-bottom: 25px;
-    }
-
-    .card {
-      background: #fff;
-      border: 1px solid #e5e7eb;
-      border-radius: 13px;
-      padding: 20px;
-      box-shadow: 0 3px 12px rgba(0,0,0,.04);
-    }
-
-    .stat-label {
-      color: #6b7280;
-      font-size: 14px;
-      margin-bottom: 9px;
-    }
-
-    .stat-value {
-      font-size: 27px;
-      font-weight: 800;
-    }
-
-    .welcome {
-      background: #2563eb;
-      color: #fff;
-      border-radius: 14px;
-      padding: 23px;
-      margin-bottom: 22px;
-    }
-
-    .welcome h2 {
-      margin: 0 0 7px;
-    }
-
-    .welcome p {
-      margin: 0;
-      opacity: .9;
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 18px;
+    .section h2 {
+      margin-top: 0;
     }
 
     .item {
-      background: #fff;
       border: 1px solid #e5e7eb;
       border-radius: 12px;
-      padding: 18px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 15px;
+      padding: 15px;
       margin-bottom: 12px;
-    }
-
-    .item:last-child {
-      margin-bottom: 0;
-    }
-
-    .item-left {
       display: flex;
+      justify-content: space-between;
       align-items: center;
-      gap: 13px;
-      min-width: 0;
+      gap: 15px;
     }
 
-    .icon {
-      width: 45px;
-      height: 45px;
-      border-radius: 10px;
-      background: #eff6ff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 22px;
-      flex-shrink: 0;
+    .item h3 {
+      margin: 0 0 5px;
     }
 
-    .item-title {
-      font-weight: 700;
-      margin-bottom: 4px;
-    }
-
-    .item-description {
+    .item p {
+      margin: 0;
       color: #6b7280;
-      font-size: 13px;
+      font-size: 14px;
     }
 
     .reward {
       color: #16a34a;
-      font-weight: 800;
-      white-space: nowrap;
+      font-weight: bold;
     }
 
     .action-btn {
-      border: 0;
       background: #2563eb;
-      color: #fff;
-      padding: 9px 14px;
+      color: white;
+      border: 0;
+      padding: 10px 15px;
       border-radius: 8px;
-      font-weight: 700;
+      cursor: pointer;
       white-space: nowrap;
     }
 
-    .action-btn:hover {
-      background: #1d4ed8;
-    }
-
     .action-btn:disabled {
-      background: #9ca3af;
+      opacity: .6;
       cursor: not-allowed;
     }
 
@@ -249,473 +169,522 @@
       background: #16a34a;
     }
 
-    .form-card {
-      max-width: 600px;
-      background: #fff;
-      border: 1px solid #e5e7eb;
-      border-radius: 13px;
-      padding: 22px;
-    }
-
     .form-group {
-      margin-bottom: 16px;
+      margin-bottom: 15px;
     }
 
     .form-group label {
       display: block;
-      margin-bottom: 7px;
-      font-weight: 700;
+      margin-bottom: 6px;
+      font-weight: 600;
     }
 
     .form-group input,
     .form-group select {
       width: 100%;
-      padding: 11px 12px;
+      padding: 12px;
       border: 1px solid #d1d5db;
       border-radius: 8px;
-      outline: none;
+      font-size: 15px;
+      background: white;
     }
 
-    .form-group input:focus,
-    .form-group select:focus {
-      border-color: #2563eb;
+    .withdraw-box {
+      max-width: 550px;
+    }
+
+    .info-box {
+      background: #f3f4f6;
+      padding: 14px;
+      border-radius: 10px;
+      margin-bottom: 15px;
+    }
+
+    .withdraw-history {
+      margin-top: 25px;
+    }
+
+    .history-row {
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+      padding: 12px;
+      margin-bottom: 10px;
+    }
+
+    .status {
+      font-weight: bold;
+      text-transform: capitalize;
+    }
+
+    .status.pending {
+      color: #d97706;
+    }
+
+    .status.approved {
+      color: #16a34a;
+    }
+
+    .status.rejected {
+      color: #dc2626;
     }
 
     .profile-row {
-      display: flex;
-      justify-content: space-between;
-      gap: 20px;
-      padding: 13px 0;
-      border-bottom: 1px solid #eee;
+      padding: 12px 0;
+      border-bottom: 1px solid #e5e7eb;
     }
 
-    .profile-row:last-child {
-      border-bottom: 0;
-    }
-
-    .profile-label {
-      color: #6b7280;
-    }
-
-    .loading {
-      color: #6b7280;
-      padding: 20px 0;
+    .profile-row strong {
+      display: inline-block;
+      min-width: 110px;
     }
 
     .empty {
-      background: #fff;
-      border: 1px solid #e5e7eb;
-      border-radius: 12px;
-      padding: 25px;
       color: #6b7280;
+      padding: 15px 0;
     }
 
     #toast {
       position: fixed;
       right: 20px;
       bottom: 20px;
-      background: #111827;
-      color: #fff;
-      padding: 13px 17px;
-      border-radius: 9px;
       max-width: 350px;
+      background: #111827;
+      color: white;
+      padding: 13px 16px;
+      border-radius: 9px;
       display: none;
-      z-index: 100;
-      box-shadow: 0 5px 20px rgba(0,0,0,.2);
+      z-index: 9999;
     }
 
     #toast.error {
       background: #dc2626;
     }
 
-    @media (max-width: 900px) {
-      .cards {
-        grid-template-columns: repeat(2, 1fr);
-      }
-
-      .grid {
+    @media (max-width: 700px) {
+      .balance-grid {
         grid-template-columns: 1fr;
       }
-    }
-
-    @media (max-width: 700px) {
-      .menu-btn {
-        display: block;
-      }
-
-      .layout {
-        position: relative;
-      }
-
-      .sidebar {
-        position: fixed;
-        left: -250px;
-        top: 64px;
-        bottom: 0;
-        z-index: 30;
-        transition: left .2s ease;
-      }
-
-      .sidebar.open {
-        left: 0;
-      }
-
-      .main {
-        padding: 17px;
-      }
-
-      .cards {
-        grid-template-columns: 1fr 1fr;
-        gap: 10px;
-      }
-
-      .card {
-        padding: 15px;
-      }
-
-      .stat-value {
-        font-size: 21px;
-      }
 
       .item {
+        flex-direction: column;
         align-items: flex-start;
-      }
-
-      .item-left {
-        align-items: flex-start;
-      }
-
-      .item {
-        flex-wrap: wrap;
       }
 
       .item .action-btn {
-        margin-left: 58px;
+        width: 100%;
+      }
+
+      header {
+        gap: 10px;
       }
     }
   </style>
-
 </head>
 
 <body>
 
-<div class="app">
+<header>
+  <h1>EarnNest</h1>
+  <button class="logout-btn" onclick="logout()">Logout</button>
+</header>
 
-  <header class="topbar">
-    <div style="display:flex;align-items:center;gap:12px;">
-      <button class="menu-btn" onclick="toggleMenu()">☰</button>
-      <div class="brand">EarnNest</div>
+<div class="container">
+
+  <div class="welcome">
+    <h2>Welcome, <span id="userName">User</span></h2>
+    <p>Earn coins by completing tasks and surveys.</p>
+  </div>
+
+  <div class="balance-grid">
+
+    <div class="balance-card">
+      <h3>Available Balance</h3>
+      <strong id="balance">0</strong>
+      <span> Coins</span>
     </div>
 
-```
-<button class="logout-btn" onclick="logout()">Logout</button>
-```
+    <div class="balance-card">
+      <h3>Total Earned</h3>
+      <strong id="totalEarned">0</strong>
+      <span> Coins</span>
+    </div>
 
-  </header>
+    <div class="balance-card">
+      <h3>Total Withdrawn</h3>
+      <strong id="totalWithdrawn">0</strong>
+      <span> Coins</span>
+    </div>
 
-  <div class="layout">
+  </div>
 
-```
-<aside class="sidebar" id="sidebar">
-  <button class="nav-btn active" data-section="home" onclick="showSection('home')">
-    🏠 Dashboard
-  </button>
+  <div class="nav">
 
-  <button class="nav-btn" data-section="tasks" onclick="showSection('tasks')">
-    ✅ Tasks
-  </button>
+    <button class="active" onclick="showSection('home', this)">
+      Home
+    </button>
 
-  <button class="nav-btn" data-section="surveys" onclick="showSection('surveys')">
-    📝 Surveys
-  </button>
+    <button onclick="showSection('tasks', this)">
+      Tasks
+    </button>
 
-  <button class="nav-btn" data-section="wallet" onclick="showSection('wallet')">
-    💰 Wallet
-  </button>
+    <button onclick="showSection('surveys', this)">
+      Surveys
+    </button>
 
-  <button class="nav-btn" data-section="earnings" onclick="showSection('earnings')">
-    📊 Earnings
-  </button>
+    <button onclick="showSection('wallet', this)">
+      Wallet
+    </button>
 
-  <button class="nav-btn" data-section="profile" onclick="showSection('profile')">
-    👤 Profile
-  </button>
-</aside>
+    <button onclick="showSection('profile', this)">
+      Profile
+    </button>
 
-<main class="main">
+  </div>
+
 
   <!-- HOME -->
+
   <section id="home" class="section active">
 
-    <div class="welcome">
-      <h2>Welcome to EarnNest 👋</h2>
-      <p>Complete tasks and surveys to earn rewards.</p>
+    <h2>Dashboard</h2>
+
+    <div class="info-box">
+      <strong>Daily Bonus</strong>
+      <p>Claim your daily reward.</p>
+
+      <button
+        id="dailyBonusBtn"
+        class="action-btn success-btn"
+        onclick="claimDailyBonus()">
+        Claim 50 Coins
+      </button>
     </div>
 
-    <h1 class="page-title">Dashboard</h1>
-    <p class="page-subtitle">Your EarnNest account overview.</p>
-
-    <div class="cards">
-
-      <div class="card">
-        <div class="stat-label">Current Balance</div>
-        <div class="stat-value" id="homeBalance">0 coins</div>
-      </div>
-
-      <div class="card">
-        <div class="stat-label">Total Earned</div>
-        <div class="stat-value" id="homeEarned">0 coins</div>
-      </div>
-
-      <div class="card">
-        <div class="stat-label">Withdrawn</div>
-        <div class="stat-value" id="homeWithdrawn">0 coins</div>
-      </div>
-
-      <div class="card">
-        <div class="stat-label">Account</div>
-        <div class="stat-value" id="homeName">User</div>
-      </div>
-
-    </div>
-
-    <div class="grid">
-
-      <div class="card">
-        <h3>Daily Bonus</h3>
-        <p style="color:#6b7280;">
-          Claim your daily reward.
-        </p>
-        <button class="action-btn" id="dailyBonusBtn" onclick="claimDailyBonus()">
-          Claim Bonus
-        </button>
-      </div>
-
-      <div class="card">
-        <h3>Quick Actions</h3>
-        <button class="action-btn" onclick="showSection('tasks')">
-          View Tasks
-        </button>
-        <button class="action-btn" style="margin-left:7px;" onclick="showSection('surveys')">
-          View Surveys
-        </button>
-      </div>
-
+    <div class="info-box">
+      <strong>Your Balance</strong>
+      <p>
+        You currently have
+        <strong id="homeBalance">0</strong>
+        coins.
+      </p>
     </div>
 
   </section>
 
 
   <!-- TASKS -->
+
   <section id="tasks" class="section">
 
-    <h1 class="page-title">Tasks</h1>
-    <p class="page-subtitle">Complete available tasks and earn coins.</p>
+    <h2>Tasks</h2>
 
-    <div id="tasksList"></div>
+    <div class="item">
+
+      <div>
+        <h3>Daily Check-in</h3>
+        <p>Complete your daily check-in.</p>
+        <span class="reward">+50 Coins</span>
+      </div>
+
+      <button
+        class="action-btn"
+        onclick="completeTask('daily-checkin', this)">
+        Complete
+      </button>
+
+    </div>
+
+
+    <div class="item">
+
+      <div>
+        <h3>Complete Profile</h3>
+        <p>Complete your profile information.</p>
+        <span class="reward">+100 Coins</span>
+      </div>
+
+      <button
+        class="action-btn"
+        onclick="completeTask('complete-profile', this)">
+        Complete
+      </button>
+
+    </div>
+
+
+    <div class="item">
+
+      <div>
+        <h3>App Visit</h3>
+        <p>Visit EarnNest today.</p>
+        <span class="reward">+25 Coins</span>
+      </div>
+
+      <button
+        class="action-btn"
+        onclick="completeTask('app-visit', this)">
+        Complete
+      </button>
+
+    </div>
+
+
+    <div class="item">
+
+      <div>
+        <h3>Weekly Activity</h3>
+        <p>Complete your weekly activity.</p>
+        <span class="reward">+250 Coins</span>
+      </div>
+
+      <button
+        class="action-btn"
+        onclick="completeTask('weekly-activity', this)">
+        Complete
+      </button>
+
+    </div>
 
   </section>
 
 
   <!-- SURVEYS -->
+
   <section id="surveys" class="section">
 
-    <h1 class="page-title">Surveys</h1>
-    <p class="page-subtitle">Share your opinion and earn rewards.</p>
+    <h2>Surveys</h2>
 
-    <div id="surveysList"></div>
+
+    <div class="item">
+
+      <div>
+        <h3>Quick Opinion Survey</h3>
+        <p>Answer a short opinion survey.</p>
+        <span class="reward">+150 Coins</span>
+      </div>
+
+      <button
+        class="action-btn"
+        onclick="completeSurvey('quick-opinion', this)">
+        Start
+      </button>
+
+    </div>
+
+
+    <div class="item">
+
+      <div>
+        <h3>Shopping Survey</h3>
+        <p>Tell us about your shopping habits.</p>
+        <span class="reward">+300 Coins</span>
+      </div>
+
+      <button
+        class="action-btn"
+        onclick="completeSurvey('shopping-survey', this)">
+        Start
+      </button>
+
+    </div>
+
+
+    <div class="item">
+
+      <div>
+        <h3>Technology Survey</h3>
+        <p>Share your technology preferences.</p>
+        <span class="reward">+250 Coins</span>
+      </div>
+
+      <button
+        class="action-btn"
+        onclick="completeSurvey('technology-survey', this)">
+        Start
+      </button>
+
+    </div>
 
   </section>
 
 
   <!-- WALLET -->
+
   <section id="wallet" class="section">
 
-    <h1 class="page-title">Wallet</h1>
-    <p class="page-subtitle">Manage your EarnNest balance.</p>
+    <h2>Wallet</h2>
 
-    <div class="cards">
+    <div class="info-box">
 
-      <div class="card">
-        <div class="stat-label">Available Balance</div>
-        <div class="stat-value" id="walletBalance">0 coins</div>
-      </div>
+      <strong>
+        Available:
+        <span id="walletBalance">0</span>
+        Coins
+      </strong>
 
-      <div class="card">
-        <div class="stat-label">Total Earned</div>
-        <div class="stat-value" id="walletEarned">0 coins</div>
-      </div>
+      <br>
 
-      <div class="card">
-        <div class="stat-label">Total Withdrawn</div>
-        <div class="stat-value" id="walletWithdrawn">0 coins</div>
-      </div>
+      <strong>
+        Pending Withdrawal:
+        <span id="pendingWithdrawal">0</span>
+        Coins
+      </strong>
 
     </div>
 
-    <div class="form-card">
+
+    <div class="withdraw-box">
 
       <h3>Request Withdrawal</h3>
 
       <div class="form-group">
-        <label for="withdrawAmount">Amount</label>
+
+        <label for="withdrawAmount">
+          Amount (Coins)
+        </label>
+
         <input
           type="number"
           id="withdrawAmount"
-          min="1"
-          placeholder="Enter amount"
-        >
+          min="1000"
+          step="1"
+          placeholder="Minimum 1000 coins">
+
       </div>
 
+
       <div class="form-group">
-        <label for="paymentMethod">Payment Method</label>
+
+        <label for="paymentMethod">
+          Payment Method
+        </label>
+
         <select id="paymentMethod">
-          <option value="">Select method</option>
-          <option value="easypaisa">Easypaisa</option>
-          <option value="jazzcash">JazzCash</option>
-          <option value="bank">Bank Transfer</option>
+
+          <option value="">
+            Select method
+          </option>
+
+          <option value="easypaisa">
+            Easypaisa
+          </option>
+
+          <option value="jazzcash">
+            JazzCash
+          </option>
+
+          <option value="bank">
+            Bank Transfer
+          </option>
+
         </select>
+
       </div>
 
+
       <div class="form-group">
-        <label for="paymentAccount">Account / Number</label>
+
+        <label for="paymentAccount">
+          Account / Number
+        </label>
+
         <input
           type="text"
           id="paymentAccount"
-          placeholder="Enter account or mobile number"
-        >
+          placeholder="Enter account number">
+
       </div>
 
-     async function requestWithdrawal() {
-  const amountInput = document.getElementById('withdrawAmount');
-  const methodInput = document.getElementById('paymentMethod');
-  const accountInput = document.getElementById('paymentAccount');
 
-  const amount = Number(amountInput.value);
-  const method = methodInput.value.trim();
-  const account = accountInput.value.trim();
+      <!-- IMPORTANT: REAL BUTTON -->
 
-  if (!amount || amount <= 0) {
-    toast('Please enter a valid amount.', true);
-    return;
-  }
+      <button
+        type="button"
+        id="withdrawButton"
+        class="action-btn"
+        onclick="requestWithdrawal()">
 
-  if (!method) {
-    toast('Please select a payment method.', true);
-    return;
-  }
+        Request Withdrawal
 
-  if (!account) {
-    toast('Please enter your payment account.', true);
-    return;
-  }
+      </button>
 
-  // Convert frontend values to backend values
-  let paymentMethod = '';
-
-  if (method === 'easypaisa') {
-    paymentMethod = 'Easypaisa';
-  } else if (method === 'jazzcash') {
-    paymentMethod = 'JazzCash';
-  } else if (method === 'bank') {
-    paymentMethod = 'Bank Transfer';
-  } else {
-    toast('Invalid payment method.', true);
-    return;
-  }
-
-  try {
-    const data = await api('/withdraw', {
-      method: 'POST',
-      body: JSON.stringify({
-        amount: Math.floor(amount),
-        paymentMethod: paymentMethod,
-        accountNumber: account
-      })
-    });
-
-    if (!data.success) {
-      toast(
-        data.message || 'Withdrawal request failed.',
-        true
-      );
-      return;
-    }
-
-    toast(
-      data.message ||
-      'Withdrawal request submitted successfully.'
-    );
-
-    amountInput.value = '';
-    methodInput.value = '';
-    accountInput.value = '';
-
-    await loadWallet();
-
-  } catch (error) {
-    console.error('Withdrawal error:', error);
-
-    toast(
-      error.message ||
-      'Withdrawal request failed.',
-      true
-    );
-  }
-}
+    </div>
 
 
-  <!-- EARNINGS -->
-  <section id="earnings" class="section">
+    <div class="withdraw-history">
 
-    <h1 class="page-title">Earnings</h1>
-    <p class="page-subtitle">Your earning information.</p>
+      <h3>Withdrawal History</h3>
 
-    <div id="earningsContent" class="card">
-      <div class="loading">Loading earnings...</div>
+      <div id="withdrawalHistory">
+        <div class="empty">
+          No withdrawal requests yet.
+        </div>
+      </div>
+
     </div>
 
   </section>
 
 
   <!-- PROFILE -->
+
   <section id="profile" class="section">
 
-    <h1 class="page-title">Profile</h1>
-    <p class="page-subtitle">Your account information.</p>
+    <h2>Profile</h2>
 
-    <div id="profileContent" class="form-card">
-      <div class="loading">Loading profile...</div>
+    <div class="profile-row">
+      <strong>Name:</strong>
+      <span id="profileName">-</span>
+    </div>
+
+    <div class="profile-row">
+      <strong>Username:</strong>
+      <span id="profileUsername">-</span>
+    </div>
+
+    <div class="profile-row">
+      <strong>Email:</strong>
+      <span id="profileEmail">-</span>
+    </div>
+
+    <div class="profile-row">
+      <strong>Phone:</strong>
+      <span id="profilePhone">-</span>
     </div>
 
   </section>
 
-</main>
-```
-
-  </div>
-
 </div>
+
 
 <div id="toast"></div>
 
+
+<!-- =====================================================
+     ALL JAVASCRIPT STARTS HERE
+===================================================== -->
+
 <script>
+
 'use strict';
+
+
+/* =========================
+   API
+========================= */
 
 const API_BASE = '/api';
 
 
-/* =========================
-   AUTH
-========================= */
-
 function getToken() {
+
   return (
     localStorage.getItem('earnNestToken') ||
     localStorage.getItem('token') ||
     localStorage.getItem('authToken') ||
     ''
   );
+
 }
 
 
@@ -732,36 +701,33 @@ async function api(path, options = {}) {
     headers.Authorization = 'Bearer ' + token;
   }
 
-  const response = await fetch(API_BASE + path, {
-    ...options,
-    headers
-  });
+  const response = await fetch(
+    API_BASE + path,
+    {
+      ...options,
+      headers
+    }
+  );
 
   let data = {};
 
   try {
     data = await response.json();
-  } catch (e) {
+  } catch (error) {
     data = {};
   }
 
-  if (response.status === 401) {
-    localStorage.removeItem('earnNestToken');
-    localStorage.removeItem('token');
-    localStorage.removeItem('authToken');
-
-    window.location.href = '/app/index.html';
-    throw new Error('Session expired');
-  }
-
   if (!response.ok) {
+
     throw new Error(
       data.message ||
       'Request failed.'
     );
+
   }
 
   return data;
+
 }
 
 
@@ -769,45 +735,60 @@ async function api(path, options = {}) {
    TOAST
 ========================= */
 
-function toast(message, error = false) {
+function toast(message, isError = false) {
 
-  const box = document.getElementById('toast');
+  const box =
+    document.getElementById('toast');
 
   box.textContent = message;
-  box.className = error ? 'error' : '';
+
+  box.className =
+    isError ? 'error' : '';
+
   box.style.display = 'block';
 
-  clearTimeout(window.toastTimer);
+  clearTimeout(
+    window.toastTimer
+  );
 
-  window.toastTimer = setTimeout(() => {
-    box.style.display = 'none';
-  }, 3500);
+  window.toastTimer =
+    setTimeout(() => {
+
+      box.style.display = 'none';
+
+    }, 3500);
+
 }
 
 
 /* =========================
-   NAVIGATION
+   SECTION
 ========================= */
 
-function showSection(sectionId) {
+function showSection(sectionId, button) {
 
-  document.querySelectorAll('.section').forEach(section => {
-    section.classList.remove('active');
-  });
+  document
+    .querySelectorAll('.section')
+    .forEach(section => {
 
-  document.querySelectorAll('.nav-btn').forEach(button => {
-    button.classList.remove('active');
-  });
+      section.classList.remove('active');
 
-  const section = document.getElementById(sectionId);
+    });
+
+  document
+    .querySelectorAll('.nav button')
+    .forEach(btn => {
+
+      btn.classList.remove('active');
+
+    });
+
+  const section =
+    document.getElementById(sectionId);
 
   if (section) {
     section.classList.add('active');
   }
-
-  const button = document.querySelector(
-    `.nav-btn[data-section="${sectionId}"]`
-  );
 
   if (button) {
     button.classList.add('active');
@@ -815,392 +796,9 @@ function showSection(sectionId) {
 
   if (sectionId === 'wallet') {
     loadWallet();
+    loadWithdrawalHistory();
   }
 
-  if (sectionId === 'earnings') {
-    loadEarnings();
-  }
-
-  if (sectionId === 'profile') {
-    loadProfile();
-  }
-
-  document.getElementById('sidebar').classList.remove('open');
-}
-
-
-function toggleMenu() {
-  document.getElementById('sidebar').classList.toggle('open');
-}
-
-
-/* =========================
-   TASKS
-========================= */
-
-const TASKS = [
-  {
-    id: 'daily-check-in',
-    title: 'Daily Check-in',
-    reward: 50,
-    icon: '📅',
-    description: 'Check in every day.'
-  },
-  {
-    id: 'complete-profile',
-    title: 'Complete Profile',
-    reward: 100,
-    icon: '👤',
-    description: 'Complete your profile.'
-  },
-  {
-    id: 'app-visit',
-    title: 'App Visit',
-    reward: 25,
-    icon: '📱',
-    description: 'Visit EarnNest today.'
-  },
-  {
-    id: 'weekly-activity',
-    title: 'Weekly Activity',
-    reward: 250,
-    icon: '🔥',
-    description: 'Complete weekly activity.'
-  }
-];
-
-
-function renderTasks() {
-
-  const container = document.getElementById('tasksList');
-
-  container.innerHTML = '';
-
-  TASKS.forEach(task => {
-
-    const item = document.createElement('div');
-
-    item.className = 'item';
-
-    item.innerHTML = `
-      <div class="item-left">
-        <div class="icon">${task.icon}</div>
-
-        <div>
-          <div class="item-title">${task.title}</div>
-          <div class="item-description">${task.description}</div>
-        </div>
-      </div>
-
-      <div style="display:flex;align-items:center;gap:12px;">
-        <div class="reward">+${task.reward}</div>
-
-        <button
-          class="action-btn"
-          id="task-${task.id}"
-          onclick="completeTask('${task.id}', this)"
-        >
-          Complete
-        </button>
-      </div>
-    `;
-
-    container.appendChild(item);
-  });
-}
-
-
-async function completeTask(taskId, button) {
-
-  try {
-
-    button.disabled = true;
-    button.textContent = 'Processing...';
-
-    const data = await api('/tasks/complete', {
-      method: 'POST',
-      body: JSON.stringify({
-        taskId: taskId
-      })
-    });
-
-    if (!data.success) {
-
-      toast(
-        data.message ||
-        'Task could not be completed.',
-        true
-      );
-
-      button.disabled = false;
-      button.textContent = 'Complete';
-
-      return;
-    }
-
-    toast(
-      data.message ||
-      'Task completed successfully.'
-    );
-
-    button.textContent = 'Completed';
-    button.classList.add('success-btn');
-
-    await loadWallet();
-
-  } catch (error) {
-
-    console.error(error);
-
-    button.disabled = false;
-    button.textContent = 'Complete';
-
-    toast(
-      error.message ||
-      'Task failed.',
-      true
-    );
-  }
-}
-
-
-/* =========================
-   SURVEYS
-========================= */
-
-const SURVEYS = [
-  {
-    id: 'quick-opinion',
-    title: 'Quick Opinion Survey',
-    reward: 150,
-    icon: '💬',
-    description: 'Share a quick opinion.'
-  },
-  {
-    id: 'shopping-survey',
-    title: 'Shopping Survey',
-    reward: 300,
-    icon: '🛒',
-    description: 'Tell us about shopping.'
-  },
-  {
-    id: 'technology-survey',
-    title: 'Technology Survey',
-    reward: 250,
-    icon: '💻',
-    description: 'Share your tech preferences.'
-  }
-];
-
-
-function renderSurveys() {
-
-  const container = document.getElementById('surveysList');
-
-  container.innerHTML = '';
-
-  SURVEYS.forEach(survey => {
-
-    const item = document.createElement('div');
-
-    item.className = 'item';
-
-    item.innerHTML = `
-      <div class="item-left">
-        <div class="icon">${survey.icon}</div>
-
-        <div>
-          <div class="item-title">${survey.title}</div>
-          <div class="item-description">${survey.description}</div>
-        </div>
-      </div>
-
-      <div style="display:flex;align-items:center;gap:12px;">
-        <div class="reward">+${survey.reward}</div>
-
-        <button
-          class="action-btn"
-          onclick="completeSurvey('${survey.id}', this)"
-        >
-          Start
-        </button>
-      </div>
-    `;
-
-    container.appendChild(item);
-  });
-}
-
-
-async function completeSurvey(surveyId, button) {
-
-  try {
-
-    button.disabled = true;
-    button.textContent = 'Processing...';
-
-    const data = await api('/surveys/complete', {
-      method: 'POST',
-      body: JSON.stringify({
-        surveyId: surveyId
-      })
-    });
-
-    if (!data.success) {
-
-      toast(
-        data.message ||
-        'Survey could not be completed.',
-        true
-      );
-
-      button.disabled = false;
-      button.textContent = 'Start';
-
-      return;
-    }
-
-    toast(
-      data.message ||
-      'Survey reward credited successfully.'
-    );
-
-    button.textContent = 'Completed';
-    button.classList.add('success-btn');
-
-    await loadWallet();
-
-  } catch (error) {
-
-    console.error(error);
-
-    button.disabled = false;
-    button.textContent = 'Start';
-
-    toast(
-      error.message ||
-      'Survey failed.',
-      true
-    );
-  }
-}
-
-
-/* =========================
-   DAILY BONUS
-========================= */
-
-async function claimDailyBonus() {
-
-  const button = document.getElementById('dailyBonusBtn');
-
-  try {
-
-    button.disabled = true;
-    button.textContent = 'Processing...';
-
-    const data = await api('/daily-bonus', {
-      method: 'POST'
-    });
-
-    if (!data.success) {
-
-      toast(
-        data.message ||
-        'Daily bonus could not be claimed.',
-        true
-      );
-
-      button.disabled = false;
-      button.textContent = 'Claim Bonus';
-
-      return;
-    }
-
-    toast(
-      data.message ||
-      'Daily bonus claimed successfully.'
-    );
-
-    button.textContent = 'Claimed';
-    button.classList.add('success-btn');
-
-    await loadWallet();
-
-  } catch (error) {
-
-    console.error(error);
-
-    button.disabled = false;
-    button.textContent = 'Claim Bonus';
-
-    toast(
-      error.message ||
-      'Daily bonus failed.',
-      true
-    );
-  }
-}
-
-
-/* =========================
-   WALLET
-========================= */
-
-async function loadWallet() {
-
-  try {
-
-    const data = await api('/wallet');
-
-    const wallet = data.wallet || data || {};
-
-    const balance = Number(
-      wallet.balance ||
-      wallet.coins ||
-      0
-    );
-
-    const earned = Number(
-      wallet.totalEarned ||
-      wallet.total_earned ||
-      0
-    );
-
-    const withdrawn = Number(
-      wallet.totalWithdrawn ||
-      wallet.total_withdrawn ||
-      0
-    );
-
-    document.getElementById('homeBalance').textContent =
-      balance + ' coins';
-
-    document.getElementById('homeEarned').textContent =
-      earned + ' coins';
-
-    document.getElementById('homeWithdrawn').textContent =
-      withdrawn + ' coins';
-
-    document.getElementById('walletBalance').textContent =
-      balance + ' coins';
-
-    document.getElementById('walletEarned').textContent =
-      earned + ' coins';
-
-    document.getElementById('walletWithdrawn').textContent =
-      withdrawn + ' coins';
-
-  } catch (error) {
-
-    console.error(error);
-
-    toast(
-      error.message ||
-      'Could not load wallet.',
-      true
-    );
-  }
 }
 
 
@@ -1212,264 +810,751 @@ async function loadProfile() {
 
   try {
 
-    const data = await api('/profile');
+    const data =
+      await api('/profile');
 
-    const profile = data.profile || data.user || data || {};
-
-    const name =
-      profile.name ||
-      profile.fullName ||
-      profile.username ||
-      'User';
-
-    const email =
-      profile.email ||
-      'Not available';
-
-    document.getElementById('homeName').textContent = name;
-
-    document.getElementById('profileContent').innerHTML = `
-      <div class="profile-row">
-        <span class="profile-label">Name</span>
-        <strong>${escapeHtml(name)}</strong>
-      </div>
-
-      <div class="profile-row">
-        <span class="profile-label">Email</span>
-        <strong>${escapeHtml(email)}</strong>
-      </div>
-
-      <div class="profile-row">
-        <span class="profile-label">User ID</span>
-        <strong>${escapeHtml(String(profile.id || 'N/A'))}</strong>
-      </div>
-    `;
-
-  } catch (error) {
-
-    console.error(error);
-
-    document.getElementById('profileContent').innerHTML =
-      '<div class="empty">Unable to load profile.</div>';
-  }
-}
-
-
-/* =========================
-   EARNINGS
-========================= */
-
-async function loadEarnings() {
-
-  const container =
-    document.getElementById('earningsContent');
-
-  try {
-
-    const data = await api('/earnings');
-
-    const earnings =
-      data.earnings ||
-      data.transactions ||
-      data.history ||
-      [];
-
-    if (!Array.isArray(earnings) || earnings.length === 0) {
-
-      container.innerHTML = `
-        <h3>Earnings History</h3>
-        <div class="empty">
-          No earnings history available yet.
-        </div>
-      `;
-
+    if (!data.success) {
       return;
     }
 
-    container.innerHTML = `
-      <h3>Earnings History</h3>
-      ${earnings.map(item => `
-        <div class="profile-row">
-          <span>
-            ${escapeHtml(
-              item.title ||
-              item.description ||
-              item.type ||
-              'Reward'
-            )}
-          </span>
+    const user =
+      data.user || {};
 
-          <strong style="color:#16a34a;">
-            +${Number(
-              item.amount ||
-              item.reward ||
-              0
-            )} coins
-          </strong>
-        </div>
-      `).join('')}
-    `;
+    document.getElementById(
+      'userName'
+    ).textContent =
+      user.name || 'User';
+
+    document.getElementById(
+      'profileName'
+    ).textContent =
+      user.name || '-';
+
+    document.getElementById(
+      'profileUsername'
+    ).textContent =
+      user.username || '-';
+
+    document.getElementById(
+      'profileEmail'
+    ).textContent =
+      user.email || '-';
+
+    document.getElementById(
+      'profilePhone'
+    ).textContent =
+      user.phone || '-';
 
   } catch (error) {
 
-    console.error(error);
+    console.error(
+      'Profile error:',
+      error
+    );
 
-    container.innerHTML = `
-      <h3>Earnings History</h3>
-      <div class="empty">
-        Earnings history is not available yet.
-      </div>
-    `;
   }
+
 }
 
 
 /* =========================
-  /* =========================
+   WALLET
+========================= */
+
+async function loadWallet() {
+
+  try {
+
+    const data =
+      await api('/wallet');
+
+    if (!data.success) {
+      return;
+    }
+
+    const wallet =
+      data.wallet || {};
+
+    const balance =
+      Number(wallet.balance || 0);
+
+    const totalEarned =
+      Number(wallet.totalEarned || 0);
+
+    const totalWithdrawn =
+      Number(wallet.totalWithdrawn || 0);
+
+    const pending =
+      Number(wallet.pendingWithdrawal || 0);
+
+
+    document.getElementById(
+      'balance'
+    ).textContent =
+      balance;
+
+    document.getElementById(
+      'homeBalance'
+    ).textContent =
+      balance;
+
+    document.getElementById(
+      'walletBalance'
+    ).textContent =
+      balance;
+
+    document.getElementById(
+      'totalEarned'
+    ).textContent =
+      totalEarned;
+
+    document.getElementById(
+      'totalWithdrawn'
+    ).textContent =
+      totalWithdrawn;
+
+    document.getElementById(
+      'pendingWithdrawal'
+    ).textContent =
+      pending;
+
+  } catch (error) {
+
+    console.error(
+      'Wallet error:',
+      error
+    );
+
+  }
+
+}
+
+
+/* =========================
+   TASKS
+========================= */
+
+async function completeTask(
+  taskId,
+  button
+) {
+
+  try {
+
+    button.disabled = true;
+
+    button.textContent =
+      'Processing...';
+
+    const data =
+      await api(
+        '/tasks/complete',
+        {
+          method: 'POST',
+
+          body: JSON.stringify({
+            taskId: taskId
+          })
+        }
+      );
+
+
+    if (!data.success) {
+
+      toast(
+        data.message ||
+        'Task failed.',
+        true
+      );
+
+      button.disabled = false;
+
+      button.textContent =
+        'Complete';
+
+      return;
+
+    }
+
+
+    toast(
+      data.message ||
+      'Task completed successfully.'
+    );
+
+    button.textContent =
+      'Completed';
+
+    await loadWallet();
+
+  } catch (error) {
+
+    console.error(
+      'Task error:',
+      error
+    );
+
+    toast(
+      error.message ||
+      'Task failed.',
+      true
+    );
+
+    button.disabled = false;
+
+    button.textContent =
+      'Complete';
+
+  }
+
+}
+
+
+/* =========================
+   SURVEYS
+========================= */
+
+async function completeSurvey(
+  surveyId,
+  button
+) {
+
+  try {
+
+    button.disabled = true;
+
+    button.textContent =
+      'Processing...';
+
+    const data =
+      await api(
+        '/surveys/complete',
+        {
+          method: 'POST',
+
+          body: JSON.stringify({
+            surveyId: surveyId
+          })
+        }
+      );
+
+
+    if (!data.success) {
+
+      toast(
+        data.message ||
+        'Survey failed.',
+        true
+      );
+
+      button.disabled = false;
+
+      button.textContent =
+        'Start';
+
+      return;
+
+    }
+
+
+    toast(
+      data.message ||
+      'Survey completed successfully.'
+    );
+
+    button.textContent =
+      'Completed';
+
+    await loadWallet();
+
+  } catch (error) {
+
+    console.error(
+      'Survey error:',
+      error
+    );
+
+    toast(
+      error.message ||
+      'Survey failed.',
+      true
+    );
+
+    button.disabled = false;
+
+    button.textContent =
+      'Start';
+
+  }
+
+}
+
+
+/* =========================
+   DAILY BONUS
+========================= */
+
+async function claimDailyBonus() {
+
+  const button =
+    document.getElementById(
+      'dailyBonusBtn'
+    );
+
+  try {
+
+    button.disabled = true;
+
+    button.textContent =
+      'Processing...';
+
+
+    const data =
+      await api(
+        '/daily-bonus',
+        {
+          method: 'POST'
+        }
+      );
+
+
+    if (!data.success) {
+
+      toast(
+        data.message ||
+        'Daily bonus failed.',
+        true
+      );
+
+      button.disabled = false;
+
+      button.textContent =
+        'Claim 50 Coins';
+
+      return;
+
+    }
+
+
+    toast(
+      data.message ||
+      'Daily bonus credited successfully.'
+    );
+
+    button.textContent =
+      'Claimed';
+
+    await loadWallet();
+
+  } catch (error) {
+
+    console.error(
+      'Daily bonus error:',
+      error
+    );
+
+    toast(
+      error.message ||
+      'Daily bonus failed.',
+      true
+    );
+
+    button.disabled = false;
+
+    button.textContent =
+      'Claim 50 Coins';
+
+  }
+
+}
+
+
+/* =========================
    WITHDRAWAL
 ========================= */
 
 async function requestWithdrawal() {
-  const amountInput = document.getElementById('withdrawAmount');
-  const methodInput = document.getElementById('paymentMethod');
-  const accountInput = document.getElementById('paymentAccount');
 
-  const amount = Number(amountInput.value);
-  const method = methodInput.value.trim();
-  const account = accountInput.value.trim();
+  const amountInput =
+    document.getElementById(
+      'withdrawAmount'
+    );
 
-  if (!amount || amount <= 0) {
-    toast('Please enter a valid amount.', true);
+  const methodInput =
+    document.getElementById(
+      'paymentMethod'
+    );
+
+  const accountInput =
+    document.getElementById(
+      'paymentAccount'
+    );
+
+  const button =
+    document.getElementById(
+      'withdrawButton'
+    );
+
+
+  const amount =
+    Number(
+      amountInput.value
+    );
+
+  const method =
+    methodInput.value.trim();
+
+  const account =
+    accountInput.value.trim();
+
+
+  if (
+    !Number.isInteger(amount) ||
+    amount < 1000
+  ) {
+
+    toast(
+      'Minimum withdrawal is 1,000 Coins.',
+      true
+    );
+
     return;
+
   }
+
 
   if (!method) {
-    toast('Please select a payment method.', true);
+
+    toast(
+      'Please select a payment method.',
+      true
+    );
+
     return;
+
   }
 
-  if (!account) {
-    toast('Please enter your payment account.', true);
+
+  if (
+    !account ||
+    account.length < 5
+  ) {
+
+    toast(
+      'Please enter a valid account number.',
+      true
+    );
+
     return;
+
   }
+
 
   let paymentMethod = '';
 
-  if (method === 'easypaisa') {
-    paymentMethod = 'Easypaisa';
-  } else if (method === 'jazzcash') {
-    paymentMethod = 'JazzCash';
-  } else if (method === 'bank') {
-    paymentMethod = 'Bank Transfer';
+
+  if (
+    method === 'easypaisa'
+  ) {
+
+    paymentMethod =
+      'Easypaisa';
+
+  } else if (
+    method === 'jazzcash'
+  ) {
+
+    paymentMethod =
+      'JazzCash';
+
+  } else if (
+    method === 'bank'
+  ) {
+
+    paymentMethod =
+      'Bank Transfer';
+
   } else {
-    toast('Invalid payment method.', true);
+
+    toast(
+      'Invalid payment method.',
+      true
+    );
+
     return;
+
   }
 
+
   try {
-    const data = await api('/withdraw', {
-      method: 'POST',
-      body: JSON.stringify({
-        amount: Math.floor(amount),
-        paymentMethod: paymentMethod,
-        accountNumber: account
-      })
-    });
+
+    button.disabled = true;
+
+    button.textContent =
+      'Submitting...';
+
+
+    const data =
+      await api(
+        '/withdraw',
+        {
+          method: 'POST',
+
+          body: JSON.stringify({
+
+            amount:
+              Math.floor(amount),
+
+            paymentMethod:
+              paymentMethod,
+
+            accountNumber:
+              account
+
+          })
+
+        }
+      );
+
 
     if (!data.success) {
+
       toast(
-        data.message || 'Withdrawal request failed.',
+        data.message ||
+        'Withdrawal request failed.',
         true
       );
+
+      button.disabled = false;
+
+      button.textContent =
+        'Request Withdrawal';
+
       return;
+
     }
+
 
     toast(
       data.message ||
       'Withdrawal request submitted successfully.'
     );
 
-    amountInput.value = '';
-    methodInput.value = '';
-    accountInput.value = '';
+
+    amountInput.value =
+      '';
+
+    methodInput.value =
+      '';
+
+    accountInput.value =
+      '';
+
+
+    button.textContent =
+      'Request Withdrawal';
+
+    button.disabled =
+      false;
+
 
     await loadWallet();
 
+    await loadWithdrawalHistory();
+
+
   } catch (error) {
-    console.error('Withdrawal error:', error);
+
+    console.error(
+      'Withdrawal error:',
+      error
+    );
 
     toast(
       error.message ||
       'Withdrawal request failed.',
       true
     );
+
+    button.disabled =
+      false;
+
+    button.textContent =
+      'Request Withdrawal';
+
   }
+
 }
+
+
 /* =========================
-   LOGOUT
+   WITHDRAWAL HISTORY
 ========================= */
 
-async function logout() {
+async function loadWithdrawalHistory() {
+
+  const box =
+    document.getElementById(
+      'withdrawalHistory'
+    );
 
   try {
 
-    await api('/admin/logout', {
-      method: 'POST'
-    });
+    const data =
+      await api(
+        '/withdrawals'
+      );
+
+
+    if (
+      !data.success ||
+      !Array.isArray(data.withdrawals) ||
+      data.withdrawals.length === 0
+    ) {
+
+      box.innerHTML =
+        '<div class="empty">No withdrawal requests yet.</div>';
+
+      return;
+
+    }
+
+
+    box.innerHTML =
+      data.withdrawals
+        .map(item => {
+
+          const date =
+            item.createdAt
+              ? new Date(
+                  item.createdAt
+                ).toLocaleString()
+              : '-';
+
+
+          return `
+            <div class="history-row">
+
+              <strong>
+                ${Number(item.amount || 0)}
+                Coins
+              </strong>
+
+              <br>
+
+              Method:
+              ${escapeHtml(
+                item.paymentMethod || '-'
+              )}
+
+              <br>
+
+              Account:
+              ${escapeHtml(
+                item.accountNumber || '-'
+              )}
+
+              <br>
+
+              Status:
+              <span class="status ${escapeHtml(
+                String(item.status || '').toLowerCase()
+              )}">
+                ${escapeHtml(
+                  item.status || '-'
+                )}
+              </span>
+
+              <br>
+
+              Date:
+              ${escapeHtml(date)}
+
+            </div>
+          `;
+
+        })
+        .join('');
 
   } catch (error) {
 
-    console.error(error);
+    console.error(
+      'Withdrawal history error:',
+      error
+    );
 
-  } finally {
+    box.innerHTML =
+      '<div class="empty">Withdrawal history could not be loaded.</div>';
 
-    localStorage.removeItem('earnNestToken');
-    localStorage.removeItem('token');
-    localStorage.removeItem('authToken');
-
-    window.location.href = '/app/index.html';
   }
+
 }
 
 
 /* =========================
-   SECURITY HELPER
+   HTML ESCAPE
 ========================= */
 
 function escapeHtml(value) {
 
   return String(value)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;');
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#039;');
+
 }
 
 
 /* =========================
-   INIT
+   LOGOUT
 ========================= */
 
-async function init() {
+function logout() {
 
-  if (!getToken()) {
+  localStorage.removeItem(
+    'earnNestToken'
+  );
 
-    window.location.href = '/app/index.html';
-    return;
-  }
+  localStorage.removeItem(
+    'token'
+  );
 
-  renderTasks();
-  renderSurveys();
+  localStorage.removeItem(
+    'authToken'
+  );
 
-  await Promise.allSettled([
-    loadProfile(),
-    loadWallet()
-  ]);
+  window.location.href =
+    '/';
+
 }
 
 
-document.addEventListener('DOMContentLoaded', init);
+/* =========================
+   START
+========================= */
+
+document.addEventListener(
+  'DOMContentLoaded',
+  async function () {
+
+    if (!getToken()) {
+
+      window.location.href =
+        '/';
+
+      return;
+
+    }
+
+
+    await loadProfile();
+
+    await loadWallet();
+
+  }
+);
 
 </script>
 
