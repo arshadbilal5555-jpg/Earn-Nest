@@ -18,6 +18,7 @@ function send(res, status, data) {
 
 function getToken(req) {
   const auth = req.headers.authorization || '';
+
   return auth.startsWith('Bearer ')
     ? auth.slice(7).trim()
     : '';
@@ -53,10 +54,6 @@ function readBody(req) {
   });
 }
 
-/*
-  Server-side task definitions.
-  The reward is NEVER taken from the browser.
-*/
 const TASKS = {
   'daily-check-in': {
     title: 'Daily Check-in',
@@ -84,17 +81,30 @@ const TASKS = {
 };
 
 module.exports = async (req, res) => {
+
+  // CORS preflight
   if (req.method === 'OPTIONS') {
     res.statusCode = 204;
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'POST,OPTIONS');
+
+    res.setHeader(
+      'Access-Control-Allow-Origin',
+      '*'
+    );
+
+    res.setHeader(
+      'Access-Control-Allow-Methods',
+      'POST,OPTIONS'
+    );
+
     res.setHeader(
       'Access-Control-Allow-Headers',
       'Content-Type, Authorization'
     );
+
     return res.end();
   }
 
+  // Only POST allowed
   if (req.method !== 'POST') {
     return send(res, 405, {
       success: false,
@@ -103,6 +113,11 @@ module.exports = async (req, res) => {
   }
 
   try {
+
+    // -----------------------------------------
+    // Authentication
+    // -----------------------------------------
+
     const token = getToken(req);
 
     if (!token) {
@@ -112,8 +127,15 @@ module.exports = async (req, res) => {
       });
     }
 
+    // -----------------------------------------
+    // Read request body
+    // -----------------------------------------
+
     const body = await readBody(req);
-    const taskId = String(body.taskId || '').trim();
+
+    const taskId = String(
+      body.taskId || ''
+    ).trim();
 
     if (!taskId || !TASKS[taskId]) {
       return send(res, 400, {
@@ -122,10 +144,12 @@ module.exports = async (req, res) => {
       });
     }
 
-    /*
-      Find the logged-in user from the same session system
-      used by profile.js and wallet.js.
-    */
+    const task = TASKS[taskId];
+
+    // -----------------------------------------
+    // Find logged-in user
+    // -----------------------------------------
+
     const sessionRows = await sql`
       SELECT
         s.user_id
@@ -142,21 +166,20 @@ module.exports = async (req, res) => {
       });
     }
 
-    const userId = sessionRows[0].user_id;
-    const task = TASKS[taskId];
+    const userId = String(
+      sessionRows[0].user_id
+    );
 
-    /*
-      Create a small task-claim table if it does not already exist.
+    // -----------------------------------------
+    // Create task_claims table
+    // user_id MUST be TEXT because
+    // EarnNest user IDs are UUID-style strings.
+    // -----------------------------------------
 
-      This lets us prevent:
-      - duplicate one-time claims
-      - multiple daily claims
-      - multiple weekly claims
-    */
     await sql`
       CREATE TABLE IF NOT EXISTS task_claims (
         id BIGSERIAL PRIMARY KEY,
-        user_id BIGINT NOT NULL,
+        user_id TEXT NOT NULL,
         task_id TEXT NOT NULL,
         period_key TEXT NOT NULL,
         reward INTEGER NOT NULL,
@@ -165,20 +188,48 @@ module.exports = async (req, res) => {
       )
     `;
 
-    /*
-      Determine the claim period.
-    */
+    // -----------------------------------------
+    // Fix old BIGINT column if the table was
+    // previously created with BIGINT.
+    // -----------------------------------------
+
+    try {
+      await sql`
+        ALTER TABLE task_claims
+        ALTER COLUMN user_id TYPE TEXT
+        USING user_id::TEXT
+      `;
+    } catch (alterError) {
+      // Ignore if the column is already TEXT
+      // or PostgreSQL does not need the change.
+      console.log(
+        'task_claims user_id type check:',
+        alterError.message
+      );
+    }
+
+    // -----------------------------------------
+    // Calculate claim period
+    // -----------------------------------------
+
     let periodKey;
 
     if (task.period === 'once') {
+
       periodKey = 'once';
+
     } else if (task.period === 'daily') {
-      periodKey = `day:${new Date().toISOString().slice(0, 10)}`;
-    } else {
-      /*
-        ISO week key, e.g. week:2026-W39
-      */
+
+      const today = new Date()
+        .toISOString()
+        .slice(0, 10);
+
+      periodKey = `day:${today}`;
+
+    } else if (task.period === 'weekly') {
+
       const now = new Date();
+
       const date = new Date(
         Date.UTC(
           now.getUTCFullYear(),
@@ -188,59 +239,56 @@ module.exports = async (req, res) => {
       );
 
       const day = date.getUTCDay() || 7;
-      date.setUTCDate(date.getUTCDate() + 4 - day);
+
+      date.setUTCDate(
+        date.getUTCDate() + 4 - day
+      );
 
       const yearStart = new Date(
-        Date.UTC(date.getUTCFullYear(), 0, 1)
+        Date.UTC(
+          date.getUTCFullYear(),
+          0,
+          1
+        )
       );
 
       const weekNumber = Math.ceil(
-        (((date - yearStart) / 86400000) + 1) / 7
+        (
+          (
+            (date - yearStart) / 86400000
+          ) + 1
+        ) / 7
       );
 
       periodKey =
-        `week:${date.getUTCFullYear()}-W${String(weekNumber).padStart(2, '0')}`;
+        `week:${date.getUTCFullYear()}-W${String(
+          weekNumber
+        ).padStart(2, '0')}`;
+
+    } else {
+
+      return send(res, 400, {
+        success: false,
+        message: 'Invalid task period'
+      });
+
     }
 
-    /*
-      Atomically:
-      1. register the claim
-      2. increase wallet balance
-      3. increase total earned
+    // -----------------------------------------
+    // Check if already claimed
+    // -----------------------------------------
 
-      If the same task/period was already claimed,
-      nothing is added.
-    */
-    const result = await sql`
-      WITH new_claim AS (
-        INSERT INTO task_claims
-          (user_id, task_id, period_key, reward)
-        VALUES
-          (${userId}, ${taskId}, ${periodKey}, ${task.reward})
-        ON CONFLICT (user_id, task_id, period_key)
-        DO NOTHING
-        RETURNING user_id
-      )
-      UPDATE wallets
-      SET
-        balance = COALESCE(balance, 0) + ${task.reward},
-        total_earned = COALESCE(total_earned, 0) + ${task.reward}
+    const existingClaim = await sql`
+      SELECT id
+      FROM task_claims
       WHERE user_id = ${userId}
-        AND EXISTS (
-          SELECT 1
-          FROM new_claim
-        )
-      RETURNING
-        balance,
-        total_earned,
-        total_withdrawn
+        AND task_id = ${taskId}
+        AND period_key = ${periodKey}
+      LIMIT 1
     `;
 
-    /*
-      No wallet update means the task was already claimed
-      or the wallet does not exist.
-    */
-    if (!result.length) {
+    if (existingClaim.length) {
+
       const walletRows = await sql`
         SELECT
           balance,
@@ -251,38 +299,142 @@ module.exports = async (req, res) => {
         LIMIT 1
       `;
 
-      if (!walletRows.length) {
-        return send(res, 500, {
-          success: false,
-          message: 'Wallet not found'
-        });
-      }
-
       return send(res, 409, {
         success: false,
-        message: 'Task already claimed for this period'
+        message: 'Task already claimed for this period',
+        wallet: walletRows.length
+          ? {
+              balance: Number(
+                walletRows[0].balance || 0
+              ),
+              totalEarned: Number(
+                walletRows[0].total_earned || 0
+              ),
+              totalWithdrawn: Number(
+                walletRows[0].total_withdrawn || 0
+              )
+            }
+          : null
       });
     }
 
-    const wallet = result[0];
+    // -----------------------------------------
+    // Make sure wallet exists
+    // -----------------------------------------
+
+    await sql`
+      INSERT INTO wallets (
+        user_id,
+        balance,
+        total_earned,
+        total_withdrawn
+      )
+      VALUES (
+        ${userId},
+        0,
+        0,
+        0
+      )
+      ON CONFLICT (user_id)
+      DO NOTHING
+    `;
+
+    // -----------------------------------------
+    // Add task claim
+    // -----------------------------------------
+
+    await sql`
+      INSERT INTO task_claims (
+        user_id,
+        task_id,
+        period_key,
+        reward
+      )
+      VALUES (
+        ${userId},
+        ${taskId},
+        ${periodKey},
+        ${task.reward}
+      )
+    `;
+
+    // -----------------------------------------
+    // Add reward to wallet
+    // -----------------------------------------
+
+    const walletResult = await sql`
+      UPDATE wallets
+      SET
+        balance = COALESCE(balance, 0)
+          + ${task.reward},
+
+        total_earned = COALESCE(total_earned, 0)
+          + ${task.reward}
+
+      WHERE user_id = ${userId}
+
+      RETURNING
+        balance,
+        total_earned,
+        total_withdrawn
+    `;
+
+    if (!walletResult.length) {
+
+      // If wallet update failed, remove claim
+      // so the user can try again.
+      await sql`
+        DELETE FROM task_claims
+        WHERE user_id = ${userId}
+          AND task_id = ${taskId}
+          AND period_key = ${periodKey}
+      `;
+
+      return send(res, 500, {
+        success: false,
+        message: 'Wallet not found'
+      });
+    }
+
+    const wallet = walletResult[0];
+
+    // -----------------------------------------
+    // Success
+    // -----------------------------------------
 
     return send(res, 200, {
       success: true,
-      message: `${task.title} completed successfully`,
+
+      message:
+        `${task.title} completed successfully`,
+
       task: {
         id: taskId,
         title: task.title,
         reward: task.reward
       },
+
       wallet: {
-        balance: Number(wallet.balance || 0),
-        totalEarned: Number(wallet.total_earned || 0),
-        totalWithdrawn: Number(wallet.total_withdrawn || 0)
+        balance: Number(
+          wallet.balance || 0
+        ),
+
+        totalEarned: Number(
+          wallet.total_earned || 0
+        ),
+
+        totalWithdrawn: Number(
+          wallet.total_withdrawn || 0
+        )
       }
     });
 
   } catch (error) {
-    console.error('Task completion API error:', error);
+
+    console.error(
+      'Task completion API error:',
+      error
+    );
 
     return send(res, 500, {
       success: false,
