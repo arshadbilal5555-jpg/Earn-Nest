@@ -99,15 +99,22 @@ module.exports = async function handler(req, res) {
 
   if (req.method === 'OPTIONS') {
     res.statusCode = 204;
-    res.setHeader('Access-Control-Allow-Origin', '*');
+
+    res.setHeader(
+      'Access-Control-Allow-Origin',
+      '*'
+    );
+
     res.setHeader(
       'Access-Control-Allow-Methods',
       'GET,POST,OPTIONS'
     );
+
     res.setHeader(
       'Access-Control-Allow-Headers',
       'Content-Type, Authorization'
     );
+
     return res.end();
   }
 
@@ -124,8 +131,9 @@ module.exports = async function handler(req, res) {
 
     /*
      * GET
-     * Load all withdrawals
+     * Load withdrawals
      */
+
     if (req.method === 'GET') {
 
       const rows = await sql`
@@ -169,14 +177,17 @@ module.exports = async function handler(req, res) {
 
     /*
      * POST
-     * Approve or reject withdrawal
+     * Approve / Reject withdrawal
      */
+
     if (req.method === 'POST') {
 
       const body = await readBody(req);
 
       const id = String(body.id || '').trim();
-      const action = String(body.action || '').trim().toLowerCase();
+      const action = String(body.action || '')
+        .trim()
+        .toLowerCase();
 
       if (!id) {
         return send(res, 400, {
@@ -185,7 +196,10 @@ module.exports = async function handler(req, res) {
         });
       }
 
-      if (action !== 'approve' && action !== 'reject') {
+      if (
+        action !== 'approve' &&
+        action !== 'reject'
+      ) {
         return send(res, 400, {
           success: false,
           message: 'Invalid withdrawal action'
@@ -255,7 +269,10 @@ module.exports = async function handler(req, res) {
 
   } catch (error) {
 
-    console.error('Admin withdrawals API error:', error);
+    console.error(
+      'Admin withdrawals API error:',
+      error
+    );
 
     return send(res, 500, {
       success: false,
