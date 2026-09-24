@@ -1,4 +1,3 @@
-```html
 <!DOCTYPE html>
 <html lang="en">
 
@@ -60,6 +59,11 @@
 
     button:hover {
       opacity: .9;
+    }
+
+    button:disabled {
+      opacity: .6;
+      cursor: not-allowed;
     }
 
     .logout {
@@ -183,11 +187,13 @@
       background: #16a34a;
       color: white;
       margin-right: 5px;
+      margin-bottom: 5px;
     }
 
     .reject {
       background: #dc2626;
       color: white;
+      margin-bottom: 5px;
     }
 
     .status {
@@ -256,9 +262,7 @@
 
 </head>
 
-
 <body>
-
 
 <header class="header">
 
@@ -283,9 +287,7 @@
 
 </header>
 
-
 <main class="container">
-
 
   <!-- WELCOME -->
 
@@ -301,7 +303,6 @@
 
   </div>
 
-
   <!-- STATUS -->
 
   <div
@@ -309,11 +310,9 @@
     class="status"
   ></div>
 
-
   <!-- STATISTICS -->
 
   <div class="cards">
-
 
     <div class="card">
 
@@ -330,7 +329,6 @@
 
     </div>
 
-
     <div class="card">
 
       <div class="stat-title">
@@ -345,7 +343,6 @@
       </div>
 
     </div>
-
 
     <div class="card">
 
@@ -362,7 +359,6 @@
 
     </div>
 
-
     <div class="card">
 
       <div class="stat-title">
@@ -377,7 +373,6 @@
       </div>
 
     </div>
-
 
     <div class="card">
 
@@ -394,9 +389,7 @@
 
     </div>
 
-
   </div>
-
 
   <!-- USERS -->
 
@@ -452,7 +445,6 @@
     </div>
 
   </section>
-
 
   <!-- WITHDRAWALS -->
 
@@ -519,12 +511,9 @@
 
   </section>
 
-
 </main>
 
-
 <script>
-
 
 /* =========================
    GET USER
@@ -568,12 +557,8 @@ function getToken() {
 
 async function checkAdmin() {
 
-  const user =
-    getUser();
-
-  const token =
-    getToken();
-
+  const user = getUser();
+  const token = getToken();
 
   if (!user || !token) {
 
@@ -583,10 +568,7 @@ async function checkAdmin() {
 
   }
 
-
-  if (
-    user.role !== "admin"
-  ) {
+  if (user.role !== "admin") {
 
     alert(
       "Admin access required."
@@ -598,19 +580,16 @@ async function checkAdmin() {
 
   }
 
-
   document.getElementById(
     "adminName"
   ).textContent =
     "Welcome, " +
     (user.name || "Admin");
 
-
   document.getElementById(
     "adminEmail"
   ).textContent =
     user.email || "";
-
 
   return true;
 
@@ -623,9 +602,7 @@ async function checkAdmin() {
 
 async function loadDashboard() {
 
-  const token =
-    getToken();
-
+  const token = getToken();
 
   if (!token) {
 
@@ -635,11 +612,9 @@ async function loadDashboard() {
 
   }
 
-
   showStatus(
     "Loading dashboard..."
   );
-
 
   try {
 
@@ -647,20 +622,14 @@ async function loadDashboard() {
       await fetch(
         "/api/admin/stats",
         {
-
           method: "GET",
 
           headers: {
-
             "Authorization":
-              "Bearer " +
-              token
-
+              "Bearer " + token
           }
-
         }
       );
-
 
     const data =
       await response
@@ -668,7 +637,6 @@ async function loadDashboard() {
         .catch(function() {
           return {};
         });
-
 
     if (!response.ok) {
 
@@ -683,7 +651,6 @@ async function loadDashboard() {
 
       }
 
-
       showStatus(
         data.error ||
         data.message ||
@@ -694,48 +661,39 @@ async function loadDashboard() {
 
     }
 
-
     const stats =
       data.stats || {};
-
 
     document.getElementById(
       "totalUsers"
     ).textContent =
       stats.totalUsers || 0;
 
-
     document.getElementById(
       "totalCoins"
     ).textContent =
       stats.totalCoins || 0;
-
 
     document.getElementById(
       "totalWithdrawals"
     ).textContent =
       stats.totalWithdrawals || 0;
 
-
     document.getElementById(
       "pendingWithdrawals"
     ).textContent =
       stats.pendingWithdrawals || 0;
-
 
     document.getElementById(
       "pendingKyc"
     ).textContent =
       stats.pendingKyc || 0;
 
-
     renderUsers(
       data.users || []
     );
 
-
     hideStatus();
-
 
   } catch (error) {
 
@@ -764,9 +722,7 @@ function renderUsers(users) {
       "usersTable"
     );
 
-
   table.innerHTML = "";
-
 
   if (!users.length) {
 
@@ -789,7 +745,6 @@ function renderUsers(users) {
 
   }
 
-
   users.forEach(
     function(user) {
 
@@ -797,7 +752,6 @@ function renderUsers(users) {
         document.createElement(
           "tr"
         );
-
 
       row.innerHTML = `
 
@@ -843,7 +797,6 @@ function renderUsers(users) {
 
       `;
 
-
       table.appendChild(
         row
       );
@@ -860,9 +813,7 @@ function renderUsers(users) {
 
 async function loadWithdrawals() {
 
-  const token =
-    getToken();
-
+  const token = getToken();
 
   if (!token) {
 
@@ -872,12 +823,10 @@ async function loadWithdrawals() {
 
   }
 
-
   const table =
     document.getElementById(
       "withdrawalsTable"
     );
-
 
   table.innerHTML = `
 
@@ -894,27 +843,20 @@ async function loadWithdrawals() {
 
   `;
 
-
   try {
 
     const response =
       await fetch(
         "/api/admin/withdrawals",
         {
-
           method: "GET",
 
           headers: {
-
             "Authorization":
-              "Bearer " +
-              token
-
+              "Bearer " + token
           }
-
         }
       );
-
 
     const data =
       await response
@@ -922,7 +864,6 @@ async function loadWithdrawals() {
         .catch(function() {
           return {};
         });
-
 
     if (!response.ok) {
 
@@ -934,7 +875,6 @@ async function loadWithdrawals() {
             colspan="7"
             class="empty"
           >
-
             ${
               escapeHtml(
                 data.message ||
@@ -942,7 +882,6 @@ async function loadWithdrawals() {
                 "Unable to load withdrawals."
               )
             }
-
           </td>
 
         </tr>
@@ -953,11 +892,9 @@ async function loadWithdrawals() {
 
     }
 
-
     renderWithdrawals(
       data.withdrawals || []
     );
-
 
   } catch (error) {
 
@@ -965,7 +902,6 @@ async function loadWithdrawals() {
       "Withdrawals error:",
       error
     );
-
 
     table.innerHTML = `
 
@@ -1000,9 +936,7 @@ function renderWithdrawals(
       "withdrawalsTable"
     );
 
-
   table.innerHTML = "";
-
 
   if (!withdrawals.length) {
 
@@ -1025,7 +959,6 @@ function renderWithdrawals(
 
   }
 
-
   withdrawals.forEach(
     function(item) {
 
@@ -1034,15 +967,12 @@ function renderWithdrawals(
           "tr"
         );
 
-
       const status =
         String(
           item.status || "pending"
         ).toLowerCase();
 
-
       let actionButtons = "-";
-
 
       if (
         status === "pending"
@@ -1052,14 +982,14 @@ function renderWithdrawals(
 
           <button
             class="approve"
-            onclick="approveWithdrawal('${escapeHtml(item.id)}')"
+            onclick="approveWithdrawal('${escapeJs(item.id)}')"
           >
             Approve
           </button>
 
           <button
             class="reject"
-            onclick="rejectWithdrawal('${escapeHtml(item.id)}')"
+            onclick="rejectWithdrawal('${escapeJs(item.id)}')"
           >
             Reject
           </button>
@@ -1068,14 +998,12 @@ function renderWithdrawals(
 
       }
 
-
       const statusClass =
         status === "approved"
           ? "approved"
           : status === "rejected"
             ? "rejected"
             : "pending";
-
 
       row.innerHTML = `
 
@@ -1090,7 +1018,6 @@ function renderWithdrawals(
 
         </td>
 
-
         <td>
 
           <strong>
@@ -1103,7 +1030,6 @@ function renderWithdrawals(
 
         </td>
 
-
         <td>
 
           ${escapeHtml(
@@ -1113,7 +1039,6 @@ function renderWithdrawals(
           )}
 
         </td>
-
 
         <td>
 
@@ -1125,7 +1050,6 @@ function renderWithdrawals(
 
         </td>
 
-
         <td>
 
           <span
@@ -1135,7 +1059,6 @@ function renderWithdrawals(
           </span>
 
         </td>
-
 
         <td>
 
@@ -1147,7 +1070,6 @@ function renderWithdrawals(
 
         </td>
 
-
         <td>
 
           ${actionButtons}
@@ -1155,7 +1077,6 @@ function renderWithdrawals(
         </td>
 
       `;
-
 
       table.appendChild(
         row
@@ -1180,11 +1101,9 @@ async function approveWithdrawal(
       "Approve this withdrawal request?"
     );
 
-
   if (!confirmed) {
     return;
   }
-
 
   await processWithdrawal(
     id,
@@ -1207,11 +1126,9 @@ async function rejectWithdrawal(
       "Reject this withdrawal request?"
     );
 
-
   if (!confirmed) {
     return;
   }
-
 
   await processWithdrawal(
     id,
@@ -1230,9 +1147,7 @@ async function processWithdrawal(
   action
 ) {
 
-  const token =
-    getToken();
-
+  const token = getToken();
 
   if (!token) {
 
@@ -1242,13 +1157,24 @@ async function processWithdrawal(
 
   }
 
+  if (
+    action !== "approve" &&
+    action !== "reject"
+  ) {
+
+    alert(
+      "Invalid withdrawal action."
+    );
+
+    return;
+
+  }
 
   try {
 
     const response =
       await fetch(
-        "/api/admin/withdrawals/" +
-        action,
+        "/api/admin/withdrawals",
         {
 
           method: "POST",
@@ -1259,18 +1185,17 @@ async function processWithdrawal(
               "application/json",
 
             "Authorization":
-              "Bearer " +
-              token
+              "Bearer " + token
 
           },
 
           body: JSON.stringify({
-            id: id
+            id: String(id),
+            action: action
           })
 
         }
       );
-
 
     const data =
       await response
@@ -1279,8 +1204,23 @@ async function processWithdrawal(
           return {};
         });
 
-
     if (!response.ok) {
+
+      if (
+        response.status === 401 ||
+        response.status === 403
+      ) {
+
+        alert(
+          data.message ||
+          "Admin access required."
+        );
+
+        logout();
+
+        return;
+
+      }
 
       alert(
         data.message ||
@@ -1292,17 +1232,14 @@ async function processWithdrawal(
 
     }
 
-
     alert(
       data.message ||
       "Withdrawal updated successfully."
     );
 
-
     await loadWithdrawals();
 
     await loadDashboard();
-
 
   } catch (error) {
 
@@ -1310,7 +1247,6 @@ async function processWithdrawal(
       "Withdrawal action error:",
       error
     );
-
 
     alert(
       "Unable to connect to server."
@@ -1358,6 +1294,33 @@ function escapeHtml(value) {
 
 
 /* =========================
+   JAVASCRIPT STRING ESCAPE
+========================= */
+
+function escapeJs(value) {
+
+  return String(value)
+    .replaceAll(
+      "\\",
+      "\\\\"
+    )
+    .replaceAll(
+      "'",
+      "\\'"
+    )
+    .replaceAll(
+      "\n",
+      "\\n"
+    )
+    .replaceAll(
+      "\r",
+      "\\r"
+    );
+
+}
+
+
+/* =========================
    STATUS
 ========================= */
 
@@ -1370,10 +1333,8 @@ function showStatus(
       "status"
     );
 
-
   box.textContent =
     message;
-
 
   box.style.display =
     "block";
@@ -1388,10 +1349,8 @@ function hideStatus() {
       "status"
     );
 
-
   box.textContent =
     "";
-
 
   box.style.display =
     "none";
@@ -1408,7 +1367,6 @@ async function logout() {
   const token =
     getToken();
 
-
   try {
 
     if (token) {
@@ -1422,8 +1380,7 @@ async function logout() {
           headers: {
 
             "Authorization":
-              "Bearer " +
-              token
+              "Bearer " + token
 
           }
 
@@ -1435,21 +1392,19 @@ async function logout() {
   } catch (error) {
 
     console.error(
+      "Logout error:",
       error
     );
 
   }
 
-
   localStorage.removeItem(
     "earnnest_user"
   );
 
-
   localStorage.removeItem(
     "earnnest_token"
   );
-
 
   window.location.href =
     "/";
@@ -1466,7 +1421,6 @@ async function logout() {
   const allowed =
     await checkAdmin();
 
-
   if (allowed) {
 
     await loadDashboard();
@@ -1482,4 +1436,3 @@ async function logout() {
 </body>
 
 </html>
-```
