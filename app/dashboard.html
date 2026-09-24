@@ -1328,55 +1328,46 @@ async function completeSurvey(
 /* =========================
    DAILY BONUS
 ========================= */
-
 async function claimDailyBonus() {
 
   const button =
-    document.getElementById(
-      'dailyBonusBtn'
-    );
+    document.getElementById('dailyBonusBtn');
 
   try {
 
     button.disabled = true;
+    button.textContent = 'Processing...';
 
-    button.textContent =
-      'Processing...';
+    const data = await api(
+      '/tasks/complete',
+      {
+        method: 'POST',
 
-    const data =
-      await api(
-        '/daily-bonus',
-        {
-          method: 'POST'
-        }
-      );
-
+        body: JSON.stringify({
+          taskId: 'daily-check-in'
+        })
+      }
+    );
 
     if (!data.success) {
 
       toast(
-        data.message ||
-        'Daily bonus failed.',
+        data.message || 'Daily bonus failed.',
         true
       );
 
       button.disabled = false;
-
-      button.textContent =
-        'Claim 50 Coins';
+      button.textContent = 'Claim 50 Coins';
 
       return;
-
     }
-
 
     toast(
       data.message ||
       'Daily bonus credited successfully.'
     );
 
-    button.textContent =
-      'Claimed';
+    button.textContent = 'Claimed';
 
     await loadWallet();
 
@@ -1394,14 +1385,9 @@ async function claimDailyBonus() {
     );
 
     button.disabled = false;
-
-    button.textContent =
-      'Claim 50 Coins';
-
+    button.textContent = 'Claim 50 Coins';
   }
-
 }
-
 
 /* =========================
    WITHDRAWAL
