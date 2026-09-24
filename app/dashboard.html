@@ -1,4 +1,3 @@
-```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -19,6 +18,7 @@
     body {
       margin: 0;
       padding: 0;
+      width: 100%;
       min-height: 100%;
       font-family: Arial, Helvetica, sans-serif;
       background: #ffffff;
@@ -36,15 +36,25 @@
 
     .menu-toggle {
       display: none;
+      width: 44px;
+      height: 44px;
       border: 0;
-      background: #1565c0;
-      color: #fff;
-      width: 42px;
-      height: 42px;
       border-radius: 9px;
-      font-size: 23px;
+      background: #1565c0;
+      color: #ffffff;
+      font-size: 25px;
+      line-height: 44px;
+      text-align: center;
       cursor: pointer;
       flex-shrink: 0;
+      padding: 0;
+      position: relative;
+      z-index: 5000;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .menu-toggle:active {
+      transform: scale(.96);
     }
 
     /* =========================
@@ -57,12 +67,15 @@
       top: 0;
       width: 235px;
       height: 100vh;
+      height: 100dvh;
       background: #1565c0;
-      color: #fff;
+      color: #ffffff;
       padding: 22px 14px;
-      z-index: 2000;
-      box-shadow: 3px 0 12px rgba(0,0,0,.12);
+      z-index: 4000;
+      box-shadow: 3px 0 15px rgba(0,0,0,.15);
       transition: transform .25s ease;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
     }
 
     .sidebar-logo {
@@ -86,20 +99,23 @@
       padding: 13px 15px;
       border-radius: 9px;
       background: transparent;
-      color: #fff;
+      color: #ffffff;
       cursor: pointer;
       font-weight: 600;
       font-size: 15px;
       text-align: left;
-      transition: .2s;
+      transition: background .2s;
+      -webkit-tap-highlight-color: transparent;
     }
 
-    .nav button:hover {
+    .nav button:hover,
+    .nav button:focus {
       background: rgba(255,255,255,.15);
+      outline: none;
     }
 
     .nav button.active {
-      background: #fff;
+      background: #ffffff;
       color: #1565c0;
     }
 
@@ -113,7 +129,7 @@
     .logout-btn {
       width: 100%;
       background: #dc2626;
-      color: #fff;
+      color: #ffffff;
       border: 0;
       padding: 11px 14px;
       border-radius: 8px;
@@ -125,14 +141,22 @@
       background: #b91c1c;
     }
 
-    /* Mobile overlay */
+    /* =========================
+       MOBILE OVERLAY
+    ========================= */
 
     .sidebar-overlay {
       display: none;
       position: fixed;
       inset: 0;
-      background: rgba(0,0,0,.35);
-      z-index: 1500;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,.45);
+      z-index: 3000;
+    }
+
+    .sidebar-overlay.show {
+      display: block;
     }
 
     /* =========================
@@ -144,7 +168,7 @@
       min-height: 100vh;
       position: relative;
       overflow: hidden;
-      background: #fff;
+      background: #ffffff;
     }
 
     /* =========================
@@ -152,7 +176,7 @@
     ========================= */
 
     header {
-      background: #fff;
+      background: #ffffff;
       color: #111827;
       padding: 18px 25px;
       display: flex;
@@ -162,6 +186,7 @@
       top: 0;
       z-index: 100;
       border-bottom: 1px solid #e5e7eb;
+      min-height: 70px;
     }
 
     header h1 {
@@ -336,7 +361,7 @@
     }
 
     .welcome {
-      background: #fff;
+      background: #ffffff;
       padding: 20px;
       border-radius: 14px;
       margin-bottom: 20px;
@@ -366,7 +391,7 @@
     }
 
     .balance-card {
-      background: #fff;
+      background: #ffffff;
       padding: 20px;
       border-radius: 14px;
       box-shadow: 0 2px 10px rgba(0,0,0,.06);
@@ -389,7 +414,7 @@
 
     .section {
       display: none;
-      background: #fff;
+      background: #ffffff;
       padding: 20px;
       border-radius: 14px;
       box-shadow: 0 2px 10px rgba(0,0,0,.06);
@@ -442,7 +467,7 @@
 
     .action-btn {
       background: #2563eb;
-      color: #fff;
+      color: #ffffff;
       border: 0;
       padding: 10px 15px;
       border-radius: 8px;
@@ -485,7 +510,7 @@
       border: 1px solid #d1d5db;
       border-radius: 8px;
       font-size: 15px;
-      background: #fff;
+      background: #ffffff;
       outline: none;
     }
 
@@ -575,7 +600,7 @@
       bottom: 20px;
       max-width: 350px;
       background: #111827;
-      color: #fff;
+      color: #ffffff;
       padding: 13px 16px;
       border-radius: 9px;
       display: none;
@@ -611,23 +636,28 @@
     @media (max-width: 700px) {
 
       body {
-        background: #fff;
+        width: 100%;
+        background: #ffffff;
       }
 
-      /* Sidebar hidden until menu opens */
+      /* MENU BUTTON */
+
+      .menu-toggle {
+        display: block;
+      }
+
+      /* SIDEBAR */
 
       .sidebar {
-        width: 250px;
-        transform: translateX(-100%);
+        width: 270px;
+        max-width: 85vw;
+        transform: translate3d(-110%, 0, 0);
         padding: 18px 14px;
+        box-shadow: 5px 0 20px rgba(0,0,0,.25);
       }
 
       .sidebar.open {
-        transform: translateX(0);
-      }
-
-      .sidebar-overlay.show {
-        display: block;
+        transform: translate3d(0, 0, 0);
       }
 
       .sidebar-logo {
@@ -638,34 +668,47 @@
       .nav button {
         font-size: 15px;
         text-align: left;
-        padding: 13px 15px;
+        padding: 14px 15px;
+        min-height: 46px;
       }
 
       .sidebar-logout {
         left: 14px;
         right: 14px;
+        bottom: 20px;
       }
+
+      .logout-btn {
+        min-height: 45px;
+      }
+
+      /* MAIN */
 
       .main {
         margin-left: 0;
         width: 100%;
+        min-width: 0;
       }
+
+      /* HEADER */
 
       header {
+        width: 100%;
         padding: 12px 14px;
         gap: 10px;
-      }
-
-      .menu-toggle {
-        display: block;
+        min-height: 64px;
       }
 
       header h1 {
         font-size: 18px;
         flex: 1;
+        min-width: 0;
       }
 
+      /* CONTENT */
+
       .container {
+        width: 100%;
         padding: 13px;
       }
 
@@ -682,6 +725,8 @@
         font-size: 14px;
       }
 
+      /* BALANCE */
+
       .balance-grid {
         grid-template-columns: 1fr;
         gap: 10px;
@@ -696,7 +741,10 @@
         font-size: 23px;
       }
 
+      /* SECTION */
+
       .section {
+        width: 100%;
         padding: 16px;
         border-radius: 12px;
       }
@@ -705,7 +753,10 @@
         font-size: 21px;
       }
 
+      /* ITEMS */
+
       .item {
+        width: 100%;
         flex-direction: column;
         align-items: stretch;
         padding: 14px;
@@ -725,6 +776,8 @@
         min-height: 44px;
       }
 
+      /* INFO */
+
       .info-box {
         padding: 13px;
       }
@@ -735,13 +788,17 @@
         min-height: 44px;
       }
 
+      /* WALLET */
+
       .withdraw-box {
+        width: 100%;
         max-width: 100%;
       }
 
       .form-group input,
       .form-group select {
         min-height: 45px;
+        width: 100%;
       }
 
       #withdrawButton {
@@ -749,9 +806,13 @@
         min-height: 45px;
       }
 
+      /* PROFILE */
+
       .profile-row strong {
         min-width: 90px;
       }
+
+      /* WATERMARK */
 
       .watermark {
         position: fixed;
@@ -793,6 +854,8 @@
       .dollar {
         font-size: 27px;
       }
+
+      /* TOAST */
 
       #toast {
         left: 12px;
@@ -841,10 +904,7 @@
     onclick="closeMobileMenu()">
   </div>
 
-  <!-- =========================
-       LEFT BLUE MENU
-  ========================= -->
-
+  <!-- SIDEBAR -->
   <aside id="sidebar" class="sidebar">
 
     <div class="sidebar-logo">
@@ -854,27 +914,32 @@
     <div class="nav">
 
       <button
+        type="button"
         class="active"
         onclick="showSection('home', this)">
         🏠 Home
       </button>
 
       <button
+        type="button"
         onclick="showSection('tasks', this)">
         📝 Tasks
       </button>
 
       <button
+        type="button"
         onclick="showSection('surveys', this)">
         📋 Surveys
       </button>
 
       <button
+        type="button"
         onclick="showSection('wallet', this)">
         💰 Wallet
       </button>
 
       <button
+        type="button"
         onclick="showSection('profile', this)">
         👤 Profile
       </button>
@@ -882,30 +947,28 @@
     </div>
 
     <div class="sidebar-logout">
-
       <button
+        type="button"
         class="logout-btn"
         onclick="logout()">
         Logout
       </button>
-
     </div>
 
   </aside>
 
-  <!-- =========================
-       MAIN
-  ========================= -->
-
+  <!-- MAIN -->
   <div class="main">
 
     <header>
 
       <button
+        type="button"
         id="menuToggle"
         class="menu-toggle"
         onclick="toggleMobileMenu()"
-        aria-label="Open menu">
+        aria-label="Open menu"
+        aria-expanded="false">
         ☰
       </button>
 
@@ -913,15 +976,10 @@
 
     </header>
 
-    <!-- =========================
-         FARMER WATERMARK
-    ========================= -->
-
+    <!-- FARMER WATERMARK -->
     <div
       class="watermark"
       aria-hidden="true">
-
-      <!-- Falling dollars -->
 
       <div class="dollar d1">$</div>
       <div class="dollar d2">$</div>
@@ -933,36 +991,19 @@
       <div class="dollar d8">$</div>
       <div class="dollar d9">$</div>
 
-      <!-- Farmer -->
+      <div class="farmer">🧑‍🌾</div>
 
-      <div class="farmer">
-        🧑‍🌾
-      </div>
+      <div class="animal cow">🐄</div>
 
-      <!-- Animals -->
-
-      <div class="animal cow">
-        🐄
-      </div>
-
-      <div class="animal chicken">
-        🐔
-      </div>
-
-      <!-- Field -->
+      <div class="animal chicken">🐔</div>
 
       <div class="field"></div>
       <div class="field-line"></div>
 
     </div>
 
-    <!-- =========================
-         CONTENT
-    ========================= -->
-
+    <!-- CONTENT -->
     <div class="container">
-
-      <!-- WELCOME -->
 
       <div class="welcome">
 
@@ -977,83 +1018,55 @@
 
       </div>
 
-      <!-- BALANCE -->
-
       <div class="balance-grid">
 
         <div class="balance-card">
 
-          <h3>
-            Available Balance
-          </h3>
+          <h3>Available Balance</h3>
 
-          <strong id="balance">
-            0
-          </strong>
+          <strong id="balance">0</strong>
 
-          <span>
-            Coins
-          </span>
+          <span>Coins</span>
 
         </div>
 
         <div class="balance-card">
 
-          <h3>
-            Total Earned
-          </h3>
+          <h3>Total Earned</h3>
 
-          <strong id="totalEarned">
-            0
-          </strong>
+          <strong id="totalEarned">0</strong>
 
-          <span>
-            Coins
-          </span>
+          <span>Coins</span>
 
         </div>
 
         <div class="balance-card">
 
-          <h3>
-            Total Withdrawn
-          </h3>
+          <h3>Total Withdrawn</h3>
 
-          <strong id="totalWithdrawn">
-            0
-          </strong>
+          <strong id="totalWithdrawn">0</strong>
 
-          <span>
-            Coins
-          </span>
+          <span>Coins</span>
 
         </div>
 
       </div>
 
-      <!-- =========================
-           HOME
-      ========================= -->
+      <!-- HOME -->
+      <section id="home" class="section active">
 
-      <section
-        id="home"
-        class="section active">
-
-        <h2>
-          Dashboard
-        </h2>
+        <h2>Dashboard</h2>
 
         <div class="info-box">
 
-          <strong>
-            Daily Bonus
-          </strong>
+          <strong>Daily Bonus</strong>
 
           <p>
             Claim your daily reward.
           </p>
 
           <button
+            type="button"
             id="dailyBonusBtn"
             class="action-btn success-btn"
             onclick="claimDailyBonus()">
@@ -1064,9 +1077,7 @@
 
         <div class="info-box">
 
-          <strong>
-            Your Balance
-          </strong>
+          <strong>Your Balance</strong>
 
           <p>
             You currently have
@@ -1078,24 +1089,15 @@
 
       </section>
 
-      <!-- =========================
-           TASKS
-      ========================= -->
+      <!-- TASKS -->
+      <section id="tasks" class="section">
 
-      <section
-        id="tasks"
-        class="section">
-
-        <h2>
-          Tasks
-        </h2>
+        <h2>Tasks</h2>
 
         <div class="item">
 
           <div>
-            <h3>
-              Daily Check-in
-            </h3>
+            <h3>Daily Check-in</h3>
 
             <p>
               Complete your daily check-in.
@@ -1107,6 +1109,7 @@
           </div>
 
           <button
+            type="button"
             class="action-btn"
             onclick="completeTask('daily-check-in', this)">
             Complete
@@ -1117,9 +1120,7 @@
         <div class="item">
 
           <div>
-            <h3>
-              Complete Profile
-            </h3>
+            <h3>Complete Profile</h3>
 
             <p>
               Complete your profile information.
@@ -1131,6 +1132,7 @@
           </div>
 
           <button
+            type="button"
             class="action-btn"
             onclick="completeTask('complete-profile', this)">
             Complete
@@ -1141,9 +1143,7 @@
         <div class="item">
 
           <div>
-            <h3>
-              App Visit
-            </h3>
+            <h3>App Visit</h3>
 
             <p>
               Visit EarnNest today.
@@ -1155,6 +1155,7 @@
           </div>
 
           <button
+            type="button"
             class="action-btn"
             onclick="completeTask('app-visit', this)">
             Complete
@@ -1165,9 +1166,7 @@
         <div class="item">
 
           <div>
-            <h3>
-              Weekly Activity
-            </h3>
+            <h3>Weekly Activity</h3>
 
             <p>
               Complete your weekly activity.
@@ -1179,6 +1178,7 @@
           </div>
 
           <button
+            type="button"
             class="action-btn"
             onclick="completeTask('weekly-activity', this)">
             Complete
@@ -1188,24 +1188,15 @@
 
       </section>
 
-      <!-- =========================
-           SURVEYS
-      ========================= -->
+      <!-- SURVEYS -->
+      <section id="surveys" class="section">
 
-      <section
-        id="surveys"
-        class="section">
-
-        <h2>
-          Surveys
-        </h2>
+        <h2>Surveys</h2>
 
         <div class="item">
 
           <div>
-            <h3>
-              Quick Opinion Survey
-            </h3>
+            <h3>Quick Opinion Survey</h3>
 
             <p>
               Answer a short opinion survey.
@@ -1217,6 +1208,7 @@
           </div>
 
           <button
+            type="button"
             class="action-btn"
             onclick="completeSurvey('quick-opinion', this)">
             Start
@@ -1227,9 +1219,7 @@
         <div class="item">
 
           <div>
-            <h3>
-              Shopping Survey
-            </h3>
+            <h3>Shopping Survey</h3>
 
             <p>
               Tell us about your shopping habits.
@@ -1241,6 +1231,7 @@
           </div>
 
           <button
+            type="button"
             class="action-btn"
             onclick="completeSurvey('shopping-survey', this)">
             Start
@@ -1251,9 +1242,7 @@
         <div class="item">
 
           <div>
-            <h3>
-              Technology Survey
-            </h3>
+            <h3>Technology Survey</h3>
 
             <p>
               Share your technology preferences.
@@ -1265,6 +1254,7 @@
           </div>
 
           <button
+            type="button"
             class="action-btn"
             onclick="completeSurvey('technology-survey', this)">
             Start
@@ -1274,17 +1264,10 @@
 
       </section>
 
-      <!-- =========================
-           WALLET
-      ========================= -->
+      <!-- WALLET -->
+      <section id="wallet" class="section">
 
-      <section
-        id="wallet"
-        class="section">
-
-        <h2>
-          Wallet
-        </h2>
+        <h2>Wallet</h2>
 
         <div class="info-box">
 
@@ -1306,9 +1289,7 @@
 
         <div class="withdraw-box">
 
-          <h3>
-            Request Withdrawal
-          </h3>
+          <h3>Request Withdrawal</h3>
 
           <div class="form-group">
 
@@ -1378,9 +1359,7 @@
 
         <div class="withdraw-history">
 
-          <h3>
-            Withdrawal History
-          </h3>
+          <h3>Withdrawal History</h3>
 
           <div id="withdrawalHistory">
 
@@ -1394,17 +1373,10 @@
 
       </section>
 
-      <!-- =========================
-           PROFILE
-      ========================= -->
+      <!-- PROFILE -->
+      <section id="profile" class="section">
 
-      <section
-        id="profile"
-        class="section">
-
-        <h2>
-          Profile
-        </h2>
+        <h2>Profile</h2>
 
         <div class="profile-row">
           <strong>Name:</strong>
@@ -1508,8 +1480,55 @@ function toggleMobileMenu() {
   const overlay =
     document.getElementById('sidebarOverlay');
 
-  sidebar.classList.toggle('open');
-  overlay.classList.toggle('show');
+  const toggle =
+    document.getElementById('menuToggle');
+
+  if (!sidebar || !overlay) {
+    return;
+  }
+
+  const isOpen =
+    sidebar.classList.contains('open');
+
+  if (isOpen) {
+
+    sidebar.classList.remove('open');
+    overlay.classList.remove('show');
+
+    if (toggle) {
+      toggle.setAttribute(
+        'aria-expanded',
+        'false'
+      );
+      toggle.setAttribute(
+        'aria-label',
+        'Open menu'
+      );
+      toggle.textContent = '☰';
+    }
+
+    document.body.style.overflow = '';
+
+  } else {
+
+    sidebar.classList.add('open');
+    overlay.classList.add('show');
+
+    if (toggle) {
+      toggle.setAttribute(
+        'aria-expanded',
+        'true'
+      );
+      toggle.setAttribute(
+        'aria-label',
+        'Close menu'
+      );
+      toggle.textContent = '✕';
+    }
+
+    document.body.style.overflow = 'hidden';
+
+  }
 
 }
 
@@ -1521,8 +1540,34 @@ function closeMobileMenu() {
   const overlay =
     document.getElementById('sidebarOverlay');
 
-  sidebar.classList.remove('open');
-  overlay.classList.remove('show');
+  const toggle =
+    document.getElementById('menuToggle');
+
+  if (sidebar) {
+    sidebar.classList.remove('open');
+  }
+
+  if (overlay) {
+    overlay.classList.remove('show');
+  }
+
+  if (toggle) {
+
+    toggle.setAttribute(
+      'aria-expanded',
+      'false'
+    );
+
+    toggle.setAttribute(
+      'aria-label',
+      'Open menu'
+    );
+
+    toggle.textContent = '☰';
+
+  }
+
+  document.body.style.overflow = '';
 
 }
 
@@ -1574,9 +1619,7 @@ function showSection(
     .querySelectorAll('.section')
     .forEach(section => {
 
-      section.classList.remove(
-        'active'
-      );
+      section.classList.remove('active');
 
     });
 
@@ -1584,30 +1627,22 @@ function showSection(
     .querySelectorAll('.nav button')
     .forEach(btn => {
 
-      btn.classList.remove(
-        'active'
-      );
+      btn.classList.remove('active');
 
     });
 
   const section =
-    document.getElementById(
-      sectionId
-    );
+    document.getElementById(sectionId);
 
   if (section) {
 
-    section.classList.add(
-      'active'
-    );
+    section.classList.add('active');
 
   }
 
   if (button) {
 
-    button.classList.add(
-      'active'
-    );
+    button.classList.add('active');
 
   }
 
@@ -1695,24 +1730,16 @@ async function loadWallet() {
       data.wallet || {};
 
     const balance =
-      Number(
-        wallet.balance || 0
-      );
+      Number(wallet.balance || 0);
 
     const totalEarned =
-      Number(
-        wallet.totalEarned || 0
-      );
+      Number(wallet.totalEarned || 0);
 
     const totalWithdrawn =
-      Number(
-        wallet.totalWithdrawn || 0
-      );
+      Number(wallet.totalWithdrawn || 0);
 
     const pending =
-      Number(
-        wallet.pendingWithdrawal || 0
-      );
+      Number(wallet.pendingWithdrawal || 0);
 
     document.getElementById(
       'balance'
@@ -1766,23 +1793,17 @@ async function completeTask(
 
   try {
 
-    button.disabled =
-      true;
-
-    button.textContent =
-      'Processing...';
+    button.disabled = true;
+    button.textContent = 'Processing...';
 
     const data =
       await api(
         '/tasks/complete',
         {
           method: 'POST',
-
-          body:
-            JSON.stringify({
-              taskId: taskId
-            })
-
+          body: JSON.stringify({
+            taskId: taskId
+          })
         }
       );
 
@@ -1794,11 +1815,8 @@ async function completeTask(
         true
       );
 
-      button.disabled =
-        false;
-
-      button.textContent =
-        'Complete';
+      button.disabled = false;
+      button.textContent = 'Complete';
 
       return;
 
@@ -1809,8 +1827,7 @@ async function completeTask(
       'Task completed successfully.'
     );
 
-    button.textContent =
-      'Completed';
+    button.textContent = 'Completed';
 
     await loadWallet();
 
@@ -1827,11 +1844,8 @@ async function completeTask(
       true
     );
 
-    button.disabled =
-      false;
-
-    button.textContent =
-      'Complete';
+    button.disabled = false;
+    button.textContent = 'Complete';
 
   }
 
@@ -1848,23 +1862,17 @@ async function completeSurvey(
 
   try {
 
-    button.disabled =
-      true;
-
-    button.textContent =
-      'Processing...';
+    button.disabled = true;
+    button.textContent = 'Processing...';
 
     const data =
       await api(
         '/surveys/complete',
         {
           method: 'POST',
-
-          body:
-            JSON.stringify({
-              surveyId: surveyId
-            })
-
+          body: JSON.stringify({
+            surveyId: surveyId
+          })
         }
       );
 
@@ -1876,11 +1884,8 @@ async function completeSurvey(
         true
       );
 
-      button.disabled =
-        false;
-
-      button.textContent =
-        'Start';
+      button.disabled = false;
+      button.textContent = 'Start';
 
       return;
 
@@ -1891,8 +1896,7 @@ async function completeSurvey(
       'Survey completed successfully.'
     );
 
-    button.textContent =
-      'Completed';
+    button.textContent = 'Completed';
 
     await loadWallet();
 
@@ -1909,11 +1913,8 @@ async function completeSurvey(
       true
     );
 
-    button.disabled =
-      false;
-
-    button.textContent =
-      'Start';
+    button.disabled = false;
+    button.textContent = 'Start';
 
   }
 
@@ -1932,24 +1933,17 @@ async function claimDailyBonus() {
 
   try {
 
-    button.disabled =
-      true;
-
-    button.textContent =
-      'Processing...';
+    button.disabled = true;
+    button.textContent = 'Processing...';
 
     const data =
       await api(
         '/tasks/complete',
         {
           method: 'POST',
-
-          body:
-            JSON.stringify({
-              taskId:
-                'daily-check-in'
-            })
-
+          body: JSON.stringify({
+            taskId: 'daily-check-in'
+          })
         }
       );
 
@@ -1961,11 +1955,8 @@ async function claimDailyBonus() {
         true
       );
 
-      button.disabled =
-        false;
-
-      button.textContent =
-        'Claim 50 Coins';
+      button.disabled = false;
+      button.textContent = 'Claim 50 Coins';
 
       return;
 
@@ -1976,8 +1967,7 @@ async function claimDailyBonus() {
       'Daily bonus credited successfully.'
     );
 
-    button.textContent =
-      'Claimed';
+    button.textContent = 'Claimed';
 
     await loadWallet();
 
@@ -1994,11 +1984,8 @@ async function claimDailyBonus() {
       true
     );
 
-    button.disabled =
-      false;
-
-    button.textContent =
-      'Claim 50 Coins';
+    button.disabled = false;
+    button.textContent = 'Claim 50 Coins';
 
   }
 
@@ -2031,9 +2018,7 @@ async function requestWithdrawal() {
     );
 
   const amount =
-    Number(
-      amountInput.value
-    );
+    Number(amountInput.value);
 
   const method =
     methodInput.value.trim();
@@ -2082,26 +2067,17 @@ async function requestWithdrawal() {
 
   let paymentMethod = '';
 
-  if (
-    method === 'easypaisa'
-  ) {
+  if (method === 'easypaisa') {
 
-    paymentMethod =
-      'Easypaisa';
+    paymentMethod = 'Easypaisa';
 
-  } else if (
-    method === 'jazzcash'
-  ) {
+  } else if (method === 'jazzcash') {
 
-    paymentMethod =
-      'JazzCash';
+    paymentMethod = 'JazzCash';
 
-  } else if (
-    method === 'bank'
-  ) {
+  } else if (method === 'bank') {
 
-    paymentMethod =
-      'Bank Transfer';
+    paymentMethod = 'Bank Transfer';
 
   } else {
 
@@ -2116,32 +2092,26 @@ async function requestWithdrawal() {
 
   try {
 
-    button.disabled =
-      true;
-
-    button.textContent =
-      'Submitting...';
+    button.disabled = true;
+    button.textContent = 'Submitting...';
 
     const data =
       await api(
         '/withdraw',
         {
           method: 'POST',
+          body: JSON.stringify({
 
-          body:
-            JSON.stringify({
+            amount:
+              Math.floor(amount),
 
-              amount:
-                Math.floor(amount),
+            paymentMethod:
+              paymentMethod,
 
-              paymentMethod:
-                paymentMethod,
+            accountNumber:
+              account
 
-              accountNumber:
-                account
-
-            })
-
+          })
         }
       );
 
@@ -2153,9 +2123,7 @@ async function requestWithdrawal() {
         true
       );
 
-      button.disabled =
-        false;
-
+      button.disabled = false;
       button.textContent =
         'Request Withdrawal';
 
@@ -2168,23 +2136,16 @@ async function requestWithdrawal() {
       'Withdrawal request submitted successfully.'
     );
 
-    amountInput.value =
-      '';
-
-    methodInput.value =
-      '';
-
-    accountInput.value =
-      '';
+    amountInput.value = '';
+    methodInput.value = '';
+    accountInput.value = '';
 
     button.textContent =
       'Request Withdrawal';
 
-    button.disabled =
-      false;
+    button.disabled = false;
 
     await loadWallet();
-
     await loadWithdrawalHistory();
 
   } catch (error) {
@@ -2200,9 +2161,7 @@ async function requestWithdrawal() {
       true
     );
 
-    button.disabled =
-      false;
-
+    button.disabled = false;
     button.textContent =
       'Request Withdrawal';
 
@@ -2224,15 +2183,11 @@ async function loadWithdrawalHistory() {
   try {
 
     const data =
-      await api(
-        '/withdrawals'
-      );
+      await api('/withdrawals');
 
     if (
       !data.success ||
-      !Array.isArray(
-        data.withdrawals
-      ) ||
+      !Array.isArray(data.withdrawals) ||
       data.withdrawals.length === 0
     ) {
 
@@ -2258,9 +2213,7 @@ async function loadWithdrawalHistory() {
             <div class="history-row">
 
               <strong>
-                ${Number(
-                  item.amount || 0
-                )}
+                ${Number(item.amount || 0)}
                 Coins
               </strong>
 
@@ -2323,26 +2276,11 @@ async function loadWithdrawalHistory() {
 function escapeHtml(value) {
 
   return String(value)
-    .replaceAll(
-      '&',
-      '&amp;'
-    )
-    .replaceAll(
-      '<',
-      '&lt;'
-    )
-    .replaceAll(
-      '>',
-      '&gt;'
-    )
-    .replaceAll(
-      '"',
-      '&quot;'
-    )
-    .replaceAll(
-      "'",
-      '&#039;'
-    );
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#039;');
 
 }
 
@@ -2352,24 +2290,12 @@ function escapeHtml(value) {
 
 function logout() {
 
-  localStorage.removeItem(
-    'earnNestToken'
-  );
+  localStorage.removeItem('earnNestToken');
+  localStorage.removeItem('token');
+  localStorage.removeItem('authToken');
+  localStorage.removeItem('earnNest_user');
 
-  localStorage.removeItem(
-    'token'
-  );
-
-  localStorage.removeItem(
-    'authToken'
-  );
-
-  localStorage.removeItem(
-    'earnNest_user'
-  );
-
-  window.location.href =
-    '/';
+  window.location.href = '/';
 
 }
 
@@ -2383,21 +2309,34 @@ document.addEventListener(
 
     if (!getToken()) {
 
-      window.location.href =
-        '/';
+      window.location.href = '/';
 
       return;
 
     }
 
     await loadProfile();
-
     await loadWallet();
 
   }
 );
+
+/* =========================
+   EXTRA MOBILE SAFETY
+========================= */
+
+window.addEventListener(
+  'resize',
+  function () {
+
+    if (window.innerWidth > 700) {
+      closeMobileMenu();
+    }
+
+  }
+);
+
 </script>
 
 </body>
 </html>
-```
