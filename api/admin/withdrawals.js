@@ -4,22 +4,30 @@ function send(res, status, data) {
   res.statusCode = status;
   res.setHeader("Content-Type", "application/json");
   res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Headers", "Authorization, Content-Type");
-  res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
+  res.setHeader(
+    "Access-Control-Allow-Headers",
+    "Authorization, Content-Type"
+  );
+  res.setHeader(
+    "Access-Control-Allow-Methods",
+    "GET, OPTIONS"
+  );
+
   res.end(JSON.stringify(data));
 }
 
 function getToken(req) {
-  const header = req.headers.authorization || "";
+  const auth =
+    req.headers.authorization || "";
 
-  if (!header.startsWith("Bearer ")) {
+  if (!auth.startsWith("Bearer ")) {
     return null;
   }
 
-  return header.slice(7).trim();
+  return auth.substring(7).trim();
 }
 
-async function getAdmin(req) {
+async function checkAdmin(req) {
   const token = getToken(req);
 
   if (!token) {
@@ -27,30 +35,40 @@ async function getAdmin(req) {
   }
 
   try {
-    const rows = await sql`
+
+    const result = await sql`
       SELECT
         s.user_id,
         u.id,
         u.name,
+        u.username,
         u.email,
         u.role
       FROM admin_sessions s
       JOIN users u
-        ON u.id = s.user_id
+        ON u.id::text = s.user_id::text
       WHERE s.token = ${token}
         AND u.role = 'admin'
       LIMIT 1
     `;
 
-    return rows[0] || null;
+    return result[0] || null;
 
   } catch (error) {
-    console.error("Admin authentication error:", error);
+
+    console.error(
+      "Admin check error:",
+      error
+    );
+
     return null;
   }
 }
 
-module.exports = async function handler(req, res) {
+module.exports = async function handler(
+  req,
+  res
+) {
 
   if (req.method === "OPTIONS") {
     res.statusCode = 204;
@@ -65,7 +83,8 @@ module.exports = async function handler(req, res) {
     });
   }
 
-  const admin = await getAdmin(req);
+  const admin =
+    await checkAdmin(req);
 
   if (!admin) {
     return send(res, 403, {
@@ -77,59 +96,86 @@ module.exports = async function handler(req, res) {
   try {
 
     /*
-     * The user withdrawal API stores requests
-     * in the `withdrawals` table.
-     */
+      Read the same withdrawals table
+      used by the user withdrawal API.
+    */
 
-    const withdrawals = await sql`
+    const rows = await sql`
       SELECT
-        w.id,
-        w.user_id,
-        w.amount,
-        w.payment_method,
-        w.account_number,
-        w.status,
-        w.created_at,
-        u.name,
-        u.email,
-        u.username
+        w.*,
+        u.name AS user_name,
+        u.username AS user_username,
+        u.email AS user_email
       FROM withdrawals w
       LEFT JOIN users u
         ON u.id::text = w.user_id::text
       ORDER BY w.created_at DESC
     `;
 
-    return send(res, 200, {
-      success: true,
-      withdrawals: withdrawals.map(function(w) {
+    const withdrawals =
+      rows.map(function(w) {
 
         return {
+
           id: w.id,
-          user_id: w.user_id,
-          name: w.name || "",
-          username: w.username || "",
-          email: w.email || "",
-          amount: Number(w.amount || 0),
-          payment_method: w.payment_method || "",
-          account_number: w.account_number || "",
-          status: w.status || "pending",
-          created_at: w.created_at
+
+          user_id:
+            w.user_id || "",
+
+          name:
+            w.user_name || "",
+
+          username:
+            w.user_username || "",
+
+          email:
+            w.user_email || "",
+
+          amount:
+            Number(w.amount || 0),
+
+          payment_method:
+            w.payment_method || "",
+
+          account_number:
+            w.account_number || "",
+
+          status:
+            w.status || "pending",
+
+          created_at:
+            w.created_at || null
+
         };
 
-      })
+      });
+
+    return send(res, 200, {
+
+      success: true,
+
+      withdrawals:
+        withdrawals
+
     });
 
   } catch (error) {
 
     console.error(
-      "Admin withdrawals error:",
+      "WITHDRAWAL DATABASE ERROR:",
       error
     );
 
     return send(res, 500, {
+
       success: false,
-      message: "Unable to load withdrawals.",
-      error: error.message
+
+      message:
+        "Unable to load withdrawals.",
+
+      error:
+        error.message || String(error)
+
     });
 
   }
