@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -14,20 +15,159 @@
     body {
       margin: 0;
       font-family: Arial, sans-serif;
-      background: #f4f7fb;
+      background: #ffffff;
       color: #1f2937;
     }
 
-    header {
-      background: #111827;
+    /* =========================
+       SIDEBAR
+    ========================= */
+
+    .sidebar {
+      position: fixed;
+      left: 0;
+      top: 0;
+      width: 235px;
+      height: 100vh;
+      background: #1565c0;
       color: white;
-      padding: 16px 20px;
+      padding: 22px 14px;
+      z-index: 1000;
+      box-shadow: 3px 0 12px rgba(0,0,0,.12);
+    }
+
+    .sidebar-logo {
+      text-align: center;
+      font-size: 25px;
+      font-weight: bold;
+      padding: 8px 5px 25px;
+      border-bottom: 1px solid rgba(255,255,255,.25);
+      margin-bottom: 20px;
+    }
+
+    .nav {
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+      margin: 0;
+    }
+
+    .nav button {
+      width: 100%;
+      border: 0;
+      padding: 13px 15px;
+      border-radius: 9px;
+      background: transparent;
+      color: white;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 15px;
+      text-align: left;
+      transition: .2s;
+    }
+
+    .nav button:hover {
+      background: rgba(255,255,255,.15);
+    }
+
+    .nav button.active {
+      background: white;
+      color: #1565c0;
+    }
+
+    .sidebar-logout {
+      position: absolute;
+      left: 14px;
+      right: 14px;
+      bottom: 22px;
+    }
+
+    .logout-btn {
+      width: 100%;
+      background: #dc2626;
+      color: white;
+      border: 0;
+      padding: 11px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .logout-btn:hover {
+      background: #b91c1c;
+    }
+
+    /* =========================
+       MAIN AREA
+    ========================= */
+
+    .main {
+      margin-left: 235px;
+      min-height: 100vh;
+      position: relative;
+      overflow: hidden;
+      background: white;
+    }
+
+    /* Farmer + falling dollar watermark */
+    .watermark {
+      position: fixed;
+      right: 35px;
+      bottom: 20px;
+      width: 430px;
+      height: 430px;
+      pointer-events: none;
+      z-index: 0;
+      opacity: .055;
+      user-select: none;
+    }
+
+    .watermark .farmer {
+      position: absolute;
+      right: 80px;
+      bottom: 35px;
+      font-size: 180px;
+      line-height: 1;
+    }
+
+    .watermark .field {
+      position: absolute;
+      left: 20px;
+      right: 20px;
+      bottom: 25px;
+      height: 35px;
+      border-radius: 50%;
+      background: #1565c0;
+      transform: rotate(-3deg);
+    }
+
+    .dollar {
+      position: absolute;
+      font-size: 34px;
+      font-weight: bold;
+      color: #16a34a;
+    }
+
+    .d1 { top: 20px; left: 55px; transform: rotate(-15deg); }
+    .d2 { top: 70px; left: 180px; transform: rotate(12deg); }
+    .d3 { top: 125px; left: 285px; transform: rotate(-8deg); }
+    .d4 { top: 175px; left: 95px; transform: rotate(17deg); }
+    .d5 { top: 220px; left: 225px; transform: rotate(-14deg); }
+    .d6 { top: 275px; left: 325px; transform: rotate(10deg); }
+    .d7 { top: 105px; left: 20px; transform: rotate(8deg); }
+    .d8 { top: 240px; left: 40px; transform: rotate(-10deg); }
+
+    header {
+      background: #ffffff;
+      color: #111827;
+      padding: 18px 25px;
       display: flex;
       justify-content: space-between;
       align-items: center;
       position: sticky;
       top: 0;
       z-index: 100;
+      border-bottom: 1px solid #e5e7eb;
     }
 
     header h1 {
@@ -35,19 +175,16 @@
       font-size: 22px;
     }
 
-    .logout-btn {
-      background: #ef4444;
-      color: white;
-      border: 0;
-      padding: 9px 14px;
-      border-radius: 8px;
-      cursor: pointer;
+    header .mobile-logout {
+      display: none;
     }
 
     .container {
       max-width: 1100px;
       margin: auto;
-      padding: 20px;
+      padding: 25px;
+      position: relative;
+      z-index: 2;
     }
 
     .welcome {
@@ -56,6 +193,7 @@
       border-radius: 14px;
       margin-bottom: 20px;
       box-shadow: 0 2px 10px rgba(0,0,0,.06);
+      border: 1px solid #eef2f7;
     }
 
     .welcome h2 {
@@ -74,6 +212,7 @@
       padding: 20px;
       border-radius: 14px;
       box-shadow: 0 2px 10px rgba(0,0,0,.06);
+      border: 1px solid #eef2f7;
     }
 
     .balance-card h3 {
@@ -86,33 +225,13 @@
       font-size: 25px;
     }
 
-    .nav {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin-bottom: 20px;
-    }
-
-    .nav button {
-      border: 0;
-      padding: 11px 16px;
-      border-radius: 9px;
-      background: #e5e7eb;
-      cursor: pointer;
-      font-weight: 600;
-    }
-
-    .nav button.active {
-      background: #111827;
-      color: white;
-    }
-
     .section {
       display: none;
       background: white;
       padding: 20px;
       border-radius: 14px;
       box-shadow: 0 2px 10px rgba(0,0,0,.06);
+      border: 1px solid #eef2f7;
       margin-bottom: 20px;
     }
 
@@ -260,7 +379,101 @@
       background: #dc2626;
     }
 
+    /* =========================
+       MOBILE
+    ========================= */
+
     @media (max-width: 700px) {
+
+      .sidebar {
+        position: fixed;
+        left: 0;
+        top: 0;
+        width: 72px;
+        padding: 15px 8px;
+      }
+
+      .sidebar-logo {
+        font-size: 0;
+        padding-bottom: 18px;
+      }
+
+      .sidebar-logo::after {
+        content: "E";
+        font-size: 25px;
+        font-weight: bold;
+      }
+
+      .nav button {
+        text-align: center;
+        padding: 12px 5px;
+        font-size: 0;
+      }
+
+      .nav button::first-letter {
+        font-size: 20px;
+      }
+
+      .nav button:nth-child(1)::after {
+        content: "🏠";
+        font-size: 20px;
+      }
+
+      .nav button:nth-child(2)::after {
+        content: "📝";
+        font-size: 20px;
+      }
+
+      .nav button:nth-child(3)::after {
+        content: "📋";
+        font-size: 20px;
+      }
+
+      .nav button:nth-child(4)::after {
+        content: "💰";
+        font-size: 20px;
+      }
+
+      .nav button:nth-child(5)::after {
+        content: "👤";
+        font-size: 20px;
+      }
+
+      .sidebar-logout {
+        left: 8px;
+        right: 8px;
+      }
+
+      .logout-btn {
+        font-size: 0;
+        padding: 12px 5px;
+      }
+
+      .logout-btn::after {
+        content: "↪";
+        font-size: 21px;
+      }
+
+      .main {
+        margin-left: 72px;
+      }
+
+      header {
+        padding: 15px;
+      }
+
+      header h1 {
+        font-size: 19px;
+      }
+
+      header .mobile-logout {
+        display: none;
+      }
+
+      .container {
+        padding: 15px;
+      }
+
       .balance-grid {
         grid-template-columns: 1fr;
       }
@@ -274,395 +487,425 @@
         width: 100%;
       }
 
-      header {
-        gap: 10px;
+      .watermark {
+        right: -100px;
+        bottom: 10px;
+        transform: scale(.75);
       }
     }
   </style>
+
 </head>
 
 <body>
 
-<header>
-  <h1>EarnNest</h1>
-  <button class="logout-btn" onclick="logout()">Logout</button>
-</header>
+<!-- =========================
+     LEFT BLUE MENU
+========================= -->
 
-<div class="container">
+<aside class="sidebar">
 
-  <div class="welcome">
-    <h2>Welcome, <span id="userName">User</span></h2>
-    <p>Earn coins by completing tasks and surveys.</p>
-  </div>
-
-  <div class="balance-grid">
-
-    <div class="balance-card">
-      <h3>Available Balance</h3>
-      <strong id="balance">0</strong>
-      <span> Coins</span>
-    </div>
-
-    <div class="balance-card">
-      <h3>Total Earned</h3>
-      <strong id="totalEarned">0</strong>
-      <span> Coins</span>
-    </div>
-
-    <div class="balance-card">
-      <h3>Total Withdrawn</h3>
-      <strong id="totalWithdrawn">0</strong>
-      <span> Coins</span>
-    </div>
-
+  <div class="sidebar-logo">
+    EarnNest
   </div>
 
   <div class="nav">
 
-    <button class="active" onclick="showSection('home', this)">
-      Home
-    </button>
+```
+<button class="active" onclick="showSection('home', this)">
+  🏠 Home
+</button>
 
-    <button onclick="showSection('tasks', this)">
-      Tasks
-    </button>
+<button onclick="showSection('tasks', this)">
+  📝 Tasks
+</button>
 
-    <button onclick="showSection('surveys', this)">
-      Surveys
-    </button>
+<button onclick="showSection('surveys', this)">
+  📋 Surveys
+</button>
 
-    <button onclick="showSection('wallet', this)">
-      Wallet
-    </button>
+<button onclick="showSection('wallet', this)">
+  💰 Wallet
+</button>
 
-    <button onclick="showSection('profile', this)">
-      Profile
+<button onclick="showSection('profile', this)">
+  👤 Profile
+</button>
+```
+
+  </div>
+
+  <div class="sidebar-logout">
+    <button class="logout-btn" onclick="logout()">
+      Logout
+    </button>
+  </div>
+
+</aside>
+
+<!-- =========================
+     MAIN
+========================= -->
+
+<div class="main">
+
+  <header>
+    <h1>EarnNest Dashboard</h1>
+  </header>
+
+  <!-- =========================
+       FARMER WATERMARK
+  ========================= -->
+
+  <div class="watermark" aria-hidden="true">
+
+```
+<div class="dollar d1">$</div>
+<div class="dollar d2">$</div>
+<div class="dollar d3">$</div>
+<div class="dollar d4">$</div>
+<div class="dollar d5">$</div>
+<div class="dollar d6">$</div>
+<div class="dollar d7">$</div>
+<div class="dollar d8">$</div>
+
+<div class="farmer">🧑‍🌾</div>
+<div class="field"></div>
+```
+
+  </div>
+
+  <div class="container">
+
+```
+<div class="welcome">
+  <h2>Welcome, <span id="userName">User</span></h2>
+  <p>Earn coins by completing tasks and surveys.</p>
+</div>
+
+
+<div class="balance-grid">
+
+  <div class="balance-card">
+    <h3>Available Balance</h3>
+    <strong id="balance">0</strong>
+    <span> Coins</span>
+  </div>
+
+  <div class="balance-card">
+    <h3>Total Earned</h3>
+    <strong id="totalEarned">0</strong>
+    <span> Coins</span>
+  </div>
+
+  <div class="balance-card">
+    <h3>Total Withdrawn</h3>
+    <strong id="totalWithdrawn">0</strong>
+    <span> Coins</span>
+  </div>
+
+</div>
+
+
+<!-- HOME -->
+
+<section id="home" class="section active">
+
+  <h2>Dashboard</h2>
+
+  <div class="info-box">
+    <strong>Daily Bonus</strong>
+    <p>Claim your daily reward.</p>
+
+    <button
+      id="dailyBonusBtn"
+      class="action-btn success-btn"
+      onclick="claimDailyBonus()">
+      Claim 50 Coins
+    </button>
+  </div>
+
+  <div class="info-box">
+    <strong>Your Balance</strong>
+    <p>
+      You currently have
+      <strong id="homeBalance">0</strong>
+      coins.
+    </p>
+  </div>
+
+</section>
+
+
+<!-- TASKS -->
+
+<section id="tasks" class="section">
+
+  <h2>Tasks</h2>
+
+  <div class="item">
+    <div>
+      <h3>Daily Check-in</h3>
+      <p>Complete your daily check-in.</p>
+      <span class="reward">+50 Coins</span>
+    </div>
+
+    <button
+      class="action-btn"
+      onclick="completeTask('daily-checkin', this)">
+      Complete
+    </button>
+  </div>
+
+
+  <div class="item">
+    <div>
+      <h3>Complete Profile</h3>
+      <p>Complete your profile information.</p>
+      <span class="reward">+100 Coins</span>
+    </div>
+
+    <button
+      class="action-btn"
+      onclick="completeTask('complete-profile', this)">
+      Complete
+    </button>
+  </div>
+
+
+  <div class="item">
+    <div>
+      <h3>App Visit</h3>
+      <p>Visit EarnNest today.</p>
+      <span class="reward">+25 Coins</span>
+    </div>
+
+    <button
+      class="action-btn"
+      onclick="completeTask('app-visit', this)">
+      Complete
+    </button>
+  </div>
+
+
+  <div class="item">
+    <div>
+      <h3>Weekly Activity</h3>
+      <p>Complete your weekly activity.</p>
+      <span class="reward">+250 Coins</span>
+    </div>
+
+    <button
+      class="action-btn"
+      onclick="completeTask('weekly-activity', this)">
+      Complete
+    </button>
+  </div>
+
+</section>
+
+
+<!-- SURVEYS -->
+
+<section id="surveys" class="section">
+
+  <h2>Surveys</h2>
+
+  <div class="item">
+    <div>
+      <h3>Quick Opinion Survey</h3>
+      <p>Answer a short opinion survey.</p>
+      <span class="reward">+150 Coins</span>
+    </div>
+
+    <button
+      class="action-btn"
+      onclick="completeSurvey('quick-opinion', this)">
+      Start
+    </button>
+  </div>
+
+
+  <div class="item">
+    <div>
+      <h3>Shopping Survey</h3>
+      <p>Tell us about your shopping habits.</p>
+      <span class="reward">+300 Coins</span>
+    </div>
+
+    <button
+      class="action-btn"
+      onclick="completeSurvey('shopping-survey', this)">
+      Start
+    </button>
+  </div>
+
+
+  <div class="item">
+    <div>
+      <h3>Technology Survey</h3>
+      <p>Share your technology preferences.</p>
+      <span class="reward">+250 Coins</span>
+    </div>
+
+    <button
+      class="action-btn"
+      onclick="completeSurvey('technology-survey', this)">
+      Start
+    </button>
+  </div>
+
+</section>
+
+
+<!-- WALLET -->
+
+<section id="wallet" class="section">
+
+  <h2>Wallet</h2>
+
+  <div class="info-box">
+
+    <strong>
+      Available:
+      <span id="walletBalance">0</span>
+      Coins
+    </strong>
+
+    <br>
+
+    <strong>
+      Pending Withdrawal:
+      <span id="pendingWithdrawal">0</span>
+      Coins
+    </strong>
+
+  </div>
+
+
+  <div class="withdraw-box">
+
+    <h3>Request Withdrawal</h3>
+
+    <div class="form-group">
+
+      <label for="withdrawAmount">
+        Amount (Coins)
+      </label>
+
+      <input
+        type="number"
+        id="withdrawAmount"
+        min="1000"
+        step="1"
+        placeholder="Minimum 1000 coins">
+
+    </div>
+
+
+    <div class="form-group">
+
+      <label for="paymentMethod">
+        Payment Method
+      </label>
+
+      <select id="paymentMethod">
+
+        <option value="">
+          Select method
+        </option>
+
+        <option value="easypaisa">
+          Easypaisa
+        </option>
+
+        <option value="jazzcash">
+          JazzCash
+        </option>
+
+        <option value="bank">
+          Bank Transfer
+        </option>
+
+      </select>
+
+    </div>
+
+
+    <div class="form-group">
+
+      <label for="paymentAccount">
+        Account / Number
+      </label>
+
+      <input
+        type="text"
+        id="paymentAccount"
+        placeholder="Enter account number">
+
+    </div>
+
+
+    <button
+      type="button"
+      id="withdrawButton"
+      class="action-btn"
+      onclick="requestWithdrawal()">
+      Request Withdrawal
     </button>
 
   </div>
 
 
-  <!-- HOME -->
+  <div class="withdraw-history">
 
-  <section id="home" class="section active">
+    <h3>Withdrawal History</h3>
 
-    <h2>Dashboard</h2>
-
-    <div class="info-box">
-      <strong>Daily Bonus</strong>
-      <p>Claim your daily reward.</p>
-
-      <button
-        id="dailyBonusBtn"
-        class="action-btn success-btn"
-        onclick="claimDailyBonus()">
-        Claim 50 Coins
-      </button>
-    </div>
-
-    <div class="info-box">
-      <strong>Your Balance</strong>
-      <p>
-        You currently have
-        <strong id="homeBalance">0</strong>
-        coins.
-      </p>
-    </div>
-
-  </section>
-
-
-  <!-- TASKS -->
-
-  <section id="tasks" class="section">
-
-    <h2>Tasks</h2>
-
-    <div class="item">
-
-      <div>
-        <h3>Daily Check-in</h3>
-        <p>Complete your daily check-in.</p>
-        <span class="reward">+50 Coins</span>
+    <div id="withdrawalHistory">
+      <div class="empty">
+        No withdrawal requests yet.
       </div>
-
-      <button
-        class="action-btn"
-        onclick="completeTask('daily-checkin', this)">
-        Complete
-      </button>
-
     </div>
 
+  </div>
 
-    <div class="item">
+</section>
 
-      <div>
-        <h3>Complete Profile</h3>
-        <p>Complete your profile information.</p>
-        <span class="reward">+100 Coins</span>
-      </div>
 
-      <button
-        class="action-btn"
-        onclick="completeTask('complete-profile', this)">
-        Complete
-      </button>
+<!-- PROFILE -->
 
-    </div>
+<section id="profile" class="section">
 
+  <h2>Profile</h2>
 
-    <div class="item">
+  <div class="profile-row">
+    <strong>Name:</strong>
+    <span id="profileName">-</span>
+  </div>
 
-      <div>
-        <h3>App Visit</h3>
-        <p>Visit EarnNest today.</p>
-        <span class="reward">+25 Coins</span>
-      </div>
+  <div class="profile-row">
+    <strong>Username:</strong>
+    <span id="profileUsername">-</span>
+  </div>
 
-      <button
-        class="action-btn"
-        onclick="completeTask('app-visit', this)">
-        Complete
-      </button>
+  <div class="profile-row">
+    <strong>Email:</strong>
+    <span id="profileEmail">-</span>
+  </div>
 
-    </div>
+  <div class="profile-row">
+    <strong>Phone:</strong>
+    <span id="profilePhone">-</span>
+  </div>
 
+</section>
+```
 
-    <div class="item">
-
-      <div>
-        <h3>Weekly Activity</h3>
-        <p>Complete your weekly activity.</p>
-        <span class="reward">+250 Coins</span>
-      </div>
-
-      <button
-        class="action-btn"
-        onclick="completeTask('weekly-activity', this)">
-        Complete
-      </button>
-
-    </div>
-
-  </section>
-
-
-  <!-- SURVEYS -->
-
-  <section id="surveys" class="section">
-
-    <h2>Surveys</h2>
-
-
-    <div class="item">
-
-      <div>
-        <h3>Quick Opinion Survey</h3>
-        <p>Answer a short opinion survey.</p>
-        <span class="reward">+150 Coins</span>
-      </div>
-
-      <button
-        class="action-btn"
-        onclick="completeSurvey('quick-opinion', this)">
-        Start
-      </button>
-
-    </div>
-
-
-    <div class="item">
-
-      <div>
-        <h3>Shopping Survey</h3>
-        <p>Tell us about your shopping habits.</p>
-        <span class="reward">+300 Coins</span>
-      </div>
-
-      <button
-        class="action-btn"
-        onclick="completeSurvey('shopping-survey', this)">
-        Start
-      </button>
-
-    </div>
-
-
-    <div class="item">
-
-      <div>
-        <h3>Technology Survey</h3>
-        <p>Share your technology preferences.</p>
-        <span class="reward">+250 Coins</span>
-      </div>
-
-      <button
-        class="action-btn"
-        onclick="completeSurvey('technology-survey', this)">
-        Start
-      </button>
-
-    </div>
-
-  </section>
-
-
-  <!-- WALLET -->
-
-  <section id="wallet" class="section">
-
-    <h2>Wallet</h2>
-
-    <div class="info-box">
-
-      <strong>
-        Available:
-        <span id="walletBalance">0</span>
-        Coins
-      </strong>
-
-      <br>
-
-      <strong>
-        Pending Withdrawal:
-        <span id="pendingWithdrawal">0</span>
-        Coins
-      </strong>
-
-    </div>
-
-
-    <div class="withdraw-box">
-
-      <h3>Request Withdrawal</h3>
-
-      <div class="form-group">
-
-        <label for="withdrawAmount">
-          Amount (Coins)
-        </label>
-
-        <input
-          type="number"
-          id="withdrawAmount"
-          min="1000"
-          step="1"
-          placeholder="Minimum 1000 coins">
-
-      </div>
-
-
-      <div class="form-group">
-
-        <label for="paymentMethod">
-          Payment Method
-        </label>
-
-        <select id="paymentMethod">
-
-          <option value="">
-            Select method
-          </option>
-
-          <option value="easypaisa">
-            Easypaisa
-          </option>
-
-          <option value="jazzcash">
-            JazzCash
-          </option>
-
-          <option value="bank">
-            Bank Transfer
-          </option>
-
-        </select>
-
-      </div>
-
-
-      <div class="form-group">
-
-        <label for="paymentAccount">
-          Account / Number
-        </label>
-
-        <input
-          type="text"
-          id="paymentAccount"
-          placeholder="Enter account number">
-
-      </div>
-
-
-      <!-- IMPORTANT: REAL BUTTON -->
-
-      <button
-        type="button"
-        id="withdrawButton"
-        class="action-btn"
-        onclick="requestWithdrawal()">
-
-        Request Withdrawal
-
-      </button>
-
-    </div>
-
-
-    <div class="withdraw-history">
-
-      <h3>Withdrawal History</h3>
-
-      <div id="withdrawalHistory">
-        <div class="empty">
-          No withdrawal requests yet.
-        </div>
-      </div>
-
-    </div>
-
-  </section>
-
-
-  <!-- PROFILE -->
-
-  <section id="profile" class="section">
-
-    <h2>Profile</h2>
-
-    <div class="profile-row">
-      <strong>Name:</strong>
-      <span id="profileName">-</span>
-    </div>
-
-    <div class="profile-row">
-      <strong>Username:</strong>
-      <span id="profileUsername">-</span>
-    </div>
-
-    <div class="profile-row">
-      <strong>Email:</strong>
-      <span id="profileEmail">-</span>
-    </div>
-
-    <div class="profile-row">
-      <strong>Phone:</strong>
-      <span id="profilePhone">-</span>
-    </div>
-
-  </section>
+  </div>
 
 </div>
 
-
 <div id="toast"></div>
-
-
-<!-- =====================================================
-     ALL JAVASCRIPT STARTS HERE
-===================================================== -->
 
 <script>
 
@@ -718,12 +961,10 @@ async function api(path, options = {}) {
   }
 
   if (!response.ok) {
-
     throw new Error(
       data.message ||
       'Request failed.'
     );
-
   }
 
   return data;
@@ -753,9 +994,7 @@ function toast(message, isError = false) {
 
   window.toastTimer =
     setTimeout(() => {
-
       box.style.display = 'none';
-
     }, 3500);
 
 }
@@ -770,17 +1009,13 @@ function showSection(sectionId, button) {
   document
     .querySelectorAll('.section')
     .forEach(section => {
-
       section.classList.remove('active');
-
     });
 
   document
     .querySelectorAll('.nav button')
     .forEach(btn => {
-
       btn.classList.remove('active');
-
     });
 
   const section =
@@ -1107,7 +1342,6 @@ async function claimDailyBonus() {
 
     button.textContent =
       'Processing...';
-
 
     const data =
       await api(
