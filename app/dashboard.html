@@ -51,6 +51,7 @@
       position: relative;
       z-index: 5000;
       -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
     }
 
     .menu-toggle:active {
@@ -106,6 +107,7 @@
       text-align: left;
       transition: background .2s;
       -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
     }
 
     .nav button:hover,
@@ -135,6 +137,7 @@
       border-radius: 8px;
       cursor: pointer;
       font-weight: 600;
+      touch-action: manipulation;
     }
 
     .logout-btn:hover {
@@ -153,6 +156,7 @@
       height: 100%;
       background: rgba(0,0,0,.45);
       z-index: 3000;
+      cursor: pointer;
     }
 
     .sidebar-overlay.show {
@@ -474,6 +478,7 @@
       cursor: pointer;
       white-space: nowrap;
       font-weight: 600;
+      touch-action: manipulation;
     }
 
     .action-btn:hover {
@@ -640,13 +645,9 @@
         background: #ffffff;
       }
 
-      /* MENU BUTTON */
-
       .menu-toggle {
         display: block;
       }
-
-      /* SIDEBAR */
 
       .sidebar {
         width: 270px;
@@ -682,15 +683,11 @@
         min-height: 45px;
       }
 
-      /* MAIN */
-
       .main {
         margin-left: 0;
         width: 100%;
         min-width: 0;
       }
-
-      /* HEADER */
 
       header {
         width: 100%;
@@ -704,8 +701,6 @@
         flex: 1;
         min-width: 0;
       }
-
-      /* CONTENT */
 
       .container {
         width: 100%;
@@ -725,8 +720,6 @@
         font-size: 14px;
       }
 
-      /* BALANCE */
-
       .balance-grid {
         grid-template-columns: 1fr;
         gap: 10px;
@@ -741,8 +734,6 @@
         font-size: 23px;
       }
 
-      /* SECTION */
-
       .section {
         width: 100%;
         padding: 16px;
@@ -752,8 +743,6 @@
       .section h2 {
         font-size: 21px;
       }
-
-      /* ITEMS */
 
       .item {
         width: 100%;
@@ -776,8 +765,6 @@
         min-height: 44px;
       }
 
-      /* INFO */
-
       .info-box {
         padding: 13px;
       }
@@ -787,8 +774,6 @@
         margin-top: 8px;
         min-height: 44px;
       }
-
-      /* WALLET */
 
       .withdraw-box {
         width: 100%;
@@ -806,13 +791,9 @@
         min-height: 45px;
       }
 
-      /* PROFILE */
-
       .profile-row strong {
         min-width: 90px;
       }
-
-      /* WATERMARK */
 
       .watermark {
         position: fixed;
@@ -854,8 +835,6 @@
       .dollar {
         font-size: 27px;
       }
-
-      /* TOAST */
 
       #toast {
         left: 12px;
@@ -901,7 +880,7 @@
   <div
     id="sidebarOverlay"
     class="sidebar-overlay"
-    onclick="closeMobileMenu()">
+    onclick="closeMobileMenu(event)">
   </div>
 
   <!-- SIDEBAR -->
@@ -916,31 +895,31 @@
       <button
         type="button"
         class="active"
-        onclick="showSection('home', this)">
+        onclick="showSection('home', this, event)">
         🏠 Home
       </button>
 
       <button
         type="button"
-        onclick="showSection('tasks', this)">
+        onclick="showSection('tasks', this, event)">
         📝 Tasks
       </button>
 
       <button
         type="button"
-        onclick="showSection('surveys', this)">
+        onclick="showSection('surveys', this, event)">
         📋 Surveys
       </button>
 
       <button
         type="button"
-        onclick="showSection('wallet', this)">
+        onclick="showSection('wallet', this, event)">
         💰 Wallet
       </button>
 
       <button
         type="button"
-        onclick="showSection('profile', this)">
+        onclick="showSection('profile', this, event)">
         👤 Profile
       </button>
 
@@ -950,7 +929,7 @@
       <button
         type="button"
         class="logout-btn"
-        onclick="logout()">
+        onclick="logout(event)">
         Logout
       </button>
     </div>
@@ -966,7 +945,7 @@
         type="button"
         id="menuToggle"
         class="menu-toggle"
-        onclick="toggleMobileMenu()"
+        onclick="toggleMobileMenu(event)"
         aria-label="Open menu"
         aria-expanded="false">
         ☰
@@ -1069,7 +1048,7 @@
             type="button"
             id="dailyBonusBtn"
             class="action-btn success-btn"
-            onclick="claimDailyBonus()">
+            onclick="claimDailyBonus(event)">
             Claim 50 Coins
           </button>
 
@@ -1111,7 +1090,7 @@
           <button
             type="button"
             class="action-btn"
-            onclick="completeTask('daily-check-in', this)">
+            onclick="completeTask('daily-check-in', this, event)">
             Complete
           </button>
 
@@ -1134,7 +1113,7 @@
           <button
             type="button"
             class="action-btn"
-            onclick="completeTask('complete-profile', this)">
+            onclick="completeTask('complete-profile', this, event)">
             Complete
           </button>
 
@@ -1157,7 +1136,7 @@
           <button
             type="button"
             class="action-btn"
-            onclick="completeTask('app-visit', this)">
+            onclick="completeTask('app-visit', this, event)">
             Complete
           </button>
 
@@ -1180,7 +1159,7 @@
           <button
             type="button"
             class="action-btn"
-            onclick="completeTask('weekly-activity', this)">
+            onclick="completeTask('weekly-activity', this, event)">
             Complete
           </button>
 
@@ -1210,7 +1189,7 @@
           <button
             type="button"
             class="action-btn"
-            onclick="completeSurvey('quick-opinion', this)">
+            onclick="completeSurvey('quick-opinion', this, event)">
             Start
           </button>
 
@@ -1233,7 +1212,7 @@
           <button
             type="button"
             class="action-btn"
-            onclick="completeSurvey('shopping-survey', this)">
+            onclick="completeSurvey('shopping-survey', this, event)">
             Start
           </button>
 
@@ -1256,7 +1235,7 @@
           <button
             type="button"
             class="action-btn"
-            onclick="completeSurvey('technology-survey', this)">
+            onclick="completeSurvey('technology-survey', this, event)">
             Start
           </button>
 
@@ -1351,7 +1330,7 @@
             type="button"
             id="withdrawButton"
             class="action-btn"
-            onclick="requestWithdrawal()">
+            onclick="requestWithdrawal(event)">
             Request Withdrawal
           </button>
 
@@ -1419,6 +1398,7 @@ function getToken() {
 
   return (
     localStorage.getItem('earnNestToken') ||
+    localStorage.getItem('earnnest_token') ||
     localStorage.getItem('token') ||
     localStorage.getItem('authToken') ||
     ''
@@ -1472,7 +1452,12 @@ async function api(path, options = {}) {
    MOBILE MENU
 ========================= */
 
-function toggleMobileMenu() {
+function toggleMobileMenu(event) {
+
+  if (event) {
+    event.preventDefault();
+    event.stopPropagation();
+  }
 
   const sidebar =
     document.getElementById('sidebar');
@@ -1492,22 +1477,7 @@ function toggleMobileMenu() {
 
   if (isOpen) {
 
-    sidebar.classList.remove('open');
-    overlay.classList.remove('show');
-
-    if (toggle) {
-      toggle.setAttribute(
-        'aria-expanded',
-        'false'
-      );
-      toggle.setAttribute(
-        'aria-label',
-        'Open menu'
-      );
-      toggle.textContent = '☰';
-    }
-
-    document.body.style.overflow = '';
+    closeMobileMenu();
 
   } else {
 
@@ -1519,20 +1489,26 @@ function toggleMobileMenu() {
         'aria-expanded',
         'true'
       );
+
       toggle.setAttribute(
         'aria-label',
         'Close menu'
       );
+
       toggle.textContent = '✕';
     }
 
     document.body.style.overflow = 'hidden';
-
   }
 
 }
 
-function closeMobileMenu() {
+function closeMobileMenu(event) {
+
+  if (event) {
+    event.preventDefault();
+    event.stopPropagation();
+  }
 
   const sidebar =
     document.getElementById('sidebar');
@@ -1564,11 +1540,9 @@ function closeMobileMenu() {
     );
 
     toggle.textContent = '☰';
-
   }
 
   document.body.style.overflow = '';
-
 }
 
 /* =========================
@@ -1582,6 +1556,10 @@ function toast(
 
   const box =
     document.getElementById('toast');
+
+  if (!box) {
+    return;
+  }
 
   box.textContent =
     message;
@@ -1607,29 +1585,39 @@ function toast(
 }
 
 /* =========================
-   SECTION
+   SECTION NAVIGATION
 ========================= */
 
 function showSection(
   sectionId,
-  button
+  button,
+  event
 ) {
 
-  document
-    .querySelectorAll('.section')
-    .forEach(section => {
+  if (event) {
+    event.preventDefault();
+    event.stopPropagation();
+  }
 
-      section.classList.remove('active');
+  const sections =
+    document.querySelectorAll('.section');
 
-    });
+  const buttons =
+    document.querySelectorAll('.nav button');
 
-  document
-    .querySelectorAll('.nav button')
-    .forEach(btn => {
+  sections.forEach(function(section) {
 
-      btn.classList.remove('active');
+    section.classList.remove('active');
 
-    });
+    section.style.display = 'none';
+
+  });
+
+  buttons.forEach(function(btn) {
+
+    btn.classList.remove('active');
+
+  });
 
   const section =
     document.getElementById(sectionId);
@@ -1637,6 +1625,8 @@ function showSection(
   if (section) {
 
     section.classList.add('active');
+
+    section.style.display = 'block';
 
   }
 
@@ -1646,6 +1636,8 @@ function showSection(
 
   }
 
+  closeMobileMenu();
+
   if (sectionId === 'wallet') {
 
     loadWallet();
@@ -1653,7 +1645,10 @@ function showSection(
 
   }
 
-  closeMobileMenu();
+  window.scrollTo({
+    top: 0,
+    behavior: 'smooth'
+  });
 
 }
 
@@ -1675,30 +1670,45 @@ async function loadProfile() {
     const user =
       data.user || {};
 
-    document.getElementById(
-      'userName'
-    ).textContent =
-      user.name || 'User';
+    const userName =
+      document.getElementById('userName');
 
-    document.getElementById(
-      'profileName'
-    ).textContent =
-      user.name || '-';
+    const profileName =
+      document.getElementById('profileName');
 
-    document.getElementById(
-      'profileUsername'
-    ).textContent =
-      user.username || '-';
+    const profileUsername =
+      document.getElementById('profileUsername');
 
-    document.getElementById(
-      'profileEmail'
-    ).textContent =
-      user.email || '-';
+    const profileEmail =
+      document.getElementById('profileEmail');
 
-    document.getElementById(
-      'profilePhone'
-    ).textContent =
-      user.phone || '-';
+    const profilePhone =
+      document.getElementById('profilePhone');
+
+    if (userName) {
+      userName.textContent =
+        user.name || 'User';
+    }
+
+    if (profileName) {
+      profileName.textContent =
+        user.name || '-';
+    }
+
+    if (profileUsername) {
+      profileUsername.textContent =
+        user.username || '-';
+    }
+
+    if (profileEmail) {
+      profileEmail.textContent =
+        user.email || '-';
+    }
+
+    if (profilePhone) {
+      profilePhone.textContent =
+        user.phone || '-';
+    }
 
   } catch (error) {
 
@@ -1741,35 +1751,50 @@ async function loadWallet() {
     const pending =
       Number(wallet.pendingWithdrawal || 0);
 
-    document.getElementById(
-      'balance'
-    ).textContent =
-      balance;
+    const balanceEl =
+      document.getElementById('balance');
 
-    document.getElementById(
-      'homeBalance'
-    ).textContent =
-      balance;
+    const homeBalanceEl =
+      document.getElementById('homeBalance');
 
-    document.getElementById(
-      'walletBalance'
-    ).textContent =
-      balance;
+    const walletBalanceEl =
+      document.getElementById('walletBalance');
 
-    document.getElementById(
-      'totalEarned'
-    ).textContent =
-      totalEarned;
+    const totalEarnedEl =
+      document.getElementById('totalEarned');
 
-    document.getElementById(
-      'totalWithdrawn'
-    ).textContent =
-      totalWithdrawn;
+    const totalWithdrawnEl =
+      document.getElementById('totalWithdrawn');
 
-    document.getElementById(
-      'pendingWithdrawal'
-    ).textContent =
-      pending;
+    const pendingWithdrawalEl =
+      document.getElementById('pendingWithdrawal');
+
+    if (balanceEl) {
+      balanceEl.textContent = balance;
+    }
+
+    if (homeBalanceEl) {
+      homeBalanceEl.textContent = balance;
+    }
+
+    if (walletBalanceEl) {
+      walletBalanceEl.textContent = balance;
+    }
+
+    if (totalEarnedEl) {
+      totalEarnedEl.textContent =
+        totalEarned;
+    }
+
+    if (totalWithdrawnEl) {
+      totalWithdrawnEl.textContent =
+        totalWithdrawn;
+    }
+
+    if (pendingWithdrawalEl) {
+      pendingWithdrawalEl.textContent =
+        pending;
+    }
 
   } catch (error) {
 
@@ -1788,8 +1813,18 @@ async function loadWallet() {
 
 async function completeTask(
   taskId,
-  button
+  button,
+  event
 ) {
+
+  if (event) {
+    event.preventDefault();
+    event.stopPropagation();
+  }
+
+  if (!button) {
+    return;
+  }
 
   try {
 
@@ -1827,7 +1862,8 @@ async function completeTask(
       'Task completed successfully.'
     );
 
-    button.textContent = 'Completed';
+    button.textContent =
+      'Completed';
 
     await loadWallet();
 
@@ -1845,7 +1881,8 @@ async function completeTask(
     );
 
     button.disabled = false;
-    button.textContent = 'Complete';
+    button.textContent =
+      'Complete';
 
   }
 
@@ -1857,13 +1894,24 @@ async function completeTask(
 
 async function completeSurvey(
   surveyId,
-  button
+  button,
+  event
 ) {
+
+  if (event) {
+    event.preventDefault();
+    event.stopPropagation();
+  }
+
+  if (!button) {
+    return;
+  }
 
   try {
 
     button.disabled = true;
-    button.textContent = 'Processing...';
+    button.textContent =
+      'Processing...';
 
     const data =
       await api(
@@ -1896,7 +1944,8 @@ async function completeSurvey(
       'Survey completed successfully.'
     );
 
-    button.textContent = 'Completed';
+    button.textContent =
+      'Completed';
 
     await loadWallet();
 
@@ -1914,7 +1963,8 @@ async function completeSurvey(
     );
 
     button.disabled = false;
-    button.textContent = 'Start';
+    button.textContent =
+      'Start';
 
   }
 
@@ -1924,17 +1974,27 @@ async function completeSurvey(
    DAILY BONUS
 ========================= */
 
-async function claimDailyBonus() {
+async function claimDailyBonus(event) {
+
+  if (event) {
+    event.preventDefault();
+    event.stopPropagation();
+  }
 
   const button =
     document.getElementById(
       'dailyBonusBtn'
     );
 
+  if (!button) {
+    return;
+  }
+
   try {
 
     button.disabled = true;
-    button.textContent = 'Processing...';
+    button.textContent =
+      'Processing...';
 
     const data =
       await api(
@@ -1956,7 +2016,8 @@ async function claimDailyBonus() {
       );
 
       button.disabled = false;
-      button.textContent = 'Claim 50 Coins';
+      button.textContent =
+        'Claim 50 Coins';
 
       return;
 
@@ -1967,7 +2028,8 @@ async function claimDailyBonus() {
       'Daily bonus credited successfully.'
     );
 
-    button.textContent = 'Claimed';
+    button.textContent =
+      'Claimed';
 
     await loadWallet();
 
@@ -1985,7 +2047,8 @@ async function claimDailyBonus() {
     );
 
     button.disabled = false;
-    button.textContent = 'Claim 50 Coins';
+    button.textContent =
+      'Claim 50 Coins';
 
   }
 
@@ -1995,7 +2058,12 @@ async function claimDailyBonus() {
    WITHDRAWAL
 ========================= */
 
-async function requestWithdrawal() {
+async function requestWithdrawal(event) {
+
+  if (event) {
+    event.preventDefault();
+    event.stopPropagation();
+  }
 
   const amountInput =
     document.getElementById(
@@ -2016,6 +2084,15 @@ async function requestWithdrawal() {
     document.getElementById(
       'withdrawButton'
     );
+
+  if (
+    !amountInput ||
+    !methodInput ||
+    !accountInput ||
+    !button
+  ) {
+    return;
+  }
 
   const amount =
     Number(amountInput.value);
@@ -2069,15 +2146,18 @@ async function requestWithdrawal() {
 
   if (method === 'easypaisa') {
 
-    paymentMethod = 'Easypaisa';
+    paymentMethod =
+      'Easypaisa';
 
   } else if (method === 'jazzcash') {
 
-    paymentMethod = 'JazzCash';
+    paymentMethod =
+      'JazzCash';
 
   } else if (method === 'bank') {
 
-    paymentMethod = 'Bank Transfer';
+    paymentMethod =
+      'Bank Transfer';
 
   } else {
 
@@ -2093,7 +2173,8 @@ async function requestWithdrawal() {
   try {
 
     button.disabled = true;
-    button.textContent = 'Submitting...';
+    button.textContent =
+      'Submitting...';
 
     const data =
       await api(
@@ -2179,6 +2260,10 @@ async function loadWithdrawalHistory() {
     document.getElementById(
       'withdrawalHistory'
     );
+
+  if (!box) {
+    return;
+  }
 
   try {
 
@@ -2288,12 +2373,32 @@ function escapeHtml(value) {
    LOGOUT
 ========================= */
 
-function logout() {
+function logout(event) {
 
-  localStorage.removeItem('earnNestToken');
-  localStorage.removeItem('token');
-  localStorage.removeItem('authToken');
-  localStorage.removeItem('earnNest_user');
+  if (event) {
+    event.preventDefault();
+    event.stopPropagation();
+  }
+
+  localStorage.removeItem(
+    'earnNestToken'
+  );
+
+  localStorage.removeItem(
+    'earnNest_user'
+  );
+
+  localStorage.removeItem(
+    'earnnest_token'
+  );
+
+  localStorage.removeItem(
+    'token'
+  );
+
+  localStorage.removeItem(
+    'authToken'
+  );
 
   window.location.href = '/';
 
