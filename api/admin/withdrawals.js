@@ -10,7 +10,7 @@ function send(res, status, data) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader(
     'Access-Control-Allow-Methods',
-    'GET,OPTIONS'
+    'GET,POST,OPTIONS'
   );
   res.setHeader(
     'Access-Control-Allow-Headers',
@@ -28,6 +28,31 @@ function getToken(req) {
   }
 
   return auth.slice(7).trim();
+}
+
+function readBody(req) {
+  return new Promise((resolve, reject) => {
+    let body = '';
+
+    req.on('data', chunk => {
+      body += chunk;
+    });
+
+    req.on('end', () => {
+      if (!body) {
+        resolve({});
+        return;
+      }
+
+      try {
+        resolve(JSON.parse(body));
+      } catch (error) {
+        reject(new Error('Invalid JSON'));
+      }
+    });
+
+    req.on('error', reject);
+  });
 }
 
 async function checkAdmin(req) {
@@ -77,20 +102,13 @@ module.exports = async function handler(req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader(
       'Access-Control-Allow-Methods',
-      'GET,OPTIONS'
+      'GET,POST,OPTIONS'
     );
     res.setHeader(
       'Access-Control-Allow-Headers',
       'Content-Type, Authorization'
     );
     return res.end();
-  }
-
-  if (req.method !== 'GET') {
-    return send(res, 405, {
-      success: false,
-      message: 'Method not allowed'
-    });
   }
 
   try {
@@ -104,42 +122,135 @@ module.exports = async function handler(req, res) {
       });
     }
 
-    const rows = await sql`
-      SELECT
-        w.id,
-        w.user_id,
-        w.amount,
-        w.payment_method,
-        w.account_number,
-        w.status,
-        w.created_at,
-        u.name AS user_name,
-        u.username AS user_username,
-        u.email AS user_email
-      FROM withdrawals w
-      LEFT JOIN users u
-        ON u.id::text = w.user_id::text
-      ORDER BY w.created_at DESC
-    `;
+    /*
+     * GET
+     * Load all withdrawals
+     */
+    if (req.method === 'GET') {
 
-    const withdrawals = rows.map(function(w) {
-      return {
-        id: String(w.id),
-        user_id: String(w.user_id || ''),
-        name: w.user_name || '',
-        username: w.user_username || '',
-        email: w.user_email || '',
-        amount: Number(w.amount || 0),
-        payment_method: w.payment_method || '',
-        account_number: w.account_number || '',
-        status: w.status || 'pending',
-        created_at: w.created_at || null
-      };
-    });
+      const rows = await sql`
+        SELECT
+          w.id,
+          w.user_id,
+          w.amount,
+          w.payment_method,
+          w.account_number,
+          w.status,
+          w.created_at,
+          u.name AS user_name,
+          u.username AS user_username,
+          u.email AS user_email
+        FROM withdrawals w
+        LEFT JOIN users u
+          ON u.id::text = w.user_id::text
+        ORDER BY w.created_at DESC
+      `;
 
-    return send(res, 200, {
-      success: true,
-      withdrawals: withdrawals
+      const withdrawals = rows.map(function(w) {
+        return {
+          id: String(w.id),
+          user_id: String(w.user_id || ''),
+          name: w.user_name || '',
+          username: w.user_username || '',
+          email: w.user_email || '',
+          amount: Number(w.amount || 0),
+          payment_method: w.payment_method || '',
+          account_number: w.account_number || '',
+          status: w.status || 'pending',
+          created_at: w.created_at || null
+        };
+      });
+
+      return send(res, 200, {
+        success: true,
+        withdrawals: withdrawals
+      });
+    }
+
+    /*
+     * POST
+     * Approve or reject withdrawal
+     */
+    if (req.method === 'POST') {
+
+      const body = await readBody(req);
+
+      const id = String(body.id || '').trim();
+      const action = String(body.action || '').trim().toLowerCase();
+
+      if (!id) {
+        return send(res, 400, {
+          success: false,
+          message: 'Withdrawal ID is required'
+        });
+      }
+
+      if (action !== 'approve' && action !== 'reject') {
+        return send(res, 400, {
+          success: false,
+          message: 'Invalid withdrawal action'
+        });
+      }
+
+      const rows = await sql`
+        SELECT
+          id,
+          user_id,
+          amount,
+          status
+        FROM withdrawals
+        WHERE id::text = ${id}
+        LIMIT 1
+      `;
+
+      if (!rows.length) {
+        return send(res, 404, {
+          success: false,
+          message: 'Withdrawal not found'
+        });
+      }
+
+      const withdrawal = rows[0];
+
+      if (withdrawal.status !== 'pending') {
+        return send(res, 400, {
+          success: false,
+          message: 'This withdrawal has already been processed'
+        });
+      }
+
+      if (action === 'approve') {
+
+        await sql`
+          UPDATE withdrawals
+          SET status = 'approved'
+          WHERE id::text = ${id}
+        `;
+
+        return send(res, 200, {
+          success: true,
+          message: 'Withdrawal approved successfully'
+        });
+      }
+
+      if (action === 'reject') {
+
+        await sql`
+          UPDATE withdrawals
+          SET status = 'rejected'
+          WHERE id::text = ${id}
+        `;
+
+        return send(res, 200, {
+          success: true,
+          message: 'Withdrawal rejected successfully'
+        });
+      }
+    }
+
+    return send(res, 405, {
+      success: false,
+      message: 'Method not allowed'
     });
 
   } catch (error) {
