@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -329,6 +330,26 @@
       display: block;
     }
 
+    .ref-box input {
+      width: 100%;
+      height: 42px;
+      margin-top: 8px;
+      border: 1px solid #b9d9c5;
+      border-radius: 9px;
+      padding: 0 11px;
+      font-size: 14px;
+      background: #fff;
+      color: #174b35;
+      outline: none;
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+
+    .ref-box input:focus {
+      border-color: #087447;
+      box-shadow: 0 0 0 3px rgba(8,116,71,.10);
+    }
+
     .footer {
       text-align: center;
       margin-top: 20px;
@@ -459,13 +480,6 @@
 
       <div id="message" class="message"></div>
 
-      <div id="refBox" class="ref-box">
-        🎁 Referral code detected:
-        <strong id="refCodeText"></strong>
-        <br>
-        Your friend will receive the referral bonus after registration.
-      </div>
-
       <!-- LOGIN -->
 
       <form id="loginForm" class="form active">
@@ -558,6 +572,19 @@
             placeholder="Minimum 6 characters"
             autocomplete="new-password"
             required
+          >
+        </div>
+
+        <!-- REFERRAL CODE: PASSWORD KE BAAD -->
+
+        <div class="field">
+          <label>Referral Code</label>
+          <input
+            id="regReferral"
+            type="text"
+            placeholder="Enter referral code (optional)"
+            autocomplete="off"
+            style="text-transform:uppercase;"
           >
         </div>
 
@@ -681,13 +708,15 @@ function getReferralCode() {
   }
 }
 
-const referralCode = getReferralCode();
+const referralCodeFromUrl = getReferralCode();
 
-if (referralCode) {
+if (referralCodeFromUrl) {
   $("refBox").classList.add("show");
-  $("refCodeText").textContent = referralCode;
+  $("refCodeText").textContent = referralCodeFromUrl;
 
   showForm("register");
+
+  $("regReferral").value = referralCodeFromUrl;
 }
 
 /* API REQUEST */
@@ -877,6 +906,12 @@ $("registerForm").addEventListener(
     const confirmPassword =
       $("regConfirm").value;
 
+    const manualReferral =
+      $("regReferral").value.trim().toUpperCase();
+
+    const referralCode =
+      manualReferral || referralCodeFromUrl;
+
     if (
       !name ||
       !username ||
@@ -933,10 +968,6 @@ $("registerForm").addEventListener(
         "success"
       );
 
-      /*
-       * Give the user a moment to see
-       * the success message.
-       */
       setTimeout(() => {
 
         $("login").value = email;
@@ -986,12 +1017,6 @@ $("forgotForm").addEventListener(
       return;
     }
 
-    /*
-     * Password-reset backend is not currently
-     * available in the supplied API functions.
-     * Keep the UI ready without creating
-     * another Vercel function.
-     */
     showMessage(
       "Password reset service will be available soon.",
       "success"
@@ -1002,3 +1027,4 @@ $("forgotForm").addEventListener(
 
 </body>
 </html>
+```
