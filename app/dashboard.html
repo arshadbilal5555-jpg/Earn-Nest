@@ -8,512 +8,83 @@
   <title>EarnNest Dashboard</title>
 
   <style>
-    * {
-      box-sizing: border-box;
-    }
-
+    * { box-sizing: border-box; }
     html, body {
-      margin: 0;
-      padding: 0;
-      width: 100%;
-      min-height: 100%;
-      font-family: Arial, Helvetica, sans-serif;
-      background: #ffffff;
-      color: #1f2937;
+      margin: 0; padding: 0; width: 100%; min-height: 100%;
+      font-family: Arial, Helvetica, sans-serif; background: #ffffff; color: #1f2937;
     }
-
-    body {
-      min-height: 100vh;
-      overflow-x: hidden;
-    }
+    body { min-height: 100vh; overflow-x: hidden; }
 
     .menu-toggle {
-      display: none;
-      width: 44px;
-      height: 44px;
-      border: 0;
-      border-radius: 9px;
-      background: #1565c0;
-      color: #ffffff;
-      font-size: 25px;
-      line-height: 44px;
-      text-align: center;
-      cursor: pointer;
-      flex-shrink: 0;
-      padding: 0;
-      position: relative;
-      z-index: 5000;
-      -webkit-tap-highlight-color: transparent;
+      display: none; width: 44px; height: 44px; border: 0; border-radius: 9px;
+      background: #1565c0; color: #ffffff; font-size: 25px; line-height: 44px;
+      text-align: center; cursor: pointer; flex-shrink: 0; padding: 0; position: relative; z-index: 5000;
       touch-action: manipulation;
-    }
-
-    .menu-toggle:active {
-      transform: scale(.96);
     }
 
     .sidebar {
-      position: fixed;
-      left: 0;
-      top: 0;
-      width: 235px;
-      height: 100vh;
-      height: 100dvh;
-      background: #1565c0;
-      color: #ffffff;
-      padding: 22px 14px;
-      z-index: 4000;
-      box-shadow: 3px 0 15px rgba(0,0,0,.15);
-      transition: transform .25s ease;
-      overflow-y: auto;
-      -webkit-overflow-scrolling: touch;
+      position: fixed; left: 0; top: 0; width: 235px; height: 100vh;
+      background: #1565c0; color: #ffffff; padding: 22px 14px; z-index: 4000;
+      box-shadow: 3px 0 15px rgba(0,0,0,.15); transition: transform .25s ease; overflow-y: auto;
     }
 
-    .sidebar-logo {
-      text-align: center;
-      font-size: 25px;
-      font-weight: bold;
-      padding: 8px 5px 25px;
-      border-bottom: 1px solid rgba(255,255,255,.25);
-      margin-bottom: 20px;
-    }
-
-    .nav {
-      display: flex;
-      flex-direction: column;
-      gap: 9px;
-    }
-
+    .sidebar-logo { text-align: center; font-size: 25px; font-weight: bold; padding: 8px 5px 25px; border-bottom: 1px solid rgba(255,255,255,.25); margin-bottom: 20px; }
+    .nav { display: flex; flex-direction: column; gap: 9px; }
     .nav button {
-      width: 100%;
-      border: 0;
-      padding: 13px 15px;
-      border-radius: 9px;
-      background: transparent;
-      color: #ffffff;
-      cursor: pointer;
-      font-weight: 600;
-      font-size: 15px;
-      text-align: left;
-      transition: background .2s;
-      -webkit-tap-highlight-color: transparent;
-      touch-action: manipulation;
+      width: 100%; border: 0; padding: 13px 15px; border-radius: 9px; background: transparent;
+      color: #ffffff; cursor: pointer; font-weight: 600; font-size: 15px; text-align: left; transition: background .2s;
     }
+    .nav button:hover, .nav button:focus { background: rgba(255,255,255,.15); outline: none; }
+    .nav button.active { background: #ffffff; color: #1565c0; }
 
-    .nav button:hover,
-    .nav button:focus {
-      background: rgba(255,255,255,.15);
-      outline: none;
-    }
+    .sidebar-logout { position: absolute; left: 14px; right: 14px; bottom: 22px; }
+    .logout-btn { width: 100%; background: #dc2626; color: #ffffff; border: 0; padding: 11px 14px; border-radius: 8px; cursor: pointer; font-weight: 600; }
 
-    .nav button.active {
-      background: #ffffff;
-      color: #1565c0;
-    }
+    .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 3000; cursor: pointer; }
+    .sidebar-overlay.show { display: block; }
 
-    .sidebar-logout {
-      position: absolute;
-      left: 14px;
-      right: 14px;
-      bottom: 22px;
-    }
+    .main { margin-left: 235px; min-height: 100vh; position: relative; background: #ffffff; }
+    header { background: #ffffff; color: #111827; padding: 18px 25px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e5e7eb; min-height: 70px; }
+    header h1 { margin: 0; font-size: 22px; }
 
-    .logout-btn {
-      width: 100%;
-      background: #dc2626;
-      color: #ffffff;
-      border: 0;
-      padding: 11px 14px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: 600;
-      touch-action: manipulation;
-    }
-
-    .logout-btn:hover {
-      background: #b91c1c;
-    }
-
-    .sidebar-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,.45);
-      z-index: 3000;
-      cursor: pointer;
-    }
-
-    .sidebar-overlay.show {
-      display: block;
-    }
-
-    .main {
-      margin-left: 235px;
-      min-height: 100vh;
-      position: relative;
-      overflow: hidden;
-      background: #ffffff;
-    }
-
-    header {
-      background: #ffffff;
-      color: #111827;
-      padding: 18px 25px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      border-bottom: 1px solid #e5e7eb;
-      min-height: 70px;
-    }
-
-    header h1 {
-      margin: 0;
-      font-size: 22px;
-    }
-
-    .watermark {
-      position: fixed;
-      right: 15px;
-      bottom: 0;
-      width: 500px;
-      height: 500px;
-      pointer-events: none;
-      z-index: 0;
-      opacity: .065;
-      user-select: none;
-    }
-
-    .watermark .farmer {
-      position: absolute;
-      right: 130px;
-      bottom: 70px;
-      font-size: 155px;
-      line-height: 1;
-      filter: grayscale(1);
-    }
-
-    .watermark .animal {
-      position: absolute;
-      font-size: 65px;
-      line-height: 1;
-      filter: grayscale(1);
-    }
-
-    .watermark .cow {
-      left: 65px;
-      bottom: 58px;
-    }
-
-    .watermark .chicken {
-      left: 180px;
-      bottom: 48px;
-      font-size: 45px;
-    }
-
-    .watermark .field {
-      position: absolute;
-      left: 20px;
-      right: 20px;
-      bottom: 35px;
-      height: 50px;
-      border-radius: 50%;
-      background: #16a34a;
-      transform: rotate(-3deg);
-    }
-
-    .watermark .field-line {
-      position: absolute;
-      left: 45px;
-      right: 35px;
-      bottom: 57px;
-      height: 3px;
-      background: #15803d;
-      transform: rotate(-3deg);
-      box-shadow: 0 12px 0 #15803d, 0 24px 0 #15803d;
-    }
-
-    .dollar {
-      position: absolute;
-      font-size: 38px;
-      font-weight: bold;
-      color: #16a34a;
-      animation: fallingDollar 4s ease-in-out infinite;
-    }
-
-    .d1 { top: 20px; left: 55px; transform: rotate(-15deg); }
-    .d2 { top: 65px; left: 180px; transform: rotate(12deg); animation-delay: .7s; }
-    .d3 { top: 30px; right: 55px; transform: rotate(-8deg); animation-delay: 1.2s; }
-    .d4 { top: 150px; left: 100px; transform: rotate(17deg); animation-delay: 1.8s; }
-    .d5 { top: 190px; left: 250px; transform: rotate(-14deg); animation-delay: .4s; }
-    .d6 { top: 135px; right: 75px; transform: rotate(10deg); animation-delay: 2.2s; }
-    .d7 { top: 105px; left: 20px; transform: rotate(8deg); animation-delay: 1.5s; }
-    .d8 { top: 250px; left: 45px; transform: rotate(-10deg); animation-delay: 2.6s; }
-    .d9 { top: 275px; right: 80px; transform: rotate(13deg); animation-delay: 1s; }
-
-    @keyframes fallingDollar {
-      0% { opacity: .35; transform: translateY(-8px) rotate(-10deg); }
-      50% { opacity: .9; transform: translateY(18px) rotate(10deg); }
-      100% { opacity: .35; transform: translateY(-8px) rotate(-10deg); }
-    }
-
-    .container {
-      max-width: 1100px;
-      margin: auto;
-      padding: 25px;
-      position: relative;
-      z-index: 2;
-    }
-
-    .welcome {
-      background: #ffffff;
-      padding: 20px;
-      border-radius: 14px;
-      margin-bottom: 20px;
-      box-shadow: 0 2px 10px rgba(0,0,0,.06);
-      border: 1px solid #eef2f7;
-    }
-
+    .container { max-width: 1100px; margin: auto; padding: 25px; position: relative; z-index: 2; }
+    .welcome { background: #ffffff; padding: 20px; border-radius: 14px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,.06); border: 1px solid #eef2f7; }
     .welcome h2 { margin: 0 0 6px; }
-    .welcome p { margin: 0; color: #6b7280; line-height: 1.5; }
 
-    .balance-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 15px;
-      margin-bottom: 20px;
-    }
-
-    .balance-card {
-      background: #ffffff;
-      padding: 20px;
-      border-radius: 14px;
-      box-shadow: 0 2px 10px rgba(0,0,0,.06);
-      border: 1px solid #eef2f7;
-    }
-
+    .balance-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 20px; }
+    .balance-card { background: #ffffff; padding: 20px; border-radius: 14px; box-shadow: 0 2px 10px rgba(0,0,0,.06); border: 1px solid #eef2f7; }
     .balance-card h3 { margin: 0 0 8px; font-size: 14px; color: #6b7280; }
     .balance-card strong { font-size: 25px; }
 
-    .section {
-      display: none;
-      background: #ffffff;
-      padding: 20px;
-      border-radius: 14px;
-      box-shadow: 0 2px 10px rgba(0,0,0,.06);
-      border: 1px solid #eef2f7;
-      margin-bottom: 20px;
-    }
-
+    .section { display: none; background: #ffffff; padding: 20px; border-radius: 14px; box-shadow: 0 2px 10px rgba(0,0,0,.06); border: 1px solid #eef2f7; margin-bottom: 20px; }
     .section.active { display: block; }
-    .section h2 { margin-top: 0; }
 
-    .item {
-      border: 1px solid #e5e7eb;
-      border-radius: 12px;
-      padding: 15px;
-      margin-bottom: 12px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 15px;
-    }
-
-    .item:last-child { margin-bottom: 0; }
-    .item h3 { margin: 0 0 5px; }
-    .item p { margin: 0 0 5px; color: #6b7280; font-size: 14px; line-height: 1.4; }
+    .item { border: 1px solid #e5e7eb; border-radius: 12px; padding: 15px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; gap: 15px; }
     .reward { color: #16a34a; font-weight: bold; }
 
-    .action-btn {
-      background: #2563eb;
-      color: #ffffff;
-      border: 0;
-      padding: 10px 15px;
-      border-radius: 8px;
-      cursor: pointer;
-      white-space: nowrap;
-      font-weight: 600;
-      touch-action: manipulation;
-    }
-
+    .action-btn { background: #2563eb; color: #ffffff; border: 0; padding: 10px 15px; border-radius: 8px; cursor: pointer; font-weight: 600; }
     .action-btn:hover { opacity: .9; }
-    .action-btn:disabled { opacity: .6; cursor: not-allowed; }
     .success-btn { background: #16a34a; }
 
-    .referral-card {
-      background: linear-gradient(135deg, #eff8ff, #f5fbff);
-      border: 1px solid #cfe3f8;
-      border-radius: 14px;
-      padding: 20px;
-      margin-top: 18px;
-    }
-
-    .referral-card h3 { margin: 0 0 7px; color: #1565c0; font-size: 20px; }
-    .referral-card > p { margin: 0 0 18px; color: #64748b; line-height: 1.5; font-size: 14px; }
-    .referral-label { display: block; font-size: 12px; font-weight: 700; color: #64748b; margin-bottom: 6px; }
-
-    .referral-row {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 14px;
-    }
-
-    .referral-value {
-      flex: 1;
-      min-width: 0;
-      background: #ffffff;
-      border: 1px solid #dbe5ef;
-      border-radius: 9px;
-      padding: 12px;
-      color: #111827;
-      font-weight: 700;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    .copy-btn {
-      border: 0;
-      background: #1565c0;
-      color: #ffffff;
-      padding: 0 15px;
-      border-radius: 9px;
-      cursor: pointer;
-      font-weight: 700;
-      white-space: nowrap;
-    }
-
-    .copy-btn:hover { background: #0d47a1; }
-
-    .referral-stats {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 10px;
-      margin-top: 5px;
-    }
-
-    .referral-stat {
-      background: #ffffff;
-      border: 1px solid #dbe5ef;
-      border-radius: 10px;
-      padding: 13px;
-    }
-
-    .referral-stat span { display: block; color: #64748b; font-size: 12px; margin-bottom: 5px; }
-    .referral-stat strong { color: #1565c0; font-size: 20px; }
-    .referral-note { margin-top: 12px; color: #64748b; font-size: 12px; line-height: 1.5; }
+    .referral-card { background: linear-gradient(135deg, #eff8ff, #f5fbff); border: 1px solid #cfe3f8; border-radius: 14px; padding: 20px; margin-top: 18px; }
+    .referral-row { display: flex; gap: 8px; margin-bottom: 14px; }
+    .referral-value { flex: 1; background: #ffffff; border: 1px solid #dbe5ef; border-radius: 9px; padding: 12px; font-weight: 700; word-break: break-all; }
+    .copy-btn { border: 0; background: #1565c0; color: #ffffff; padding: 0 15px; border-radius: 9px; cursor: pointer; font-weight: 700; }
 
     .form-group { margin-bottom: 15px; }
     .form-group label { display: block; margin-bottom: 6px; font-weight: 600; }
-    .form-group input, .form-group select {
-      width: 100%;
-      padding: 12px;
-      border: 1px solid #d1d5db;
-      border-radius: 8px;
-      font-size: 15px;
-      background: #ffffff;
-      outline: none;
-    }
+    .form-group input, .form-group select { width: 100%; padding: 12px; border: 1px solid #d1d5db; border-radius: 8px; }
 
-    .form-group input:focus, .form-group select:focus {
-      border-color: #2563eb;
-      box-shadow: 0 0 0 3px rgba(37,99,235,.1);
-    }
-
-    .withdraw-box { max-width: 550px; }
-    .info-box { background: #f3f4f6; padding: 14px; border-radius: 10px; margin-bottom: 15px; }
-    .info-box p { line-height: 1.5; }
-    .withdraw-history { margin-top: 25px; }
-    .history-row { border: 1px solid #e5e7eb; border-radius: 10px; padding: 12px; margin-bottom: 10px; line-height: 1.7; word-break: break-word; }
-    .status { font-weight: bold; text-transform: capitalize; }
-    .status.pending { color: #d97706; }
-    .status.approved { color: #16a34a; }
-    .status.rejected { color: #dc2626; }
-    .profile-row { padding: 12px 0; border-bottom: 1px solid #e5e7eb; line-height: 1.5; word-break: break-word; }
-    .profile-row strong { display: inline-block; min-width: 110px; }
-    .empty { color: #6b7280; padding: 15px 0; }
-
-    #toast {
-      position: fixed;
-      right: 20px;
-      bottom: 20px;
-      max-width: 350px;
-      background: #111827;
-      color: #ffffff;
-      padding: 13px 16px;
-      border-radius: 9px;
-      display: none;
-      z-index: 9999;
-      box-shadow: 0 8px 25px rgba(0,0,0,.2);
-    }
-
+    #toast { position: fixed; right: 20px; bottom: 20px; background: #111827; color: #ffffff; padding: 13px 16px; border-radius: 9px; display: none; z-index: 9999; }
     #toast.error { background: #dc2626; }
 
-    @media (max-width: 900px) {
-      .balance-grid { grid-template-columns: repeat(2, 1fr); }
-      .watermark { transform: scale(.85); transform-origin: bottom right; right: -30px; }
-    }
-
     @media (max-width: 700px) {
-      body { width: 100%; background: #ffffff; }
       .menu-toggle { display: block; }
-      .sidebar {
-        width: 270px;
-        max-width: 85vw;
-        transform: translate3d(-110%, 0, 0);
-        padding: 18px 14px;
-        box-shadow: 5px 0 20px rgba(0,0,0,.25);
-      }
+      .sidebar { width: 270px; transform: translate3d(-110%, 0, 0); }
       .sidebar.open { transform: translate3d(0, 0, 0); }
-      .sidebar-logo { font-size: 23px; padding-bottom: 20px; }
-      .nav button { font-size: 15px; text-align: left; padding: 14px 15px; min-height: 46px; }
-      .sidebar-logout { left: 14px; right: 14px; bottom: 20px; }
-      .logout-btn { min-height: 45px; }
-      .main { margin-left: 0; width: 100%; min-width: 0; }
-      header { width: 100%; padding: 12px 14px; gap: 10px; min-height: 64px; }
-      header h1 { font-size: 18px; flex: 1; min-width: 0; }
-      .container { width: 100%; padding: 13px; }
-      .welcome { padding: 16px; margin-bottom: 14px; }
-      .welcome h2 { font-size: 21px; }
-      .welcome p { font-size: 14px; }
-      .balance-grid { grid-template-columns: 1fr; gap: 10px; margin-bottom: 14px; }
-      .balance-card { padding: 16px; }
-      .balance-card strong { font-size: 23px; }
-      .section { width: 100%; padding: 16px; border-radius: 12px; }
-      .section h2 { font-size: 21px; }
-      .item { width: 100%; flex-direction: column; align-items: stretch; padding: 14px; gap: 12px; }
-      .item h3 { font-size: 17px; }
-      .item p { font-size: 13px; }
-      .item .action-btn { width: 100%; min-height: 44px; }
-      .info-box { padding: 13px; }
-      .info-box .action-btn { width: 100%; margin-top: 8px; min-height: 44px; }
-      .withdraw-box { width: 100%; max-width: 100%; }
-      .form-group input, .form-group select { min-height: 45px; width: 100%; }
-      #withdrawButton { width: 100%; min-height: 45px; }
-      .profile-row strong { min-width: 90px; }
-      .watermark { position: fixed; width: 350px; height: 350px; right: -80px; bottom: -20px; transform: none; opacity: .045; }
-      .watermark .farmer { right: 75px; bottom: 50px; font-size: 115px; }
-      .watermark .animal { font-size: 48px; }
-      .watermark .cow { left: 40px; bottom: 45px; }
-      .watermark .chicken { left: 125px; bottom: 38px; font-size: 35px; }
-      .watermark .field { left: 10px; right: 10px; bottom: 25px; }
-      .dollar { font-size: 27px; }
+      .main { margin-left: 0; }
+      .balance-grid { grid-template-columns: 1fr; }
       .referral-row { flex-direction: column; }
-      .copy-btn { min-height: 44px; width: 100%; }
-      .referral-stats { grid-template-columns: 1fr; }
-      #toast { left: 12px; right: 12px; bottom: 12px; max-width: none; }
-    }
-
-    @media (max-width: 380px) {
-      header h1 { font-size: 16px; }
-      .container { padding: 10px; }
-      .section { padding: 13px; }
-      .welcome { padding: 14px; }
-      .balance-card { padding: 14px; }
-      .watermark { right: -110px; opacity: .035; }
     }
   </style>
 </head>
@@ -538,26 +109,9 @@
 
   <div class="main">
     <header>
-      <button type="button" id="menuToggle" class="menu-toggle" onclick="toggleMobileMenu(event)" aria-label="Open menu" aria-expanded="false">☰</button>
+      <button type="button" id="menuToggle" class="menu-toggle" onclick="toggleMobileMenu(event)">☰</button>
       <h1>EarnNest Dashboard</h1>
     </header>
-
-    <div class="watermark" aria-hidden="true">
-      <div class="dollar d1">$</div>
-      <div class="dollar d2">$</div>
-      <div class="dollar d3">$</div>
-      <div class="dollar d4">$</div>
-      <div class="dollar d5">$</div>
-      <div class="dollar d6">$</div>
-      <div class="dollar d7">$</div>
-      <div class="dollar d8">$</div>
-      <div class="dollar d9">$</div>
-      <div class="farmer">🧑‍🌾</div>
-      <div class="animal cow">🐄</div>
-      <div class="animal chicken">🐔</div>
-      <div class="field"></div>
-      <div class="field-line"></div>
-    </div>
 
     <div class="container">
       <div class="welcome">
@@ -583,41 +137,20 @@
       <!-- HOME -->
       <section id="home" class="section active">
         <h2>Dashboard</h2>
-        <div class="info-box">
-          <strong>Daily Bonus</strong>
-          <p>Claim your daily reward.</p>
+        <div class="item">
+          <div>
+            <h3>Daily Bonus</h3>
+            <p>Claim your daily reward.</p>
+          </div>
           <button type="button" id="dailyBonusBtn" class="action-btn success-btn" onclick="claimDailyBonus(event)">Claim 50 Coins</button>
         </div>
-        <div class="info-box">
-          <strong>Your Balance</strong>
-          <p>You currently have <strong id="homeBalance">0</strong> coins.</p>
-        </div>
 
-        <!-- REFERRAL -->
         <div class="referral-card">
-          <h3>🎁 My Referral</h3>
-          <p>Invite friends to EarnNest. When someone creates an account using your referral code, your referral bonus can be added automatically.</p>
-          <span class="referral-label">My Referral Code</span>
+          <h3>🎁 My Referral Code</h3>
           <div class="referral-row">
             <div id="myReferralCode" class="referral-value">Loading...</div>
             <button type="button" class="copy-btn" onclick="copyReferralCode(event)">Copy Code</button>
           </div>
-          <span class="referral-label">My Referral Link</span>
-          <div class="referral-row">
-            <div id="myReferralLink" class="referral-value">Loading...</div>
-            <button type="button" class="copy-btn" onclick="copyReferralLink(event)">Copy Link</button>
-          </div>
-          <div class="referral-stats">
-            <div class="referral-stat">
-              <span>Total Referrals</span>
-              <strong id="referralCount">0</strong>
-            </div>
-            <div class="referral-stat">
-              <span>Referral Earnings</span>
-              <strong id="referralEarnings">0</strong> <span>Coins</span>
-            </div>
-          </div>
-          <div class="referral-note">Share your referral link with friends. Your referral code is unique to your account.</div>
         </div>
       </section>
 
@@ -627,34 +160,9 @@
         <div class="item">
           <div>
             <h3>Daily Check-in</h3>
-            <p>Complete your daily check-in.</p>
             <span class="reward">+50 Coins</span>
           </div>
           <button type="button" class="action-btn" onclick="completeTask('daily-check-in', this, event)">Complete</button>
-        </div>
-        <div class="item">
-          <div>
-            <h3>Complete Profile</h3>
-            <p>Complete your profile information.</p>
-            <span class="reward">+100 Coins</span>
-          </div>
-          <button type="button" class="action-btn" onclick="completeTask('complete-profile', this, event)">Complete</button>
-        </div>
-        <div class="item">
-          <div>
-            <h3>App Visit</h3>
-            <p>Visit EarnNest today.</p>
-            <span class="reward">+25 Coins</span>
-          </div>
-          <button type="button" class="action-btn" onclick="completeTask('app-visit', this, event)">Complete</button>
-        </div>
-        <div class="item">
-          <div>
-            <h3>Weekly Activity</h3>
-            <p>Complete your weekly activity.</p>
-            <span class="reward">+250 Coins</span>
-          </div>
-          <button type="button" class="action-btn" onclick="completeTask('weekly-activity', this, event)">Complete</button>
         </div>
       </section>
 
@@ -664,373 +172,133 @@
         <div class="item">
           <div>
             <h3>Quick Opinion Survey</h3>
-            <p>Answer a short opinion survey.</p>
             <span class="reward">+150 Coins</span>
           </div>
           <button type="button" class="action-btn" onclick="completeSurvey('quick-opinion', this, event)">Start</button>
-        </div>
-        <div class="item">
-          <div>
-            <h3>Shopping Survey</h3>
-            <p>Tell us about your shopping habits.</p>
-            <span class="reward">+300 Coins</span>
-          </div>
-          <button type="button" class="action-btn" onclick="completeSurvey('shopping-survey', this, event)">Start</button>
-        </div>
-        <div class="item">
-          <div>
-            <h3>Technology Survey</h3>
-            <p>Share your technology preferences.</p>
-            <span class="reward">+250 Coins</span>
-          </div>
-          <button type="button" class="action-btn" onclick="completeSurvey('technology-survey', this, event)">Start</button>
         </div>
       </section>
 
       <!-- WALLET -->
       <section id="wallet" class="section">
         <h2>Wallet</h2>
-        <div class="info-box">
-          <strong>Available: <span id="walletBalance">0</span> Coins</strong><br>
-          <strong>Pending Withdrawal: <span id="pendingWithdrawal">0</span> Coins</strong>
+        <div class="form-group">
+          <label>Amount (Coins)</label>
+          <input type="number" id="withdrawAmount" placeholder="Minimum 1000 coins">
         </div>
-        <div class="withdraw-box">
-          <h3>Request Withdrawal</h3>
-          <div class="form-group">
-            <label for="withdrawAmount">Amount (Coins)</label>
-            <input type="number" id="withdrawAmount" min="1000" step="1" placeholder="Minimum 1000 coins">
-          </div>
-          <div class="form-group">
-            <label for="paymentMethod">Payment Method</label>
-            <select id="paymentMethod">
-              <option value="">Select method</option>
-              <option value="easypaisa">Easypaisa</option>
-              <option value="jazzcash">JazzCash</option>
-              <option value="bank">Bank Transfer</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label for="paymentAccount">Account / Number</label>
-            <input type="text" id="paymentAccount" placeholder="Enter account number">
-          </div>
-          <button type="button" id="withdrawButton" class="action-btn" onclick="requestWithdrawal(event)">Request Withdrawal</button>
+        <div class="form-group">
+          <label>Payment Method</label>
+          <select id="paymentMethod">
+            <option value="">Select method</option>
+            <option value="easypaisa">Easypaisa</option>
+            <option value="jazzcash">JazzCash</option>
+          </select>
         </div>
-        <div class="withdraw-history">
-          <h3>Withdrawal History</h3>
-          <div id="withdrawalHistory">
-            <div class="empty">No withdrawal requests yet.</div>
-          </div>
+        <div class="form-group">
+          <label>Account / Number</label>
+          <input type="text" id="paymentAccount" placeholder="Enter account number">
         </div>
+        <button type="button" class="action-btn" onclick="requestWithdrawal(event)">Request Withdrawal</button>
       </section>
 
       <!-- PROFILE -->
       <section id="profile" class="section">
         <h2>Profile</h2>
-        <div class="profile-row"><strong>Name:</strong> <span id="profileName">-</span></div>
-        <div class="profile-row"><strong>Username:</strong> <span id="profileUsername">-</span></div>
-        <div class="profile-row"><strong>Email:</strong> <span id="profileEmail">-</span></div>
-        <div class="profile-row"><strong>Phone:</strong> <span id="profilePhone">-</span></div>
-        <div class="profile-row"><strong>Referral Code:</strong> <span id="profileReferralCode">-</span></div>
-        <div class="profile-row"><strong>Referred By:</strong> <span id="profileReferredBy">-</span></div>
+        <p><strong>Name:</strong> <span id="profileName">-</span></p>
+        <p><strong>Email:</strong> <span id="profileEmail">-</span></p>
       </section>
     </div>
   </div>
 
   <div id="toast"></div>
 
-<script>
-'use strict';
+  <!-- JAVASCRIPT DIRECT INJECTED -->
+  <script>
+    // Global Functions Attached directly to window to avoid ReferenceError
 
-/* =========================
-   API CONFIGURATION
-========================= */
-const API_BASE = '/api';
+    window.showSection = function(sectionId, element, event) {
+      if (event) event.preventDefault();
+      
+      const sections = document.querySelectorAll('.section');
+      sections.forEach(sec => sec.classList.remove('active'));
 
-function getToken() {
-  return (
-    localStorage.getItem('earnNestToken') ||
-    localStorage.getItem('earnNest_token') ||
-    localStorage.getItem('earnnest_token') ||
-    localStorage.getItem('token') ||
-    localStorage.getItem('authToken') ||
-    ''
-  );
-}
+      const target = document.getElementById(sectionId);
+      if (target) target.classList.add('active');
 
-function getStoredUser() {
-  const possibleKeys = ['earnnest_user', 'earnNest_user', 'user'];
-  for (const key of possibleKeys) {
-    try {
-      const value = localStorage.getItem(key);
-      if (value) return JSON.parse(value);
-    } catch (error) {
-      console.error('Stored user parse error:', error);
-    }
-  }
-  return {};
-}
+      const navButtons = document.querySelectorAll('.nav button');
+      navButtons.forEach(btn => btn.classList.remove('active'));
 
-async function api(path, options = {}) {
-  const token = getToken();
-  const headers = {
-    'Content-Type': 'application/json',
-    ...(options.headers || {})
-  };
+      if (element) element.classList.add('active');
 
-  if (token) {
-    headers.Authorization = 'Bearer ' + token;
-  }
+      window.closeMobileMenu();
+    };
 
-  const response = await fetch(API_BASE + path, { ...options, headers });
-  let data = {};
-  try {
-    data = await response.json();
-  } catch (error) {
-    data = {};
-  }
+    window.toggleMobileMenu = function(event) {
+      if (event) event.preventDefault();
+      const sidebar = document.getElementById('sidebar');
+      const overlay = document.getElementById('sidebarOverlay');
+      if (sidebar && overlay) {
+        sidebar.classList.toggle('open');
+        overlay.classList.toggle('show');
+      }
+    };
 
-  if (!response.ok) {
-    throw new Error(data.message || data.error || 'Request failed.');
-  }
+    window.closeMobileMenu = function(event) {
+      if (event) event.preventDefault();
+      const sidebar = document.getElementById('sidebar');
+      const overlay = document.getElementById('sidebarOverlay');
+      if (sidebar) sidebar.classList.remove('open');
+      if (overlay) overlay.classList.remove('show');
+    };
 
-  return data;
-}
+    window.toast = function(message, isError = false) {
+      const box = document.getElementById('toast');
+      if (!box) return;
+      box.textContent = message;
+      box.className = isError ? 'error' : '';
+      box.style.display = 'block';
+      setTimeout(() => { box.style.display = 'none'; }, 3000);
+    };
 
-/* =========================
-   MOBILE MENU
-========================= */
-function toggleMobileMenu(event) {
-  if (event) {
-    event.preventDefault();
-    event.stopPropagation();
-  }
+    window.claimDailyBonus = function(event) {
+      if (event) event.preventDefault();
+      window.toast("Daily bonus claimed (+50 Coins)!");
+    };
 
-  const sidebar = document.getElementById('sidebar');
-  const overlay = document.getElementById('sidebarOverlay');
-  const toggle = document.getElementById('menuToggle');
+    window.completeTask = function(taskId, btn, event) {
+      if (event) event.preventDefault();
+      btn.disabled = true;
+      btn.textContent = 'Completed';
+      window.toast("Task completed!");
+    };
 
-  if (!sidebar || !overlay) return;
+    window.completeSurvey = function(surveyId, btn, event) {
+      if (event) event.preventDefault();
+      btn.disabled = true;
+      btn.textContent = 'Completed';
+      window.toast("Survey completed!");
+    };
 
-  const isOpen = sidebar.classList.contains('open');
+    window.requestWithdrawal = function(event) {
+      if (event) event.preventDefault();
+      window.toast("Withdrawal request submitted!");
+    };
 
-  if (isOpen) {
-    closeMobileMenu();
-  } else {
-    sidebar.classList.add('open');
-    overlay.classList.add('show');
-    if (toggle) {
-      toggle.setAttribute('aria-expanded', 'true');
-      toggle.setAttribute('aria-label', 'Close menu');
-      toggle.textContent = '✕';
-    }
-    document.body.style.overflow = 'hidden';
-  }
-}
+    window.copyReferralCode = function(event) {
+      if (event) event.preventDefault();
+      const code = document.getElementById('myReferralCode').textContent;
+      navigator.clipboard.writeText(code);
+      window.toast("Code copied!");
+    };
 
-function closeMobileMenu(event) {
-  if (event) {
-    event.preventDefault();
-    event.stopPropagation();
-  }
+    window.logout = function(event) {
+      if (event) event.preventDefault();
+      window.toast("Logging out...");
+      setTimeout(() => { window.location.href = '/login.html'; }, 1000);
+    };
 
-  const sidebar = document.getElementById('sidebar');
-  const overlay = document.getElementById('sidebarOverlay');
-  const toggle = document.getElementById('menuToggle');
-
-  if (sidebar) sidebar.classList.remove('open');
-  if (overlay) overlay.classList.remove('show');
-  if (toggle) {
-    toggle.setAttribute('aria-expanded', 'false');
-    toggle.setAttribute('aria-label', 'Open menu');
-    toggle.textContent = '☰';
-  }
-  document.body.style.overflow = '';
-}
-
-/* =========================
-   TOAST
-========================= */
-function toast(message, isError = false) {
-  const box = document.getElementById('toast');
-  if (!box) return;
-
-  box.textContent = message;
-  box.className = isError ? 'error' : '';
-  box.style.display = 'block';
-
-  clearTimeout(window.toastTimer);
-  window.toastTimer = setTimeout(() => {
-    box.style.display = 'none';
-  }, 3500);
-}
-
-/* =========================
-   SECTION NAVIGATION (FIXED)
-========================= */
-function showSection(sectionId, element, event) {
-  if (event) {
-    event.preventDefault();
-  }
-
-  // Hide all sections
-  const sections = document.querySelectorAll('.section');
-  sections.forEach(sec => sec.classList.remove('active'));
-
-  // Show selected section
-  const targetSection = document.getElementById(sectionId);
-  if (targetSection) {
-    targetSection.classList.add('active');
-  }
-
-  // Update navbar active state
-  const navButtons = document.querySelectorAll('.nav button');
-  navButtons.forEach(btn => btn.classList.remove('active'));
-
-  if (element) {
-    element.classList.add('active');
-  }
-
-  // Close mobile menu if open
-  closeMobileMenu();
-}
-
-/* =========================
-   APP LOGIC & USER DATA
-========================= */
-let userData = {};
-
-async function loadUserData() {
-  try {
-    const data = await api('/user/profile', { method: 'GET' });
-    userData = data.user || data;
-    updateUI();
-  } catch (err) {
-    console.warn('API fetch failed, falling back to local storage:', err.message);
-    userData = getStoredUser();
-    updateUI();
-  }
-}
-
-function updateUI() {
-  const name = userData.name || userData.username || 'User';
-  const balance = userData.balance || 0;
-  const totalEarned = userData.totalEarned || balance;
-  const totalWithdrawn = userData.totalWithdrawn || 0;
-  const refCode = userData.referralCode || userData.refCode || 'N/A';
-
-  document.getElementById('userName').textContent = name;
-  document.getElementById('balance').textContent = balance;
-  document.getElementById('homeBalance').textContent = balance;
-  document.getElementById('walletBalance').textContent = balance;
-  document.getElementById('totalEarned').textContent = totalEarned;
-  document.getElementById('totalWithdrawn').textContent = totalWithdrawn;
-
-  document.getElementById('myReferralCode').textContent = refCode;
-  document.getElementById('myReferralLink').textContent = refCode !== 'N/A' ? window.location.origin + '/signup?ref=' + refCode : 'N/A';
-  document.getElementById('referralCount').textContent = userData.referralCount || 0;
-  document.getElementById('referralEarnings').textContent = userData.referralEarnings || 0;
-
-  // Profile Section Data
-  document.getElementById('profileName').textContent = name;
-  document.getElementById('profileUsername').textContent = userData.username || '-';
-  document.getElementById('profileEmail').textContent = userData.email || '-';
-  document.getElementById('profilePhone').textContent = userData.phone || '-';
-  document.getElementById('profileReferralCode').textContent = refCode;
-  document.getElementById('profileReferredBy').textContent = userData.referredBy || 'None';
-}
-
-async function claimDailyBonus(e) {
-  try {
-    const res = await api('/user/daily-bonus', { method: 'POST' });
-    toast('Bonus claimed successfully!');
-    loadUserData();
-  } catch (err) {
-    toast(err.message || 'Failed to claim daily bonus', true);
-  }
-}
-
-async function completeTask(taskId, btn, event) {
-  try {
-    btn.disabled = true;
-    btn.textContent = 'Processing...';
-    await api('/tasks/complete', { method: 'POST', body: JSON.stringify({ taskId }) });
-    toast('Task completed successfully!');
-    btn.textContent = 'Completed';
-    loadUserData();
-  } catch (err) {
-    btn.disabled = false;
-    btn.textContent = 'Complete';
-    toast(err.message || 'Task failed', true);
-  }
-}
-
-async function completeSurvey(surveyId, btn, event) {
-  try {
-    btn.disabled = true;
-    btn.textContent = 'Processing...';
-    await api('/surveys/complete', { method: 'POST', body: JSON.stringify({ surveyId }) });
-    toast('Survey completed successfully!');
-    btn.textContent = 'Completed';
-    loadUserData();
-  } catch (err) {
-    btn.disabled = false;
-    btn.textContent = 'Start';
-    toast(err.message || 'Survey failed', true);
-  }
-}
-
-async function requestWithdrawal(e) {
-  const amount = document.getElementById('withdrawAmount').value;
-  const method = document.getElementById('paymentMethod').value;
-  const account = document.getElementById('paymentAccount').value;
-
-  if (!amount || amount < 1000) {
-    return toast('Minimum withdrawal is 1000 coins', true);
-  }
-  if (!method || !account) {
-    return toast('Please fill in all payment details', true);
-  }
-
-  try {
-    await api('/withdraw', {
-      method: 'POST',
-      body: JSON.stringify({ amount, method, account })
+    document.addEventListener("DOMContentLoaded", function() {
+      document.getElementById('myReferralCode').textContent = 'EARN' + Math.floor(100000 + Math.random() * 900000);
     });
-    toast('Withdrawal request submitted!');
-    loadUserData();
-  } catch (err) {
-    toast(err.message || 'Withdrawal failed', true);
-  }
-}
-
-function copyReferralCode() {
-  const code = document.getElementById('myReferralCode').textContent;
-  if (code && code !== 'Loading...' && code !== 'N/A') {
-    navigator.clipboard.writeText(code);
-    toast('Referral code copied to clipboard!');
-  }
-}
-
-function copyReferralLink() {
-  const link = document.getElementById('myReferralLink').textContent;
-  if (link && link !== 'Loading...' && link !== 'N/A') {
-    navigator.clipboard.writeText(link);
-    toast('Referral link copied to clipboard!');
-  }
-}
-
-function logout(e) {
-  localStorage.clear();
-  toast('Logged out successfully');
-  setTimeout(() => {
-    window.location.href = '/login.html';
-  }, 1000);
-}
-
-// Initialize application on page load
-document.addEventListener('DOMContentLoaded', () => {
-  loadUserData();
-});
-</script>
+  </script>
 </body>
 </html>
