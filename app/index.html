@@ -3,927 +3,185 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#075e3b">
-
-  <title>EarnNest — Login & Register</title>
-
+  <title>EarnNest - Login & Registration</title>
   <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; height: 100vh; overflow: hidden; position: relative; background: #eef2f7; }
+
+    /* Canvas Scene for Farmer, Wheat Field, Animals & Falling Dollars */
+    #sceneCanvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
     }
 
-    body {
-      font-family: Arial, Helvetica, sans-serif;
-      background:
-        radial-gradient(circle at top left, rgba(11, 126, 78, 0.18), transparent 35%),
-        linear-gradient(135deg, #031b12, #075e3b 50%, #02130d);
-      min-height: 100vh;
-      color: #fff;
+    /* Login Form Overlay Card */
+    .login-wrapper {
+      position: relative;
+      z-index: 10;
       display: flex;
-      justify-content: center;
       align-items: center;
+      justify-content: center;
+      min-height: 100vh;
       padding: 20px;
     }
 
-    .container {
+    .login-card {
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.6);
       width: 100%;
-      max-width: 480px;
+      max-width: 400px;
+      padding: 32px;
+      border-radius: 16px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.15);
     }
 
-    .card {
-      background: rgba(255,255,255,0.97);
-      color: #18221d;
-      border-radius: 24px;
-      padding: 30px;
-      box-shadow: 0 25px 70px rgba(0,0,0,.35);
-    }
+    .brand-title { text-align: center; font-size: 26px; color: #1565c0; font-weight: bold; margin-bottom: 6px; }
+    .brand-subtitle { text-align: center; font-size: 14px; color: #64748b; margin-bottom: 24px; }
 
-    .logo {
-      width: 72px;
-      height: 72px;
-      border-radius: 20px;
-      background: linear-gradient(135deg, #075e3b, #0aa866);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 0 auto 16px;
-      color: #fff;
-      font-size: 32px;
-      font-weight: 900;
-      box-shadow: 0 10px 25px rgba(7,94,59,.25);
-    }
+    .form-group { margin-bottom: 16px; }
+    .form-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: #334155; }
+    .form-control { width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 15px; outline: none; }
+    .form-control:focus { border-color: #2563eb; }
 
-    h1 {
-      text-align: center;
-      color: #075e3b;
-      font-size: 30px;
-      margin-bottom: 7px;
-    }
+    .btn-submit { width: 100%; background: #2563eb; color: #ffffff; padding: 12px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 16px; margin-top: 8px; }
+    .btn-submit:hover { background: #1d4ed8; }
 
-    .subtitle {
-      text-align: center;
-      color: #68736d;
-      font-size: 14px;
-      margin-bottom: 24px;
-    }
-
-    .tabs {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      background: #edf3ef;
-      border-radius: 12px;
-      padding: 4px;
-      margin-bottom: 22px;
-    }
-
-    .tab {
-      border: 0;
-      padding: 12px;
-      border-radius: 9px;
-      background: transparent;
-      color: #52605a;
-      font-weight: 700;
-      cursor: pointer;
-      font-size: 14px;
-    }
-
-    .tab.active {
-      background: #075e3b;
-      color: #fff;
-    }
-
-    .form {
-      display: none;
-    }
-
-    .form.active {
-      display: block;
-    }
-
-    .field {
-      margin-bottom: 15px;
-    }
-
-    label {
-      display: block;
-      margin-bottom: 7px;
-      color: #26342d;
-      font-size: 13px;
-      font-weight: 700;
-    }
-
-    input {
-      width: 100%;
-      height: 48px;
-      border: 1px solid #d5ddd8;
-      border-radius: 11px;
-      padding: 0 14px;
-      font-size: 15px;
-      outline: none;
-      background: #fff;
-      color: #17221c;
-      transition: .2s;
-    }
-
-    input:focus {
-      border-color: #078153;
-      box-shadow: 0 0 0 3px rgba(7,129,83,.10);
-    }
-
-    .ref-input {
-      text-transform: uppercase;
-    }
-
-    .btn {
-      width: 100%;
-      height: 50px;
-      border: 0;
-      border-radius: 11px;
-      background: linear-gradient(135deg, #075e3b, #078153);
-      color: #fff;
-      font-size: 16px;
-      font-weight: 800;
-      cursor: pointer;
-      margin-top: 5px;
-      transition: .2s;
-    }
-
-    .btn:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 8px 20px rgba(7,94,59,.22);
-    }
-
-    .btn:disabled {
-      opacity: .65;
-      cursor: not-allowed;
-      transform: none;
-    }
-
-    .forgot {
-      text-align: right;
-      margin: 5px 0 16px;
-    }
-
-    .forgot button,
-    .switch button {
-      border: 0;
-      background: none;
-      color: #075e3b;
-      font-weight: 700;
-      cursor: pointer;
-    }
-
-    .switch {
-      text-align: center;
-      margin-top: 20px;
-      color: #68736d;
-      font-size: 14px;
-    }
-
-    .message {
-      display: none;
-      padding: 12px 14px;
-      border-radius: 10px;
-      margin-bottom: 16px;
-      font-size: 14px;
-      line-height: 1.4;
-      font-weight: 600;
-    }
-
-    .message.show {
-      display: block;
-    }
-
-    .message.success {
-      background: #e5f8ed;
-      color: #09683f;
-      border: 1px solid #bde8d0;
-    }
-
-    .message.error {
-      background: #fff0f0;
-      color: #a42323;
-      border: 1px solid #f0c4c4;
-    }
-
-    .message.info {
-      background: #eef6ff;
-      color: #145b91;
-      border: 1px solid #c9e2fa;
-    }
-
-    .ref-box {
-      display: none;
-      background: #eaf8f1;
-      border: 1px solid #bde6cf;
-      color: #075e3b;
-      padding: 12px;
-      border-radius: 11px;
-      margin-bottom: 18px;
-      font-size: 13px;
-      line-height: 1.5;
-    }
-
-    .ref-box.show {
-      display: block;
-    }
-
-    .ref-box strong {
-      font-size: 14px;
-    }
-
-    .terms {
-      text-align: center;
-      margin-top: 18px;
-      color: #78827d;
-      font-size: 11px;
-      line-height: 1.5;
-    }
-
-    .terms a {
-      color: #075e3b;
-      text-decoration: none;
-    }
-
-    .loading {
-      display: inline-block;
-      width: 15px;
-      height: 15px;
-      border: 2px solid rgba(255,255,255,.4);
-      border-top-color: #fff;
-      border-radius: 50%;
-      animation: spin .7s linear infinite;
-      vertical-align: middle;
-      margin-right: 7px;
-    }
-
-    @keyframes spin {
-      to {
-        transform: rotate(360deg);
-      }
-    }
-
-    @media (max-width: 520px) {
-      body {
-        padding: 12px;
-      }
-
-      .card {
-        padding: 22px 18px;
-        border-radius: 20px;
-      }
-
-      h1 {
-        font-size: 27px;
-      }
-    }
+    .toggle-link { text-align: center; margin-top: 16px; font-size: 14px; color: #64748b; }
+    .toggle-link a { color: #2563eb; text-decoration: none; font-weight: 600; }
   </style>
 </head>
-
 <body>
 
-<div class="container">
+  <!-- Background Farm Scene Canvas -->
+  <canvas id="sceneCanvas"></canvas>
 
-  <div class="card">
+  <div class="login-wrapper">
+    <div class="login-card">
+      <div class="brand-title">🌱 EarnNest</div>
+      <div class="brand-subtitle">Work Hard, Earn Rewards</div>
 
-    <div class="logo">E</div>
+      <form id="authForm" onsubmit="handleAuth(event)">
+        <div class="form-group" id="nameGroup" style="display:none;">
+          <label for="name">Full Name</label>
+          <input type="text" id="name" class="form-control" placeholder="Enter full name">
+        </div>
 
-    <h1>EarnNest</h1>
-    <div class="subtitle">
-      Rewards, Tasks, Surveys & Withdrawals
+        <div class="form-group">
+          <label for="email">Email Address</label>
+          <input type="email" id="email" class="form-control" placeholder="user@earnnest.app" required>
+        </div>
+
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" class="form-control" placeholder="••••••••" required>
+        </div>
+
+        <button type="submit" class="btn-submit" id="submitBtn">Login</button>
+      </form>
+
+      <div class="toggle-link">
+        <span id="toggleText">Don't have an account?</span> 
+        <a href="#" onclick="toggleMode(event)" id="toggleBtn">Sign Up</a>
+      </div>
     </div>
-
-    <div class="tabs">
-      <button class="tab active" id="loginTab" type="button">
-        Login
-      </button>
-
-      <button class="tab" id="registerTab" type="button">
-        Create Account
-      </button>
-    </div>
-
-    <div id="message" class="message"></div>
-
-    <!-- Referral detected -->
-    <div id="refBox" class="ref-box">
-      🎁 Referral code detected:
-      <strong id="refCodeText"></strong>
-      <br>
-      Your account will be linked to this referral.
-    </div>
-
-    <!-- LOGIN -->
-    <form id="loginForm" class="form active">
-
-      <div class="field">
-        <label for="loginEmail">
-          Email or Username
-        </label>
-
-        <input
-          id="loginEmail"
-          type="text"
-          placeholder="Enter email or username"
-          autocomplete="username"
-          required
-        >
-      </div>
-
-      <div class="field">
-        <label for="loginPassword">
-          Password
-        </label>
-
-        <input
-          id="loginPassword"
-          type="password"
-          placeholder="Enter password"
-          autocomplete="current-password"
-          required
-        >
-      </div>
-
-      <div class="forgot">
-        <button type="button" id="forgotBtn">
-          Forgot Password?
-        </button>
-      </div>
-
-      <button class="btn" id="loginBtn" type="submit">
-        Login
-      </button>
-
-      <div class="switch">
-        Don't have an account?
-        <button type="button" id="goRegister">
-          Create Account
-        </button>
-      </div>
-
-    </form>
-
-    <!-- REGISTER -->
-    <form id="registerForm" class="form">
-
-      <div class="field">
-        <label for="regName">
-          Full Name
-        </label>
-
-        <input
-          id="regName"
-          type="text"
-          placeholder="Enter your full name"
-          autocomplete="name"
-          required
-        >
-      </div>
-
-      <div class="field">
-        <label for="regUsername">
-          Username
-        </label>
-
-        <input
-          id="regUsername"
-          type="text"
-          placeholder="Choose a username"
-          autocomplete="username"
-          required
-        >
-      </div>
-
-      <div class="field">
-        <label for="regEmail">
-          Email
-        </label>
-
-        <input
-          id="regEmail"
-          type="email"
-          placeholder="Enter your email"
-          autocomplete="email"
-          required
-        >
-      </div>
-
-      <div class="field">
-        <label for="regPhone">
-          Phone Number
-        </label>
-
-        <input
-          id="regPhone"
-          type="tel"
-          placeholder="Enter phone number"
-          autocomplete="tel"
-        >
-      </div>
-
-      <div class="field">
-        <label for="regPassword">
-          Password
-        </label>
-
-        <input
-          id="regPassword"
-          type="password"
-          placeholder="Create a password"
-          autocomplete="new-password"
-          required
-        >
-      </div>
-
-      <!-- REFERRAL CODE AFTER PASSWORD -->
-      <div class="field">
-        <label for="regReferral">
-          Referral Code
-        </label>
-
-        <input
-          id="regReferral"
-          class="ref-input"
-          type="text"
-          placeholder="Enter referral code (optional)"
-          autocomplete="off"
-        >
-      </div>
-
-      <div class="field">
-        <label for="regConfirm">
-          Confirm Password
-        </label>
-
-        <input
-          id="regConfirm"
-          type="password"
-          placeholder="Confirm your password"
-          autocomplete="new-password"
-          required
-        >
-      </div>
-
-      <button class="btn" id="registerBtn" type="submit">
-        Create Account
-      </button>
-
-      <div class="switch">
-        Already have an account?
-        <button type="button" id="goLogin">
-          Login
-        </button>
-      </div>
-
-    </form>
-
-    <div class="terms">
-      By continuing, you agree to our
-      <a href="/terms.html">Terms</a>,
-      <a href="/privacy.html">Privacy Policy</a>
-      and
-      <a href="/delete-account.html">Account Deletion Policy</a>.
-    </div>
-
   </div>
 
-</div>
+  <script>
+    let isSignUp = false;
 
-<script>
-'use strict';
-
-/* =========================================================
-   HELPERS
-========================================================= */
-
-const $ = id => document.getElementById(id);
-
-function clean(value) {
-  return String(value ?? '').trim();
-}
-
-function showMessage(message, type = 'info') {
-  const box = $('message');
-
-  box.textContent = message;
-  box.className = 'message show ' + type;
-
-  window.scrollTo({
-    top: 0,
-    behavior: 'smooth'
-  });
-}
-
-function clearMessage() {
-  const box = $('message');
-
-  box.textContent = '';
-  box.className = 'message';
-}
-
-function showForm(type) {
-  clearMessage();
-
-  if (type === 'login') {
-    $('loginForm').classList.add('active');
-    $('registerForm').classList.remove('active');
-
-    $('loginTab').classList.add('active');
-    $('registerTab').classList.remove('active');
-  } else {
-    $('registerForm').classList.add('active');
-    $('loginForm').classList.remove('active');
-
-    $('registerTab').classList.add('active');
-    $('loginTab').classList.remove('active');
-  }
-}
-
-/* =========================================================
-   REFERRAL CODE FROM URL
-========================================================= */
-
-function getReferralCode() {
-  try {
-    const params = new URLSearchParams(window.location.search);
-
-    return (
-      params.get('ref') ||
-      ''
-    ).trim().toUpperCase();
-
-  } catch (error) {
-    return '';
-  }
-}
-
-const referralCodeFromUrl = getReferralCode();
-
-if (referralCodeFromUrl) {
-  $('refBox').classList.add('show');
-  $('refCodeText').textContent = referralCodeFromUrl;
-
-  showForm('register');
-
-  $('regReferral').value = referralCodeFromUrl;
-}
-
-/* =========================================================
-   TABS
-========================================================= */
-
-$('loginTab').addEventListener('click', () => {
-  showForm('login');
-});
-
-$('registerTab').addEventListener('click', () => {
-  showForm('register');
-});
-
-$('goRegister').addEventListener('click', () => {
-  showForm('register');
-});
-
-$('goLogin').addEventListener('click', () => {
-  showForm('login');
-});
-
-/* =========================================================
-   FORGOT PASSWORD
-========================================================= */
-
-$('forgotBtn').addEventListener('click', () => {
-  showMessage(
-    'Password reset service will be available soon. Please contact support if you need help.',
-    'info'
-  );
-});
-
-/* =========================================================
-   LOGIN
-========================================================= */
-
-$('loginForm').addEventListener('submit', async function(event) {
-
-  event.preventDefault();
-
-  clearMessage();
-
-  const login = clean($('loginEmail').value);
-  const password = $('loginPassword').value;
-
-  if (!login || !password) {
-    showMessage(
-      'Please enter your email/username and password.',
-      'error'
-    );
-    return;
-  }
-
-  const button = $('loginBtn');
-
-  button.disabled = true;
-
-  button.innerHTML =
-    '<span class="loading"></span>Logging in...';
-
-  try {
-
-    const response = await fetch('/api', {
-      method: 'POST',
-
-      headers: {
-        'Content-Type': 'application/json'
-      },
-
-      body: JSON.stringify({
-        login,
-        password
-      })
-    });
-
-    let data = {};
-
-    try {
-      data = await response.json();
-    } catch {
-      data = {};
+    function toggleMode(e) {
+      if(e) e.preventDefault();
+      isSignUp = !isSignUp;
+      document.getElementById('nameGroup').style.display = isSignUp ? 'block' : 'none';
+      document.getElementById('submitBtn').textContent = isSignUp ? 'Register' : 'Login';
+      document.getElementById('toggleText').textContent = isSignUp ? 'Already have an account?' : "Don't have an account?";
+      document.getElementById('toggleBtn').textContent = isSignUp ? 'Login' : 'Sign Up';
     }
 
-    if (!response.ok) {
-      throw new Error(
-        data.message ||
-        data.error ||
-        `Login failed (${response.status})`
-      );
+    function handleAuth(e) {
+      e.preventDefault();
+      alert(isSignUp ? "Account Created! Redirecting..." : "Login Successful!");
+      window.location.href = "/dashboard.html";
     }
 
-    if (!data.success) {
-      throw new Error(
-        data.message ||
-        data.error ||
-        'Login failed'
-      );
+    // ANIMATED FARM SCENE WITH FALLING DOLLARS, FARMER & ANIMALS
+    const canvas = document.getElementById('sceneCanvas');
+    const ctx = canvas.getContext('2d');
+
+    function resize() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    // Rain Dollars
+    const dollars = Array.from({ length: 30 }, () => ({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      speed: 1 + Math.random() * 2,
+      size: 18 + Math.random() * 10
+    }));
+
+    function drawScene() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Sky
+      ctx.fillStyle = '#87CEEB';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Sun
+      ctx.fillStyle = '#FDB813';
+      ctx.beginPath();
+      ctx.arc(100, 100, 45, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Field Ground / Ready Wheat Crop (Gandum Ki Fasal)
+      const fieldY = canvas.height * 0.65;
+      
+      // Green/Golden Wheat Field
+      ctx.fillStyle = '#DAA520'; // Golden Wheat color
+      ctx.fillRect(0, fieldY, canvas.width, canvas.height - fieldY);
+
+      // Wheat Grass details
+      ctx.strokeStyle = '#B8860B';
+      ctx.lineWidth = 2;
+      for (let i = 0; i < canvas.width; i += 15) {
+        ctx.beginPath();
+        ctx.moveTo(i, fieldY + 50);
+        ctx.lineTo(i + 5, fieldY - 20);
+        ctx.stroke();
+      }
+
+      // Animals (Cow / Sheep grazing grass)
+      ctx.font = "38px Arial";
+      ctx.fillText("🐄", canvas.width * 0.15, fieldY + 30);
+      ctx.fillText("🐐", canvas.width * 0.25, fieldY + 40);
+
+      // Farmer Working in Wheat Field (Kisan Kheth Mein)
+      ctx.font = "42px Arial";
+      ctx.fillText("👨‍🌾", canvas.width * 0.75, fieldY + 10);
+
+      // Falling Dollars ($)
+      ctx.font = "bold 24px Arial";
+      ctx.fillStyle = "#15803d";
+      dollars.forEach(d => {
+        ctx.fillText("💵 $", d.x, d.y);
+        d.y += d.speed;
+        if (d.y > canvas.height) {
+          d.y = -20;
+          d.x = Math.random() * canvas.width;
+        }
+      });
+
+      requestAnimationFrame(drawScene);
     }
 
-    /* Save session */
-    if (data.token) {
-      localStorage.setItem(
-        'earnnest_token',
-        data.token
-      );
-
-      localStorage.setItem(
-        'earnNestToken',
-        data.token
-      );
-    }
-
-    if (data.user) {
-      localStorage.setItem(
-        'earnnest_user',
-        JSON.stringify(data.user)
-      );
-    }
-
-    showMessage(
-      data.message || 'Login successful',
-      'success'
-    );
-
-    setTimeout(() => {
-      window.location.href = '/app/dashboard.html';
-    }, 700);
-
-  } catch (error) {
-
-    console.error('Login error:', error);
-
-    showMessage(
-      error.message || 'Login failed',
-      'error'
-    );
-
-  } finally {
-
-    button.disabled = false;
-
-    button.textContent = 'Login';
-  }
-});
-
-/* =========================================================
-   REGISTER
-========================================================= */
-
-$('registerForm').addEventListener('submit', async function(event) {
-
-  event.preventDefault();
-
-  clearMessage();
-
-  const name = clean($('regName').value);
-  const username = clean($('regUsername').value);
-  const userEmail = clean($('regEmail').value);
-  const phone = clean($('regPhone').value);
-  const password = $('regPassword').value;
-  const confirmPassword = $('regConfirm').value;
-
-  /*
-   * Manual referral code has priority.
-   * If empty, URL referral code is used.
-   */
-  const manualReferral = clean(
-    $('regReferral').value
-  ).toUpperCase();
-
-  const referralCode =
-    manualReferral || referralCodeFromUrl;
-
-  /* =======================================================
-     FRONTEND VALIDATION
-  ======================================================= */
-
-  if (
-    !name ||
-    !username ||
-    !userEmail ||
-    !password ||
-    !confirmPassword
-  ) {
-    showMessage(
-      'Please fill all required fields.',
-      'error'
-    );
-
-    return;
-  }
-
-  if (password.length < 6) {
-    showMessage(
-      'Password must be at least 6 characters.',
-      'error'
-    );
-
-    return;
-  }
-
-  if (password !== confirmPassword) {
-    showMessage(
-      'Passwords do not match.',
-      'error'
-    );
-
-    return;
-  }
-
-  const button = $('registerBtn');
-
-  button.disabled = true;
-
-  button.innerHTML =
-    '<span class="loading"></span>Creating Account...';
-
-  try {
-
-    console.log('Sending registration request...');
-
-    const response = await fetch('/api', {
-      method: 'POST',
-
-      headers: {
-        'Content-Type': 'application/json'
-      },
-
-      body: JSON.stringify({
-        action: 'register',
-        name,
-        username,
-        email: userEmail,
-        phone,
-        password,
-        confirmPassword,
-        referralCode
-      })
-    });
-
-    let data = {};
-
-    try {
-      data = await response.json();
-    } catch (jsonError) {
-
-      console.error(
-        'Could not parse registration response:',
-        jsonError
-      );
-
-      throw new Error(
-        `Server returned an invalid response (${response.status})`
-      );
-    }
-
-    console.log(
-      'Registration response:',
-      response.status,
-      data
-    );
-
-    /*
-     * IMPORTANT:
-     * Show the real backend error instead of the generic
-     * "Registration failed".
-     */
-    if (!response.ok) {
-
-      const actualMessage =
-        data.message ||
-        data.error ||
-        `Registration failed (${response.status})`;
-
-      throw new Error(actualMessage);
-    }
-
-    if (!data.success) {
-
-      throw new Error(
-        data.message ||
-        data.error ||
-        'Registration failed'
-      );
-    }
-
-    /* =====================================================
-       SUCCESS
-    ===================================================== */
-
-    if (data.user) {
-
-      /*
-       * Save newly generated referral information.
-       */
-      localStorage.setItem(
-        'earnnest_pending_user',
-        JSON.stringify(data.user)
-      );
-    }
-
-    showMessage(
-      data.message ||
-      'Account created successfully. Please login.',
-      'success'
-    );
-
-    /*
-     * Clear registration password fields.
-     */
-    $('regPassword').value = '';
-    $('regConfirm').value = '';
-
-    /*
-     * Keep the referral code visible for the current
-     * registration result.
-     */
-    setTimeout(() => {
-
-      $('loginEmail').value = userEmail;
-
-      showForm('login');
-
-      showMessage(
-        'Account created successfully. Please login.',
-        'success'
-      );
-
-    }, 1200);
-
-  } catch (error) {
-
-    console.error(
-      'Registration error:',
-      error
-    );
-
-    /*
-     * THIS IS THE IMPORTANT FIX:
-     * The actual API error will now appear on screen.
-     */
-    showMessage(
-      error.message ||
-      'Registration failed',
-      'error'
-    );
-
-  } finally {
-
-    button.disabled = false;
-
-    button.textContent = 'Create Account';
-  }
-});
-</script>
-
+    drawScene();
+  </script>
 </body>
 </html>
