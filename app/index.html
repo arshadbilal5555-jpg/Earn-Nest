@@ -3,69 +3,172 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>EarnNest - Login & Registration</title>
+  <title>EarnNest - Login & Register</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; height: 100vh; overflow: hidden; position: relative; background: #eef2f7; }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+      background: #0f172a;
+    }
 
-    /* Canvas Scene for Farmer, Wheat Field, Animals & Falling Dollars */
-    #sceneCanvas {
+    /* Background Image with Overlay */
+    .bg-image {
       position: absolute;
       inset: 0;
       width: 100%;
       height: 100%;
+      object-fit: cover;
+      object-position: center;
       z-index: 1;
+      filter: brightness(0.85);
     }
 
-    /* Login Form Overlay Card */
-    .login-wrapper {
+    .bg-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(15, 23, 42, 0.4) 0%, rgba(15, 23, 42, 0.7) 100%);
+      z-index: 2;
+    }
+
+    /* Falling Dollar Canvas Animation */
+    #dollarCanvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 3;
+      pointer-events: none;
+    }
+
+    /* Form Container */
+    .auth-container {
       position: relative;
       z-index: 10;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
+      width: 100%;
+      max-width: 420px;
       padding: 20px;
     }
 
-    .login-card {
+    .auth-card {
       background: rgba(255, 255, 255, 0.92);
-      backdrop-filter: blur(8px);
-      border: 1px solid rgba(255, 255, 255, 0.6);
-      width: 100%;
-      max-width: 400px;
-      padding: 32px;
-      border-radius: 16px;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+      backdrop-filter: blur(12px);
+      border-radius: 20px;
+      padding: 35px 30px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
+      border: 1px solid rgba(255, 255, 255, 0.5);
     }
 
-    .brand-title { text-align: center; font-size: 26px; color: #1565c0; font-weight: bold; margin-bottom: 6px; }
-    .brand-subtitle { text-align: center; font-size: 14px; color: #64748b; margin-bottom: 24px; }
+    .brand-header {
+      text-align: center;
+      margin-bottom: 25px;
+    }
 
-    .form-group { margin-bottom: 16px; }
-    .form-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: #334155; }
-    .form-control { width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 15px; outline: none; }
-    .form-control:focus { border-color: #2563eb; }
+    .brand-title {
+      font-size: 28px;
+      font-weight: 800;
+      color: #1e3a8a;
+      letter-spacing: -0.5px;
+    }
 
-    .btn-submit { width: 100%; background: #2563eb; color: #ffffff; padding: 12px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 16px; margin-top: 8px; }
-    .btn-submit:hover { background: #1d4ed8; }
+    .brand-subtitle {
+      font-size: 14px;
+      color: #475569;
+      margin-top: 4px;
+      font-weight: 500;
+    }
 
-    .toggle-link { text-align: center; margin-top: 16px; font-size: 14px; color: #64748b; }
-    .toggle-link a { color: #2563eb; text-decoration: none; font-weight: 600; }
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: 700;
+      color: #334155;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 13px 16px;
+      border: 1.5px solid #cbd5e1;
+      border-radius: 10px;
+      font-size: 15px;
+      background: #ffffff;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    .form-control:focus {
+      border-color: #2563eb;
+      box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15);
+    }
+
+    .btn-submit {
+      width: 100%;
+      padding: 14px;
+      background: #16a34a;
+      color: #ffffff;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.2s ease;
+      margin-top: 10px;
+      box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3);
+    }
+
+    .btn-submit:hover {
+      background: #15803d;
+    }
+
+    .auth-toggle {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 14px;
+      color: #64748b;
+    }
+
+    .auth-toggle a {
+      color: #2563eb;
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    .auth-toggle a:hover {
+      text-decoration: underline;
+    }
   </style>
 </head>
 <body>
 
-  <!-- Background Farm Scene Canvas -->
-  <canvas id="sceneCanvas"></canvas>
+  <!-- Background Khet & Kisan Picture -->
+  <img src="Gemini_Generated_Image_778bs6778bs6778b.jfif" alt="Wheat Farm" class="bg-image">
+  <div class="bg-overlay"></div>
 
-  <div class="login-wrapper">
-    <div class="login-card">
-      <div class="brand-title">🌱 EarnNest</div>
-      <div class="brand-subtitle">Work Hard, Earn Rewards</div>
+  <!-- Falling Dollars Layer -->
+  <canvas id="dollarCanvas"></canvas>
 
-      <form id="authForm" onsubmit="handleAuth(event)">
-        <div class="form-group" id="nameGroup" style="display:none;">
+  <div class="auth-container">
+    <div class="auth-card">
+      <div class="brand-header">
+        <div class="brand-title">🌱 EarnNest</div>
+        <div class="brand-subtitle">Work Hard, Grow Balance</div>
+      </div>
+
+      <form id="authForm" onsubmit="handleAuthSubmit(event)">
+        <div class="form-group" id="nameGroup" style="display: none;">
           <label for="name">Full Name</label>
           <input type="text" id="name" class="form-control" placeholder="Enter full name">
         </div>
@@ -80,12 +183,12 @@
           <input type="password" id="password" class="form-control" placeholder="••••••••" required>
         </div>
 
-        <button type="submit" class="btn-submit" id="submitBtn">Login</button>
+        <button type="submit" id="submitBtn" class="btn-submit">Login</button>
       </form>
 
-      <div class="toggle-link">
-        <span id="toggleText">Don't have an account?</span> 
-        <a href="#" onclick="toggleMode(event)" id="toggleBtn">Sign Up</a>
+      <div class="auth-toggle">
+        <span id="toggleText">Don't have an account?</span>
+        <a href="#" id="toggleBtn" onclick="toggleAuthMode(event)">Sign Up</a>
       </div>
     </div>
   </div>
@@ -93,7 +196,7 @@
   <script>
     let isSignUp = false;
 
-    function toggleMode(e) {
+    function toggleAuthMode(e) {
       if(e) e.preventDefault();
       isSignUp = !isSignUp;
       document.getElementById('nameGroup').style.display = isSignUp ? 'block' : 'none';
@@ -102,86 +205,45 @@
       document.getElementById('toggleBtn').textContent = isSignUp ? 'Login' : 'Sign Up';
     }
 
-    function handleAuth(e) {
+    function handleAuthSubmit(e) {
       e.preventDefault();
-      alert(isSignUp ? "Account Created! Redirecting..." : "Login Successful!");
-      window.location.href = "/dashboard.html";
+      window.location.href = '/dashboard.html';
     }
 
-    // ANIMATED FARM SCENE WITH FALLING DOLLARS, FARMER & ANIMALS
-    const canvas = document.getElementById('sceneCanvas');
+    // Falling Dollar Animation
+    const canvas = document.getElementById('dollarCanvas');
     const ctx = canvas.getContext('2d');
 
-    function resize() {
+    function resizeCanvas() {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
     }
-    window.addEventListener('resize', resize);
-    resize();
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
 
-    // Rain Dollars
-    const dollars = Array.from({ length: 30 }, () => ({
+    const dollars = Array.from({ length: 35 }, () => ({
       x: Math.random() * canvas.width,
       y: Math.random() * canvas.height,
-      speed: 1 + Math.random() * 2,
-      size: 18 + Math.random() * 10
+      speed: 1.5 + Math.random() * 2.5,
+      size: 20 + Math.random() * 12,
+      opacity: 0.6 + Math.random() * 0.4
     }));
 
-    function drawScene() {
+    function animateDollars() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      // Sky
-      ctx.fillStyle = '#87CEEB';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      // Sun
-      ctx.fillStyle = '#FDB813';
-      ctx.beginPath();
-      ctx.arc(100, 100, 45, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Field Ground / Ready Wheat Crop (Gandum Ki Fasal)
-      const fieldY = canvas.height * 0.65;
-      
-      // Green/Golden Wheat Field
-      ctx.fillStyle = '#DAA520'; // Golden Wheat color
-      ctx.fillRect(0, fieldY, canvas.width, canvas.height - fieldY);
-
-      // Wheat Grass details
-      ctx.strokeStyle = '#B8860B';
-      ctx.lineWidth = 2;
-      for (let i = 0; i < canvas.width; i += 15) {
-        ctx.beginPath();
-        ctx.moveTo(i, fieldY + 50);
-        ctx.lineTo(i + 5, fieldY - 20);
-        ctx.stroke();
-      }
-
-      // Animals (Cow / Sheep grazing grass)
-      ctx.font = "38px Arial";
-      ctx.fillText("🐄", canvas.width * 0.15, fieldY + 30);
-      ctx.fillText("🐐", canvas.width * 0.25, fieldY + 40);
-
-      // Farmer Working in Wheat Field (Kisan Kheth Mein)
-      ctx.font = "42px Arial";
-      ctx.fillText("👨‍🌾", canvas.width * 0.75, fieldY + 10);
-
-      // Falling Dollars ($)
-      ctx.font = "bold 24px Arial";
-      ctx.fillStyle = "#15803d";
       dollars.forEach(d => {
-        ctx.fillText("💵 $", d.x, d.y);
+        ctx.font = `bold ${d.size}px Arial`;
+        ctx.fillStyle = `rgba(34, 197, 94, ${d.opacity})`;
+        ctx.fillText('💵 $', d.x, d.y);
         d.y += d.speed;
-        if (d.y > canvas.height) {
-          d.y = -20;
+        if (d.y > canvas.height + 30) {
+          d.y = -30;
           d.x = Math.random() * canvas.width;
         }
       });
-
-      requestAnimationFrame(drawScene);
+      requestAnimationFrame(animateDollars);
     }
-
-    drawScene();
+    animateDollars();
   </script>
 </body>
 </html>
