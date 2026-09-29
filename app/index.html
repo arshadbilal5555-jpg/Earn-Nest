@@ -1,249 +1,841 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>EarnNest - Login & Register</title>
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-      overflow: hidden;
-      background: #0f172a;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#16a34a">
+<title>EarnNest - Login & Register</title>
 
-    /* Background Image with Overlay */
-    .bg-image {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      object-position: center;
-      z-index: 1;
-      filter: brightness(0.85);
-    }
+<style>
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+}
 
-    .bg-overlay {
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(180deg, rgba(15, 23, 42, 0.4) 0%, rgba(15, 23, 42, 0.7) 100%);
-      z-index: 2;
-    }
+body{
+  font-family:"Segoe UI",Arial,sans-serif;
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:auto;
+  position:relative;
+  background:
+    radial-gradient(circle at 15% 20%,rgba(34,197,94,.35),transparent 35%),
+    radial-gradient(circle at 85% 80%,rgba(21,128,61,.35),transparent 35%),
+    linear-gradient(135deg,#052e16,#14532d 45%,#052e16);
+}
 
-    /* Falling Dollar Canvas Animation */
-    #dollarCanvas {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 3;
-      pointer-events: none;
-    }
+/* Decorative background */
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  background:
+    linear-gradient(135deg,rgba(255,255,255,.04) 25%,transparent 25%) 0 0/70px 70px;
+  pointer-events:none;
+}
 
-    /* Form Container */
-    .auth-container {
-      position: relative;
-      z-index: 10;
-      width: 100%;
-      max-width: 420px;
-      padding: 20px;
-    }
+/* Falling money */
+#dollarCanvas{
+  position:fixed;
+  inset:0;
+  width:100%;
+  height:100%;
+  pointer-events:none;
+  z-index:1;
+}
 
-    .auth-card {
-      background: rgba(255, 255, 255, 0.92);
-      backdrop-filter: blur(12px);
-      border-radius: 20px;
-      padding: 35px 30px;
-      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
-      border: 1px solid rgba(255, 255, 255, 0.5);
-    }
+/* Main */
+.auth-container{
+  position:relative;
+  z-index:5;
+  width:100%;
+  max-width:440px;
+  padding:20px;
+}
 
-    .brand-header {
-      text-align: center;
-      margin-bottom: 25px;
-    }
+.auth-card{
+  background:rgba(255,255,255,.96);
+  border:1px solid rgba(255,255,255,.7);
+  border-radius:24px;
+  padding:34px 30px 28px;
+  box-shadow:0 30px 70px rgba(0,0,0,.35);
+}
 
-    .brand-title {
-      font-size: 28px;
-      font-weight: 800;
-      color: #1e3a8a;
-      letter-spacing: -0.5px;
-    }
+/* EarnNest Logo */
+.brand-header{
+  text-align:center;
+  margin-bottom:27px;
+}
 
-    .brand-subtitle {
-      font-size: 14px;
-      color: #475569;
-      margin-top: 4px;
-      font-weight: 500;
-    }
+.logo-box{
+  width:72px;
+  height:72px;
+  margin:0 auto 10px;
+  border-radius:18px;
+  background:#16a34a;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  box-shadow:0 10px 24px rgba(22,163,74,.35);
+}
 
-    .form-group {
-      margin-bottom: 18px;
-    }
+.logo-letter{
+  color:#fff;
+  font-size:45px;
+  line-height:1;
+  font-weight:900;
+  font-family:Arial,sans-serif;
+}
 
-    .form-group label {
-      display: block;
-      font-size: 13px;
-      font-weight: 700;
-      color: #334155;
-      margin-bottom: 6px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
+.logo-name{
+  font-size:27px;
+  line-height:1.1;
+  font-weight:800;
+  color:#166534;
+  letter-spacing:-.7px;
+}
 
-    .form-control {
-      width: 100%;
-      padding: 13px 16px;
-      border: 1.5px solid #cbd5e1;
-      border-radius: 10px;
-      font-size: 15px;
-      background: #ffffff;
-      outline: none;
-      transition: all 0.2s ease;
-    }
+.brand-subtitle{
+  margin-top:7px;
+  font-size:13px;
+  color:#64748b;
+  font-weight:500;
+}
 
-    .form-control:focus {
-      border-color: #2563eb;
-      box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15);
-    }
+/* Heading */
+.form-heading{
+  text-align:center;
+  margin-bottom:21px;
+}
 
-    .btn-submit {
-      width: 100%;
-      padding: 14px;
-      background: #16a34a;
-      color: #ffffff;
-      border: none;
-      border-radius: 10px;
-      font-size: 16px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: background 0.2s ease;
-      margin-top: 10px;
-      box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3);
-    }
+.form-heading h1{
+  font-size:22px;
+  color:#172033;
+  margin-bottom:5px;
+}
 
-    .btn-submit:hover {
-      background: #15803d;
-    }
+.form-heading p{
+  color:#64748b;
+  font-size:13px;
+}
 
-    .auth-toggle {
-      text-align: center;
-      margin-top: 20px;
-      font-size: 14px;
-      color: #64748b;
-    }
+/* Form */
+.form-group{
+  margin-bottom:15px;
+}
 
-    .auth-toggle a {
-      color: #2563eb;
-      font-weight: 700;
-      text-decoration: none;
-    }
+.form-group label{
+  display:block;
+  margin-bottom:6px;
+  color:#334155;
+  font-size:13px;
+  font-weight:700;
+}
 
-    .auth-toggle a:hover {
-      text-decoration: underline;
-    }
-  </style>
+.form-control{
+  width:100%;
+  height:47px;
+  padding:0 14px;
+  border:1.5px solid #d1d5db;
+  border-radius:10px;
+  background:#fff;
+  color:#111827;
+  font-size:15px;
+  outline:none;
+  transition:.2s;
+}
+
+.form-control:focus{
+  border-color:#16a34a;
+  box-shadow:0 0 0 4px rgba(22,163,74,.12);
+}
+
+.form-row{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+}
+
+/* Password */
+.password-wrap{
+  position:relative;
+}
+
+.password-wrap .form-control{
+  padding-right:48px;
+}
+
+.show-password{
+  position:absolute;
+  right:12px;
+  top:50%;
+  transform:translateY(-50%);
+  border:0;
+  background:transparent;
+  cursor:pointer;
+  font-size:18px;
+  color:#64748b;
+}
+
+/* Forgot */
+.forgot-row{
+  text-align:right;
+  margin-top:-5px;
+  margin-bottom:8px;
+}
+
+.forgot-btn{
+  border:0;
+  background:none;
+  color:#15803d;
+  font-size:13px;
+  font-weight:700;
+  cursor:pointer;
+}
+
+/* Submit */
+.btn-submit{
+  width:100%;
+  height:49px;
+  border:0;
+  border-radius:11px;
+  background:#16a34a;
+  color:#fff;
+  font-size:16px;
+  font-weight:800;
+  cursor:pointer;
+  margin-top:8px;
+  box-shadow:0 7px 18px rgba(22,163,74,.28);
+  transition:.2s;
+}
+
+.btn-submit:hover{
+  background:#15803d;
+  transform:translateY(-1px);
+}
+
+.btn-submit:disabled{
+  opacity:.65;
+  cursor:not-allowed;
+  transform:none;
+}
+
+/* Messages */
+#message{
+  display:none;
+  margin:0 0 15px;
+  padding:11px 13px;
+  border-radius:9px;
+  font-size:13px;
+  line-height:1.4;
+}
+
+#message.success{
+  display:block;
+  color:#166534;
+  background:#dcfce7;
+  border:1px solid #bbf7d0;
+}
+
+#message.error{
+  display:block;
+  color:#b91c1c;
+  background:#fee2e2;
+  border:1px solid #fecaca;
+}
+
+/* Toggle */
+.auth-toggle{
+  text-align:center;
+  margin-top:21px;
+  padding-top:18px;
+  border-top:1px solid #e5e7eb;
+  color:#64748b;
+  font-size:14px;
+}
+
+.auth-toggle a{
+  color:#15803d;
+  font-weight:800;
+  text-decoration:none;
+  margin-left:4px;
+}
+
+.auth-toggle a:hover{
+  text-decoration:underline;
+}
+
+/* Signup fields */
+.signup-only{
+  display:none;
+}
+
+/* Footer */
+.footer{
+  text-align:center;
+  margin-top:18px;
+  color:rgba(255,255,255,.75);
+  font-size:12px;
+}
+
+/* Mobile */
+@media(max-width:520px){
+  .auth-container{
+    padding:14px;
+  }
+
+  .auth-card{
+    padding:27px 20px 23px;
+    border-radius:20px;
+  }
+
+  .logo-box{
+    width:64px;
+    height:64px;
+  }
+
+  .logo-letter{
+    font-size:40px;
+  }
+
+  .logo-name{
+    font-size:25px;
+  }
+
+  .form-row{
+    grid-template-columns:1fr;
+    gap:0;
+  }
+}
+</style>
+
 </head>
+
 <body>
 
-  <!-- Background Khet & Kisan Picture -->
-  <img src="Gemini_Generated_Image_778bs6778bs6778b.jfif" alt="Wheat Farm" class="bg-image">
-  <div class="bg-overlay"></div>
+<canvas id="dollarCanvas"></canvas>
 
-  <!-- Falling Dollars Layer -->
-  <canvas id="dollarCanvas"></canvas>
+<div class="auth-container">
 
-  <div class="auth-container">
-    <div class="auth-card">
-      <div class="brand-header">
-        <div class="brand-title">🌱 EarnNest</div>
-        <div class="brand-subtitle">Work Hard, Grow Balance</div>
-      </div>
+  <div class="auth-card">
 
-      <form id="authForm" onsubmit="handleAuthSubmit(event)">
-        <div class="form-group" id="nameGroup" style="display: none;">
-          <label for="name">Full Name</label>
-          <input type="text" id="name" class="form-control" placeholder="Enter full name">
-        </div>
+```
+<!-- EarnNest Logo -->
+<div class="brand-header">
+  <div class="logo-box">
+    <span class="logo-letter">E</span>
+  </div>
 
-        <div class="form-group">
-          <label for="email">Email Address</label>
-          <input type="email" id="email" class="form-control" placeholder="user@earnnest.app" required>
-        </div>
+  <div class="logo-name">Earn Nest</div>
 
-        <div class="form-group">
-          <label for="password">Password</label>
-          <input type="password" id="password" class="form-control" placeholder="••••••••" required>
-        </div>
+  <div class="brand-subtitle">
+    Work Hard, Grow Your Balance
+  </div>
+</div>
 
-        <button type="submit" id="submitBtn" class="btn-submit">Login</button>
-      </form>
+<div class="form-heading">
+  <h1 id="formTitle">Welcome Back</h1>
+  <p id="formSubtitle">Login to continue to your EarnNest account</p>
+</div>
 
-      <div class="auth-toggle">
-        <span id="toggleText">Don't have an account?</span>
-        <a href="#" id="toggleBtn" onclick="toggleAuthMode(event)">Sign Up</a>
-      </div>
+<div id="message"></div>
+
+<form id="authForm">
+
+  <!-- Signup fields -->
+  <div class="signup-only form-group" id="nameGroup">
+    <label for="name">Full Name</label>
+    <input
+      type="text"
+      id="name"
+      class="form-control"
+      placeholder="Enter your full name"
+    >
+  </div>
+
+  <div class="signup-only form-group" id="usernameGroup">
+    <label for="username">Username</label>
+    <input
+      type="text"
+      id="username"
+      class="form-control"
+      placeholder="Choose a username"
+    >
+  </div>
+
+  <div class="signup-only form-group" id="phoneGroup">
+    <label for="phone">Phone Number</label>
+    <input
+      type="tel"
+      id="phone"
+      class="form-control"
+      placeholder="03XXXXXXXXX"
+    >
+  </div>
+
+  <div class="form-group">
+    <label for="email">Email Address</label>
+    <input
+      type="email"
+      id="email"
+      class="form-control"
+      placeholder="Enter your email"
+      required
+    >
+  </div>
+
+  <div class="form-group">
+    <label for="password">Password</label>
+
+    <div class="password-wrap">
+      <input
+        type="password"
+        id="password"
+        class="form-control"
+        placeholder="Enter your password"
+        required
+      >
+
+      <button
+        type="button"
+        class="show-password"
+        onclick="togglePassword('password',this)"
+      >👁</button>
     </div>
   </div>
 
-  <script>
-    let isSignUp = false;
+  <!-- Confirm password -->
+  <div class="signup-only form-group" id="confirmGroup">
+    <label for="confirmPassword">Confirm Password</label>
 
-    function toggleAuthMode(e) {
-      if(e) e.preventDefault();
-      isSignUp = !isSignUp;
-      document.getElementById('nameGroup').style.display = isSignUp ? 'block' : 'none';
-      document.getElementById('submitBtn').textContent = isSignUp ? 'Register' : 'Login';
-      document.getElementById('toggleText').textContent = isSignUp ? 'Already have an account?' : "Don't have an account?";
-      document.getElementById('toggleBtn').textContent = isSignUp ? 'Login' : 'Sign Up';
+    <div class="password-wrap">
+      <input
+        type="password"
+        id="confirmPassword"
+        class="form-control"
+        placeholder="Confirm your password"
+      >
+
+      <button
+        type="button"
+        class="show-password"
+        onclick="togglePassword('confirmPassword',this)"
+      >👁</button>
+    </div>
+  </div>
+
+  <!-- Referral -->
+  <div class="signup-only form-group" id="referralGroup">
+    <label for="referralCode">Referral Code (Optional)</label>
+    <input
+      type="text"
+      id="referralCode"
+      class="form-control"
+      placeholder="Enter referral code"
+    >
+  </div>
+
+  <div class="forgot-row" id="forgotRow">
+    <button
+      type="button"
+      class="forgot-btn"
+      onclick="forgotPassword()"
+    >
+      Forgot Password?
+    </button>
+  </div>
+
+  <button
+    type="submit"
+    id="submitBtn"
+    class="btn-submit"
+  >
+    Login
+  </button>
+
+</form>
+
+<div class="auth-toggle">
+  <span id="toggleText">Don't have an account?</span>
+  <a
+    href="#"
+    id="toggleBtn"
+    onclick="toggleAuthMode(event)"
+  >Create Account</a>
+</div>
+```
+
+  </div>
+
+  <div class="footer">
+    © 2026 EarnNest · Rewards Platform
+  </div>
+
+</div>
+
+<script>
+"use strict";
+
+let isSignUp = false;
+
+const API_BASE = window.EARNNEST_API || "/api";
+
+const authForm = document.getElementById("authForm");
+const messageBox = document.getElementById("message");
+const submitBtn = document.getElementById("submitBtn");
+
+function showMessage(message, type) {
+  messageBox.textContent = message;
+  messageBox.className = type || "";
+  messageBox.style.display = "block";
+}
+
+function clearMessage() {
+  messageBox.textContent = "";
+  messageBox.className = "";
+  messageBox.style.display = "none";
+}
+
+function toggleAuthMode(e) {
+  if(e) e.preventDefault();
+
+  isSignUp = !isSignUp;
+
+  document.querySelectorAll(".signup-only").forEach(function(el){
+    el.style.display = isSignUp ? "block" : "none";
+  });
+
+  document.getElementById("formTitle").textContent =
+    isSignUp ? "Create Your Account" : "Welcome Back";
+
+  document.getElementById("formSubtitle").textContent =
+    isSignUp
+      ? "Join EarnNest and start earning rewards"
+      : "Login to continue to your EarnNest account";
+
+  submitBtn.textContent = isSignUp ? "Create Account" : "Login";
+
+  document.getElementById("toggleText").textContent =
+    isSignUp
+      ? "Already have an account?"
+      : "Don't have an account?";
+
+  document.getElementById("toggleBtn").textContent =
+    isSignUp ? "Login" : "Create Account";
+
+  document.getElementById("forgotRow").style.display =
+    isSignUp ? "none" : "block";
+
+  clearMessage();
+}
+
+function togglePassword(id, button) {
+  const input = document.getElementById(id);
+
+  if(input.type === "password"){
+    input.type = "text";
+    button.textContent = "🙈";
+  }else{
+    input.type = "password";
+    button.textContent = "👁";
+  }
+}
+
+function saveLoginSession(data) {
+  if(data.token){
+    localStorage.setItem("earnnest_token", data.token);
+  }
+
+  if(data.user){
+    localStorage.setItem(
+      "earnnest_user",
+      JSON.stringify(data.user)
+    );
+  }
+}
+
+async function loginUser(emailValue, passwordValue) {
+
+  const response = await fetch(API_BASE, {
+    method:"POST",
+    headers:{
+      "Content-Type":"application/json"
+    },
+    body:JSON.stringify({
+      action:"login",
+      login:emailValue,
+      email:emailValue,
+      password:passwordValue
+    })
+  });
+
+  let data;
+
+  try{
+    data = await response.json();
+  }catch{
+    throw new Error("Server returned an invalid response.");
+  }
+
+  if(!response.ok || !data.success){
+    throw new Error(
+      data.message || "Login failed."
+    );
+  }
+
+  saveLoginSession(data);
+
+  showMessage(
+    "Login successful. Opening dashboard...",
+    "success"
+  );
+
+  setTimeout(function(){
+    window.location.href = "/dashboard.html";
+  },500);
+}
+
+async function registerUser() {
+
+  const name =
+    document.getElementById("name").value.trim();
+
+  const username =
+    document.getElementById("username").value.trim();
+
+  const phone =
+    document.getElementById("phone").value.trim();
+
+  const email =
+    document.getElementById("email").value.trim();
+
+  const password =
+    document.getElementById("password").value;
+
+  const confirmPassword =
+    document.getElementById("confirmPassword").value;
+
+  const referralCode =
+    document.getElementById("referralCode").value.trim();
+
+  if(!name || !username || !email || !password){
+    throw new Error(
+      "Please fill all required fields."
+    );
+  }
+
+  if(password.length < 6){
+    throw new Error(
+      "Password must be at least 6 characters."
+    );
+  }
+
+  if(password !== confirmPassword){
+    throw new Error(
+      "Passwords do not match."
+    );
+  }
+
+  const response = await fetch(API_BASE, {
+    method:"POST",
+    headers:{
+      "Content-Type":"application/json"
+    },
+    body:JSON.stringify({
+      action:"register",
+      name:name,
+      username:username,
+      phone:phone,
+      email:email,
+      password:password,
+      confirmPassword:confirmPassword,
+      referralCode:referralCode
+    })
+  });
+
+  let data;
+
+  try{
+    data = await response.json();
+  }catch{
+    throw new Error(
+      "Server returned an invalid response."
+    );
+  }
+
+  if(!response.ok || !data.success){
+    throw new Error(
+      data.message || "Registration failed."
+    );
+  }
+
+  showMessage(
+    "Account created successfully. Logging you in...",
+    "success"
+  );
+
+  /*
+   * Automatically login after registration.
+   * This keeps the user from having to enter
+   * the password a second time.
+   */
+  await loginUser(email,password);
+}
+
+authForm.addEventListener("submit", async function(e){
+
+  e.preventDefault();
+  clearMessage();
+
+  submitBtn.disabled = true;
+
+  const originalText =
+    isSignUp ? "Create Account" : "Login";
+
+  submitBtn.textContent = "Please wait...";
+
+  try{
+
+    const emailValue =
+      document.getElementById("email").value.trim();
+
+    const passwordValue =
+      document.getElementById("password").value;
+
+    if(!emailValue || !passwordValue){
+      throw new Error(
+        "Please enter your email and password."
+      );
     }
 
-    function handleAuthSubmit(e) {
-      e.preventDefault();
-      window.location.href = '/dashboard.html';
+    if(isSignUp){
+
+      await registerUser();
+
+    }else{
+
+      await loginUser(
+        emailValue,
+        passwordValue
+      );
+
     }
 
-    // Falling Dollar Animation
-    const canvas = document.getElementById('dollarCanvas');
-    const ctx = canvas.getContext('2d');
+  }catch(error){
 
-    function resizeCanvas() {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+    console.error("EarnNest authentication error:",error);
+
+    showMessage(
+      error.message || "Request failed. Please try again.",
+      "error"
+    );
+
+    submitBtn.disabled = false;
+    submitBtn.textContent = originalText;
+  }
+});
+
+function forgotPassword(){
+
+  showMessage(
+    "Password reset is not connected yet. Please contact EarnNest support.",
+    "error"
+  );
+}
+
+
+/* Falling money animation */
+const canvas =
+  document.getElementById("dollarCanvas");
+
+const ctx =
+  canvas.getContext("2d");
+
+function resizeCanvas(){
+
+  canvas.width =
+    window.innerWidth;
+
+  canvas.height =
+    window.innerHeight;
+}
+
+window.addEventListener(
+  "resize",
+  resizeCanvas
+);
+
+resizeCanvas();
+
+const dollars =
+  Array.from({length:28},function(){
+
+    return {
+      x:Math.random()*canvas.width,
+      y:Math.random()*canvas.height,
+      speed:1+Math.random()*2,
+      size:18+Math.random()*13,
+      opacity:.18+Math.random()*.25,
+      rotation:Math.random()*360
+    };
+
+  });
+
+function animateDollars(){
+
+  ctx.clearRect(
+    0,
+    0,
+    canvas.width,
+    canvas.height
+  );
+
+  dollars.forEach(function(d){
+
+    ctx.save();
+
+    ctx.translate(
+      d.x,
+      d.y
+    );
+
+    ctx.rotate(
+      d.rotation * Math.PI / 180
+    );
+
+    ctx.font =
+      "bold " + d.size + "px Arial";
+
+    ctx.fillStyle =
+      "rgba(134,239,172," + d.opacity + ")";
+
+    ctx.fillText("$",0,0);
+
+    ctx.restore();
+
+    d.y += d.speed;
+    d.rotation += .25;
+
+    if(d.y > canvas.height + 30){
+
+      d.y = -30;
+      d.x = Math.random()*canvas.width;
+
     }
-    window.addEventListener('resize', resizeCanvas);
-    resizeCanvas();
 
-    const dollars = Array.from({ length: 35 }, () => ({
-      x: Math.random() * canvas.width,
-      y: Math.random() * canvas.height,
-      speed: 1.5 + Math.random() * 2.5,
-      size: 20 + Math.random() * 12,
-      opacity: 0.6 + Math.random() * 0.4
-    }));
+  });
 
-    function animateDollars() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      dollars.forEach(d => {
-        ctx.font = `bold ${d.size}px Arial`;
-        ctx.fillStyle = `rgba(34, 197, 94, ${d.opacity})`;
-        ctx.fillText('💵 $', d.x, d.y);
-        d.y += d.speed;
-        if (d.y > canvas.height + 30) {
-          d.y = -30;
-          d.x = Math.random() * canvas.width;
-        }
-      });
-      requestAnimationFrame(animateDollars);
-    }
-    animateDollars();
-  </script>
+  requestAnimationFrame(
+    animateDollars
+  );
+}
+
+animateDollars();
+</script>
+
 </body>
 </html>
