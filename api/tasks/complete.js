@@ -8,20 +8,23 @@ function send(res, status, data) {
   res.statusCode = status;
   res.setHeader('Content-Type', 'application/json');
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'POST,OPTIONS');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader(
     'Access-Control-Allow-Headers',
     'Content-Type, Authorization'
   );
+
   res.end(JSON.stringify(data));
 }
 
 function getToken(req) {
   const auth = req.headers.authorization || '';
 
-  return auth.startsWith('Bearer ')
-    ? auth.slice(7).trim()
-    : '';
+  if (!auth.startsWith('Bearer ')) {
+    return '';
+  }
+
+  return auth.slice(7).trim();
 }
 
 function readBody(req) {
@@ -77,208 +80,220 @@ const TASKS = {
     title: 'Weekly Activity',
     reward: 250,
     period: 'weekly'
+  },
+
+  'task1': {
+    title: 'Daily Check-in',
+    reward: 50,
+    period: 'daily'
+  },
+
+  'task2': {
+    title: 'Complete Profile',
+    reward: 100,
+    period: 'once'
   }
 };
 
-module.exports = async (req, res) => {
+function getPeriodKey(period) {
+  const now = new Date();
 
-  // CORS preflight
-  if (req.method === 'OPTIONS') {
-    res.statusCode = 204;
+  const year = now.getUTCFullYear();
+  const month = String(now.getUTCMonth() + 1).padStart(2, '0');
+  const day = String(now.getUTCDate()).padStart(2, '0');
 
-    res.setHeader(
-      'Access-Control-Allow-Origin',
-      '*'
-    );
-
-    res.setHeader(
-      'Access-Control-Allow-Methods',
-      'POST,OPTIONS'
-    );
-
-    res.setHeader(
-      'Access-Control-Allow-Headers',
-      'Content-Type, Authorization'
-    );
-
-    return res.end();
+  if (period === 'once') {
+    return 'once';
   }
 
-  // Only POST allowed
+  if (period === 'daily') {
+    return `day:${year}-${month}-${day}`;
+  }
+
+  if (period === 'weekly') {
+    const date = new Date(
+      Date.UTC(year, now.getUTCMonth(), now.getUTCDate())
+    );
+
+    const dayNumber = date.getUTCDay() || 7;
+
+    date.setUTCDate(date.getUTCDate() + 4 - dayNumber);
+
+    const weekYear = date.getUTCFullYear();
+
+    const yearStart = new Date(Date.UTC(weekYear, 0, 1));
+
+    const weekNumber = Math.ceil(
+      (((date - yearStart) / 86400000) + 1) / 7
+    );
+
+    return `week:${weekYear}-${String(weekNumber).padStart(2, '0')}`;
+  }
+
+  return `day:${year}-${month}-${day}`;
+}
+
+async function getUserFromToken(token) {
+  if (!token) {
+    return null;
+  }
+
+  const rows = await sql`
+    SELECT
+      s.user_id,
+      s.token,
+      s.expires_at,
+      u.id,
+      u.name,
+      u.username,
+      u.email
+    FROM admin_sessions s
+    LEFT JOIN users u
+      ON u.id::text = s.user_id::text
+    WHERE s.token = ${token}
+      AND (
+        s.expires_at IS NULL
+        OR s.expires_at > NOW()
+      )
+    LIMIT 1
+  `;
+
+  if (!rows.length) {
+    return null;
+  }
+
+  return rows[0];
+}
+
+async function ensureTables() {
+  await sql`
+    CREATE TABLE IF NOT EXISTS task_claims (
+      id BIGSERIAL PRIMARY KEY,
+      user_id TEXT NOT NULL,
+      task_id TEXT NOT NULL,
+      period_key TEXT NOT NULL,
+      reward INTEGER NOT NULL,
+      claimed_at TIMESTAMPTZ DEFAULT NOW(),
+      UNIQUE(user_id, task_id, period_key)
+    )
+  `;
+}
+
+async function ensureWallet(userId) {
+  const existing = await sql`
+    SELECT
+      user_id,
+      balance,
+      total_earned,
+      total_withdrawn
+    FROM wallets
+    WHERE user_id::text = ${String(userId)}
+    LIMIT 1
+  `;
+
+  if (existing.length) {
+    return existing[0];
+  }
+
+  await sql`
+    INSERT INTO wallets (
+      user_id,
+      balance,
+      total_earned,
+      total_withdrawn
+    )
+    VALUES (
+      ${String(userId)},
+      0,
+      0,
+      0
+    )
+    ON CONFLICT DO NOTHING
+  `;
+
+  const created = await sql`
+    SELECT
+      user_id,
+      balance,
+      total_earned,
+      total_withdrawn
+    FROM wallets
+    WHERE user_id::text = ${String(userId)}
+    LIMIT 1
+  `;
+
+  return created[0] || null;
+}
+
+module.exports = async function handler(req, res) {
+  if (req.method === 'OPTIONS') {
+    return send(res, 200, { success: true });
+  }
+
   if (req.method !== 'POST') {
     return send(res, 405, {
       success: false,
-      message: 'Method not allowed. Use POST.'
+      message: 'Method not allowed'
     });
   }
 
   try {
-
-    // -----------------------------------------
-    // Authentication
-    // -----------------------------------------
+    if (!process.env.DATABASE_URL) {
+      return send(res, 500, {
+        success: false,
+        message: 'DATABASE_URL is not configured'
+      });
+    }
 
     const token = getToken(req);
 
     if (!token) {
       return send(res, 401, {
         success: false,
-        message: 'Authentication required'
+        message: 'Authorization token required'
       });
     }
 
-    // -----------------------------------------
-    // Read request body
-    // -----------------------------------------
+    const user = await getUserFromToken(token);
+
+    if (!user) {
+      return send(res, 401, {
+        success: false,
+        message: 'Invalid or expired login session'
+      });
+    }
 
     const body = await readBody(req);
 
     const taskId = String(
-      body.taskId || ''
+      body.taskId ||
+      body.task_id ||
+      body.id ||
+      ''
     ).trim();
 
-    if (!taskId || !TASKS[taskId]) {
+    if (!taskId) {
       return send(res, 400, {
         success: false,
-        message: 'Invalid task'
+        message: 'Task ID is required'
       });
     }
 
     const task = TASKS[taskId];
 
-    // -----------------------------------------
-    // Find logged-in user
-    // -----------------------------------------
-
-    const sessionRows = await sql`
-      SELECT
-        s.user_id
-      FROM admin_sessions s
-      WHERE s.token = ${token}
-        AND s.expires_at > NOW()
-      LIMIT 1
-    `;
-
-    if (!sessionRows.length) {
-      return send(res, 401, {
-        success: false,
-        message: 'Invalid or expired session'
-      });
-    }
-
-    const userId = String(
-      sessionRows[0].user_id
-    );
-
-    // -----------------------------------------
-    // Create task_claims table
-    // user_id MUST be TEXT because
-    // EarnNest user IDs are UUID-style strings.
-    // -----------------------------------------
-
-    await sql`
-      CREATE TABLE IF NOT EXISTS task_claims (
-        id BIGSERIAL PRIMARY KEY,
-        user_id TEXT NOT NULL,
-        task_id TEXT NOT NULL,
-        period_key TEXT NOT NULL,
-        reward INTEGER NOT NULL,
-        claimed_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-        UNIQUE(user_id, task_id, period_key)
-      )
-    `;
-
-    // -----------------------------------------
-    // Fix old BIGINT column if the table was
-    // previously created with BIGINT.
-    // -----------------------------------------
-
-    try {
-      await sql`
-        ALTER TABLE task_claims
-        ALTER COLUMN user_id TYPE TEXT
-        USING user_id::TEXT
-      `;
-    } catch (alterError) {
-      // Ignore if the column is already TEXT
-      // or PostgreSQL does not need the change.
-      console.log(
-        'task_claims user_id type check:',
-        alterError.message
-      );
-    }
-
-    // -----------------------------------------
-    // Calculate claim period
-    // -----------------------------------------
-
-    let periodKey;
-
-    if (task.period === 'once') {
-
-      periodKey = 'once';
-
-    } else if (task.period === 'daily') {
-
-      const today = new Date()
-        .toISOString()
-        .slice(0, 10);
-
-      periodKey = `day:${today}`;
-
-    } else if (task.period === 'weekly') {
-
-      const now = new Date();
-
-      const date = new Date(
-        Date.UTC(
-          now.getUTCFullYear(),
-          now.getUTCMonth(),
-          now.getUTCDate()
-        )
-      );
-
-      const day = date.getUTCDay() || 7;
-
-      date.setUTCDate(
-        date.getUTCDate() + 4 - day
-      );
-
-      const yearStart = new Date(
-        Date.UTC(
-          date.getUTCFullYear(),
-          0,
-          1
-        )
-      );
-
-      const weekNumber = Math.ceil(
-        (
-          (
-            (date - yearStart) / 86400000
-          ) + 1
-        ) / 7
-      );
-
-      periodKey =
-        `week:${date.getUTCFullYear()}-W${String(
-          weekNumber
-        ).padStart(2, '0')}`;
-
-    } else {
-
+    if (!task) {
       return send(res, 400, {
         success: false,
-        message: 'Invalid task period'
+        message: `Invalid task: ${taskId}`
       });
-
     }
 
-    // -----------------------------------------
-    // Check if already claimed
-    // -----------------------------------------
+    await ensureTables();
 
-    const existingClaim = await sql`
+    const userId = String(user.user_id);
+    const periodKey = getPeriodKey(task.period);
+
+    const alreadyClaimed = await sql`
       SELECT id
       FROM task_claims
       WHERE user_id = ${userId}
@@ -287,63 +302,28 @@ module.exports = async (req, res) => {
       LIMIT 1
     `;
 
-    if (existingClaim.length) {
-
-      const walletRows = await sql`
-        SELECT
-          balance,
-          total_earned,
-          total_withdrawn
-        FROM wallets
-        WHERE user_id = ${userId}
-        LIMIT 1
-      `;
-
+    if (alreadyClaimed.length) {
       return send(res, 409, {
         success: false,
-        message: 'Task already claimed for this period',
-        wallet: walletRows.length
-          ? {
-              balance: Number(
-                walletRows[0].balance || 0
-              ),
-              totalEarned: Number(
-                walletRows[0].total_earned || 0
-              ),
-              totalWithdrawn: Number(
-                walletRows[0].total_withdrawn || 0
-              )
-            }
-          : null
+        message: 'This task has already been completed for this period',
+        alreadyClaimed: true
       });
     }
 
-    // -----------------------------------------
-    // Make sure wallet exists
-    // -----------------------------------------
+    const wallet = await ensureWallet(userId);
 
-    await sql`
-      INSERT INTO wallets (
-        user_id,
-        balance,
-        total_earned,
-        total_withdrawn
-      )
-      VALUES (
-        ${userId},
-        0,
-        0,
-        0
-      )
-      ON CONFLICT (user_id)
-      DO NOTHING
-    `;
+    if (!wallet) {
+      return send(res, 500, {
+        success: false,
+        message: 'Wallet could not be created'
+      });
+    }
 
-    // -----------------------------------------
-    // Add task claim
-    // -----------------------------------------
-
-    await sql`
+    /*
+     * Insert the claim first.
+     * The UNIQUE constraint prevents duplicate rewards.
+     */
+    const claim = await sql`
       INSERT INTO task_claims (
         user_id,
         task_id,
@@ -356,89 +336,80 @@ module.exports = async (req, res) => {
         ${periodKey},
         ${task.reward}
       )
+      ON CONFLICT (
+        user_id,
+        task_id,
+        period_key
+      )
+      DO NOTHING
+      RETURNING id
     `;
 
-    // -----------------------------------------
-    // Add reward to wallet
-    // -----------------------------------------
+    if (!claim.length) {
+      return send(res, 409, {
+        success: false,
+        message: 'This task has already been completed for this period',
+        alreadyClaimed: true
+      });
+    }
 
-    const walletResult = await sql`
+    const updatedWallet = await sql`
       UPDATE wallets
       SET
-        balance = COALESCE(balance, 0)
-          + ${task.reward},
-
-        total_earned = COALESCE(total_earned, 0)
-          + ${task.reward}
-
-      WHERE user_id = ${userId}
-
+        balance = COALESCE(balance, 0) + ${task.reward},
+        total_earned = COALESCE(total_earned, 0) + ${task.reward}
+      WHERE user_id::text = ${userId}
       RETURNING
         balance,
         total_earned,
         total_withdrawn
     `;
 
-    if (!walletResult.length) {
-
-      // If wallet update failed, remove claim
-      // so the user can try again.
-      await sql`
-        DELETE FROM task_claims
-        WHERE user_id = ${userId}
-          AND task_id = ${taskId}
-          AND period_key = ${periodKey}
-      `;
-
+    if (!updatedWallet.length) {
       return send(res, 500, {
         success: false,
-        message: 'Wallet not found'
+        message: 'Wallet update failed'
       });
     }
 
-    const wallet = walletResult[0];
-
-    // -----------------------------------------
-    // Success
-    // -----------------------------------------
+    /*
+     * Keep users.coins synchronized if that column exists.
+     * Failure here does not cancel the wallet reward.
+     */
+    try {
+      await sql`
+        UPDATE users
+        SET coins = ${Number(updatedWallet[0].balance)}
+        WHERE id::text = ${userId}
+      `;
+    } catch (error) {
+      console.log('users.coins sync skipped:', error.message);
+    }
 
     return send(res, 200, {
       success: true,
-
-      message:
-        `${task.title} completed successfully`,
-
+      message: `${task.title} completed successfully`,
       task: {
         id: taskId,
         title: task.title,
         reward: task.reward
       },
-
       wallet: {
-        balance: Number(
-          wallet.balance || 0
-        ),
-
-        totalEarned: Number(
-          wallet.total_earned || 0
-        ),
-
+        balance: Number(updatedWallet[0].balance || 0),
+        totalEarned: Number(updatedWallet[0].total_earned || 0),
         totalWithdrawn: Number(
-          wallet.total_withdrawn || 0
+          updatedWallet[0].total_withdrawn || 0
         )
       }
     });
 
   } catch (error) {
-
-    console.error(
-      'Task completion API error:',
-      error
-    );
+    console.error('TASK COMPLETE ERROR:', error);
 
     return send(res, 500, {
       success: false,
-      message: 'Server error'
+      message: 'Unable to process reward',
+      error: error.message || 'Unknown server error'
     });
   }
 };
