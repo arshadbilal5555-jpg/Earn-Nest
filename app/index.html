@@ -1,1326 +1,609 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+'use strict';
 
-  <title>EarnNest — Login & Register</title>
+const crypto = require('crypto');
+const { neon } = require('@neondatabase/serverless');
 
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+const sql = neon(process.env.DATABASE_URL);
 
-    body {
-      font-family: "Segoe UI", Arial, sans-serif;
-      min-height: 100vh;
-      background:
-        radial-gradient(circle at top left, #166534 0%, transparent 35%),
-        radial-gradient(circle at bottom right, #14532d 0%, transparent 35%),
-        linear-gradient(135deg, #052e16, #064e3b 50%, #022c22);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 25px;
-      overflow-x: hidden;
-      position: relative;
-    }
+function send(res, status, data) {
+  res.statusCode = status;
+  res.setHeader('Content-Type', 'application/json; charset=utf-8');
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader(
+    'Access-Control-Allow-Methods',
+    'POST,OPTIONS'
+  );
+  res.setHeader(
+    'Access-Control-Allow-Headers',
+    'Content-Type, Authorization'
+  );
 
-    /* Background decoration */
-    body::before,
-    body::after {
-      content: "";
-      position: fixed;
-      border-radius: 50%;
-      pointer-events: none;
-      z-index: 0;
-    }
+  return res.end(JSON.stringify(data));
+}
 
-    body::before {
-      width: 350px;
-      height: 350px;
-      background: rgba(34, 197, 94, 0.10);
-      top: -150px;
-      left: -120px;
-    }
+function clean(value) {
+  return String(value ?? '').trim();
+}
 
-    body::after {
-      width: 450px;
-      height: 450px;
-      background: rgba(16, 185, 129, 0.08);
-      bottom: -220px;
-      right: -180px;
-    }
+function normalizeEmail(value) {
+  return clean(value).toLowerCase();
+}
 
-    /* Falling money */
-    #moneyCanvas {
-      position: fixed;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-      z-index: 1;
-      opacity: 0.45;
-    }
+function readBody(req) {
+  return new Promise((resolve, reject) => {
+    let body = '';
 
-    /* Main wrapper */
-    .auth-wrapper {
-      width: 100%;
-      max-width: 440px;
-      position: relative;
-      z-index: 10;
-    }
+    req.on('data', chunk => {
+      body += chunk;
 
-    /* Card */
-    .auth-card {
-      width: 100%;
-      background: rgba(255, 255, 255, 0.97);
-      border-radius: 24px;
-      padding: 32px;
-      box-shadow:
-        0 30px 70px rgba(0, 0, 0, 0.30),
-        0 8px 25px rgba(0, 0, 0, 0.15);
-      border: 1px solid rgba(255, 255, 255, 0.8);
-    }
-
-    /* Logo */
-    .brand {
-      text-align: center;
-      margin-bottom: 25px;
-    }
-
-    .logo-box {
-      width: 70px;
-      height: 70px;
-      margin: 0 auto 10px;
-      border-radius: 18px;
-      background: linear-gradient(145deg, #22c55e, #15803d);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow:
-        0 10px 25px rgba(22, 163, 74, 0.35),
-        inset 0 1px 0 rgba(255,255,255,0.35);
-    }
-
-    .logo-letter {
-      color: white;
-      font-size: 44px;
-      line-height: 1;
-      font-weight: 900;
-      font-family: Arial, sans-serif;
-    }
-
-    .brand-name {
-      font-size: 27px;
-      font-weight: 800;
-      color: #166534;
-      letter-spacing: -0.7px;
-    }
-
-    .brand-tagline {
-      margin-top: 5px;
-      color: #64748b;
-      font-size: 13px;
-      font-weight: 500;
-    }
-
-    /* Mode title */
-    .form-title {
-      text-align: center;
-      font-size: 22px;
-      font-weight: 750;
-      color: #0f172a;
-      margin-bottom: 5px;
-    }
-
-    .form-subtitle {
-      text-align: center;
-      color: #64748b;
-      font-size: 13px;
-      margin-bottom: 22px;
-    }
-
-    /* Fields */
-    .form-group {
-      margin-bottom: 15px;
-    }
-
-    .form-group label {
-      display: block;
-      color: #334155;
-      font-size: 12px;
-      font-weight: 700;
-      margin-bottom: 6px;
-      text-transform: uppercase;
-      letter-spacing: 0.35px;
-    }
-
-    .input-wrap {
-      position: relative;
-    }
-
-    .form-control {
-      width: 100%;
-      height: 48px;
-      border: 1.5px solid #d1d5db;
-      border-radius: 11px;
-      padding: 0 14px;
-      outline: none;
-      background: #f8fafc;
-      color: #0f172a;
-      font-size: 14px;
-      transition: 0.2s ease;
-    }
-
-    .form-control::placeholder {
-      color: #94a3b8;
-    }
-
-    .form-control:focus {
-      background: white;
-      border-color: #16a34a;
-      box-shadow: 0 0 0 4px rgba(22, 163, 74, 0.10);
-    }
-
-    /* Password eye */
-    .password-input {
-      padding-right: 48px;
-    }
-
-    .eye-btn {
-      position: absolute;
-      right: 8px;
-      top: 8px;
-      width: 32px;
-      height: 32px;
-      border: none;
-      background: transparent;
-      cursor: pointer;
-      color: #64748b;
-      font-size: 17px;
-      border-radius: 7px;
-    }
-
-    .eye-btn:hover {
-      background: #f1f5f9;
-      color: #166534;
-    }
-
-    /* Forgot password */
-    .forgot-row {
-      text-align: right;
-      margin-top: -6px;
-      margin-bottom: 5px;
-    }
-
-    .forgot-btn {
-      border: none;
-      background: transparent;
-      color: #15803d;
-      font-size: 12px;
-      font-weight: 700;
-      cursor: pointer;
-    }
-
-    .forgot-btn:hover {
-      text-decoration: underline;
-    }
-
-    /* Submit */
-    .submit-btn {
-      width: 100%;
-      height: 50px;
-      border: none;
-      border-radius: 11px;
-      background: linear-gradient(135deg, #22c55e, #15803d);
-      color: white;
-      font-size: 15px;
-      font-weight: 800;
-      cursor: pointer;
-      margin-top: 10px;
-      box-shadow: 0 8px 18px rgba(22, 163, 74, 0.25);
-      transition: 0.2s ease;
-    }
-
-    .submit-btn:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 10px 22px rgba(22, 163, 74, 0.32);
-    }
-
-    .submit-btn:active {
-      transform: translateY(0);
-    }
-
-    .submit-btn:disabled {
-      opacity: 0.65;
-      cursor: not-allowed;
-      transform: none;
-    }
-
-    /* Toggle */
-    .toggle-area {
-      text-align: center;
-      margin-top: 20px;
-      color: #64748b;
-      font-size: 13px;
-    }
-
-    .toggle-btn {
-      border: none;
-      background: transparent;
-      color: #15803d;
-      font-weight: 800;
-      cursor: pointer;
-      margin-left: 4px;
-    }
-
-    .toggle-btn:hover {
-      text-decoration: underline;
-    }
-
-    /* Message */
-    #message {
-      display: none;
-      padding: 11px 13px;
-      margin-bottom: 15px;
-      border-radius: 10px;
-      font-size: 13px;
-      line-height: 1.4;
-      font-weight: 600;
-    }
-
-    #message.success {
-      display: block;
-      background: #dcfce7;
-      color: #166534;
-      border: 1px solid #86efac;
-    }
-
-    #message.error {
-      display: block;
-      background: #fee2e2;
-      color: #991b1b;
-      border: 1px solid #fca5a5;
-    }
-
-    /* Signup only */
-    .signup-only {
-      display: none;
-    }
-
-    /* Footer */
-    .footer {
-      text-align: center;
-      margin-top: 17px;
-      color: rgba(255,255,255,0.75);
-      font-size: 11px;
-    }
-
-    .footer a {
-      color: white;
-      text-decoration: none;
-      font-weight: 600;
-    }
-
-    /* Mobile */
-    @media (max-width: 480px) {
-      body {
-        padding: 15px;
+      if (body.length > 1024 * 1024) {
+        reject(new Error('Request too large'));
+        req.destroy();
       }
-
-      .auth-card {
-        padding: 25px 20px;
-        border-radius: 20px;
-      }
-
-      .logo-box {
-        width: 62px;
-        height: 62px;
-        border-radius: 16px;
-      }
-
-      .logo-letter {
-        font-size: 39px;
-      }
-
-      .brand-name {
-        font-size: 24px;
-      }
-    }
-  </style>
-</head>
-
-<body>
-
-  <canvas id="moneyCanvas"></canvas>
-
-  <div class="auth-wrapper">
-
-    <div class="auth-card">
-
-      <!-- EarnNest Logo -->
-      <div class="brand">
-        <div class="logo-box">
-          <div class="logo-letter">E</div>
-        </div>
-
-        <div class="brand-name">Earn Nest</div>
-
-        <div class="brand-tagline">
-          Work Hard, Grow Your Balance
-        </div>
-      </div>
-
-      <div class="form-title" id="formTitle">
-        Welcome Back
-      </div>
-
-      <div class="form-subtitle" id="formSubtitle">
-        Login to continue to your EarnNest account
-      </div>
-
-      <div id="message"></div>
-
-      <form id="authForm">
-
-        <!-- Full Name -->
-        <div class="form-group signup-only">
-          <label for="name">Full Name</label>
-          <input
-            type="text"
-            id="name"
-            class="form-control"
-            placeholder="Enter your full name"
-          >
-        </div>
-
-        <!-- Username -->
-        <div class="form-group signup-only">
-          <label for="username">Username</label>
-          <input
-            type="text"
-            id="username"
-            class="form-control"
-            placeholder="Choose a username"
-          >
-        </div>
-
-        <!-- Phone -->
-        <div class="form-group signup-only">
-          <label for="phone">Phone Number</label>
-          <input
-            type="tel"
-            id="phone"
-            class="form-control"
-            placeholder="03XXXXXXXXX"
-          >
-        </div>
-
-        <!-- Email -->
-        <div class="form-group">
-          <label for="email">Email Address</label>
-
-          <input
-            type="email"
-            id="email"
-            class="form-control"
-            placeholder="Enter your email"
-            autocomplete="email"
-            required
-          >
-        </div>
-
-        <!-- Password -->
-        <div class="form-group">
-
-          <label for="password">Password</label>
-
-          <div class="input-wrap">
-
-            <input
-              type="password"
-              id="password"
-              class="form-control password-input"
-              placeholder="Enter your password"
-              autocomplete="current-password"
-              required
-            >
-
-            <button
-              type="button"
-              class="eye-btn"
-              onclick="togglePassword('password', this)"
-              aria-label="Show password"
-            >
-              👁
-            </button>
-
-          </div>
-        </div>
-
-        <!-- Confirm Password -->
-        <div class="form-group signup-only">
-
-          <label for="confirmPassword">Confirm Password</label>
-
-          <div class="input-wrap">
-
-            <input
-              type="password"
-              id="confirmPassword"
-              class="form-control password-input"
-              placeholder="Confirm your password"
-              autocomplete="new-password"
-            >
-
-            <button
-              type="button"
-              class="eye-btn"
-              onclick="togglePassword('confirmPassword', this)"
-              aria-label="Show password"
-            >
-              👁
-            </button>
-
-          </div>
-        </div>
-
-        <!-- Referral -->
-        <div class="form-group signup-only">
-
-          <label for="referralCode">
-            Referral Code
-            <span style="font-weight:500;text-transform:none;color:#94a3b8;">
-              (Optional)
-            </span>
-          </label>
-
-          <input
-            type="text"
-            id="referralCode"
-            class="form-control"
-            placeholder="Enter referral code"
-          >
-
-        </div>
-
-        <!-- Forgot -->
-        <div class="forgot-row" id="forgotRow">
-
-          <button
-            type="button"
-            class="forgot-btn"
-            onclick="forgotPassword()"
-          >
-            Forgot Password?
-          </button>
-
-        </div>
-
-        <!-- Submit -->
-        <button
-          type="submit"
-          id="submitBtn"
-          class="submit-btn"
-        >
-          Login
-        </button>
-
-      </form>
-
-      <!-- Toggle -->
-      <div class="toggle-area">
-
-        <span id="toggleText">
-          Don't have an account?
-        </span>
-
-        <button
-          type="button"
-          id="toggleBtn"
-          class="toggle-btn"
-          onclick="toggleMode()"
-        >
-          Create Account
-        </button>
-
-      </div>
-
-    </div>
-
-    <div class="footer">
-      © 2026 EarnNest ·
-      <a href="/privacy.html">Privacy</a> ·
-      <a href="/terms.html">Terms</a>
-    </div>
-
-  </div>
-
-
-  <script>
-
-    /* =========================
-       API CONFIG
-    ========================= */
-
-    const API_BASE =
-      window.EARNNEST_API || "/api";
-
-
-    /* =========================
-       AUTH MODE
-    ========================= */
-
-    let isSignUp = false;
-
-
-    function toggleMode() {
-
-      isSignUp = !isSignUp;
-
-      const signupFields =
-        document.querySelectorAll(".signup-only");
-
-      signupFields.forEach(function(field) {
-
-        field.style.display =
-          isSignUp ? "block" : "none";
-
-      });
-
-
-      document.getElementById("formTitle").textContent =
-        isSignUp
-          ? "Create Your Account"
-          : "Welcome Back";
-
-
-      document.getElementById("formSubtitle").textContent =
-        isSignUp
-          ? "Join EarnNest and start earning coins"
-          : "Login to continue to your EarnNest account";
-
-
-      document.getElementById("submitBtn").textContent =
-        isSignUp ? "Create Account" : "Login";
-
-
-      document.getElementById("toggleText").textContent =
-        isSignUp
-          ? "Already have an account?"
-          : "Don't have an account?";
-
-
-      document.getElementById("toggleBtn").textContent =
-        isSignUp
-          ? "Login"
-          : "Create Account";
-
-
-      document.getElementById("forgotRow").style.display =
-        isSignUp ? "none" : "block";
-
-
-      clearMessage();
-
-    }
-
-
-    /* =========================
-       MESSAGE
-    ========================= */
-
-    function showMessage(message, type) {
-
-      const box =
-        document.getElementById("message");
-
-      box.textContent = message;
-
-      box.className = type;
-
-      box.style.display = "block";
-
-    }
-
-
-    function clearMessage() {
-
-      const box =
-        document.getElementById("message");
-
-      box.textContent = "";
-
-      box.className = "";
-
-      box.style.display = "none";
-
-    }
-
-
-    /* =========================
-       PASSWORD VISIBILITY
-    ========================= */
-
-    function togglePassword(id, button) {
-
-      const input =
-        document.getElementById(id);
-
-      if (input.type === "password") {
-
-        input.type = "text";
-
-        button.textContent = "🙈";
-
-      } else {
-
-        input.type = "password";
-
-        button.textContent = "👁";
-
-      }
-
-    }
-
-
-    /* =========================
-       LOGIN
-    ========================= */
-
-    async function loginUser() {
-
-      const email =
-        document.getElementById("email").value.trim();
-
-      const password =
-        document.getElementById("password").value;
-
-
-      if (!email || !password) {
-
-        showMessage(
-          "Please enter your email/username and password.",
-          "error"
-        );
-
+    });
+
+    req.on('end', () => {
+      if (!body) {
+        resolve({});
         return;
-
       }
-
-
-      const submitBtn =
-        document.getElementById("submitBtn");
-
-      submitBtn.disabled = true;
-
-      submitBtn.textContent = "Logging in...";
-
-      clearMessage();
-
 
       try {
-
-        const response =
-          await fetch(API_BASE, {
-
-            method: "POST",
-
-            headers: {
-              "Content-Type": "application/json"
-            },
-
-            body: JSON.stringify({
-
-              action: "login",
-
-              login: email,
-
-              email: email,
-
-              password: password
-
-            })
-
-          });
-
-
-        const text =
-          await response.text();
-
-
-        let data = null;
-
-
-        try {
-
-          data = JSON.parse(text);
-
-        } catch (parseError) {
-
-          throw new Error(
-            "Server returned an invalid response."
-          );
-
-        }
-
-
-        if (!response.ok || !data.success) {
-
-          throw new Error(
-            data.message ||
-            "Login failed."
-          );
-
-        }
-
-
-        if (!data.token || !data.user) {
-
-          throw new Error(
-            "Login response is incomplete."
-          );
-
-        }
-
-
-        localStorage.setItem(
-          "earnnest_token",
-          data.token
-        );
-
-
-        localStorage.setItem(
-          "earnnest_user",
-          JSON.stringify(data.user)
-        );
-
-
-        showMessage(
-          "Login successful. Opening dashboard...",
-          "success"
-        );
-
-
-        setTimeout(function() {
-
-          window.location.href =
-            "/dashboard.html";
-
-        }, 500);
-
-
+        resolve(JSON.parse(body));
       } catch (error) {
-
-        console.error(
-          "Login error:",
-          error
-        );
-
-
-        showMessage(
-          error.message ||
-          "Login failed. Please try again.",
-          "error"
-        );
-
-
-        submitBtn.disabled = false;
-
-        submitBtn.textContent = "Login";
-
+        reject(new Error('Invalid JSON'));
       }
+    });
 
+    req.on('error', reject);
+  });
+}
+
+function makeReferralCode(username) {
+  const base = clean(username)
+    .replace(/[^a-zA-Z0-9]/g, '')
+    .toUpperCase()
+    .slice(0, 8);
+
+  const random = crypto
+    .randomBytes(3)
+    .toString('hex')
+    .toUpperCase();
+
+  return `${base || 'USER'}${random}`;
+}
+
+async function createUniqueReferralCode(username) {
+  for (let i = 0; i < 10; i++) {
+    const code = makeReferralCode(username);
+
+    const rows = await sql`
+      SELECT id
+      FROM users
+      WHERE referral_code = ${code}
+      LIMIT 1
+    `;
+
+    if (!rows.length) {
+      return code;
     }
+  }
+
+  throw new Error('Unable to create referral code');
+}
 
 
-    /* =========================
-       REGISTER
-    ========================= */
+/* =========================
+   REGISTER
+========================= */
 
-    async function registerUser() {
+async function handleRegister(body, res) {
+  const name = clean(body.name);
+  const username = clean(body.username).toLowerCase();
+  const userEmail = normalizeEmail(body.email);
+  const phone = clean(body.phone);
+  const password = String(body.password || '');
+  const confirmPassword = String(
+    body.confirmPassword ||
+    body.confirm ||
+    ''
+  );
 
-      const name =
-        document.getElementById("name").value.trim();
+  const referralCode = clean(
+    body.referralCode ||
+    body.ref ||
+    ''
+  ).toUpperCase();
 
-      const username =
-        document.getElementById("username").value.trim();
+  if (!name || !username || !userEmail || !password) {
+    return send(res, 400, {
+      success: false,
+      message:
+        'Name, username, email and password are required'
+    });
+  }
 
-      const phone =
-        document.getElementById("phone").value.trim();
+  if (password.length < 6) {
+    return send(res, 400, {
+      success: false,
+      message:
+        'Password must be at least 6 characters'
+    });
+  }
 
-      const email =
-        document.getElementById("email").value.trim();
+  if (password !== confirmPassword) {
+    return send(res, 400, {
+      success: false,
+      message:
+        'Passwords do not match'
+    });
+  }
 
-      const password =
-        document.getElementById("password").value;
+  try {
+    const existing = await sql`
+      SELECT id, username, email
+      FROM users
+      WHERE LOWER(username) = ${username}
+         OR LOWER(email) = ${userEmail}
+      LIMIT 1
+    `;
 
-      const confirmPassword =
-        document.getElementById("confirmPassword").value;
-
-      const referralCode =
-        document.getElementById("referralCode").value.trim();
-
+    if (existing.length) {
+      const found = existing[0];
 
       if (
-        !name ||
-        !username ||
-        !email ||
-        !password ||
-        !confirmPassword
+        String(found.username).toLowerCase() ===
+        username
       ) {
-
-        showMessage(
-          "Please fill all required fields.",
-          "error"
-        );
-
-        return;
-
+        return send(res, 409, {
+          success: false,
+          message:
+            'Username already exists'
+        });
       }
 
-
-      if (password.length < 6) {
-
-        showMessage(
-          "Password must be at least 6 characters.",
-          "error"
-        );
-
-        return;
-
-      }
-
-
-      if (password !== confirmPassword) {
-
-        showMessage(
-          "Passwords do not match.",
-          "error"
-        );
-
-        return;
-
-      }
-
-
-      const submitBtn =
-        document.getElementById("submitBtn");
-
-      submitBtn.disabled = true;
-
-      submitBtn.textContent = "Creating Account...";
-
-      clearMessage();
-
-
-      try {
-
-        const response =
-          await fetch(API_BASE, {
-
-            method: "POST",
-
-            headers: {
-              "Content-Type": "application/json"
-            },
-
-            body: JSON.stringify({
-
-              action: "register",
-
-              name: name,
-
-              username: username,
-
-              phone: phone,
-
-              email: email,
-
-              password: password,
-
-              confirmPassword: confirmPassword,
-
-              referralCode: referralCode
-
-            })
-
-          });
-
-
-        const text =
-          await response.text();
-
-
-        let data = null;
-
-
-        try {
-
-          data = JSON.parse(text);
-
-        } catch (parseError) {
-
-          throw new Error(
-            "Server returned an invalid response."
-          );
-
-        }
-
-
-        if (!response.ok || !data.success) {
-
-          throw new Error(
-            data.message ||
-            "Account creation failed."
-          );
-
-        }
-
-
-        showMessage(
-          "Account created successfully. Logging you in...",
-          "success"
-        );
-
-
-        /*
-          Automatically login after registration.
-        */
-
-        const loginResponse =
-          await fetch(API_BASE, {
-
-            method: "POST",
-
-            headers: {
-              "Content-Type": "application/json"
-            },
-
-            body: JSON.stringify({
-
-              action: "login",
-
-              login: email,
-
-              email: email,
-
-              password: password
-
-            })
-
-          });
-
-
-        const loginText =
-          await loginResponse.text();
-
-
-        let loginData = null;
-
-
-        try {
-
-          loginData =
-            JSON.parse(loginText);
-
-        } catch (parseError) {
-
-          throw new Error(
-            "Account created, but login response was invalid."
-          );
-
-        }
-
-
-        if (
-          !loginResponse.ok ||
-          !loginData.success ||
-          !loginData.token ||
-          !loginData.user
-        ) {
-
-          throw new Error(
-            loginData.message ||
-            "Account created, but automatic login failed."
-          );
-
-        }
-
-
-        localStorage.setItem(
-          "earnnest_token",
-          loginData.token
-        );
-
-
-        localStorage.setItem(
-          "earnnest_user",
-          JSON.stringify(loginData.user)
-        );
-
-
-        setTimeout(function() {
-
-          window.location.href =
-            "/dashboard.html";
-
-        }, 500);
-
-
-      } catch (error) {
-
-        console.error(
-          "Registration error:",
-          error
-        );
-
-
-        showMessage(
-          error.message ||
-          "Registration failed. Please try again.",
-          "error"
-        );
-
-
-        submitBtn.disabled = false;
-
-        submitBtn.textContent =
-          "Create Account";
-
-      }
-
-    }
-
-
-    /* =========================
-       FORM SUBMIT
-    ========================= */
-
-    document
-      .getElementById("authForm")
-      .addEventListener("submit", function(event) {
-
-        event.preventDefault();
-
-
-        if (isSignUp) {
-
-          registerUser();
-
-        } else {
-
-          loginUser();
-
-        }
-
+      return send(res, 409, {
+        success: false,
+        message:
+          'Email already exists'
       });
-
-
-    /* =========================
-       FORGOT PASSWORD
-    ========================= */
-
-    function forgotPassword() {
-
-      showMessage(
-        "Password reset is not connected yet. Please contact support.",
-        "error"
-      );
-
     }
 
+    let referrer = null;
 
-    /* =========================
-       FALLING MONEY ANIMATION
-    ========================= */
+    if (referralCode) {
+      const refRows = await sql`
+        SELECT id, username, referral_code
+        FROM users
+        WHERE UPPER(referral_code) = ${referralCode}
+        LIMIT 1
+      `;
 
-    const canvas =
-      document.getElementById("moneyCanvas");
+      if (!refRows.length) {
+        return send(res, 400, {
+          success: false,
+          message:
+            'Invalid referral code'
+        });
+      }
 
-    const ctx =
-      canvas.getContext("2d");
+      referrer = refRows[0];
 
-
-    let money = [];
-
-
-    function resizeCanvas() {
-
-      canvas.width =
-        window.innerWidth;
-
-      canvas.height =
-        window.innerHeight;
-
+      if (
+        String(referrer.username).toLowerCase() ===
+        username
+      ) {
+        return send(res, 400, {
+          success: false,
+          message:
+            'You cannot use your own referral code'
+        });
+      }
     }
 
+    const userId =
+      `user-${crypto.randomUUID()}`;
 
-    window.addEventListener(
-      "resize",
-      resizeCanvas
+    const newReferralCode =
+      await createUniqueReferralCode(username);
+
+    await sql`
+      INSERT INTO users
+      (
+        id,
+        name,
+        username,
+        email,
+        phone,
+        password,
+        role,
+        coins,
+        referral_code,
+        referred_by,
+        created_at
+      )
+      VALUES
+      (
+        ${userId},
+        ${name},
+        ${username},
+        ${userEmail},
+        ${phone},
+        ${password},
+        'user',
+        0,
+        ${newReferralCode},
+        ${referrer
+          ? referrer.referral_code
+          : null},
+        NOW()
+      )
+    `;
+
+    await sql`
+      INSERT INTO wallets
+      (
+        user_id,
+        balance,
+        total_earned,
+        total_withdrawn
+      )
+      VALUES
+      (
+        ${userId},
+        0,
+        0,
+        0
+      )
+    `;
+
+    if (referrer) {
+      const bonus = 100;
+
+      await sql`
+        INSERT INTO referrals
+        (
+          id,
+          referrer_id,
+          referred_user_id,
+          referral_code,
+          bonus_coins,
+          status,
+          created_at
+        )
+        VALUES
+        (
+          ${crypto.randomUUID()},
+          ${referrer.id},
+          ${userId},
+          ${referralCode},
+          ${bonus},
+          'completed',
+          NOW()
+        )
+      `;
+
+      await sql`
+        UPDATE wallets
+        SET
+          balance =
+            COALESCE(balance, 0) + ${bonus},
+          total_earned =
+            COALESCE(total_earned, 0) + ${bonus}
+        WHERE user_id = ${referrer.id}
+      `;
+
+      await sql`
+        UPDATE users
+        SET
+          coins =
+            COALESCE(coins, 0) + ${bonus}
+        WHERE id = ${referrer.id}
+      `;
+    }
+
+    return send(res, 201, {
+      success: true,
+      message:
+        'Account created successfully',
+      user: {
+        id: userId,
+        name,
+        username,
+        email: userEmail,
+        phone,
+        role: 'user',
+        coins: 0,
+        balance: 0,
+        referralCode: newReferralCode,
+        referredBy:
+          referrer
+            ? referrer.referral_code
+            : null
+      }
+    });
+
+  } catch (error) {
+    console.error(
+      'Registration API error:',
+      error
     );
 
-
-    resizeCanvas();
-
-
-    function createMoney() {
-
-      money = [];
-
-      const count =
-        window.innerWidth < 600
-          ? 18
-          : 35;
+    return send(res, 500, {
+      success: false,
+      message:
+        'Registration failed',
+      error:
+        error.message
+    });
+  }
+}
 
 
-      for (
-        let i = 0;
-        i < count;
-        i++
-      ) {
+/* =========================
+   LOGIN
+========================= */
 
-        money.push({
+async function handleLogin(body, res) {
+  const login =
+    normalizeEmail(
+      body.login ||
+      body.email ||
+      body.username
+    );
 
-          x:
-            Math.random() *
-            canvas.width,
+  const password =
+    String(body.password || '');
 
-          y:
-            Math.random() *
-            canvas.height,
+  if (!login || !password) {
+    return send(res, 400, {
+      success: false,
+      message:
+        'Email/username and password are required'
+    });
+  }
 
-          speed:
-            0.7 +
-            Math.random() * 1.8,
+  try {
+    let rows = await sql`
+      SELECT *
+      FROM users
+      WHERE LOWER(email) = ${login}
+      LIMIT 1
+    `;
 
-          size:
-            12 +
-            Math.random() * 14,
-
-          rotation:
-            Math.random() * Math.PI * 2,
-
-          rotationSpeed:
-            (Math.random() - 0.5) * 0.03,
-
-          opacity:
-            0.25 +
-            Math.random() * 0.45
-
-        });
-
-      }
-
+    if (!rows.length) {
+      rows = await sql`
+        SELECT *
+        FROM users
+        WHERE LOWER(username) = ${login}
+        LIMIT 1
+      `;
     }
 
-
-    createMoney();
-
-
-    function animateMoney() {
-
-      ctx.clearRect(
-        0,
-        0,
-        canvas.width,
-        canvas.height
-      );
-
-
-      money.forEach(function(item) {
-
-        ctx.save();
-
-
-        ctx.translate(
-          item.x,
-          item.y
-        );
-
-
-        ctx.rotate(
-          item.rotation
-        );
-
-
-        ctx.font =
-          "bold " +
-          item.size +
-          "px Arial";
-
-
-        ctx.fillStyle =
-          "rgba(134, 239, 172, " +
-          item.opacity +
-          ")";
-
-
-        ctx.fillText(
-          "$",
-          0,
-          0
-        );
-
-
-        ctx.restore();
-
-
-        item.y +=
-          item.speed;
-
-        item.rotation +=
-          item.rotationSpeed;
-
-
-        if (
-          item.y >
-          canvas.height + 30
-        ) {
-
-          item.y = -30;
-
-          item.x =
-            Math.random() *
-            canvas.width;
-
-        }
-
-      });
-
-
-      requestAnimationFrame(
-        animateMoney
-      );
-
-    }
-
-
-    animateMoney();
-
-
-    /* =========================
-       PREVENT OLD SESSION
-       FROM BLOCKING LOGIN
-    ========================= */
+    const user = rows[0];
 
     if (
-      window.location.pathname === "/" ||
-      window.location.pathname === "/index.html"
+      !user ||
+      String(user.password) !== password
     ) {
-
-      /*
-        Do not automatically redirect here.
-        User can always see the login page.
-      */
-
+      return send(res, 401, {
+        success: false,
+        message:
+          'Invalid email/username or password'
+      });
     }
 
-  </script>
+    const token =
+      crypto.randomUUID();
 
-</body>
-</html>
+    /*
+      Create session.
+      If admin_sessions table exists,
+      store the token.
+    */
+
+    await sql`
+      INSERT INTO admin_sessions
+      (
+        user_id,
+        token,
+        expires_at
+      )
+      VALUES
+      (
+        ${user.id},
+        ${token},
+        NOW() + INTERVAL '30 days'
+      )
+    `;
+
+    let walletRows = await sql`
+      SELECT *
+      FROM wallets
+      WHERE user_id = ${user.id}
+      LIMIT 1
+    `;
+
+    if (!walletRows.length) {
+      await sql`
+        INSERT INTO wallets
+        (
+          user_id,
+          balance,
+          total_earned,
+          total_withdrawn
+        )
+        VALUES
+        (
+          ${user.id},
+          0,
+          0,
+          0
+        )
+      `;
+
+      walletRows = await sql`
+        SELECT *
+        FROM wallets
+        WHERE user_id = ${user.id}
+        LIMIT 1
+      `;
+    }
+
+    const wallet =
+      walletRows[0] || {};
+
+    const balance =
+      Number(
+        wallet.balance ??
+        user.coins ??
+        0
+      );
+
+    const totalEarned =
+      Number(
+        wallet.total_earned ??
+        0
+      );
+
+    const totalWithdrawn =
+      Number(
+        wallet.total_withdrawn ??
+        0
+      );
+
+    return send(res, 200, {
+      success: true,
+      message:
+        'Login successful',
+
+      token,
+
+      user: {
+        id: user.id,
+        name: user.name,
+        username: user.username,
+        email: user.email,
+        phone: user.phone,
+        role: user.role || 'user',
+
+        coins: balance,
+        balance: balance,
+
+        totalEarned,
+        totalWithdrawn,
+
+        referralCode:
+          user.referral_code || '',
+
+        referredBy:
+          user.referred_by || ''
+      }
+    });
+
+  } catch (error) {
+    console.error(
+      'Login API error:',
+      error
+    );
+
+    return send(res, 500, {
+      success: false,
+      message:
+        'Login server error',
+      error:
+        error.message
+    });
+  }
+}
+
+
+/* =========================
+   MAIN API
+========================= */
+
+module.exports = async function(req, res) {
+
+  if (req.method === 'OPTIONS') {
+
+    res.statusCode = 204;
+
+    res.setHeader(
+      'Access-Control-Allow-Origin',
+      '*'
+    );
+
+    res.setHeader(
+      'Access-Control-Allow-Methods',
+      'POST,OPTIONS'
+    );
+
+    res.setHeader(
+      'Access-Control-Allow-Headers',
+      'Content-Type, Authorization'
+    );
+
+    return res.end();
+  }
+
+
+  if (req.method !== 'POST') {
+
+    return send(res, 405, {
+      success: false,
+      message:
+        'Method not allowed. Use POST.'
+    });
+  }
+
+
+  try {
+
+    const body =
+      await readBody(req);
+
+    if (
+      body.action === 'register'
+    ) {
+
+      return await handleRegister(
+        body,
+        res
+      );
+    }
+
+
+    if (
+      body.action === 'login' ||
+      !body.action
+    ) {
+
+      return await handleLogin(
+        body,
+        res
+      );
+    }
+
+
+    return send(res, 400, {
+      success: false,
+      message:
+        'Unknown action'
+    });
+
+  } catch (error) {
+
+    console.error(
+      'API error:',
+      error
+    );
+
+    return send(res, 500, {
+      success: false,
+      message:
+        'Server error',
+      error:
+        error.message
+    });
+  }
+};
