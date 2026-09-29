@@ -20,7 +20,19 @@
       "dest": "/api/index.js"
     },
     {
-      "src": "/app/(.*)",
+      "src": "/dashboard.html",
+      "dest": "/app/dashboard.html"
+    },
+    {
+      "src": "/index.html",
+      "dest": "/app/index.html"
+    },
+    {
+      "src": "/",
+      "dest": "/app/index.html"
+    },
+    {
+      "src": "/(.*)",
       "dest": "/app/$1"
     }
   ]
