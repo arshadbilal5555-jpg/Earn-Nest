@@ -5,41 +5,18 @@ const { neon } = require('@neondatabase/serverless');
 
 const sql = neon(process.env.DATABASE_URL);
 
-/* =========================================================
-   RESPONSE
-========================================================= */
-
 function send(res, status, data) {
   res.statusCode = status;
-
-  res.setHeader(
-    'Content-Type',
-    'application/json; charset=utf-8'
-  );
-
-  res.setHeader(
-    'Access-Control-Allow-Origin',
-    '*'
-  );
-
-  res.setHeader(
-    'Access-Control-Allow-Methods',
-    'GET,POST,OPTIONS'
-  );
-
+  res.setHeader('Content-Type', 'application/json; charset=utf-8');
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
   res.setHeader(
     'Access-Control-Allow-Headers',
     'Content-Type, Authorization'
   );
 
-  return res.end(
-    JSON.stringify(data)
-  );
+  res.end(JSON.stringify(data));
 }
-
-/* =========================================================
-   BODY
-========================================================= */
 
 function readBody(req) {
   return new Promise((resolve, reject) => {
@@ -57,10 +34,8 @@ function readBody(req) {
 
       try {
         resolve(JSON.parse(body));
-      } catch (error) {
-        reject(
-          new Error('Invalid JSON request')
-        );
+      } catch (err) {
+        reject(new Error('Invalid JSON body'));
       }
     });
 
@@ -68,77 +43,48 @@ function readBody(req) {
   });
 }
 
-/* =========================================================
-   TOKEN
-========================================================= */
-
 function getToken(req) {
-  const authorization =
-    req.headers?.authorization || '';
+  const auth = req.headers.authorization || '';
 
-  if (!authorization) {
-    return null;
+  if (auth.startsWith('Bearer ')) {
+    return auth.substring(7).trim();
   }
 
-  if (
-    authorization
-      .toLowerCase()
-      .startsWith('bearer ')
-  ) {
-    return authorization
-      .substring(7)
-      .trim();
-  }
-
-  return authorization.trim();
+  return '';
 }
 
-/* =========================================================
-   USER FROM SESSION
-========================================================= */
+async function getUserFromToken(req) {
+  const token = getToken(req);
 
-async function getUserFromToken(token) {
   if (!token) {
     return null;
   }
 
   const rows = await sql`
-    SELECT u.*
+    SELECT
+      u.id,
+      u.name,
+      u.username,
+      u.email,
+      u.phone,
+      u.role,
+      u.coins,
+      u.created_at,
+      u.referral_code,
+      u.referred_by
     FROM admin_sessions s
-    INNER JOIN users u
-      ON u.id::text = s.user_id::text
+    JOIN users u ON u.id = s.user_id
     WHERE s.token = ${token}
-      AND (
-        s.expires_at IS NULL
-        OR s.expires_at > NOW()
-      )
+      AND s.expires_at > NOW()
     LIMIT 1
   `;
 
   return rows[0] || null;
 }
 
-/* =========================================================
-   WALLET
-========================================================= */
-
 async function getWallet(userId) {
-  let rows = await sql`
-    SELECT *
-    FROM wallets
-    WHERE user_id::text = ${String(userId)}
-    LIMIT 1
-  `;
-
-  if (rows.length > 0) {
-    return rows[0];
-  }
-
-  const walletId =
-    crypto.randomUUID();
-
-  await sql`
-    INSERT INTO wallets (
+  const rows = await sql`
+    SELECT
       id,
       user_id,
       balance,
@@ -146,742 +92,252 @@ async function getWallet(userId) {
       total_withdrawn,
       created_at,
       updated_at
-    )
-    VALUES (
-      ${walletId},
-      ${String(userId)},
-      0,
-      0,
-      0,
-      NOW(),
-      NOW()
-    )
-  `;
-
-  rows = await sql`
-    SELECT *
     FROM wallets
-    WHERE user_id::text = ${String(userId)}
+    WHERE user_id = ${String(userId)}
     LIMIT 1
   `;
 
-  return rows[0] || null;
+  if (rows.length) {
+    return rows[0];
+  }
+
+  // IMPORTANT:
+  // wallets.id is BIGINT auto-increment.
+  // Do NOT insert an ID here.
+  const created = await sql`
+    INSERT INTO wallets
+      (user_id, balance, total_earned, total_withdrawn)
+    VALUES
+      (${String(userId)}, 0, 0, 0)
+    RETURNING
+      id,
+      user_id,
+      balance,
+      total_earned,
+      total_withdrawn,
+      created_at,
+      updated_at
+  `;
+
+  return created[0];
 }
 
-/* =========================================================
-   TASKS
-========================================================= */
-
-const TASKS = {
-
-  task1: {
+const TASKS = [
+  {
+    id: 'task1',
     title: 'Daily Check-in',
+    description: 'Complete your daily check-in.',
     reward: 50,
-    period: 'daily'
+    repeat: 'daily'
   },
-
-  task2: {
+  {
+    id: 'task2',
     title: 'Follow Social Page',
+    description: 'Follow the EarnNest social page.',
     reward: 100,
-    period: 'once'
+    repeat: 'once'
   },
-
-  task3: {
+  {
+    id: 'task3',
     title: 'Read EarnNest Guide',
+    description: 'Read the EarnNest guide.',
     reward: 75,
-    period: 'once'
+    repeat: 'once'
   },
-
-  task4: {
+  {
+    id: 'task4',
     title: 'Complete Profile',
+    description: 'Complete your profile information.',
     reward: 100,
-    period: 'once'
+    repeat: 'once'
   },
-
-  task5: {
+  {
+    id: 'task5',
     title: 'Invite a Friend',
+    description: 'Invite a friend to EarnNest.',
     reward: 150,
-    period: 'once'
+    repeat: 'once'
   },
-
-  task6: {
+  {
+    id: 'task6',
     title: 'Daily Learning',
+    description: 'Complete today's learning activity.',
     reward: 50,
-    period: 'daily'
+    repeat: 'daily'
   },
-
-  task7: {
+  {
+    id: 'task7',
     title: 'App Engagement',
+    description: 'Complete the app engagement activity.',
     reward: 50,
-    period: 'once'
+    repeat: 'once'
   },
-
-  task8: {
+  {
+    id: 'task8',
     title: 'Daily Activity',
+    description: 'Complete today's activity.',
     reward: 75,
-    period: 'daily'
-  },
-
-  /* Older IDs */
-
-  'daily-check-in': {
-    title: 'Daily Check-in',
-    reward: 50,
-    period: 'daily'
-  },
-
-  'complete-profile': {
-    title: 'Complete Profile',
-    reward: 100,
-    period: 'once'
-  },
-
-  'app-visit': {
-    title: 'App Visit',
-    reward: 25,
-    period: 'daily'
-  },
-
-  'weekly-activity': {
-    title: 'Weekly Activity',
-    reward: 250,
-    period: 'weekly'
+    repeat: 'daily'
   }
-};
+];
 
-/* =========================================================
-   SURVEYS
-========================================================= */
-
-const SURVEYS = {
-
-  survey1: {
+const SURVEYS = [
+  {
+    id: 'survey1',
     title: 'Quick Opinion',
-    reward: 150,
-    period: 'once'
+    description: 'Answer a short opinion survey.',
+    reward: 150
   },
-
-  survey2: {
+  {
+    id: 'survey2',
     title: 'User Experience',
-    reward: 200,
-    period: 'once'
+    description: 'Tell us about your app experience.',
+    reward: 200
   },
-
-  survey3: {
+  {
+    id: 'survey3',
     title: 'Rewards Survey',
-    reward: 250,
-    period: 'once'
+    description: 'Share your rewards preferences.',
+    reward: 250
   },
-
-  survey4: {
+  {
+    id: 'survey4',
     title: 'Shopping Survey',
-    reward: 300,
-    period: 'once'
+    description: 'Answer questions about shopping.',
+    reward: 300
   },
-
-  survey5: {
+  {
+    id: 'survey5',
     title: 'Technology Survey',
-    reward: 250,
-    period: 'once'
-  },
-
-  /* Older IDs */
-
-  'quick-opinion': {
-    title: 'Quick Opinion',
-    reward: 150,
-    period: 'once'
-  },
-
-  'shopping-survey': {
-    title: 'Shopping Survey',
-    reward: 300,
-    period: 'once'
-  },
-
-  'technology-survey': {
-    title: 'Technology Survey',
-    reward: 250,
-    period: 'once'
+    description: 'Share your technology preferences.',
+    reward: 250
   }
-};
+];
 
-/* =========================================================
-   CLAIM REWARD
-========================================================= */
+function normalizeTaskId(id) {
+  const value = String(id || '').trim().toLowerCase();
 
-async function handleClaimReward(
-  body,
-  req,
-  res
-) {
+  const aliases = {
+    '1': 'task1',
+    'task-1': 'task1',
+    'daily-check-in': 'task1',
+
+    '2': 'task2',
+    'task-2': 'task2',
+
+    '3': 'task3',
+    'task-3': 'task3',
+
+    '4': 'task4',
+    'task-4': 'task4',
+
+    '5': 'task5',
+    'task-5': 'task5',
+
+    '6': 'task6',
+    'task-6': 'task6',
+
+    '7': 'task7',
+    'task-7': 'task7',
+
+    '8': 'task8',
+    'task-8': 'task8'
+  };
+
+  return aliases[value] || value;
+}
+
+function normalizeSurveyId(id) {
+  const value = String(id || '').trim().toLowerCase();
+
+  const aliases = {
+    '1': 'survey1',
+    'survey-1': 'survey1',
+
+    '2': 'survey2',
+    'survey-2': 'survey2',
+
+    '3': 'survey3',
+    'survey-3': 'survey3',
+
+    '4': 'survey4',
+    'survey-4': 'survey4',
+
+    '5': 'survey5',
+    'survey-5': 'survey5'
+  };
+
+  return aliases[value] || value;
+}
+
+async function handleHealth(res) {
   try {
-
-    const token = getToken(req);
-
-    if (!token) {
-      return send(res, 401, {
-        success: false,
-        message:
-          'Authentication required'
-      });
-    }
-
-    const user =
-      await getUserFromToken(token);
-
-    if (!user) {
-      return send(res, 401, {
-        success: false,
-        message:
-          'Invalid or expired login session'
-      });
-    }
-
-    const rewardType =
-      String(
-        body.rewardType ||
-        body.reward_type ||
-        body.type ||
-        ''
-      )
-        .trim()
-        .toLowerCase();
-
-    const referenceKey =
-      String(
-        body.rewardId ||
-        body.reward_id ||
-        body.referenceKey ||
-        body.reference_key ||
-        body.taskId ||
-        body.task_id ||
-        body.surveyId ||
-        body.survey_id ||
-        ''
-      ).trim();
-
-    if (!rewardType) {
-      return send(res, 400, {
-        success: false,
-        message:
-          'Reward type is required'
-      });
-    }
-
-    if (!referenceKey) {
-      return send(res, 400, {
-        success: false,
-        message:
-          'Reward reference is required'
-      });
-    }
-
-    let reward = null;
-
-    if (rewardType === 'task') {
-      reward = TASKS[referenceKey];
-    }
-
-    if (rewardType === 'survey') {
-      reward = SURVEYS[referenceKey];
-    }
-
-    if (!reward) {
-      return send(res, 404, {
-        success: false,
-        message:
-          'Reward not found',
-        rewardType,
-        referenceKey
-      });
-    }
-
-    /* -----------------------------------------
-       DAILY / WEEKLY REFERENCE
-    ----------------------------------------- */
-
-    const now =
-      new Date();
-
-    const year =
-      now.getUTCFullYear();
-
-    const month =
-      String(
-        now.getUTCMonth() + 1
-      ).padStart(2, '0');
-
-    const day =
-      String(
-        now.getUTCDate()
-      ).padStart(2, '0');
-
-    const today =
-      `${year}-${month}-${day}`;
-
-    let claimReference =
-      referenceKey;
-
-    if (reward.period === 'daily') {
-      claimReference =
-        `${referenceKey}-${today}`;
-    }
-
-    if (reward.period === 'weekly') {
-
-      const weekDate =
-        new Date(now);
-
-      weekDate.setUTCDate(
-        weekDate.getUTCDate() -
-        weekDate.getUTCDay()
-      );
-
-      const weekYear =
-        weekDate.getUTCFullYear();
-
-      const weekMonth =
-        String(
-          weekDate.getUTCMonth() + 1
-        ).padStart(2, '0');
-
-      const weekDay =
-        String(
-          weekDate.getUTCDate()
-        ).padStart(2, '0');
-
-      claimReference =
-        `${referenceKey}-${weekYear}-${weekMonth}-${weekDay}`;
-    }
-
-    /* -----------------------------------------
-       CHECK EXISTING CLAIM
-    ----------------------------------------- */
-
-    const existing =
-      await sql`
-        SELECT
-          id,
-          amount,
-          created_at
-        FROM reward_claims
-        WHERE user_id::text =
-              ${String(user.id)}
-          AND reward_type =
-              ${rewardType}
-          AND reference_key =
-              ${claimReference}
-        LIMIT 1
-      `;
-
-    if (existing.length > 0) {
-
-      return send(res, 409, {
-        success: false,
-        message:
-          'Reward already claimed',
-        referenceKey,
-        amount:
-          Number(
-            existing[0].amount || 0
-          )
-      });
-    }
-
-    /* -----------------------------------------
-       WALLET
-    ----------------------------------------- */
-
-    const wallet =
-      await getWallet(user.id);
-
-    if (!wallet) {
-      throw new Error(
-        'User wallet not found'
-      );
-    }
-
-    const amount =
-      Number(reward.reward);
-
-    if (
-      !Number.isFinite(amount) ||
-      amount <= 0
-    ) {
-      throw new Error(
-        'Invalid reward amount'
-      );
-    }
-
-    /* -----------------------------------------
-       INSERT CLAIM
-
-       IMPORTANT:
-       Existing database uses:
-       reference_key
-       title
-       amount
-    ----------------------------------------- */
-
-    const claimId =
-      crypto.randomUUID();
-
-    try {
-
-      await sql`
-        INSERT INTO reward_claims (
-          id,
-          user_id,
-          reward_type,
-          reference_key,
-          title,
-          amount,
-          created_at
-        )
-        VALUES (
-          ${claimId},
-          ${String(user.id)},
-          ${rewardType},
-          ${claimReference},
-          ${reward.title},
-          ${amount},
-          NOW()
-        )
-      `;
-
-    } catch (claimError) {
-
-      const errorText =
-        String(
-          claimError.message || ''
-        ).toLowerCase();
-
-      if (
-        claimError.code === '23505' ||
-        errorText.includes('duplicate') ||
-        errorText.includes('unique')
-      ) {
-
-        return send(res, 409, {
-          success: false,
-          message:
-            'Reward already claimed'
-        });
-      }
-
-      throw claimError;
-    }
-
-    /* -----------------------------------------
-       UPDATE WALLET
-    ----------------------------------------- */
-
-    const updatedWallet =
-      await sql`
-        UPDATE wallets
-        SET
-          balance =
-            COALESCE(balance, 0)
-            + ${amount},
-
-          total_earned =
-            COALESCE(total_earned, 0)
-            + ${amount},
-
-          updated_at = NOW()
-
-        WHERE user_id::text =
-              ${String(user.id)}
-
-        RETURNING *
-      `;
-
-    if (
-      updatedWallet.length === 0
-    ) {
-      throw new Error(
-        'Wallet update failed'
-      );
-    }
-
-    const finalWallet =
-      updatedWallet[0];
-
-    /* -----------------------------------------
-       SYNC USERS.COINS
-
-       If this fails, wallet still remains
-       the main balance.
-    ----------------------------------------- */
-
-    try {
-
-      await sql`
-        UPDATE users
-        SET coins =
-          COALESCE(coins, 0)
-          + ${amount}
-        WHERE id::text =
-          ${String(user.id)}
-      `;
-
-    } catch (coinsError) {
-
-      console.warn(
-        'users.coins update skipped:',
-        coinsError.message
-      );
-    }
-
-    /* -----------------------------------------
-       SUCCESS
-    ----------------------------------------- */
+    const result = await sql`
+      SELECT NOW() AS database_time
+    `;
 
     return send(res, 200, {
-
       success: true,
-
-      message:
-        'Reward claimed successfully',
-
-      reward: {
-        type: rewardType,
-        id: referenceKey,
-        title: reward.title,
-        coins: amount
-      },
-
-      wallet: {
-        balance:
-          Number(
-            finalWallet.balance || 0
-          ),
-
-        total_earned:
-          Number(
-            finalWallet.total_earned || 0
-          ),
-
-        total_withdrawn:
-          Number(
-            finalWallet.total_withdrawn || 0
-          )
-      }
+      service: 'EarnNest API',
+      status: 'running',
+      database: 'connected',
+      databaseTime: result[0].database_time
     });
-
   } catch (error) {
-
-    console.error(
-      'Reward claim error:',
-      error
-    );
-
     return send(res, 500, {
-
       success: false,
-
-      message:
-        'Reward claim database error',
-
-      error:
-        error?.message ||
-        String(error),
-
-      code:
-        error?.code || null,
-
-      detail:
-        error?.detail || null,
-
-      hint:
-        error?.hint || null
+      service: 'EarnNest API',
+      status: 'error',
+      error: error.message
     });
   }
 }
 
-/* =========================================================
-   WALLET API
-========================================================= */
+async function handleRegister(body, res) {
+  const name = String(body.name || '').trim();
+  const username = String(body.username || '').trim();
+  const email = String(body.email || '').trim().toLowerCase();
+  const phone = String(body.phone || '').trim();
+  const password = String(body.password || '');
 
-async function handleWallet(
-  req,
-  res
-) {
-  try {
-
-    const token =
-      getToken(req);
-
-    if (!token) {
-      return send(res, 401, {
-        success: false,
-        message:
-          'Authentication required'
-      });
-    }
-
-    const user =
-      await getUserFromToken(token);
-
-    if (!user) {
-      return send(res, 401, {
-        success: false,
-        message:
-          'Invalid or expired session'
-      });
-    }
-
-    const wallet =
-      await getWallet(user.id);
-
-    return send(res, 200, {
-
-      success: true,
-
-      wallet: {
-        balance:
-          Number(
-            wallet.balance || 0
-          ),
-
-        total_earned:
-          Number(
-            wallet.total_earned || 0
-          ),
-
-        total_withdrawn:
-          Number(
-            wallet.total_withdrawn || 0
-          )
-      }
-    });
-
-  } catch (error) {
-
-    console.error(
-      'Wallet error:',
-      error
-    );
-
-    return send(res, 500, {
-
+  if (!name || !username || !email || !password) {
+    return send(res, 400, {
       success: false,
-
-      message:
-        'Unable to load wallet',
-
-      error:
-        error.message
+      message: 'Name, username, email and password are required.'
     });
   }
-}
 
-/* =========================================================
-   REGISTER
-========================================================= */
+  if (password.length < 6) {
+    return send(res, 400, {
+      success: false,
+      message: 'Password must be at least 6 characters.'
+    });
+  }
 
-async function handleRegister(
-  body,
-  res
-) {
-  try {
+  const existing = await sql`
+    SELECT id
+    FROM users
+    WHERE LOWER(email) = ${email}
+       OR LOWER(username) = ${username.toLowerCase()}
+    LIMIT 1
+  `;
 
-    const name =
-      String(
-        body.name || ''
-      ).trim();
+  if (existing.length) {
+    return send(res, 409, {
+      success: false,
+      message: 'Email or username already exists.'
+    });
+  }
 
-    const username =
-      String(
-        body.username || ''
-      ).trim();
+  const referralCode =
+    'EN' +
+    crypto.randomBytes(4).toString('hex').toUpperCase();
 
-    const email =
-      String(
-        body.email || ''
-      )
-        .trim()
-        .toLowerCase();
+  const userId = crypto.randomUUID();
 
-    const password =
-      String(
-        body.password || ''
-      );
-
-    const phone =
-      String(
-        body.phone || ''
-      ).trim();
-
-    const referralCode =
-      String(
-        body.referral_code ||
-        body.referralCode ||
-        ''
-      ).trim();
-
-    if (
-      !name ||
-      !username ||
-      !email ||
-      !password
-    ) {
-
-      return send(res, 400, {
-
-        success: false,
-
-        message:
-          'Name, username, email and password are required'
-      });
-    }
-
-    if (password.length < 6) {
-
-      return send(res, 400, {
-
-        success: false,
-
-        message:
-          'Password must be at least 6 characters'
-      });
-    }
-
-    const existing =
-      await sql`
-        SELECT id
-        FROM users
-        WHERE LOWER(email) =
-              ${email}
-           OR LOWER(username) =
-              ${username.toLowerCase()}
-        LIMIT 1
-      `;
-
-    if (existing.length > 0) {
-
-      return send(res, 409, {
-
-        success: false,
-
-        message:
-          'Email or username already exists'
-      });
-    }
-
-    const userId =
-      'user-' +
-      crypto.randomUUID();
-
-    /*
-      IMPORTANT:
-      Your database uses "password",
-      NOT "password_hash".
-    */
-
-    await sql`
-      INSERT INTO users (
+  const created = await sql`
+    INSERT INTO users
+      (
         id,
         name,
         username,
@@ -890,9 +346,12 @@ async function handleRegister(
         password,
         role,
         coins,
-        created_at
+        created_at,
+        referral_code,
+        referred_by
       )
-      VALUES (
+    VALUES
+      (
         ${userId},
         ${name},
         ${username},
@@ -901,516 +360,515 @@ async function handleRegister(
         ${password},
         'user',
         0,
-        NOW()
-      )
-    `;
-
-    /* -----------------------------------------
-       WALLET
-    ----------------------------------------- */
-
-    const walletId =
-      crypto.randomUUID();
-
-    await sql`
-      INSERT INTO wallets (
-        id,
-        user_id,
-        balance,
-        total_earned,
-        total_withdrawn,
-        created_at,
-        updated_at
-      )
-      VALUES (
-        ${walletId},
-        ${userId},
-        0,
-        0,
-        0,
         NOW(),
-        NOW()
+        ${referralCode},
+        NULL
       )
-    `;
+    RETURNING
+      id,
+      name,
+      username,
+      email,
+      phone,
+      role,
+      coins,
+      created_at,
+      referral_code,
+      referred_by
+  `;
 
-    return send(res, 201, {
+  // wallets.id is BIGINT auto-generated.
+  await sql`
+    INSERT INTO wallets
+      (user_id, balance, total_earned, total_withdrawn)
+    VALUES
+      (${userId}, 0, 0, 0)
+  `;
 
-      success: true,
-
-      message:
-        'Account created successfully',
-
-      user: {
-        id: userId,
-        name,
-        username,
-        email,
-        phone,
-        role: 'user',
-        coins: 0
-      }
-    });
-
-  } catch (error) {
-
-    console.error(
-      'Registration error:',
-      error
-    );
-
-    return send(res, 500, {
-
-      success: false,
-
-      message:
-        'Unable to create account',
-
-      error:
-        error?.message ||
-        String(error),
-
-      code:
-        error?.code || null
-    });
-  }
+  return send(res, 201, {
+    success: true,
+    message: 'Account created successfully.',
+    user: created[0]
+  });
 }
 
-/* =========================================================
-   LOGIN
-========================================================= */
+async function handleLogin(body, res) {
+  const email = String(body.email || '').trim().toLowerCase();
+  const login = String(body.login || '').trim().toLowerCase();
+  const password = String(body.password || '');
 
-async function handleLogin(
-  body,
-  res
-) {
-  try {
+  const identifier = email || login;
 
-    const email =
-      String(
-        body.email || ''
-      )
-        .trim()
-        .toLowerCase();
+  if (!identifier || !password) {
+    return send(res, 400, {
+      success: false,
+      message: 'Email/username and password are required.'
+    });
+  }
 
-    const password =
-      String(
-        body.password || ''
-      );
+  const users = await sql`
+    SELECT
+      id,
+      name,
+      username,
+      email,
+      phone,
+      password,
+      role,
+      coins,
+      created_at,
+      referral_code,
+      referred_by
+    FROM users
+    WHERE LOWER(email) = ${identifier}
+       OR LOWER(username) = ${identifier}
+    LIMIT 1
+  `;
 
-    if (!email || !password) {
+  if (!users.length) {
+    return send(res, 401, {
+      success: false,
+      message: 'Invalid email/username or password.'
+    });
+  }
 
-      return send(res, 400, {
+  const dbUser = users[0];
 
-        success: false,
+  if (String(dbUser.password || '') !== password) {
+    return send(res, 401, {
+      success: false,
+      message: 'Invalid email/username or password.'
+    });
+  }
 
-        message:
-          'Email and password are required'
-      });
-    }
+  const token = crypto.randomBytes(48).toString('hex');
 
-    /*
-      IMPORTANT:
-      Your actual database column is:
-      users.password
-    */
-
-    const users =
-      await sql`
-        SELECT *
-        FROM users
-        WHERE LOWER(email) =
-              ${email}
-          AND password =
-              ${password}
-        LIMIT 1
-      `;
-
-    if (users.length === 0) {
-
-      return send(res, 401, {
-
-        success: false,
-
-        message:
-          'Invalid email or password'
-      });
-    }
-
-    const user =
-      users[0];
-
-    const token =
-      crypto
-        .randomBytes(32)
-        .toString('hex');
-
-    const sessionId =
-      crypto.randomUUID();
-
-    await sql`
-      INSERT INTO admin_sessions (
-        id,
+  /*
+   * IMPORTANT:
+   * admin_sessions.id is BIGINT with auto-increment.
+   * Therefore id is NOT supplied.
+   */
+  await sql`
+    INSERT INTO admin_sessions
+      (
         user_id,
         token,
         expires_at,
         created_at
       )
-      VALUES (
-        ${sessionId},
-        ${String(user.id)},
+    VALUES
+      (
+        ${String(dbUser.id)},
         ${token},
         NOW() + INTERVAL '30 days',
         NOW()
       )
-    `;
+  `;
 
-    const wallet =
-      await getWallet(user.id);
+  const wallet = await getWallet(String(dbUser.id));
 
-    return send(res, 200, {
+  // Keep users.coins synchronized with wallet balance.
+  await sql`
+    UPDATE users
+    SET coins = ${Number(wallet.balance || 0)}
+    WHERE id = ${String(dbUser.id)}
+  `;
 
-      success: true,
+  const safeUser = {
+    id: dbUser.id,
+    name: dbUser.name,
+    username: dbUser.username,
+    email: dbUser.email,
+    phone: dbUser.phone,
+    role: dbUser.role,
+    coins: Number(wallet.balance || 0),
+    created_at: dbUser.created_at,
+    referral_code: dbUser.referral_code,
+    referred_by: dbUser.referred_by
+  };
 
-      message:
-        'Login successful',
+  return send(res, 200, {
+    success: true,
+    message: 'Login successful.',
+    token,
+    user: safeUser,
+    wallet
+  });
+}
 
-      token,
+async function handleWallet(req, res) {
+  const user = await getUserFromToken(req);
 
-      user: {
-        id: user.id,
-        name: user.name,
-        username: user.username,
-        email: user.email,
-        phone: user.phone || '',
-        role: user.role || 'user',
-
-        coins:
-          Number(
-            wallet?.balance ||
-            user.coins ||
-            0
-          )
-      },
-
-      wallet: {
-        balance:
-          Number(
-            wallet?.balance || 0
-          ),
-
-        total_earned:
-          Number(
-            wallet?.total_earned || 0
-          ),
-
-        total_withdrawn:
-          Number(
-            wallet?.total_withdrawn || 0
-          )
-      }
-    });
-
-  } catch (error) {
-
-    console.error(
-      'Login error:',
-      error
-    );
-
-    return send(res, 500, {
-
+  if (!user) {
+    return send(res, 401, {
       success: false,
-
-      message:
-        'Unable to login',
-
-      error:
-        error?.message ||
-        String(error),
-
-      code:
-        error?.code || null,
-
-      detail:
-        error?.detail || null,
-
-      hint:
-        error?.hint || null
+      message: 'Unauthorized.'
     });
   }
+
+  const wallet = await getWallet(String(user.id));
+
+  return send(res, 200, {
+    success: true,
+    wallet
+  });
 }
 
-/* =========================================================
-   DAILY BONUS
-========================================================= */
+async function handleClaimReward(body, req, res) {
+  const user = await getUserFromToken(req);
 
-async function handleDailyBonus(
-  req,
-  res
-) {
-  return handleClaimReward(
-
-    {
-      rewardType: 'task',
-      rewardId: 'task1'
-    },
-
-    req,
-
-    res
-  );
-}
-
-/* =========================================================
-   HEALTH
-========================================================= */
-
-async function handleHealth(res) {
-
-  try {
-
-    const result =
-      await sql`
-        SELECT NOW() AS database_time
-      `;
-
-    return send(res, 200, {
-
-      ok: true,
-
-      success: true,
-
-      service:
-        'EarnNest API',
-
-      status:
-        'running',
-
-      database:
-        'connected',
-
-      databaseTime:
-        result[0]?.database_time ||
-        null
-    });
-
-  } catch (error) {
-
-    return send(res, 500, {
-
-      ok: false,
-
+  if (!user) {
+    return send(res, 401, {
       success: false,
-
-      service:
-        'EarnNest API',
-
-      status:
-        'error',
-
-      database:
-        'disconnected',
-
-      error:
-        error.message
+      message: 'Please login again.'
     });
   }
-}
 
-/* =========================================================
-   MAIN API
-========================================================= */
+  const rewardType = String(
+    body.rewardType || body.type || ''
+  ).trim().toLowerCase();
 
-module.exports = async function handler(
-  req,
-  res
-) {
+  let rewardId = String(
+    body.rewardId ||
+    body.taskId ||
+    body.surveyId ||
+    body.id ||
+    ''
+  ).trim();
 
-  try {
+  if (rewardType === 'task') {
+    rewardId = normalizeTaskId(rewardId);
+  }
 
-    /* OPTIONS */
+  if (rewardType === 'survey') {
+    rewardId = normalizeSurveyId(rewardId);
+  }
 
-    if (
-      req.method === 'OPTIONS'
-    ) {
+  let reward = null;
 
-      return send(res, 200, {
-        success: true
-      });
-    }
+  if (rewardType === 'task') {
+    reward = TASKS.find(item => item.id === rewardId);
+  } else if (rewardType === 'survey') {
+    reward = SURVEYS.find(item => item.id === rewardId);
+  }
 
-    /* HEALTH */
+  if (!reward) {
+    return send(res, 404, {
+      success: false,
+      message: 'Reward not found.'
+    });
+  }
 
-    if (
-      req.url === '/api/health' ||
-      req.url?.startsWith('/api/health?')
-    ) {
+  const referenceKey =
+    `${rewardType}:${reward.id}`;
 
-      return handleHealth(res);
-    }
+  const existing = await sql`
+    SELECT id
+    FROM reward_claims
+    WHERE user_id = ${String(user.id)}
+      AND reference_key = ${referenceKey}
+    LIMIT 1
+  `;
 
-    /* GET */
+  if (existing.length) {
+    return send(res, 409, {
+      success: false,
+      message: 'This reward has already been claimed.'
+    });
+  }
 
-    if (
-      req.method === 'GET'
-    ) {
-
-      return send(res, 200, {
-
-        success: true,
-
-        service:
-          'EarnNest API',
-
-        status:
-          'running'
-      });
-    }
-
-    /* ONLY POST */
-
-    if (
-      req.method !== 'POST'
-    ) {
-
-      return send(res, 405, {
-
-        success: false,
-
-        message:
-          'Method not allowed'
-      });
-    }
-
-    const body =
-      await readBody(req);
-
-    const action =
-      String(
-        body.action || ''
+  await sql`
+    INSERT INTO reward_claims
+      (
+        id,
+        user_id,
+        reward_type,
+        reference_key,
+        title,
+        amount,
+        created_at
       )
-        .trim()
-        .toLowerCase();
+    VALUES
+      (
+        ${crypto.randomUUID()},
+        ${String(user.id)},
+        ${rewardType},
+        ${referenceKey},
+        ${reward.title},
+        ${Number(reward.reward)},
+        NOW()
+      )
+  `;
 
-    /* REGISTER */
+  const wallet = await getWallet(String(user.id));
 
-    if (
-      action === 'register' ||
-      action === 'signup' ||
-      action === 'create_account'
-    ) {
+  const newBalance =
+    Number(wallet.balance || 0) + Number(reward.reward);
 
-      return handleRegister(
-        body,
-        res
-      );
-    }
+  const newTotalEarned =
+    Number(wallet.total_earned || 0) + Number(reward.reward);
 
-    /* LOGIN */
+  const updated = await sql`
+    UPDATE wallets
+    SET
+      balance = ${newBalance},
+      total_earned = ${newTotalEarned},
+      updated_at = NOW()
+    WHERE user_id = ${String(user.id)}
+    RETURNING
+      id,
+      user_id,
+      balance,
+      total_earned,
+      total_withdrawn,
+      created_at,
+      updated_at
+  `;
 
-    if (
-      action === 'login' ||
-      action === 'signin'
-    ) {
+  await sql`
+    UPDATE users
+    SET coins = ${newBalance}
+    WHERE id = ${String(user.id)}
+  `;
 
-      return handleLogin(
-        body,
-        res
-      );
-    }
+  return send(res, 200, {
+    success: true,
+    message: `${reward.reward} coins added successfully.`,
+    reward: {
+      id: reward.id,
+      type: rewardType,
+      title: reward.title,
+      amount: reward.reward
+    },
+    wallet: updated[0]
+  });
+}
 
-    /* CLAIM REWARD */
+async function handleDailyBonus(req, res) {
+  const user = await getUserFromToken(req);
 
-    if (
-      action === 'claim_reward' ||
-      action === 'complete_task' ||
-      action === 'complete_survey' ||
-      action === 'claim_task' ||
-      action === 'claim_survey'
-    ) {
-
-      return handleClaimReward(
-        body,
-        req,
-        res
-      );
-    }
-
-    /* DAILY BONUS */
-
-    if (
-      action === 'daily_bonus'
-    ) {
-
-      return handleDailyBonus(
-        req,
-        res
-      );
-    }
-
-    /* WALLET */
-
-    if (
-      action === 'wallet' ||
-      action === 'get_wallet' ||
-      action === 'balance'
-    ) {
-
-      return handleWallet(
-        req,
-        res
-      );
-    }
-
-    /*
-      If dashboard doesn't send action
-      but sends reward information.
-    */
-
-    if (
-      body.rewardType ||
-      body.reward_type ||
-      body.rewardId ||
-      body.reward_id ||
-      body.referenceKey ||
-      body.reference_key
-    ) {
-
-      return handleClaimReward(
-        body,
-        req,
-        res
-      );
-    }
-
-    return send(res, 400, {
-
+  if (!user) {
+    return send(res, 401, {
       success: false,
-
-      message:
-        'Unknown API action'
-    });
-
-  } catch (error) {
-
-    console.error(
-      'API error:',
-      error
-    );
-
-    return send(res, 500, {
-
-      success: false,
-
-      message:
-        'Server error',
-
-      error:
-        error?.message ||
-        String(error),
-
-      code:
-        error?.code || null
+      message: 'Please login again.'
     });
   }
-};
+
+  const today = new Date().toISOString().slice(0, 10);
+  const referenceKey = `daily_bonus:${today}`;
+
+  const existing = await sql`
+    SELECT id
+    FROM reward_claims
+    WHERE user_id = ${String(user.id)}
+      AND reference_key = ${referenceKey}
+    LIMIT 1
+  `;
+
+  if (existing.length) {
+    return send(res, 409, {
+      success: false,
+      message: 'Daily bonus already claimed today.'
+    });
+  }
+
+  const amount = 50;
+
+  await sql`
+    INSERT INTO reward_claims
+      (
+        id,
+        user_id,
+        reward_type,
+        reference_key,
+        title,
+        amount,
+        created_at
+      )
+    VALUES
+      (
+        ${crypto.randomUUID()},
+        ${String(user.id)},
+        'daily_bonus',
+        ${referenceKey},
+        'Daily Bonus',
+        ${amount},
+        NOW()
+      )
+  `;
+
+  const wallet = await getWallet(String(user.id));
+
+  const newBalance =
+    Number(wallet.balance || 0) + amount;
+
+  const newTotalEarned =
+    Number(wallet.total_earned || 0) + amount;
+
+  const updated = await sql`
+    UPDATE wallets
+    SET
+      balance = ${newBalance},
+      total_earned = ${newTotalEarned},
+      updated_at = NOW()
+    WHERE user_id = ${String(user.id)}
+    RETURNING
+      id,
+      user_id,
+      balance,
+      total_earned,
+      total_withdrawn,
+      created_at,
+      updated_at
+  `;
+
+  await sql`
+    UPDATE users
+    SET coins = ${newBalance}
+    WHERE id = ${String(user.id)}
+  `;
+
+  return send(res, 200, {
+    success: true,
+    message: `${amount} coins added.`,
+    wallet: updated[0]
+  });
+}
+
+async function handleTasks(req, res) {
+  return send(res, 200, {
+    success: true,
+    tasks: TASKS
+  });
+}
+
+async function handleSurveys(req, res) {
+  return send(res, 200, {
+    success: true,
+    surveys: SURVEYS
+  });
+}
+
+async function handleMe(req, res) {
+  const user = await getUserFromToken(req);
+
+  if (!user) {
+    return send(res, 401, {
+      success: false,
+      message: 'Unauthorized.'
+    });
+  }
+
+  const wallet = await getWallet(String(user.id));
+
+  return send(res, 200, {
+    success: true,
+    user: {
+      ...user,
+      coins: Number(wallet.balance || 0)
+    },
+    wallet
+  });
+}
+
+async function handler(req, res) {
+  if (req.method === 'OPTIONS') {
+    res.statusCode = 204;
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
+    res.setHeader(
+      'Access-Control-Allow-Headers',
+      'Content-Type, Authorization'
+    );
+    return res.end();
+  }
+
+  try {
+    if (req.method === 'GET') {
+      const url = new URL(
+        req.url,
+        `https://${req.headers.host || 'localhost'}`
+      );
+
+      const path = url.pathname;
+
+      if (path === '/api/health') {
+        return handleHealth(res);
+      }
+
+      if (path === '/api/tasks') {
+        return handleTasks(req, res);
+      }
+
+      if (path === '/api/surveys') {
+        return handleSurveys(req, res);
+      }
+
+      if (path === '/api/me') {
+        return handleMe(req, res);
+      }
+
+      if (path === '/api/wallet') {
+        return handleWallet(req, res);
+      }
+
+      return send(res, 200, {
+        success: true,
+        service: 'EarnNest API',
+        status: 'running'
+      });
+    }
+
+    if (req.method !== 'POST') {
+      return send(res, 405, {
+        success: false,
+        message: 'Method not allowed.'
+      });
+    }
+
+    const body = await readBody(req);
+    const action = String(body.action || '').trim().toLowerCase();
+
+    switch (action) {
+      case 'register':
+      case 'signup':
+      case 'create_account':
+        return handleRegister(body, res);
+
+      case 'login':
+        return handleLogin(body, res);
+
+      case 'claim_reward':
+      case 'complete_task':
+      case 'complete_survey':
+        return handleClaimReward(body, req, res);
+
+      case 'daily_bonus':
+      case 'claim_daily_bonus':
+        return handleDailyBonus(req, res);
+
+      case 'wallet':
+      case 'get_wallet':
+        return handleWallet(req, res);
+
+      default:
+        return send(res, 400, {
+          success: false,
+          message: 'Unknown action.',
+          action
+        });
+    }
+  } catch (error) {
+    console.error('EarnNest API Error:', error);
+
+    return send(res, 500, {
+      success: false,
+      message: 'Server error.',
+      error: error.message,
+      code: error.code || null,
+      detail: error.detail || null
+    });
+  }
+}
+
+module.exports = handler;
