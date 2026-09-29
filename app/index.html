@@ -1,841 +1,1326 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#16a34a">
-<title>EarnNest - Login & Register</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<style>
-*{
-  box-sizing:border-box;
-  margin:0;
-  padding:0;
-}
+  <title>EarnNest — Login & Register</title>
 
-body{
-  font-family:"Segoe UI",Arial,sans-serif;
-  min-height:100vh;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  overflow:auto;
-  position:relative;
-  background:
-    radial-gradient(circle at 15% 20%,rgba(34,197,94,.35),transparent 35%),
-    radial-gradient(circle at 85% 80%,rgba(21,128,61,.35),transparent 35%),
-    linear-gradient(135deg,#052e16,#14532d 45%,#052e16);
-}
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-/* Decorative background */
-body::before{
-  content:"";
-  position:fixed;
-  inset:0;
-  background:
-    linear-gradient(135deg,rgba(255,255,255,.04) 25%,transparent 25%) 0 0/70px 70px;
-  pointer-events:none;
-}
+    body {
+      font-family: "Segoe UI", Arial, sans-serif;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at top left, #166534 0%, transparent 35%),
+        radial-gradient(circle at bottom right, #14532d 0%, transparent 35%),
+        linear-gradient(135deg, #052e16, #064e3b 50%, #022c22);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 25px;
+      overflow-x: hidden;
+      position: relative;
+    }
 
-/* Falling money */
-#dollarCanvas{
-  position:fixed;
-  inset:0;
-  width:100%;
-  height:100%;
-  pointer-events:none;
-  z-index:1;
-}
+    /* Background decoration */
+    body::before,
+    body::after {
+      content: "";
+      position: fixed;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 0;
+    }
 
-/* Main */
-.auth-container{
-  position:relative;
-  z-index:5;
-  width:100%;
-  max-width:440px;
-  padding:20px;
-}
+    body::before {
+      width: 350px;
+      height: 350px;
+      background: rgba(34, 197, 94, 0.10);
+      top: -150px;
+      left: -120px;
+    }
 
-.auth-card{
-  background:rgba(255,255,255,.96);
-  border:1px solid rgba(255,255,255,.7);
-  border-radius:24px;
-  padding:34px 30px 28px;
-  box-shadow:0 30px 70px rgba(0,0,0,.35);
-}
+    body::after {
+      width: 450px;
+      height: 450px;
+      background: rgba(16, 185, 129, 0.08);
+      bottom: -220px;
+      right: -180px;
+    }
 
-/* EarnNest Logo */
-.brand-header{
-  text-align:center;
-  margin-bottom:27px;
-}
+    /* Falling money */
+    #moneyCanvas {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+      opacity: 0.45;
+    }
 
-.logo-box{
-  width:72px;
-  height:72px;
-  margin:0 auto 10px;
-  border-radius:18px;
-  background:#16a34a;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  box-shadow:0 10px 24px rgba(22,163,74,.35);
-}
+    /* Main wrapper */
+    .auth-wrapper {
+      width: 100%;
+      max-width: 440px;
+      position: relative;
+      z-index: 10;
+    }
 
-.logo-letter{
-  color:#fff;
-  font-size:45px;
-  line-height:1;
-  font-weight:900;
-  font-family:Arial,sans-serif;
-}
+    /* Card */
+    .auth-card {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.97);
+      border-radius: 24px;
+      padding: 32px;
+      box-shadow:
+        0 30px 70px rgba(0, 0, 0, 0.30),
+        0 8px 25px rgba(0, 0, 0, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.8);
+    }
 
-.logo-name{
-  font-size:27px;
-  line-height:1.1;
-  font-weight:800;
-  color:#166534;
-  letter-spacing:-.7px;
-}
+    /* Logo */
+    .brand {
+      text-align: center;
+      margin-bottom: 25px;
+    }
 
-.brand-subtitle{
-  margin-top:7px;
-  font-size:13px;
-  color:#64748b;
-  font-weight:500;
-}
+    .logo-box {
+      width: 70px;
+      height: 70px;
+      margin: 0 auto 10px;
+      border-radius: 18px;
+      background: linear-gradient(145deg, #22c55e, #15803d);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow:
+        0 10px 25px rgba(22, 163, 74, 0.35),
+        inset 0 1px 0 rgba(255,255,255,0.35);
+    }
 
-/* Heading */
-.form-heading{
-  text-align:center;
-  margin-bottom:21px;
-}
+    .logo-letter {
+      color: white;
+      font-size: 44px;
+      line-height: 1;
+      font-weight: 900;
+      font-family: Arial, sans-serif;
+    }
 
-.form-heading h1{
-  font-size:22px;
-  color:#172033;
-  margin-bottom:5px;
-}
+    .brand-name {
+      font-size: 27px;
+      font-weight: 800;
+      color: #166534;
+      letter-spacing: -0.7px;
+    }
 
-.form-heading p{
-  color:#64748b;
-  font-size:13px;
-}
+    .brand-tagline {
+      margin-top: 5px;
+      color: #64748b;
+      font-size: 13px;
+      font-weight: 500;
+    }
 
-/* Form */
-.form-group{
-  margin-bottom:15px;
-}
+    /* Mode title */
+    .form-title {
+      text-align: center;
+      font-size: 22px;
+      font-weight: 750;
+      color: #0f172a;
+      margin-bottom: 5px;
+    }
 
-.form-group label{
-  display:block;
-  margin-bottom:6px;
-  color:#334155;
-  font-size:13px;
-  font-weight:700;
-}
+    .form-subtitle {
+      text-align: center;
+      color: #64748b;
+      font-size: 13px;
+      margin-bottom: 22px;
+    }
 
-.form-control{
-  width:100%;
-  height:47px;
-  padding:0 14px;
-  border:1.5px solid #d1d5db;
-  border-radius:10px;
-  background:#fff;
-  color:#111827;
-  font-size:15px;
-  outline:none;
-  transition:.2s;
-}
+    /* Fields */
+    .form-group {
+      margin-bottom: 15px;
+    }
 
-.form-control:focus{
-  border-color:#16a34a;
-  box-shadow:0 0 0 4px rgba(22,163,74,.12);
-}
+    .form-group label {
+      display: block;
+      color: #334155;
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.35px;
+    }
 
-.form-row{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:12px;
-}
+    .input-wrap {
+      position: relative;
+    }
 
-/* Password */
-.password-wrap{
-  position:relative;
-}
+    .form-control {
+      width: 100%;
+      height: 48px;
+      border: 1.5px solid #d1d5db;
+      border-radius: 11px;
+      padding: 0 14px;
+      outline: none;
+      background: #f8fafc;
+      color: #0f172a;
+      font-size: 14px;
+      transition: 0.2s ease;
+    }
 
-.password-wrap .form-control{
-  padding-right:48px;
-}
+    .form-control::placeholder {
+      color: #94a3b8;
+    }
 
-.show-password{
-  position:absolute;
-  right:12px;
-  top:50%;
-  transform:translateY(-50%);
-  border:0;
-  background:transparent;
-  cursor:pointer;
-  font-size:18px;
-  color:#64748b;
-}
+    .form-control:focus {
+      background: white;
+      border-color: #16a34a;
+      box-shadow: 0 0 0 4px rgba(22, 163, 74, 0.10);
+    }
 
-/* Forgot */
-.forgot-row{
-  text-align:right;
-  margin-top:-5px;
-  margin-bottom:8px;
-}
+    /* Password eye */
+    .password-input {
+      padding-right: 48px;
+    }
 
-.forgot-btn{
-  border:0;
-  background:none;
-  color:#15803d;
-  font-size:13px;
-  font-weight:700;
-  cursor:pointer;
-}
+    .eye-btn {
+      position: absolute;
+      right: 8px;
+      top: 8px;
+      width: 32px;
+      height: 32px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      color: #64748b;
+      font-size: 17px;
+      border-radius: 7px;
+    }
 
-/* Submit */
-.btn-submit{
-  width:100%;
-  height:49px;
-  border:0;
-  border-radius:11px;
-  background:#16a34a;
-  color:#fff;
-  font-size:16px;
-  font-weight:800;
-  cursor:pointer;
-  margin-top:8px;
-  box-shadow:0 7px 18px rgba(22,163,74,.28);
-  transition:.2s;
-}
+    .eye-btn:hover {
+      background: #f1f5f9;
+      color: #166534;
+    }
 
-.btn-submit:hover{
-  background:#15803d;
-  transform:translateY(-1px);
-}
+    /* Forgot password */
+    .forgot-row {
+      text-align: right;
+      margin-top: -6px;
+      margin-bottom: 5px;
+    }
 
-.btn-submit:disabled{
-  opacity:.65;
-  cursor:not-allowed;
-  transform:none;
-}
+    .forgot-btn {
+      border: none;
+      background: transparent;
+      color: #15803d;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
 
-/* Messages */
-#message{
-  display:none;
-  margin:0 0 15px;
-  padding:11px 13px;
-  border-radius:9px;
-  font-size:13px;
-  line-height:1.4;
-}
+    .forgot-btn:hover {
+      text-decoration: underline;
+    }
 
-#message.success{
-  display:block;
-  color:#166534;
-  background:#dcfce7;
-  border:1px solid #bbf7d0;
-}
+    /* Submit */
+    .submit-btn {
+      width: 100%;
+      height: 50px;
+      border: none;
+      border-radius: 11px;
+      background: linear-gradient(135deg, #22c55e, #15803d);
+      color: white;
+      font-size: 15px;
+      font-weight: 800;
+      cursor: pointer;
+      margin-top: 10px;
+      box-shadow: 0 8px 18px rgba(22, 163, 74, 0.25);
+      transition: 0.2s ease;
+    }
 
-#message.error{
-  display:block;
-  color:#b91c1c;
-  background:#fee2e2;
-  border:1px solid #fecaca;
-}
+    .submit-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 22px rgba(22, 163, 74, 0.32);
+    }
 
-/* Toggle */
-.auth-toggle{
-  text-align:center;
-  margin-top:21px;
-  padding-top:18px;
-  border-top:1px solid #e5e7eb;
-  color:#64748b;
-  font-size:14px;
-}
+    .submit-btn:active {
+      transform: translateY(0);
+    }
 
-.auth-toggle a{
-  color:#15803d;
-  font-weight:800;
-  text-decoration:none;
-  margin-left:4px;
-}
+    .submit-btn:disabled {
+      opacity: 0.65;
+      cursor: not-allowed;
+      transform: none;
+    }
 
-.auth-toggle a:hover{
-  text-decoration:underline;
-}
+    /* Toggle */
+    .toggle-area {
+      text-align: center;
+      margin-top: 20px;
+      color: #64748b;
+      font-size: 13px;
+    }
 
-/* Signup fields */
-.signup-only{
-  display:none;
-}
+    .toggle-btn {
+      border: none;
+      background: transparent;
+      color: #15803d;
+      font-weight: 800;
+      cursor: pointer;
+      margin-left: 4px;
+    }
 
-/* Footer */
-.footer{
-  text-align:center;
-  margin-top:18px;
-  color:rgba(255,255,255,.75);
-  font-size:12px;
-}
+    .toggle-btn:hover {
+      text-decoration: underline;
+    }
 
-/* Mobile */
-@media(max-width:520px){
-  .auth-container{
-    padding:14px;
-  }
+    /* Message */
+    #message {
+      display: none;
+      padding: 11px 13px;
+      margin-bottom: 15px;
+      border-radius: 10px;
+      font-size: 13px;
+      line-height: 1.4;
+      font-weight: 600;
+    }
 
-  .auth-card{
-    padding:27px 20px 23px;
-    border-radius:20px;
-  }
+    #message.success {
+      display: block;
+      background: #dcfce7;
+      color: #166534;
+      border: 1px solid #86efac;
+    }
 
-  .logo-box{
-    width:64px;
-    height:64px;
-  }
+    #message.error {
+      display: block;
+      background: #fee2e2;
+      color: #991b1b;
+      border: 1px solid #fca5a5;
+    }
 
-  .logo-letter{
-    font-size:40px;
-  }
+    /* Signup only */
+    .signup-only {
+      display: none;
+    }
 
-  .logo-name{
-    font-size:25px;
-  }
+    /* Footer */
+    .footer {
+      text-align: center;
+      margin-top: 17px;
+      color: rgba(255,255,255,0.75);
+      font-size: 11px;
+    }
 
-  .form-row{
-    grid-template-columns:1fr;
-    gap:0;
-  }
-}
-</style>
+    .footer a {
+      color: white;
+      text-decoration: none;
+      font-weight: 600;
+    }
 
+    /* Mobile */
+    @media (max-width: 480px) {
+      body {
+        padding: 15px;
+      }
+
+      .auth-card {
+        padding: 25px 20px;
+        border-radius: 20px;
+      }
+
+      .logo-box {
+        width: 62px;
+        height: 62px;
+        border-radius: 16px;
+      }
+
+      .logo-letter {
+        font-size: 39px;
+      }
+
+      .brand-name {
+        font-size: 24px;
+      }
+    }
+  </style>
 </head>
 
 <body>
 
-<canvas id="dollarCanvas"></canvas>
+  <canvas id="moneyCanvas"></canvas>
 
-<div class="auth-container">
+  <div class="auth-wrapper">
 
-  <div class="auth-card">
+    <div class="auth-card">
 
-```
-<!-- EarnNest Logo -->
-<div class="brand-header">
-  <div class="logo-box">
-    <span class="logo-letter">E</span>
-  </div>
+      <!-- EarnNest Logo -->
+      <div class="brand">
+        <div class="logo-box">
+          <div class="logo-letter">E</div>
+        </div>
 
-  <div class="logo-name">Earn Nest</div>
+        <div class="brand-name">Earn Nest</div>
 
-  <div class="brand-subtitle">
-    Work Hard, Grow Your Balance
-  </div>
-</div>
+        <div class="brand-tagline">
+          Work Hard, Grow Your Balance
+        </div>
+      </div>
 
-<div class="form-heading">
-  <h1 id="formTitle">Welcome Back</h1>
-  <p id="formSubtitle">Login to continue to your EarnNest account</p>
-</div>
+      <div class="form-title" id="formTitle">
+        Welcome Back
+      </div>
 
-<div id="message"></div>
+      <div class="form-subtitle" id="formSubtitle">
+        Login to continue to your EarnNest account
+      </div>
 
-<form id="authForm">
+      <div id="message"></div>
 
-  <!-- Signup fields -->
-  <div class="signup-only form-group" id="nameGroup">
-    <label for="name">Full Name</label>
-    <input
-      type="text"
-      id="name"
-      class="form-control"
-      placeholder="Enter your full name"
-    >
-  </div>
+      <form id="authForm">
 
-  <div class="signup-only form-group" id="usernameGroup">
-    <label for="username">Username</label>
-    <input
-      type="text"
-      id="username"
-      class="form-control"
-      placeholder="Choose a username"
-    >
-  </div>
+        <!-- Full Name -->
+        <div class="form-group signup-only">
+          <label for="name">Full Name</label>
+          <input
+            type="text"
+            id="name"
+            class="form-control"
+            placeholder="Enter your full name"
+          >
+        </div>
 
-  <div class="signup-only form-group" id="phoneGroup">
-    <label for="phone">Phone Number</label>
-    <input
-      type="tel"
-      id="phone"
-      class="form-control"
-      placeholder="03XXXXXXXXX"
-    >
-  </div>
+        <!-- Username -->
+        <div class="form-group signup-only">
+          <label for="username">Username</label>
+          <input
+            type="text"
+            id="username"
+            class="form-control"
+            placeholder="Choose a username"
+          >
+        </div>
 
-  <div class="form-group">
-    <label for="email">Email Address</label>
-    <input
-      type="email"
-      id="email"
-      class="form-control"
-      placeholder="Enter your email"
-      required
-    >
-  </div>
+        <!-- Phone -->
+        <div class="form-group signup-only">
+          <label for="phone">Phone Number</label>
+          <input
+            type="tel"
+            id="phone"
+            class="form-control"
+            placeholder="03XXXXXXXXX"
+          >
+        </div>
 
-  <div class="form-group">
-    <label for="password">Password</label>
+        <!-- Email -->
+        <div class="form-group">
+          <label for="email">Email Address</label>
 
-    <div class="password-wrap">
-      <input
-        type="password"
-        id="password"
-        class="form-control"
-        placeholder="Enter your password"
-        required
-      >
+          <input
+            type="email"
+            id="email"
+            class="form-control"
+            placeholder="Enter your email"
+            autocomplete="email"
+            required
+          >
+        </div>
 
-      <button
-        type="button"
-        class="show-password"
-        onclick="togglePassword('password',this)"
-      >👁</button>
+        <!-- Password -->
+        <div class="form-group">
+
+          <label for="password">Password</label>
+
+          <div class="input-wrap">
+
+            <input
+              type="password"
+              id="password"
+              class="form-control password-input"
+              placeholder="Enter your password"
+              autocomplete="current-password"
+              required
+            >
+
+            <button
+              type="button"
+              class="eye-btn"
+              onclick="togglePassword('password', this)"
+              aria-label="Show password"
+            >
+              👁
+            </button>
+
+          </div>
+        </div>
+
+        <!-- Confirm Password -->
+        <div class="form-group signup-only">
+
+          <label for="confirmPassword">Confirm Password</label>
+
+          <div class="input-wrap">
+
+            <input
+              type="password"
+              id="confirmPassword"
+              class="form-control password-input"
+              placeholder="Confirm your password"
+              autocomplete="new-password"
+            >
+
+            <button
+              type="button"
+              class="eye-btn"
+              onclick="togglePassword('confirmPassword', this)"
+              aria-label="Show password"
+            >
+              👁
+            </button>
+
+          </div>
+        </div>
+
+        <!-- Referral -->
+        <div class="form-group signup-only">
+
+          <label for="referralCode">
+            Referral Code
+            <span style="font-weight:500;text-transform:none;color:#94a3b8;">
+              (Optional)
+            </span>
+          </label>
+
+          <input
+            type="text"
+            id="referralCode"
+            class="form-control"
+            placeholder="Enter referral code"
+          >
+
+        </div>
+
+        <!-- Forgot -->
+        <div class="forgot-row" id="forgotRow">
+
+          <button
+            type="button"
+            class="forgot-btn"
+            onclick="forgotPassword()"
+          >
+            Forgot Password?
+          </button>
+
+        </div>
+
+        <!-- Submit -->
+        <button
+          type="submit"
+          id="submitBtn"
+          class="submit-btn"
+        >
+          Login
+        </button>
+
+      </form>
+
+      <!-- Toggle -->
+      <div class="toggle-area">
+
+        <span id="toggleText">
+          Don't have an account?
+        </span>
+
+        <button
+          type="button"
+          id="toggleBtn"
+          class="toggle-btn"
+          onclick="toggleMode()"
+        >
+          Create Account
+        </button>
+
+      </div>
+
     </div>
-  </div>
 
-  <!-- Confirm password -->
-  <div class="signup-only form-group" id="confirmGroup">
-    <label for="confirmPassword">Confirm Password</label>
-
-    <div class="password-wrap">
-      <input
-        type="password"
-        id="confirmPassword"
-        class="form-control"
-        placeholder="Confirm your password"
-      >
-
-      <button
-        type="button"
-        class="show-password"
-        onclick="togglePassword('confirmPassword',this)"
-      >👁</button>
+    <div class="footer">
+      © 2026 EarnNest ·
+      <a href="/privacy.html">Privacy</a> ·
+      <a href="/terms.html">Terms</a>
     </div>
-  </div>
-
-  <!-- Referral -->
-  <div class="signup-only form-group" id="referralGroup">
-    <label for="referralCode">Referral Code (Optional)</label>
-    <input
-      type="text"
-      id="referralCode"
-      class="form-control"
-      placeholder="Enter referral code"
-    >
-  </div>
-
-  <div class="forgot-row" id="forgotRow">
-    <button
-      type="button"
-      class="forgot-btn"
-      onclick="forgotPassword()"
-    >
-      Forgot Password?
-    </button>
-  </div>
-
-  <button
-    type="submit"
-    id="submitBtn"
-    class="btn-submit"
-  >
-    Login
-  </button>
-
-</form>
-
-<div class="auth-toggle">
-  <span id="toggleText">Don't have an account?</span>
-  <a
-    href="#"
-    id="toggleBtn"
-    onclick="toggleAuthMode(event)"
-  >Create Account</a>
-</div>
-```
 
   </div>
 
-  <div class="footer">
-    © 2026 EarnNest · Rewards Platform
-  </div>
 
-</div>
+  <script>
 
-<script>
-"use strict";
+    /* =========================
+       API CONFIG
+    ========================= */
 
-let isSignUp = false;
+    const API_BASE =
+      window.EARNNEST_API || "/api";
 
-const API_BASE = window.EARNNEST_API || "/api";
 
-const authForm = document.getElementById("authForm");
-const messageBox = document.getElementById("message");
-const submitBtn = document.getElementById("submitBtn");
+    /* =========================
+       AUTH MODE
+    ========================= */
 
-function showMessage(message, type) {
-  messageBox.textContent = message;
-  messageBox.className = type || "";
-  messageBox.style.display = "block";
-}
+    let isSignUp = false;
 
-function clearMessage() {
-  messageBox.textContent = "";
-  messageBox.className = "";
-  messageBox.style.display = "none";
-}
 
-function toggleAuthMode(e) {
-  if(e) e.preventDefault();
+    function toggleMode() {
 
-  isSignUp = !isSignUp;
+      isSignUp = !isSignUp;
 
-  document.querySelectorAll(".signup-only").forEach(function(el){
-    el.style.display = isSignUp ? "block" : "none";
-  });
+      const signupFields =
+        document.querySelectorAll(".signup-only");
 
-  document.getElementById("formTitle").textContent =
-    isSignUp ? "Create Your Account" : "Welcome Back";
+      signupFields.forEach(function(field) {
 
-  document.getElementById("formSubtitle").textContent =
-    isSignUp
-      ? "Join EarnNest and start earning rewards"
-      : "Login to continue to your EarnNest account";
+        field.style.display =
+          isSignUp ? "block" : "none";
 
-  submitBtn.textContent = isSignUp ? "Create Account" : "Login";
+      });
 
-  document.getElementById("toggleText").textContent =
-    isSignUp
-      ? "Already have an account?"
-      : "Don't have an account?";
 
-  document.getElementById("toggleBtn").textContent =
-    isSignUp ? "Login" : "Create Account";
+      document.getElementById("formTitle").textContent =
+        isSignUp
+          ? "Create Your Account"
+          : "Welcome Back";
 
-  document.getElementById("forgotRow").style.display =
-    isSignUp ? "none" : "block";
 
-  clearMessage();
-}
+      document.getElementById("formSubtitle").textContent =
+        isSignUp
+          ? "Join EarnNest and start earning coins"
+          : "Login to continue to your EarnNest account";
 
-function togglePassword(id, button) {
-  const input = document.getElementById(id);
 
-  if(input.type === "password"){
-    input.type = "text";
-    button.textContent = "🙈";
-  }else{
-    input.type = "password";
-    button.textContent = "👁";
-  }
-}
+      document.getElementById("submitBtn").textContent =
+        isSignUp ? "Create Account" : "Login";
 
-function saveLoginSession(data) {
-  if(data.token){
-    localStorage.setItem("earnnest_token", data.token);
-  }
 
-  if(data.user){
-    localStorage.setItem(
-      "earnnest_user",
-      JSON.stringify(data.user)
-    );
-  }
-}
+      document.getElementById("toggleText").textContent =
+        isSignUp
+          ? "Already have an account?"
+          : "Don't have an account?";
 
-async function loginUser(emailValue, passwordValue) {
 
-  const response = await fetch(API_BASE, {
-    method:"POST",
-    headers:{
-      "Content-Type":"application/json"
-    },
-    body:JSON.stringify({
-      action:"login",
-      login:emailValue,
-      email:emailValue,
-      password:passwordValue
-    })
-  });
+      document.getElementById("toggleBtn").textContent =
+        isSignUp
+          ? "Login"
+          : "Create Account";
 
-  let data;
 
-  try{
-    data = await response.json();
-  }catch{
-    throw new Error("Server returned an invalid response.");
-  }
+      document.getElementById("forgotRow").style.display =
+        isSignUp ? "none" : "block";
 
-  if(!response.ok || !data.success){
-    throw new Error(
-      data.message || "Login failed."
-    );
-  }
 
-  saveLoginSession(data);
+      clearMessage();
 
-  showMessage(
-    "Login successful. Opening dashboard...",
-    "success"
-  );
+    }
 
-  setTimeout(function(){
-    window.location.href = "/dashboard.html";
-  },500);
-}
 
-async function registerUser() {
+    /* =========================
+       MESSAGE
+    ========================= */
 
-  const name =
-    document.getElementById("name").value.trim();
+    function showMessage(message, type) {
 
-  const username =
-    document.getElementById("username").value.trim();
+      const box =
+        document.getElementById("message");
 
-  const phone =
-    document.getElementById("phone").value.trim();
+      box.textContent = message;
 
-  const email =
-    document.getElementById("email").value.trim();
+      box.className = type;
 
-  const password =
-    document.getElementById("password").value;
+      box.style.display = "block";
 
-  const confirmPassword =
-    document.getElementById("confirmPassword").value;
+    }
 
-  const referralCode =
-    document.getElementById("referralCode").value.trim();
 
-  if(!name || !username || !email || !password){
-    throw new Error(
-      "Please fill all required fields."
-    );
-  }
+    function clearMessage() {
 
-  if(password.length < 6){
-    throw new Error(
-      "Password must be at least 6 characters."
-    );
-  }
+      const box =
+        document.getElementById("message");
 
-  if(password !== confirmPassword){
-    throw new Error(
-      "Passwords do not match."
-    );
-  }
+      box.textContent = "";
 
-  const response = await fetch(API_BASE, {
-    method:"POST",
-    headers:{
-      "Content-Type":"application/json"
-    },
-    body:JSON.stringify({
-      action:"register",
-      name:name,
-      username:username,
-      phone:phone,
-      email:email,
-      password:password,
-      confirmPassword:confirmPassword,
-      referralCode:referralCode
-    })
-  });
+      box.className = "";
 
-  let data;
+      box.style.display = "none";
 
-  try{
-    data = await response.json();
-  }catch{
-    throw new Error(
-      "Server returned an invalid response."
-    );
-  }
+    }
 
-  if(!response.ok || !data.success){
-    throw new Error(
-      data.message || "Registration failed."
-    );
-  }
 
-  showMessage(
-    "Account created successfully. Logging you in...",
-    "success"
-  );
+    /* =========================
+       PASSWORD VISIBILITY
+    ========================= */
 
-  /*
-   * Automatically login after registration.
-   * This keeps the user from having to enter
-   * the password a second time.
-   */
-  await loginUser(email,password);
-}
+    function togglePassword(id, button) {
 
-authForm.addEventListener("submit", async function(e){
+      const input =
+        document.getElementById(id);
 
-  e.preventDefault();
-  clearMessage();
+      if (input.type === "password") {
 
-  submitBtn.disabled = true;
+        input.type = "text";
 
-  const originalText =
-    isSignUp ? "Create Account" : "Login";
+        button.textContent = "🙈";
 
-  submitBtn.textContent = "Please wait...";
+      } else {
 
-  try{
+        input.type = "password";
 
-    const emailValue =
-      document.getElementById("email").value.trim();
+        button.textContent = "👁";
 
-    const passwordValue =
-      document.getElementById("password").value;
+      }
 
-    if(!emailValue || !passwordValue){
-      throw new Error(
-        "Please enter your email and password."
+    }
+
+
+    /* =========================
+       LOGIN
+    ========================= */
+
+    async function loginUser() {
+
+      const email =
+        document.getElementById("email").value.trim();
+
+      const password =
+        document.getElementById("password").value;
+
+
+      if (!email || !password) {
+
+        showMessage(
+          "Please enter your email/username and password.",
+          "error"
+        );
+
+        return;
+
+      }
+
+
+      const submitBtn =
+        document.getElementById("submitBtn");
+
+      submitBtn.disabled = true;
+
+      submitBtn.textContent = "Logging in...";
+
+      clearMessage();
+
+
+      try {
+
+        const response =
+          await fetch(API_BASE, {
+
+            method: "POST",
+
+            headers: {
+              "Content-Type": "application/json"
+            },
+
+            body: JSON.stringify({
+
+              action: "login",
+
+              login: email,
+
+              email: email,
+
+              password: password
+
+            })
+
+          });
+
+
+        const text =
+          await response.text();
+
+
+        let data = null;
+
+
+        try {
+
+          data = JSON.parse(text);
+
+        } catch (parseError) {
+
+          throw new Error(
+            "Server returned an invalid response."
+          );
+
+        }
+
+
+        if (!response.ok || !data.success) {
+
+          throw new Error(
+            data.message ||
+            "Login failed."
+          );
+
+        }
+
+
+        if (!data.token || !data.user) {
+
+          throw new Error(
+            "Login response is incomplete."
+          );
+
+        }
+
+
+        localStorage.setItem(
+          "earnnest_token",
+          data.token
+        );
+
+
+        localStorage.setItem(
+          "earnnest_user",
+          JSON.stringify(data.user)
+        );
+
+
+        showMessage(
+          "Login successful. Opening dashboard...",
+          "success"
+        );
+
+
+        setTimeout(function() {
+
+          window.location.href =
+            "/dashboard.html";
+
+        }, 500);
+
+
+      } catch (error) {
+
+        console.error(
+          "Login error:",
+          error
+        );
+
+
+        showMessage(
+          error.message ||
+          "Login failed. Please try again.",
+          "error"
+        );
+
+
+        submitBtn.disabled = false;
+
+        submitBtn.textContent = "Login";
+
+      }
+
+    }
+
+
+    /* =========================
+       REGISTER
+    ========================= */
+
+    async function registerUser() {
+
+      const name =
+        document.getElementById("name").value.trim();
+
+      const username =
+        document.getElementById("username").value.trim();
+
+      const phone =
+        document.getElementById("phone").value.trim();
+
+      const email =
+        document.getElementById("email").value.trim();
+
+      const password =
+        document.getElementById("password").value;
+
+      const confirmPassword =
+        document.getElementById("confirmPassword").value;
+
+      const referralCode =
+        document.getElementById("referralCode").value.trim();
+
+
+      if (
+        !name ||
+        !username ||
+        !email ||
+        !password ||
+        !confirmPassword
+      ) {
+
+        showMessage(
+          "Please fill all required fields.",
+          "error"
+        );
+
+        return;
+
+      }
+
+
+      if (password.length < 6) {
+
+        showMessage(
+          "Password must be at least 6 characters.",
+          "error"
+        );
+
+        return;
+
+      }
+
+
+      if (password !== confirmPassword) {
+
+        showMessage(
+          "Passwords do not match.",
+          "error"
+        );
+
+        return;
+
+      }
+
+
+      const submitBtn =
+        document.getElementById("submitBtn");
+
+      submitBtn.disabled = true;
+
+      submitBtn.textContent = "Creating Account...";
+
+      clearMessage();
+
+
+      try {
+
+        const response =
+          await fetch(API_BASE, {
+
+            method: "POST",
+
+            headers: {
+              "Content-Type": "application/json"
+            },
+
+            body: JSON.stringify({
+
+              action: "register",
+
+              name: name,
+
+              username: username,
+
+              phone: phone,
+
+              email: email,
+
+              password: password,
+
+              confirmPassword: confirmPassword,
+
+              referralCode: referralCode
+
+            })
+
+          });
+
+
+        const text =
+          await response.text();
+
+
+        let data = null;
+
+
+        try {
+
+          data = JSON.parse(text);
+
+        } catch (parseError) {
+
+          throw new Error(
+            "Server returned an invalid response."
+          );
+
+        }
+
+
+        if (!response.ok || !data.success) {
+
+          throw new Error(
+            data.message ||
+            "Account creation failed."
+          );
+
+        }
+
+
+        showMessage(
+          "Account created successfully. Logging you in...",
+          "success"
+        );
+
+
+        /*
+          Automatically login after registration.
+        */
+
+        const loginResponse =
+          await fetch(API_BASE, {
+
+            method: "POST",
+
+            headers: {
+              "Content-Type": "application/json"
+            },
+
+            body: JSON.stringify({
+
+              action: "login",
+
+              login: email,
+
+              email: email,
+
+              password: password
+
+            })
+
+          });
+
+
+        const loginText =
+          await loginResponse.text();
+
+
+        let loginData = null;
+
+
+        try {
+
+          loginData =
+            JSON.parse(loginText);
+
+        } catch (parseError) {
+
+          throw new Error(
+            "Account created, but login response was invalid."
+          );
+
+        }
+
+
+        if (
+          !loginResponse.ok ||
+          !loginData.success ||
+          !loginData.token ||
+          !loginData.user
+        ) {
+
+          throw new Error(
+            loginData.message ||
+            "Account created, but automatic login failed."
+          );
+
+        }
+
+
+        localStorage.setItem(
+          "earnnest_token",
+          loginData.token
+        );
+
+
+        localStorage.setItem(
+          "earnnest_user",
+          JSON.stringify(loginData.user)
+        );
+
+
+        setTimeout(function() {
+
+          window.location.href =
+            "/dashboard.html";
+
+        }, 500);
+
+
+      } catch (error) {
+
+        console.error(
+          "Registration error:",
+          error
+        );
+
+
+        showMessage(
+          error.message ||
+          "Registration failed. Please try again.",
+          "error"
+        );
+
+
+        submitBtn.disabled = false;
+
+        submitBtn.textContent =
+          "Create Account";
+
+      }
+
+    }
+
+
+    /* =========================
+       FORM SUBMIT
+    ========================= */
+
+    document
+      .getElementById("authForm")
+      .addEventListener("submit", function(event) {
+
+        event.preventDefault();
+
+
+        if (isSignUp) {
+
+          registerUser();
+
+        } else {
+
+          loginUser();
+
+        }
+
+      });
+
+
+    /* =========================
+       FORGOT PASSWORD
+    ========================= */
+
+    function forgotPassword() {
+
+      showMessage(
+        "Password reset is not connected yet. Please contact support.",
+        "error"
       );
+
     }
 
-    if(isSignUp){
 
-      await registerUser();
+    /* =========================
+       FALLING MONEY ANIMATION
+    ========================= */
 
-    }else{
+    const canvas =
+      document.getElementById("moneyCanvas");
 
-      await loginUser(
-        emailValue,
-        passwordValue
+    const ctx =
+      canvas.getContext("2d");
+
+
+    let money = [];
+
+
+    function resizeCanvas() {
+
+      canvas.width =
+        window.innerWidth;
+
+      canvas.height =
+        window.innerHeight;
+
+    }
+
+
+    window.addEventListener(
+      "resize",
+      resizeCanvas
+    );
+
+
+    resizeCanvas();
+
+
+    function createMoney() {
+
+      money = [];
+
+      const count =
+        window.innerWidth < 600
+          ? 18
+          : 35;
+
+
+      for (
+        let i = 0;
+        i < count;
+        i++
+      ) {
+
+        money.push({
+
+          x:
+            Math.random() *
+            canvas.width,
+
+          y:
+            Math.random() *
+            canvas.height,
+
+          speed:
+            0.7 +
+            Math.random() * 1.8,
+
+          size:
+            12 +
+            Math.random() * 14,
+
+          rotation:
+            Math.random() * Math.PI * 2,
+
+          rotationSpeed:
+            (Math.random() - 0.5) * 0.03,
+
+          opacity:
+            0.25 +
+            Math.random() * 0.45
+
+        });
+
+      }
+
+    }
+
+
+    createMoney();
+
+
+    function animateMoney() {
+
+      ctx.clearRect(
+        0,
+        0,
+        canvas.width,
+        canvas.height
+      );
+
+
+      money.forEach(function(item) {
+
+        ctx.save();
+
+
+        ctx.translate(
+          item.x,
+          item.y
+        );
+
+
+        ctx.rotate(
+          item.rotation
+        );
+
+
+        ctx.font =
+          "bold " +
+          item.size +
+          "px Arial";
+
+
+        ctx.fillStyle =
+          "rgba(134, 239, 172, " +
+          item.opacity +
+          ")";
+
+
+        ctx.fillText(
+          "$",
+          0,
+          0
+        );
+
+
+        ctx.restore();
+
+
+        item.y +=
+          item.speed;
+
+        item.rotation +=
+          item.rotationSpeed;
+
+
+        if (
+          item.y >
+          canvas.height + 30
+        ) {
+
+          item.y = -30;
+
+          item.x =
+            Math.random() *
+            canvas.width;
+
+        }
+
+      });
+
+
+      requestAnimationFrame(
+        animateMoney
       );
 
     }
 
-  }catch(error){
 
-    console.error("EarnNest authentication error:",error);
-
-    showMessage(
-      error.message || "Request failed. Please try again.",
-      "error"
-    );
-
-    submitBtn.disabled = false;
-    submitBtn.textContent = originalText;
-  }
-});
-
-function forgotPassword(){
-
-  showMessage(
-    "Password reset is not connected yet. Please contact EarnNest support.",
-    "error"
-  );
-}
+    animateMoney();
 
 
-/* Falling money animation */
-const canvas =
-  document.getElementById("dollarCanvas");
+    /* =========================
+       PREVENT OLD SESSION
+       FROM BLOCKING LOGIN
+    ========================= */
 
-const ctx =
-  canvas.getContext("2d");
+    if (
+      window.location.pathname === "/" ||
+      window.location.pathname === "/index.html"
+    ) {
 
-function resizeCanvas(){
-
-  canvas.width =
-    window.innerWidth;
-
-  canvas.height =
-    window.innerHeight;
-}
-
-window.addEventListener(
-  "resize",
-  resizeCanvas
-);
-
-resizeCanvas();
-
-const dollars =
-  Array.from({length:28},function(){
-
-    return {
-      x:Math.random()*canvas.width,
-      y:Math.random()*canvas.height,
-      speed:1+Math.random()*2,
-      size:18+Math.random()*13,
-      opacity:.18+Math.random()*.25,
-      rotation:Math.random()*360
-    };
-
-  });
-
-function animateDollars(){
-
-  ctx.clearRect(
-    0,
-    0,
-    canvas.width,
-    canvas.height
-  );
-
-  dollars.forEach(function(d){
-
-    ctx.save();
-
-    ctx.translate(
-      d.x,
-      d.y
-    );
-
-    ctx.rotate(
-      d.rotation * Math.PI / 180
-    );
-
-    ctx.font =
-      "bold " + d.size + "px Arial";
-
-    ctx.fillStyle =
-      "rgba(134,239,172," + d.opacity + ")";
-
-    ctx.fillText("$",0,0);
-
-    ctx.restore();
-
-    d.y += d.speed;
-    d.rotation += .25;
-
-    if(d.y > canvas.height + 30){
-
-      d.y = -30;
-      d.x = Math.random()*canvas.width;
+      /*
+        Do not automatically redirect here.
+        User can always see the login page.
+      */
 
     }
 
-  });
-
-  requestAnimationFrame(
-    animateDollars
-  );
-}
-
-animateDollars();
-</script>
+  </script>
 
 </body>
 </html>
