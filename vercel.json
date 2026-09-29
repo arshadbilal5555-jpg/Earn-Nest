@@ -1,39 +1,50 @@
 {
-  "version": 2,
-  "builds": [
-    {
-      "src": "api/**/*.js",
-      "use": "@vercel/node"
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+
+  "functions": {
+    "api/index.js": {
+      "maxDuration": 30
     },
-    {
-      "src": "app/**/*.html",
-      "use": "@vercel/static"
+    "api/tasks/complete.js": {
+      "maxDuration": 30
+    },
+    "api/surveys/complete.js": {
+      "maxDuration": 30
     }
-  ],
-  "routes": [
+  },
+
+  "rewrites": [
     {
-      "src": "/api/health",
-      "dest": "/api/health.js"
+      "source": "/api/tasks/complete",
+      "destination": "/api/tasks/complete.js"
     },
     {
-      "src": "/api/(.*)",
-      "dest": "/api/index.js"
+      "source": "/api/surveys/complete",
+      "destination": "/api/surveys/complete.js"
     },
     {
-      "src": "/dashboard.html",
-      "dest": "/app/dashboard.html"
+      "source": "/api/health",
+      "destination": "/api/health.js"
     },
     {
-      "src": "/index.html",
-      "dest": "/app/index.html"
+      "source": "/api/:path*",
+      "destination": "/api/index.js"
     },
     {
-      "src": "/",
-      "dest": "/app/index.html"
+      "source": "/health",
+      "destination": "/api/index.js"
     },
     {
-      "src": "/(.*)",
-      "dest": "/app/$1"
+      "source": "/",
+      "destination": "/app/index.html"
+    },
+    {
+      "source": "/admin",
+      "destination": "/app/admin.html"
+    },
+    {
+      "source": "/admin.html",
+      "destination": "/app/admin.html"
     }
   ]
 }
