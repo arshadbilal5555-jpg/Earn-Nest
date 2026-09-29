@@ -6,333 +6,312 @@
   <title>EarnNest — Login & Register</title>
 
   <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+    *{box-sizing:border-box;margin:0;padding:0}
 
-    body {
-      font-family: "Segoe UI", Arial, sans-serif;
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-      overflow-x: hidden;
-      position: relative;
-
+    body{
+      font-family:"Segoe UI",Arial,sans-serif;
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:20px;
+      overflow-x:hidden;
+      position:relative;
       background:
-        radial-gradient(circle at 10% 10%, rgba(34,197,94,.25), transparent 30%),
-        radial-gradient(circle at 90% 90%, rgba(16,185,129,.20), transparent 30%),
-        linear-gradient(135deg, #022c22, #064e3b, #052e16);
+        radial-gradient(circle at 10% 10%,rgba(34,197,94,.25),transparent 30%),
+        radial-gradient(circle at 90% 90%,rgba(16,185,129,.20),transparent 30%),
+        linear-gradient(135deg,#022c22,#064e3b,#052e16);
     }
 
-    /* Decorative background */
-    body::before {
-      content: "";
-      position: fixed;
-      width: 420px;
-      height: 420px;
-      border-radius: 50%;
-      background: rgba(34,197,94,.08);
-      top: -220px;
-      left: -180px;
-      pointer-events: none;
+    body::before{
+      content:"";
+      position:fixed;
+      width:420px;
+      height:420px;
+      border-radius:50%;
+      background:rgba(34,197,94,.08);
+      top:-220px;
+      left:-180px;
+      pointer-events:none;
     }
 
-    body::after {
-      content: "";
-      position: fixed;
-      width: 500px;
-      height: 500px;
-      border-radius: 50%;
-      background: rgba(16,185,129,.07);
-      bottom: -280px;
-      right: -200px;
-      pointer-events: none;
+    body::after{
+      content:"";
+      position:fixed;
+      width:500px;
+      height:500px;
+      border-radius:50%;
+      background:rgba(16,185,129,.07);
+      bottom:-280px;
+      right:-200px;
+      pointer-events:none;
     }
 
-    /* Falling money */
-    #moneyCanvas {
-      position: fixed;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 1;
-      pointer-events: none;
+    #moneyCanvas{
+      position:fixed;
+      inset:0;
+      width:100%;
+      height:100%;
+      z-index:1;
+      pointer-events:none;
     }
 
-    .page {
-      width: 100%;
-      max-width: 440px;
-      position: relative;
-      z-index: 5;
+    .page{
+      width:100%;
+      max-width:440px;
+      position:relative;
+      z-index:5;
     }
 
-    /* Main card */
-    .card {
-      background: rgba(255,255,255,.97);
-      border-radius: 24px;
-      padding: 32px;
+    .card{
+      background:rgba(255,255,255,.97);
+      border-radius:24px;
+      padding:32px;
       box-shadow:
         0 30px 70px rgba(0,0,0,.32),
         0 8px 25px rgba(0,0,0,.16);
-      border: 1px solid rgba(255,255,255,.8);
+      border:1px solid rgba(255,255,255,.8);
     }
 
-    /* Logo */
-    .brand {
-      text-align: center;
-      margin-bottom: 24px;
+    .brand{
+      text-align:center;
+      margin-bottom:24px;
     }
 
-    .logo-box {
-      width: 72px;
-      height: 72px;
-      margin: 0 auto 10px;
-      border-radius: 18px;
-      background: linear-gradient(145deg, #22c55e, #15803d);
-      display: flex;
-      align-items: center;
-      justify-content: center;
+    .logo-box{
+      width:72px;
+      height:72px;
+      margin:0 auto 10px;
+      border-radius:18px;
+      background:linear-gradient(145deg,#22c55e,#15803d);
+      display:flex;
+      align-items:center;
+      justify-content:center;
       box-shadow:
         0 10px 25px rgba(22,163,74,.35),
         inset 0 1px 0 rgba(255,255,255,.35);
     }
 
-    .logo-e {
-      color: white;
-      font-size: 46px;
-      font-weight: 900;
-      line-height: 1;
-      font-family: Arial, sans-serif;
+    .logo-e{
+      color:white;
+      font-size:46px;
+      font-weight:900;
+      line-height:1;
+      font-family:Arial,sans-serif;
     }
 
-    .brand-name {
-      color: #166534;
-      font-size: 27px;
-      font-weight: 800;
-      letter-spacing: -.6px;
+    .brand-name{
+      color:#166534;
+      font-size:27px;
+      font-weight:800;
+      letter-spacing:-.6px;
     }
 
-    .brand-tagline {
-      color: #64748b;
-      font-size: 13px;
-      margin-top: 4px;
+    .brand-tagline{
+      color:#64748b;
+      font-size:13px;
+      margin-top:4px;
     }
 
-    .title {
-      text-align: center;
-      color: #0f172a;
-      font-size: 22px;
-      font-weight: 800;
-      margin-bottom: 5px;
+    .title{
+      text-align:center;
+      color:#0f172a;
+      font-size:22px;
+      font-weight:800;
+      margin-bottom:5px;
     }
 
-    .subtitle {
-      text-align: center;
-      color: #64748b;
-      font-size: 13px;
-      margin-bottom: 21px;
+    .subtitle{
+      text-align:center;
+      color:#64748b;
+      font-size:13px;
+      margin-bottom:21px;
     }
 
-    /* Message */
-    #message {
-      display: none;
-      padding: 11px 13px;
-      margin-bottom: 15px;
-      border-radius: 10px;
-      font-size: 13px;
-      line-height: 1.4;
-      font-weight: 600;
+    #message{
+      display:none;
+      padding:11px 13px;
+      margin-bottom:15px;
+      border-radius:10px;
+      font-size:13px;
+      line-height:1.4;
+      font-weight:600;
+      word-break:break-word;
     }
 
-    #message.success {
-      display: block;
-      color: #166534;
-      background: #dcfce7;
-      border: 1px solid #86efac;
+    #message.success{
+      display:block;
+      color:#166534;
+      background:#dcfce7;
+      border:1px solid #86efac;
     }
 
-    #message.error {
-      display: block;
-      color: #991b1b;
-      background: #fee2e2;
-      border: 1px solid #fca5a5;
+    #message.error{
+      display:block;
+      color:#991b1b;
+      background:#fee2e2;
+      border:1px solid #fca5a5;
     }
 
-    /* Form */
-    .group {
-      margin-bottom: 15px;
+    .group{
+      margin-bottom:15px;
     }
 
-    .group label {
-      display: block;
-      margin-bottom: 6px;
-      color: #334155;
-      font-size: 12px;
-      font-weight: 750;
-      text-transform: uppercase;
-      letter-spacing: .35px;
+    .group label{
+      display:block;
+      margin-bottom:6px;
+      color:#334155;
+      font-size:12px;
+      font-weight:750;
+      text-transform:uppercase;
+      letter-spacing:.35px;
     }
 
-    .input {
-      width: 100%;
-      height: 48px;
-      border: 1.5px solid #d1d5db;
-      border-radius: 11px;
-      padding: 0 14px;
-      background: #f8fafc;
-      color: #0f172a;
-      outline: none;
-      font-size: 14px;
-      transition: .2s;
+    .input{
+      width:100%;
+      height:48px;
+      border:1.5px solid #d1d5db;
+      border-radius:11px;
+      padding:0 14px;
+      background:#f8fafc;
+      color:#0f172a;
+      outline:none;
+      font-size:14px;
+      transition:.2s;
     }
 
-    .input::placeholder {
-      color: #94a3b8;
+    .input::placeholder{
+      color:#94a3b8;
     }
 
-    .input:focus {
-      background: #fff;
-      border-color: #16a34a;
-      box-shadow: 0 0 0 4px rgba(22,163,74,.10);
+    .input:focus{
+      background:#fff;
+      border-color:#16a34a;
+      box-shadow:0 0 0 4px rgba(22,163,74,.10);
     }
 
-    /* Password */
-    .password-wrap {
-      position: relative;
+    .password-wrap{
+      position:relative;
     }
 
-    .password-wrap .input {
-      padding-right: 48px;
+    .password-wrap .input{
+      padding-right:48px;
     }
 
-    .eye {
-      position: absolute;
-      right: 8px;
-      top: 8px;
-      width: 32px;
-      height: 32px;
-      border: 0;
-      border-radius: 7px;
-      background: transparent;
-      cursor: pointer;
-      font-size: 16px;
+    .eye{
+      position:absolute;
+      right:8px;
+      top:8px;
+      width:32px;
+      height:32px;
+      border:0;
+      border-radius:7px;
+      background:transparent;
+      cursor:pointer;
+      font-size:16px;
     }
 
-    .eye:hover {
-      background: #f1f5f9;
+    .eye:hover{
+      background:#f1f5f9;
     }
 
-    /* Forgot */
-    .forgot {
-      text-align: right;
-      margin-top: -5px;
-      margin-bottom: 6px;
+    .forgot{
+      text-align:right;
+      margin-top:-5px;
+      margin-bottom:6px;
     }
 
-    .forgot button {
-      border: 0;
-      background: transparent;
-      color: #15803d;
-      cursor: pointer;
-      font-size: 12px;
-      font-weight: 700;
+    .forgot button{
+      border:0;
+      background:transparent;
+      color:#15803d;
+      cursor:pointer;
+      font-size:12px;
+      font-weight:700;
     }
 
-    .forgot button:hover {
-      text-decoration: underline;
+    .forgot button:hover{
+      text-decoration:underline;
     }
 
-    /* Button */
-    .submit {
-      width: 100%;
-      height: 50px;
-      border: 0;
-      border-radius: 11px;
-      background: linear-gradient(135deg, #22c55e, #15803d);
-      color: white;
-      font-size: 15px;
-      font-weight: 800;
-      cursor: pointer;
-      margin-top: 9px;
-      box-shadow: 0 8px 18px rgba(22,163,74,.25);
-      transition: .2s;
+    .submit{
+      width:100%;
+      height:50px;
+      border:0;
+      border-radius:11px;
+      background:linear-gradient(135deg,#22c55e,#15803d);
+      color:white;
+      font-size:15px;
+      font-weight:800;
+      cursor:pointer;
+      margin-top:9px;
+      box-shadow:0 8px 18px rgba(22,163,74,.25);
+      transition:.2s;
     }
 
-    .submit:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 10px 23px rgba(22,163,74,.32);
+    .submit:hover{
+      transform:translateY(-1px);
+      box-shadow:0 10px 23px rgba(22,163,74,.32);
     }
 
-    .submit:disabled {
-      opacity: .65;
-      cursor: not-allowed;
-      transform: none;
+    .submit:disabled{
+      opacity:.65;
+      cursor:not-allowed;
+      transform:none;
     }
 
-    /* Toggle */
-    .toggle {
-      text-align: center;
-      margin-top: 20px;
-      color: #64748b;
-      font-size: 13px;
+    .toggle{
+      text-align:center;
+      margin-top:20px;
+      color:#64748b;
+      font-size:13px;
     }
 
-    .toggle button {
-      border: 0;
-      background: transparent;
-      color: #15803d;
-      font-weight: 800;
-      cursor: pointer;
-      margin-left: 4px;
+    .toggle button{
+      border:0;
+      background:transparent;
+      color:#15803d;
+      font-weight:800;
+      cursor:pointer;
+      margin-left:4px;
     }
 
-    .toggle button:hover {
-      text-decoration: underline;
+    .toggle button:hover{
+      text-decoration:underline;
     }
 
-    .signup-only {
-      display: none;
+    .signup-only{
+      display:none;
     }
 
-    /* Footer */
-    .footer {
-      text-align: center;
-      color: rgba(255,255,255,.78);
-      font-size: 11px;
-      margin-top: 16px;
+    .footer{
+      text-align:center;
+      color:rgba(255,255,255,.78);
+      font-size:11px;
+      margin-top:16px;
     }
 
-    .footer a {
-      color: white;
-      text-decoration: none;
-      font-weight: 600;
+    .footer a{
+      color:white;
+      text-decoration:none;
+      font-weight:600;
     }
 
-    @media (max-width: 480px) {
-      body {
-        padding: 14px;
+    @media(max-width:480px){
+      body{padding:14px}
+      .card{
+        padding:25px 20px;
+        border-radius:20px;
       }
-
-      .card {
-        padding: 25px 20px;
-        border-radius: 20px;
+      .logo-box{
+        width:64px;
+        height:64px;
       }
-
-      .logo-box {
-        width: 64px;
-        height: 64px;
+      .logo-e{
+        font-size:41px;
       }
-
-      .logo-e {
-        font-size: 41px;
-      }
-
-      .brand-name {
-        font-size: 24px;
+      .brand-name{
+        font-size:24px;
       }
     }
   </style>
@@ -340,894 +319,886 @@
 
 <body>
 
-  <canvas id="moneyCanvas"></canvas>
+<canvas id="moneyCanvas"></canvas>
 
-  <main class="page">
+<main class="page">
 
-    <section class="card">
+  <section class="card">
 
-      <!-- Earn Nest Logo -->
-      <div class="brand">
-        <div class="logo-box">
-          <div class="logo-e">E</div>
-        </div>
-
-        <div class="brand-name">Earn Nest</div>
-
-        <div class="brand-tagline">
-          Work Hard, Grow Your Balance
-        </div>
+    <div class="brand">
+      <div class="logo-box">
+        <div class="logo-e">E</div>
       </div>
 
-      <h1 class="title" id="title">
-        Welcome Back
-      </h1>
+      <div class="brand-name">Earn Nest</div>
 
-      <p class="subtitle" id="subtitle">
-        Login to continue to your EarnNest account
-      </p>
-
-      <div id="message"></div>
-
-      <form id="authForm">
-
-        <!-- Full Name -->
-        <div class="group signup-only">
-          <label for="name">Full Name</label>
-          <input
-            id="name"
-            class="input"
-            type="text"
-            placeholder="Enter your full name"
-            autocomplete="name"
-          >
-        </div>
-
-        <!-- Username -->
-        <div class="group signup-only">
-          <label for="username">Username</label>
-          <input
-            id="username"
-            class="input"
-            type="text"
-            placeholder="Choose a username"
-            autocomplete="username"
-          >
-        </div>
-
-        <!-- Phone -->
-        <div class="group signup-only">
-          <label for="phone">Phone Number</label>
-          <input
-            id="phone"
-            class="input"
-            type="tel"
-            placeholder="03XXXXXXXXX"
-            autocomplete="tel"
-          >
-        </div>
-
-        <!-- Email -->
-        <div class="group">
-          <label for="email">Email Address</label>
-          <input
-            id="email"
-            class="input"
-            type="email"
-            placeholder="Enter your email"
-            autocomplete="email"
-            required
-          >
-        </div>
-
-        <!-- Password -->
-        <div class="group">
-          <label for="password">Password</label>
-
-          <div class="password-wrap">
-            <input
-              id="password"
-              class="input"
-              type="password"
-              placeholder="Enter your password"
-              autocomplete="current-password"
-              required
-            >
-
-            <button
-              class="eye"
-              type="button"
-              onclick="togglePassword('password', this)"
-            >👁</button>
-          </div>
-        </div>
-
-        <!-- Confirm Password -->
-        <div class="group signup-only">
-          <label for="confirmPassword">Confirm Password</label>
-
-          <div class="password-wrap">
-            <input
-              id="confirmPassword"
-              class="input"
-              type="password"
-              placeholder="Confirm your password"
-              autocomplete="new-password"
-            >
-
-            <button
-              class="eye"
-              type="button"
-              onclick="togglePassword('confirmPassword', this)"
-            >👁</button>
-          </div>
-        </div>
-
-        <!-- Referral -->
-        <div class="group signup-only">
-          <label for="referralCode">
-            Referral Code
-            <span style="text-transform:none;color:#94a3b8;font-weight:500;">
-              (Optional)
-            </span>
-          </label>
-
-          <input
-            id="referralCode"
-            class="input"
-            type="text"
-            placeholder="Enter referral code"
-          >
-        </div>
-
-        <!-- Forgot Password -->
-        <div class="forgot" id="forgotBox">
-          <button type="button" onclick="forgotPassword()">
-            Forgot Password?
-          </button>
-        </div>
-
-        <button
-          type="submit"
-          class="submit"
-          id="submitBtn"
-        >
-          Login
-        </button>
-
-      </form>
-
-      <div class="toggle">
-
-        <span id="toggleText">
-          Don't have an account?
-        </span>
-
-        <button
-          type="button"
-          id="toggleBtn"
-          onclick="toggleMode()"
-        >
-          Create Account
-        </button>
-
+      <div class="brand-tagline">
+        Work Hard, Grow Your Balance
       </div>
-
-    </section>
-
-    <div class="footer">
-      © 2026 EarnNest ·
-      <a href="/privacy.html">Privacy</a> ·
-      <a href="/terms.html">Terms</a>
     </div>
 
-  </main>
+    <h1 class="title" id="title">Welcome Back</h1>
+
+    <p class="subtitle" id="subtitle">
+      Login to continue to your EarnNest account
+    </p>
+
+    <div id="message"></div>
+
+    <form id="authForm">
+
+      <div class="group signup-only">
+        <label for="name">Full Name</label>
+        <input
+          id="name"
+          class="input"
+          type="text"
+          placeholder="Enter your full name"
+          autocomplete="name"
+        >
+      </div>
+
+      <div class="group signup-only">
+        <label for="username">Username</label>
+        <input
+          id="username"
+          class="input"
+          type="text"
+          placeholder="Choose a username"
+          autocomplete="username"
+        >
+      </div>
+
+      <div class="group signup-only">
+        <label for="phone">Phone Number</label>
+        <input
+          id="phone"
+          class="input"
+          type="tel"
+          placeholder="03XXXXXXXXX"
+          autocomplete="tel"
+        >
+      </div>
+
+      <div class="group">
+        <label for="email">Email Address</label>
+        <input
+          id="email"
+          class="input"
+          type="email"
+          placeholder="Enter your email"
+          autocomplete="email"
+          required
+        >
+      </div>
+
+      <div class="group">
+        <label for="password">Password</label>
+
+        <div class="password-wrap">
+          <input
+            id="password"
+            class="input"
+            type="password"
+            placeholder="Enter your password"
+            autocomplete="current-password"
+            required
+          >
+
+          <button
+            class="eye"
+            type="button"
+            onclick="togglePassword('password',this)"
+          >👁</button>
+        </div>
+      </div>
+
+      <div class="group signup-only">
+        <label for="confirmPassword">Confirm Password</label>
+
+        <div class="password-wrap">
+          <input
+            id="confirmPassword"
+            class="input"
+            type="password"
+            placeholder="Confirm your password"
+            autocomplete="new-password"
+          >
+
+          <button
+            class="eye"
+            type="button"
+            onclick="togglePassword('confirmPassword',this)"
+          >👁</button>
+        </div>
+      </div>
+
+      <div class="group signup-only">
+        <label for="referralCode">
+          Referral Code
+          <span style="text-transform:none;color:#94a3b8;font-weight:500;">
+            (Optional)
+          </span>
+        </label>
 
+        <input
+          id="referralCode"
+          class="input"
+          type="text"
+          placeholder="Enter referral code"
+        >
+      </div>
 
-  <script>
+      <div class="forgot" id="forgotBox">
+        <button type="button" onclick="forgotPassword()">
+          Forgot Password?
+        </button>
+      </div>
 
-    /* =========================
-       API
-    ========================= */
+      <button
+        type="submit"
+        class="submit"
+        id="submitBtn"
+      >Login</button>
 
-    const API_BASE = "/api";
+    </form>
 
+    <div class="toggle">
 
-    /* =========================
-       MODE
-    ========================= */
+      <span id="toggleText">
+        Don't have an account?
+      </span>
 
-    let isSignUp = false;
+      <button
+        type="button"
+        id="toggleBtn"
+        onclick="toggleMode()"
+      >Create Account</button>
 
+    </div>
 
-    function toggleMode() {
+  </section>
 
-      isSignUp = !isSignUp;
+  <div class="footer">
+    © 2026 EarnNest ·
+    <a href="/privacy.html">Privacy</a> ·
+    <a href="/terms.html">Terms</a>
+  </div>
 
-      document
-        .querySelectorAll(".signup-only")
-        .forEach(function(el) {
+</main>
 
-          el.style.display =
-            isSignUp ? "block" : "none";
+<script>
 
-        });
+const API_BASE = "/api";
 
+let isSignUp = false;
 
-      document.getElementById("title").textContent =
-        isSignUp
-          ? "Create Your Account"
-          : "Welcome Back";
 
+/* =========================
+   MESSAGE
+========================= */
 
-      document.getElementById("subtitle").textContent =
-        isSignUp
-          ? "Join EarnNest and start earning coins"
-          : "Login to continue to your EarnNest account";
+function showMessage(message,type){
 
+  const box=document.getElementById("message");
 
-      document.getElementById("submitBtn").textContent =
-        isSignUp
-          ? "Create Account"
-          : "Login";
+  box.textContent=message;
 
+  box.className=type;
 
-      document.getElementById("toggleText").textContent =
-        isSignUp
-          ? "Already have an account?"
-          : "Don't have an account?";
+  box.style.display="block";
+}
 
 
-      document.getElementById("toggleBtn").textContent =
-        isSignUp
-          ? "Login"
-          : "Create Account";
+function clearMessage(){
 
+  const box=document.getElementById("message");
 
-      document.getElementById("forgotBox").style.display =
-        isSignUp ? "none" : "block";
+  box.textContent="";
 
+  box.className="";
 
-      clearMessage();
-    }
+  box.style.display="none";
+}
 
 
-    /* =========================
-       MESSAGE
-    ========================= */
+/* =========================
+   MODE
+========================= */
 
-    function showMessage(message, type) {
+function toggleMode(){
 
-      const box =
-        document.getElementById("message");
+  isSignUp=!isSignUp;
 
-      box.textContent = message;
+  document
+    .querySelectorAll(".signup-only")
+    .forEach(function(el){
 
-      box.className = type;
+      el.style.display=isSignUp ? "block" : "none";
 
-      box.style.display = "block";
-    }
+    });
 
 
-    function clearMessage() {
+  document.getElementById("title").textContent=
+    isSignUp
+      ? "Create Your Account"
+      : "Welcome Back";
 
-      const box =
-        document.getElementById("message");
 
-      box.textContent = "";
+  document.getElementById("subtitle").textContent=
+    isSignUp
+      ? "Join EarnNest and start earning coins"
+      : "Login to continue to your EarnNest account";
 
-      box.className = "";
 
-      box.style.display = "none";
-    }
+  document.getElementById("submitBtn").textContent=
+    isSignUp
+      ? "Create Account"
+      : "Login";
 
 
-    /* =========================
-       PASSWORD
-    ========================= */
+  document.getElementById("toggleText").textContent=
+    isSignUp
+      ? "Already have an account?"
+      : "Don't have an account?";
 
-    function togglePassword(id, button) {
 
-      const input =
-        document.getElementById(id);
+  document.getElementById("toggleBtn").textContent=
+    isSignUp
+      ? "Login"
+      : "Create Account";
 
-      if (input.type === "password") {
 
-        input.type = "text";
+  document.getElementById("forgotBox").style.display=
+    isSignUp ? "none" : "block";
 
-        button.textContent = "🙈";
 
-      } else {
+  document.getElementById("password").value="";
+  document.getElementById("confirmPassword").value="";
 
-        input.type = "password";
+  clearMessage();
+}
 
-        button.textContent = "👁";
-      }
-    }
 
+/* =========================
+   PASSWORD
+========================= */
 
-    /* =========================
-       SAFE JSON
-    ========================= */
+function togglePassword(id,button){
 
-    async function getJsonResponse(response) {
+  const input=document.getElementById(id);
 
-      const text =
-        await response.text();
+  if(input.type==="password"){
 
-      if (!text) {
-        throw new Error(
-          "Server returned an empty response."
-        );
-      }
+    input.type="text";
+    button.textContent="🙈";
 
-      try {
+  }else{
 
-        return JSON.parse(text);
+    input.type="password";
+    button.textContent="👁";
 
-      } catch (error) {
+  }
+}
 
-        console.error(
-          "Invalid server response:",
-          text
-        );
 
-        throw new Error(
-          "Server returned an invalid response."
-        );
-      }
-    }
+/* =========================
+   API RESPONSE
+========================= */
 
+async function readApiResponse(response){
 
-    /* =========================
-       LOGIN
-    ========================= */
+  const text=await response.text();
 
-    async function loginUser() {
+  if(!text){
 
-      const login =
-        document
-          .getElementById("email")
-          .value
-          .trim();
+    throw new Error(
+      "Server returned an empty response."
+    );
+  }
 
-      const password =
-        document
-          .getElementById("password")
-          .value;
+  let data;
 
+  try{
 
-      if (!login || !password) {
+    data=JSON.parse(text);
 
-        showMessage(
-          "Please enter your email/username and password.",
-          "error"
-        );
+  }catch(error){
 
-        return;
-      }
+    console.error("Server response:",text);
 
+    throw new Error(
+      "Server returned an invalid response."
+    );
+  }
 
-      const button =
-        document.getElementById("submitBtn");
+  return data;
+}
 
-      button.disabled = true;
 
-      button.textContent = "Logging in...";
+/* =========================
+   LOGIN
+========================= */
 
-      clearMessage();
+async function loginUser(){
 
+  const emailInput=
+    document.getElementById("email");
 
-      try {
+  const passwordInput=
+    document.getElementById("password");
 
-        const response =
-          await fetch(API_BASE, {
+  const email=
+    emailInput.value
+      .trim()
+      .toLowerCase();
 
-            method: "POST",
+  const password=
+    passwordInput.value;
 
-            headers: {
-              "Content-Type": "application/json"
-            },
+  const button=
+    document.getElementById("submitBtn");
 
-            body: JSON.stringify({
-              action: "login",
-              login: login,
-              email: login,
-              password: password
-            })
-          });
 
+  if(!email || !password){
 
-        const data =
-          await getJsonResponse(response);
+    showMessage(
+      "Please enter your email and password.",
+      "error"
+    );
 
+    return;
+  }
 
-        if (!response.ok || !data.success) {
 
-          throw new Error(
-            data.message ||
-            "Login failed."
-          );
-        }
+  button.disabled=true;
+  button.textContent="Logging in...";
 
+  clearMessage();
 
-        if (!data.token || !data.user) {
 
-          throw new Error(
-            "Login response is incomplete."
-          );
-        }
+  try{
 
+    const response=await fetch(API_BASE,{
+      method:"POST",
 
-        localStorage.setItem(
-          "earnnest_token",
-          data.token
-        );
+      headers:{
+        "Content-Type":"application/json",
+        "Accept":"application/json"
+      },
 
+      body:JSON.stringify({
 
-        localStorage.setItem(
-          "earnnest_user",
-          JSON.stringify(data.user)
-        );
+        action:"login",
 
+        email:email,
 
-        showMessage(
-          "Login successful. Opening dashboard...",
-          "success"
-        );
+        login:email,
 
+        password:password
 
-        setTimeout(function() {
+      })
+    });
 
-          window.location.href =
-            "/dashboard.html";
 
-        }, 500);
+    const data=
+      await readApiResponse(response);
 
 
-      } catch (error) {
+    console.log("Login API:",{
+      status:response.status,
+      success:data.success,
+      message:data.message
+    });
 
-        console.error(
-          "Login error:",
-          error
-        );
 
+    if(!response.ok || data.success!==true){
 
-        showMessage(
-          error.message ||
-          "Login failed. Please try again.",
-          "error"
-        );
-
-
-        button.disabled = false;
-
-        button.textContent = "Login";
-      }
-    }
-
-
-    /* =========================
-       REGISTER
-    ========================= */
-
-    async function registerUser() {
-
-      const name =
-        document.getElementById("name").value.trim();
-
-      const username =
-        document.getElementById("username").value.trim();
-
-      const phone =
-        document.getElementById("phone").value.trim();
-
-      const email =
-        document.getElementById("email").value.trim();
-
-      const password =
-        document.getElementById("password").value;
-
-      const confirmPassword =
-        document
-          .getElementById("confirmPassword")
-          .value;
-
-      const referralCode =
-        document
-          .getElementById("referralCode")
-          .value
-          .trim();
-
-
-      if (
-        !name ||
-        !username ||
-        !email ||
-        !password ||
-        !confirmPassword
-      ) {
-
-        showMessage(
-          "Please fill all required fields.",
-          "error"
-        );
-
-        return;
-      }
-
-
-      if (password.length < 6) {
-
-        showMessage(
-          "Password must be at least 6 characters.",
-          "error"
-        );
-
-        return;
-      }
-
-
-      if (password !== confirmPassword) {
-
-        showMessage(
-          "Passwords do not match.",
-          "error"
-        );
-
-        return;
-      }
-
-
-      const button =
-        document.getElementById("submitBtn");
-
-      button.disabled = true;
-
-      button.textContent =
-        "Creating Account...";
-
-      clearMessage();
-
-
-      try {
-
-        const response =
-          await fetch(API_BASE, {
-
-            method: "POST",
-
-            headers: {
-              "Content-Type": "application/json"
-            },
-
-            body: JSON.stringify({
-
-              action: "register",
-
-              name: name,
-
-              username: username,
-
-              phone: phone,
-
-              email: email,
-
-              password: password,
-
-              confirmPassword:
-                confirmPassword,
-
-              referralCode:
-                referralCode
-            })
-          });
-
-
-        const data =
-          await getJsonResponse(response);
-
-
-        if (!response.ok || !data.success) {
-
-          throw new Error(
-            data.message ||
-            "Account creation failed."
-          );
-        }
-
-
-        showMessage(
-          "Account created. Logging you in...",
-          "success"
-        );
-
-
-        /*
-          Auto-login
-        */
-
-        const loginResponse =
-          await fetch(API_BASE, {
-
-            method: "POST",
-
-            headers: {
-              "Content-Type": "application/json"
-            },
-
-            body: JSON.stringify({
-
-              action: "login",
-
-              login: email,
-
-              email: email,
-
-              password: password
-
-            })
-          });
-
-
-        const loginData =
-          await getJsonResponse(
-            loginResponse
-          );
-
-
-        if (
-          !loginResponse.ok ||
-          !loginData.success ||
-          !loginData.token ||
-          !loginData.user
-        ) {
-
-          throw new Error(
-            loginData.message ||
-            "Account created, but automatic login failed."
-          );
-        }
-
-
-        localStorage.setItem(
-          "earnnest_token",
-          loginData.token
-        );
-
-
-        localStorage.setItem(
-          "earnnest_user",
-          JSON.stringify(
-            loginData.user
-          )
-        );
-
-
-        setTimeout(function() {
-
-          window.location.href =
-            "/dashboard.html";
-
-        }, 500);
-
-
-      } catch (error) {
-
-        console.error(
-          "Registration error:",
-          error
-        );
-
-
-        showMessage(
-          error.message ||
-          "Registration failed. Please try again.",
-          "error"
-        );
-
-
-        button.disabled = false;
-
-        button.textContent =
-          "Create Account";
-      }
-    }
-
-
-    /* =========================
-       FORM
-    ========================= */
-
-    document
-      .getElementById("authForm")
-      .addEventListener(
-        "submit",
-        function(event) {
-
-          event.preventDefault();
-
-          if (isSignUp) {
-
-            registerUser();
-
-          } else {
-
-            loginUser();
-
-          }
-        }
-      );
-
-
-    /* =========================
-       FORGOT PASSWORD
-    ========================= */
-
-    function forgotPassword() {
-
-      showMessage(
-        "Password reset is not connected yet. Please contact support.",
-        "error"
+      throw new Error(
+        data.message ||
+        data.error ||
+        "Unable to login. Please check your email and password."
       );
     }
 
 
-    /* =========================
-       FALLING $
-    ========================= */
+    if(!data.token || !data.user){
 
-    const canvas =
-      document.getElementById("moneyCanvas");
-
-    const ctx =
-      canvas.getContext("2d");
-
-    let money = [];
-
-
-    function resizeCanvas() {
-
-      canvas.width =
-        window.innerWidth;
-
-      canvas.height =
-        window.innerHeight;
+      throw new Error(
+        "Login succeeded but the server did not return a valid session."
+      );
     }
 
 
-    window.addEventListener(
-      "resize",
-      resizeCanvas
+    localStorage.setItem(
+      "earnnest_token",
+      String(data.token)
     );
 
 
-    function createMoney() {
-
-      money = [];
-
-      const count =
-        window.innerWidth < 600
-          ? 18
-          : 35;
+    localStorage.setItem(
+      "earnnest_user",
+      JSON.stringify(data.user)
+    );
 
 
-      for (
-        let i = 0;
-        i < count;
-        i++
-      ) {
+    showMessage(
+      "Login successful. Opening dashboard...",
+      "success"
+    );
 
-        money.push({
 
-          x:
-            Math.random() *
-            canvas.width,
+    setTimeout(function(){
 
-          y:
-            Math.random() *
-            canvas.height,
+      window.location.replace(
+        "/dashboard.html"
+      );
 
-          speed:
-            .6 +
-            Math.random() * 1.7,
+    },700);
 
-          size:
-            13 +
-            Math.random() * 14,
 
-          opacity:
-            .20 +
-            Math.random() * .35,
+  }catch(error){
 
-          rotation:
-            Math.random() *
-            Math.PI *
-            2,
+    console.error(
+      "Login error:",
+      error
+    );
 
-          rotationSpeed:
-            (Math.random() - .5) *
-            .025
-        });
-      }
+
+    showMessage(
+      error.message ||
+      "Unable to login. Please try again.",
+      "error"
+    );
+
+
+    button.disabled=false;
+    button.textContent="Login";
+  }
+}
+
+
+/* =========================
+   REGISTER
+========================= */
+
+async function registerUser(){
+
+  const name=
+    document.getElementById("name")
+      .value.trim();
+
+  const username=
+    document.getElementById("username")
+      .value.trim();
+
+  const phone=
+    document.getElementById("phone")
+      .value.trim();
+
+  const email=
+    document.getElementById("email")
+      .value.trim()
+      .toLowerCase();
+
+  const password=
+    document.getElementById("password")
+      .value;
+
+  const confirmPassword=
+    document.getElementById("confirmPassword")
+      .value;
+
+  const referralCode=
+    document.getElementById("referralCode")
+      .value.trim();
+
+
+  if(
+    !name ||
+    !username ||
+    !email ||
+    !password ||
+    !confirmPassword
+  ){
+
+    showMessage(
+      "Please fill all required fields.",
+      "error"
+    );
+
+    return;
+  }
+
+
+  if(password.length<6){
+
+    showMessage(
+      "Password must be at least 6 characters.",
+      "error"
+    );
+
+    return;
+  }
+
+
+  if(password!==confirmPassword){
+
+    showMessage(
+      "Passwords do not match.",
+      "error"
+    );
+
+    return;
+  }
+
+
+  const button=
+    document.getElementById("submitBtn");
+
+  button.disabled=true;
+  button.textContent="Creating Account...";
+
+  clearMessage();
+
+
+  try{
+
+    const response=await fetch(API_BASE,{
+      method:"POST",
+
+      headers:{
+        "Content-Type":"application/json",
+        "Accept":"application/json"
+      },
+
+      body:JSON.stringify({
+
+        action:"register",
+
+        name:name,
+
+        username:username,
+
+        phone:phone,
+
+        email:email,
+
+        password:password,
+
+        confirmPassword:confirmPassword,
+
+        referralCode:referralCode
+
+      })
+    });
+
+
+    const data=
+      await readApiResponse(response);
+
+
+    if(!response.ok || data.success!==true){
+
+      throw new Error(
+        data.message ||
+        data.error ||
+        "Account creation failed."
+      );
     }
 
 
-    function animateMoney() {
-
-      ctx.clearRect(
-        0,
-        0,
-        canvas.width,
-        canvas.height
-      );
+    showMessage(
+      "Account created. Logging you in...",
+      "success"
+    );
 
 
-      money.forEach(function(item) {
+    /* Auto login */
 
-        ctx.save();
+    const loginResponse=
+      await fetch(API_BASE,{
+        method:"POST",
 
-        ctx.translate(
-          item.x,
-          item.y
-        );
+        headers:{
+          "Content-Type":"application/json",
+          "Accept":"application/json"
+        },
 
-        ctx.rotate(
-          item.rotation
-        );
+        body:JSON.stringify({
 
-        ctx.font =
-          "bold " +
-          item.size +
-          "px Arial";
+          action:"login",
 
-        ctx.fillStyle =
-          "rgba(134,239,172," +
-          item.opacity +
-          ")";
+          email:email,
 
-        ctx.fillText(
-          "$",
-          0,
-          0
-        );
+          login:email,
 
-        ctx.restore();
+          password:password
 
-
-        item.y += item.speed;
-
-        item.rotation +=
-          item.rotationSpeed;
-
-
-        if (
-          item.y >
-          canvas.height + 30
-        ) {
-
-          item.y = -30;
-
-          item.x =
-            Math.random() *
-            canvas.width;
-        }
+        })
       });
 
 
-      requestAnimationFrame(
-        animateMoney
+    const loginData=
+      await readApiResponse(
+        loginResponse
+      );
+
+
+    if(
+      !loginResponse.ok ||
+      loginData.success!==true ||
+      !loginData.token ||
+      !loginData.user
+    ){
+
+      throw new Error(
+        loginData.message ||
+        "Account created, but automatic login failed. Please login manually."
       );
     }
 
 
-    resizeCanvas();
+    localStorage.setItem(
+      "earnnest_token",
+      String(loginData.token)
+    );
 
+
+    localStorage.setItem(
+      "earnnest_user",
+      JSON.stringify(loginData.user)
+    );
+
+
+    setTimeout(function(){
+
+      window.location.replace(
+        "/dashboard.html"
+      );
+
+    },700);
+
+
+  }catch(error){
+
+    console.error(
+      "Registration error:",
+      error
+    );
+
+
+    showMessage(
+      error.message ||
+      "Registration failed. Please try again.",
+      "error"
+    );
+
+
+    button.disabled=false;
+    button.textContent="Create Account";
+  }
+}
+
+
+/* =========================
+   FORM
+========================= */
+
+document
+  .getElementById("authForm")
+  .addEventListener(
+    "submit",
+    function(event){
+
+      event.preventDefault();
+
+      if(isSignUp){
+
+        registerUser();
+
+      }else{
+
+        loginUser();
+
+      }
+    }
+  );
+
+
+/* =========================
+   FORGOT PASSWORD
+========================= */
+
+function forgotPassword(){
+
+  showMessage(
+    "Password reset is not connected yet. Please contact support.",
+    "error"
+  );
+}
+
+
+/* =========================
+   ENTER KEY
+========================= */
+
+document
+  .getElementById("password")
+  .addEventListener(
+    "keydown",
+    function(event){
+
+      if(event.key==="Enter"){
+
+        event.preventDefault();
+
+        document
+          .getElementById("authForm")
+          .requestSubmit();
+
+      }
+    }
+  );
+
+
+/* =========================
+   FALLING MONEY
+========================= */
+
+const canvas=
+  document.getElementById("moneyCanvas");
+
+const ctx=
+  canvas.getContext("2d");
+
+let money=[];
+
+
+function resizeCanvas(){
+
+  canvas.width=window.innerWidth;
+  canvas.height=window.innerHeight;
+}
+
+
+function createMoney(){
+
+  money=[];
+
+  const count=
+    window.innerWidth<600
+      ? 18
+      : 35;
+
+
+  for(let i=0;i<count;i++){
+
+    money.push({
+
+      x:
+        Math.random()*canvas.width,
+
+      y:
+        Math.random()*canvas.height,
+
+      speed:
+        .6+Math.random()*1.7,
+
+      size:
+        13+Math.random()*14,
+
+      opacity:
+        .20+Math.random()*.35,
+
+      rotation:
+        Math.random()*Math.PI*2,
+
+      rotationSpeed:
+        (Math.random()-.5)*.025
+
+    });
+  }
+}
+
+
+function animateMoney(){
+
+  ctx.clearRect(
+    0,
+    0,
+    canvas.width,
+    canvas.height
+  );
+
+
+  money.forEach(function(item){
+
+    ctx.save();
+
+    ctx.translate(
+      item.x,
+      item.y
+    );
+
+    ctx.rotate(
+      item.rotation
+    );
+
+    ctx.font=
+      "bold "+
+      item.size+
+      "px Arial";
+
+    ctx.fillStyle=
+      "rgba(134,239,172,"+
+      item.opacity+
+      ")";
+
+    ctx.fillText("$",0,0);
+
+    ctx.restore();
+
+
+    item.y+=item.speed;
+
+    item.rotation+=
+      item.rotationSpeed;
+
+
+    if(item.y>canvas.height+30){
+
+      item.y=-30;
+
+      item.x=
+        Math.random()*canvas.width;
+    }
+
+  });
+
+
+  requestAnimationFrame(
+    animateMoney
+  );
+}
+
+
+window.addEventListener(
+  "resize",
+  function(){
+
+    resizeCanvas();
     createMoney();
 
-    animateMoney();
+  }
+);
 
-  </script>
+
+resizeCanvas();
+createMoney();
+animateMoney();
+
+</script>
 
 </body>
 </html>
