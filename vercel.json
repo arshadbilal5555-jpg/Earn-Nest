@@ -1,16 +1,27 @@
 {
-  "cleanUrls": true,
+  "version": 2,
+  "builds": [
+    {
+      "src": "api/**/*.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "app/**/*.html",
+      "use": "@vercel/static"
+    }
+  ],
   "routes": [
     {
+      "src": "/api/health",
+      "dest": "/api/health.js"
+    },
+    {
       "src": "/api/(.*)",
-      "dest": "/api/$1"
+      "dest": "/api/index.js"
     },
     {
-      "handle": "filesystem"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/index.html"
+      "src": "/app/(.*)",
+      "dest": "/app/$1"
     }
   ]
 }
