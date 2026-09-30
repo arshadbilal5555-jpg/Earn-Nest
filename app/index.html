@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <title>EarnNest — Login & Register</title>
 
   <style>
@@ -24,15 +24,6 @@
         radial-gradient(circle at 10% 10%, rgba(34,197,94,.25), transparent 30%),
         radial-gradient(circle at 90% 90%, rgba(16,185,129,.20), transparent 30%),
         linear-gradient(135deg, #022c22, #064e3b, #052e16);
-    }
-
-    #moneyCanvas {
-      position: fixed;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-      z-index: 1;
     }
 
     .page {
@@ -123,6 +114,10 @@
       margin-bottom: 15px;
     }
 
+    .signup-only {
+      display: none;
+    }
+
     label {
       display: block;
       margin-bottom: 6px;
@@ -203,6 +198,10 @@
       cursor: pointer;
     }
 
+    .submit:hover {
+      opacity: .92;
+    }
+
     .submit:disabled {
       opacity: .65;
       cursor: wait;
@@ -218,10 +217,6 @@
     .toggle button {
       margin-left: 4px;
       font-size: 13px;
-    }
-
-    .signup-only {
-      display: none;
     }
 
     .footer {
@@ -258,913 +253,1022 @@
       }
     }
   </style>
-
 </head>
 
 <body>
 
-<canvas id="moneyCanvas"></canvas>
+  <main class="page">
 
-<main class="page">
+    <section class="card">
 
-  <section class="card">
+      <div class="brand">
+        <div class="logo">E</div>
+        <div class="brand-name">Earn Nest</div>
+        <div class="tagline">Work Hard, Grow Your Balance</div>
+      </div>
 
-```
-<div class="brand">
-  <div class="logo">E</div>
-  <div class="brand-name">Earn Nest</div>
-  <div class="tagline">Work Hard, Grow Your Balance</div>
-</div>
+      <h1 id="title">Welcome Back</h1>
 
-<h1 id="title">Welcome Back</h1>
+      <p class="subtitle" id="subtitle">
+        Login to continue to your EarnNest account
+      </p>
 
-<p class="subtitle" id="subtitle">
-  Login to continue to your EarnNest account
-</p>
+      <div id="message"></div>
 
-<div id="message"></div>
+      <form id="authForm" novalidate>
 
-<form id="authForm">
+        <!-- NAME -->
+        <div class="field signup-only">
+          <label for="name">Full Name</label>
 
-  <div class="field signup-only">
-    <label for="name">Full Name</label>
-    <input
-      id="name"
-      type="text"
-      placeholder="Enter your full name"
-      autocomplete="name"
-    >
-  </div>
+          <input
+            id="name"
+            type="text"
+            placeholder="Enter your full name"
+            autocomplete="name"
+          >
+        </div>
 
-  <div class="field signup-only">
-    <label for="username">Username</label>
-    <input
-      id="username"
-      type="text"
-      placeholder="Choose a username"
-      autocomplete="username"
-    >
-  </div>
+        <!-- USERNAME -->
+        <div class="field signup-only">
+          <label for="username">Username</label>
 
-  <div class="field signup-only">
-    <label for="phone">Phone Number</label>
-    <input
-      id="phone"
-      type="tel"
-      placeholder="03XXXXXXXXX"
-      autocomplete="tel"
-    >
-  </div>
+          <input
+            id="username"
+            type="text"
+            placeholder="Choose a username"
+            autocomplete="username"
+          >
+        </div>
 
-  <div class="field">
-    <label for="email">Email Address</label>
-    <input
-      id="email"
-      type="email"
-      placeholder="Enter your email"
-      autocomplete="email"
-    >
-  </div>
+        <!-- PHONE -->
+        <div class="field signup-only">
+          <label for="phone">Phone Number</label>
 
-  <div class="field">
-    <label for="password">Password</label>
+          <input
+            id="phone"
+            type="tel"
+            placeholder="03XXXXXXXXX"
+            autocomplete="tel"
+          >
+        </div>
 
-    <div class="password-box">
-      <input
-        id="password"
-        type="password"
-        placeholder="Enter your password"
-        autocomplete="current-password"
-      >
+        <!-- EMAIL -->
+        <div class="field">
+          <label for="email">Email Address</label>
 
-      <button
-        type="button"
-        class="eye"
-        id="passwordEye"
-      >👁</button>
+          <input
+            id="email"
+            type="email"
+            placeholder="Enter your email"
+            autocomplete="email"
+          >
+        </div>
+
+        <!-- PASSWORD -->
+        <div class="field">
+          <label for="password">Password</label>
+
+          <div class="password-box">
+
+            <input
+              id="password"
+              type="password"
+              placeholder="Enter your password"
+              autocomplete="current-password"
+            >
+
+            <button
+              type="button"
+              class="eye"
+              id="passwordEye"
+              aria-label="Show password"
+            >👁</button>
+
+          </div>
+        </div>
+
+        <!-- CONFIRM PASSWORD -->
+        <div class="field signup-only">
+          <label for="confirmPassword">Confirm Password</label>
+
+          <div class="password-box">
+
+            <input
+              id="confirmPassword"
+              type="password"
+              placeholder="Confirm your password"
+              autocomplete="new-password"
+            >
+
+            <button
+              type="button"
+              class="eye"
+              id="confirmEye"
+              aria-label="Show confirm password"
+            >👁</button>
+
+          </div>
+        </div>
+
+        <!-- REFERRAL -->
+        <div class="field signup-only">
+          <label for="referralCode">
+            Referral Code (Optional)
+          </label>
+
+          <input
+            id="referralCode"
+            type="text"
+            placeholder="Enter referral code"
+          >
+        </div>
+
+        <!-- FORGOT PASSWORD -->
+        <div class="forgot" id="forgotBox">
+
+          <button
+            type="button"
+            id="forgotBtn"
+          >
+            Forgot Password?
+          </button>
+
+        </div>
+
+        <!-- SUBMIT -->
+        <button
+          type="submit"
+          class="submit"
+          id="submitBtn"
+        >
+          Login
+        </button>
+
+      </form>
+
+      <!-- LOGIN / REGISTER TOGGLE -->
+      <div class="toggle">
+
+        <span id="toggleText">
+          Don't have an account?
+        </span>
+
+        <button
+          type="button"
+          id="toggleBtn"
+        >
+          Create Account
+        </button>
+
+      </div>
+
+    </section>
+
+    <div class="footer">
+
+      © 2026 EarnNest ·
+
+      <a href="/privacy.html">
+        Privacy
+      </a>
+
+      ·
+
+      <a href="/terms.html">
+        Terms
+      </a>
+
     </div>
-  </div>
 
-  <div class="field signup-only">
-    <label for="confirmPassword">Confirm Password</label>
+  </main>
 
-    <div class="password-box">
-      <input
-        id="confirmPassword"
-        type="password"
-        placeholder="Confirm your password"
-        autocomplete="new-password"
-      >
 
-      <button
-        type="button"
-        class="eye"
-        id="confirmEye"
-      >👁</button>
-    </div>
-  </div>
+  <script>
+    "use strict";
 
-  <div class="field signup-only">
-    <label for="referralCode">Referral Code (Optional)</label>
+    /*
+      EarnNest Login/Register
+      API endpoint
+    */
 
-    <input
-      id="referralCode"
-      type="text"
-      placeholder="Enter referral code"
-    >
-  </div>
+    const API_BASE = "/api";
 
-  <div class="forgot" id="forgotBox">
-    <button type="button" id="forgotBtn">
-      Forgot Password?
-    </button>
-  </div>
+    let isSignUp = false;
+    let isBusy = false;
 
-  <button
-    type="submit"
-    class="submit"
-    id="submitBtn"
-  >
-    Login
-  </button>
 
-</form>
+    /* =========================
+       GET ELEMENT
+    ========================= */
 
-<div class="toggle">
-  <span id="toggleText">Don't have an account?</span>
-
-  <button
-    type="button"
-    id="toggleBtn"
-  >
-    Create Account
-  </button>
-</div>
-```
-
-  </section>
-
-  <div class="footer">
-    © 2026 EarnNest ·
-    <a href="/privacy.html">Privacy</a>
-    ·
-    <a href="/terms.html">Terms</a>
-  </div>
-
-</main>
-
-<script>
-"use strict";
-
-const API_BASE = "/api";
-
-let isSignUp = false;
-let isBusy = false;
-
-
-/* -----------------------------
-   BASIC HELPERS
------------------------------ */
-
-function get(id) {
-  return document.getElementById(id);
-}
-
-
-function showMessage(message, type) {
-
-  const box = get("message");
-
-  box.textContent = String(
-    message || "Something went wrong."
-  );
-
-  box.className =
-    type === "success"
-      ? "success"
-      : "error";
-
-  box.style.display = "block";
-}
-
-
-function clearMessage() {
-
-  const box = get("message");
-
-  box.textContent = "";
-  box.className = "";
-  box.style.display = "none";
-}
-
-
-function setButton(text, disabled) {
-
-  const button = get("submitBtn");
-
-  button.textContent = text;
-  button.disabled = disabled;
-}
-
-
-/* -----------------------------
-   API REQUEST
------------------------------ */
-
-async function apiRequest(payload) {
-
-  const response = await fetch(API_BASE, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Accept": "application/json"
-    },
-    body: JSON.stringify(payload)
-  });
-
-  const text = await response.text();
-
-  let data;
-
-  try {
-    data = text ? JSON.parse(text) : {};
-  } catch (error) {
-    throw new Error(
-      "Server returned an invalid response."
-    );
-  }
-
-  console.log("EarnNest API:", response.status, data);
-
-  if (!response.ok) {
-
-    throw new Error(
-      data.message ||
-      data.error ||
-      "Server request failed."
-    );
-  }
-
-  return data;
-}
-
-
-/* -----------------------------
-   LOGIN
------------------------------ */
-
-async function loginUser() {
-
-  if (isBusy) {
-    return;
-  }
-
-  const email =
-    get("email").value.trim().toLowerCase();
-
-  const password =
-    get("password").value;
-
-  if (!email) {
-
-    showMessage(
-      "Please enter your email address.",
-      "error"
-    );
-
-    get("email").focus();
-    return;
-  }
-
-  if (!password) {
-
-    showMessage(
-      "Please enter your password.",
-      "error"
-    );
-
-    get("password").focus();
-    return;
-  }
-
-  isBusy = true;
-
-  clearMessage();
-
-  setButton(
-    "Logging in...",
-    true
-  );
-
-  try {
-
-    const data = await apiRequest({
-
-      action: "login",
-
-      email: email,
-
-      login: email,
-
-      password: password
-
-    });
-
-
-    if (
-      data.success !== true ||
-      !data.token ||
-      !data.user
-    ) {
-
-      throw new Error(
-        data.message ||
-        data.error ||
-        "Unable to login."
-      );
+    function get(id) {
+      return document.getElementById(id);
     }
 
 
-    localStorage.setItem(
-      "earnnest_token",
-      String(data.token)
-    );
+    /* =========================
+       MESSAGE
+    ========================= */
 
+    function showMessage(message, type) {
 
-    localStorage.setItem(
-      "earnnest_user",
-      JSON.stringify(data.user)
-    );
+      const box = get("message");
 
+      if (!box) {
+        return;
+      }
 
-    showMessage(
-      "Login successful. Opening dashboard...",
-      "success"
-    );
+      box.textContent =
+        String(message || "Something went wrong.");
 
+      box.className =
+        type === "success"
+          ? "success"
+          : "error";
 
-    setButton(
-      "Opening Dashboard...",
-      true
-    );
-
-
-    setTimeout(function() {
-
-      window.location.assign(
-        "/dashboard.html"
-      );
-
-    }, 600);
-
-
-  } catch (error) {
-
-    console.error(
-      "Login error:",
-      error
-    );
-
-    showMessage(
-      error.message ||
-      "Unable to login. Please try again.",
-      "error"
-    );
-
-    setButton(
-      "Login",
-      false
-    );
-
-    isBusy = false;
-  }
-}
-
-
-/* -----------------------------
-   REGISTER
------------------------------ */
-
-async function registerUser() {
-
-  if (isBusy) {
-    return;
-  }
-
-  const name =
-    get("name").value.trim();
-
-  const username =
-    get("username").value.trim();
-
-  const phone =
-    get("phone").value.trim();
-
-  const email =
-    get("email").value.trim().toLowerCase();
-
-  const password =
-    get("password").value;
-
-  const confirmPassword =
-    get("confirmPassword").value;
-
-  const referralCode =
-    get("referralCode").value.trim();
-
-
-  if (!name) {
-
-    showMessage(
-      "Please enter your full name.",
-      "error"
-    );
-
-    get("name").focus();
-    return;
-  }
-
-
-  if (!username) {
-
-    showMessage(
-      "Please choose a username.",
-      "error"
-    );
-
-    get("username").focus();
-    return;
-  }
-
-
-  if (!phone) {
-
-    showMessage(
-      "Please enter your phone number.",
-      "error"
-    );
-
-    get("phone").focus();
-    return;
-  }
-
-
-  if (!email) {
-
-    showMessage(
-      "Please enter your email address.",
-      "error"
-    );
-
-    get("email").focus();
-    return;
-  }
-
-
-  if (!password) {
-
-    showMessage(
-      "Please create a password.",
-      "error"
-    );
-
-    get("password").focus();
-    return;
-  }
-
-
-  if (password.length < 6) {
-
-    showMessage(
-      "Password must be at least 6 characters.",
-      "error"
-    );
-
-    get("password").focus();
-    return;
-  }
-
-
-  if (password !== confirmPassword) {
-
-    showMessage(
-      "Passwords do not match.",
-      "error"
-    );
-
-    get("confirmPassword").focus();
-    return;
-  }
-
-
-  isBusy = true;
-
-  clearMessage();
-
-  setButton(
-    "Creating Account...",
-    true
-  );
-
-
-  try {
-
-    const data = await apiRequest({
-
-      action: "register",
-
-      name: name,
-
-      username: username,
-
-      phone: phone,
-
-      email: email,
-
-      password: password,
-
-      confirmPassword: confirmPassword,
-
-      referralCode: referralCode
-
-    });
-
-
-    if (data.success !== true) {
-
-      throw new Error(
-        data.message ||
-        data.error ||
-        "Unable to create account."
-      );
+      box.style.display = "block";
     }
 
 
-    if (data.token && data.user) {
+    function clearMessage() {
 
-      localStorage.setItem(
-        "earnnest_token",
-        String(data.token)
+      const box = get("message");
+
+      if (!box) {
+        return;
+      }
+
+      box.textContent = "";
+      box.className = "";
+      box.style.display = "none";
+    }
+
+
+    /* =========================
+       BUTTON
+    ========================= */
+
+    function setButton(text, disabled) {
+
+      const button = get("submitBtn");
+
+      if (!button) {
+        return;
+      }
+
+      button.textContent = text;
+      button.disabled = disabled;
+    }
+
+
+    /* =========================
+       API REQUEST
+    ========================= */
+
+    async function apiRequest(payload) {
+
+      const response = await fetch(API_BASE, {
+        method: "POST",
+
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        },
+
+        body: JSON.stringify(payload)
+      });
+
+      const responseText =
+        await response.text();
+
+      let data = {};
+
+      try {
+
+        data = responseText
+          ? JSON.parse(responseText)
+          : {};
+
+      } catch (error) {
+
+        throw new Error(
+          "Server returned an invalid response."
+        );
+      }
+
+      console.log(
+        "EarnNest API:",
+        response.status,
+        data
       );
 
-      localStorage.setItem(
-        "earnnest_user",
-        JSON.stringify(data.user)
-      );
+      if (!response.ok) {
+
+        throw new Error(
+          data.message ||
+          data.error ||
+          "Server request failed."
+        );
+      }
+
+      return data;
+    }
 
 
-      showMessage(
-        "Account created successfully. Opening dashboard...",
-        "success"
-      );
+    /* =========================
+       LOGIN
+    ========================= */
 
+    async function loginUser() {
+
+      if (isBusy) {
+        return;
+      }
+
+      const email =
+        get("email").value.trim().toLowerCase();
+
+      const password =
+        get("password").value;
+
+
+      if (!email) {
+
+        showMessage(
+          "Please enter your email address.",
+          "error"
+        );
+
+        get("email").focus();
+
+        return;
+      }
+
+
+      if (!password) {
+
+        showMessage(
+          "Please enter your password.",
+          "error"
+        );
+
+        get("password").focus();
+
+        return;
+      }
+
+
+      isBusy = true;
+
+      clearMessage();
 
       setButton(
-        "Opening Dashboard...",
+        "Logging in...",
         true
       );
 
 
-      setTimeout(function() {
+      try {
 
-        window.location.assign(
-          "/dashboard.html"
+        const data =
+          await apiRequest({
+
+            action: "login",
+
+            email: email,
+
+            login: email,
+
+            password: password
+
+          });
+
+
+        if (
+          data.success !== true ||
+          !data.token ||
+          !data.user
+        ) {
+
+          throw new Error(
+            data.message ||
+            data.error ||
+            "Unable to login."
+          );
+        }
+
+
+        /*
+          Save login information
+        */
+
+        localStorage.setItem(
+          "earnnest_token",
+          String(data.token)
         );
 
-      }, 700);
+
+        localStorage.setItem(
+          "earnnest_user",
+          JSON.stringify(data.user)
+        );
 
 
-      return;
+        showMessage(
+          "Login successful. Opening dashboard...",
+          "success"
+        );
+
+
+        setButton(
+          "Opening Dashboard...",
+          true
+        );
+
+
+        setTimeout(function() {
+
+          window.location.href =
+            "/dashboard.html";
+
+        }, 700);
+
+
+      } catch (error) {
+
+        console.error(
+          "Login error:",
+          error
+        );
+
+
+        showMessage(
+          error.message ||
+          "Unable to login. Please try again.",
+          "error"
+        );
+
+
+        setButton(
+          "Login",
+          false
+        );
+
+        isBusy = false;
+      }
     }
 
 
-    showMessage(
-      "Account created successfully. Please login.",
-      "success"
-    );
+    /* =========================
+       REGISTER
+    ========================= */
 
+    async function registerUser() {
 
-    isSignUp = false;
+      if (isBusy) {
+        return;
+      }
 
-    updateMode();
 
-    get("password").value = "";
-    get("confirmPassword").value = "";
+      const name =
+        get("name").value.trim();
 
-    setButton(
-      "Login",
-      false
-    );
+      const username =
+        get("username").value.trim();
 
-    isBusy = false;
+      const phone =
+        get("phone").value.trim();
 
+      const email =
+        get("email").value.trim().toLowerCase();
 
-  } catch (error) {
+      const password =
+        get("password").value;
 
-    console.error(
-      "Registration error:",
-      error
-    );
+      const confirmPassword =
+        get("confirmPassword").value;
 
-    showMessage(
-      error.message ||
-      "Unable to create account. Please try again.",
-      "error"
-    );
+      const referralCode =
+        get("referralCode").value.trim();
 
-    setButton(
-      "Create Account",
-      false
-    );
 
-    isBusy = false;
-  }
-}
+      if (!name) {
 
+        showMessage(
+          "Please enter your full name.",
+          "error"
+        );
 
-/* -----------------------------
-   LOGIN / REGISTER MODE
------------------------------ */
+        get("name").focus();
 
-function updateMode() {
+        return;
+      }
 
-  document
-    .querySelectorAll(".signup-only")
-    .forEach(function(element) {
 
-      element.style.display =
-        isSignUp
-          ? "block"
-          : "none";
+      if (!username) {
 
-    });
+        showMessage(
+          "Please choose a username.",
+          "error"
+        );
 
+        get("username").focus();
 
-  get("title").textContent =
-    isSignUp
-      ? "Create Your Account"
-      : "Welcome Back";
+        return;
+      }
 
 
-  get("subtitle").textContent =
-    isSignUp
-      ? "Join EarnNest and start earning coins"
-      : "Login to continue to your EarnNest account";
+      if (!phone) {
 
+        showMessage(
+          "Please enter your phone number.",
+          "error"
+        );
 
-  get("submitBtn").textContent =
-    isSignUp
-      ? "Create Account"
-      : "Login";
+        get("phone").focus();
 
+        return;
+      }
 
-  get("toggleText").textContent =
-    isSignUp
-      ? "Already have an account?"
-      : "Don't have an account?";
 
+      if (!email) {
 
-  get("toggleBtn").textContent =
-    isSignUp
-      ? "Login"
-      : "Create Account";
+        showMessage(
+          "Please enter your email address.",
+          "error"
+        );
 
+        get("email").focus();
 
-  get("forgotBox").style.display =
-    isSignUp
-      ? "none"
-      : "block";
+        return;
+      }
 
 
-  clearMessage();
-}
+      if (!password) {
 
+        showMessage(
+          "Please create a password.",
+          "error"
+        );
 
-function toggleMode() {
+        get("password").focus();
 
-  if (isBusy) {
-    return;
-  }
+        return;
+      }
 
-  isSignUp = !isSignUp;
 
-  get("password").value = "";
-  get("confirmPassword").value = "";
+      if (password.length < 6) {
 
-  updateMode();
-}
+        showMessage(
+          "Password must be at least 6 characters.",
+          "error"
+        );
 
+        get("password").focus();
 
-/* -----------------------------
-   PASSWORD
------------------------------ */
+        return;
+      }
 
-function togglePassword(inputId, button) {
 
-  const input = get(inputId);
+      if (password !== confirmPassword) {
 
-  if (input.type === "password") {
+        showMessage(
+          "Passwords do not match.",
+          "error"
+        );
 
-    input.type = "text";
-    button.textContent = "🙈";
+        get("confirmPassword").focus();
 
-  } else {
+        return;
+      }
 
-    input.type = "password";
-    button.textContent = "👁";
 
-  }
-}
+      isBusy = true;
 
+      clearMessage();
 
-/* -----------------------------
-   FORGOT PASSWORD
------------------------------ */
+      setButton(
+        "Creating Account...",
+        true
+      );
 
-function forgotPassword() {
 
-  showMessage(
-    "Password reset is not connected yet. Please contact support.",
-    "error"
-  );
-}
+      try {
 
+        const data =
+          await apiRequest({
 
-/* -----------------------------
-   START PAGE
------------------------------ */
+            action: "register",
 
-document.addEventListener(
-  "DOMContentLoaded",
-  function() {
+            name: name,
 
-    console.log(
-      "EarnNest login page loaded."
-    );
+            username: username,
 
+            phone: phone,
 
-    const form = get("authForm");
+            email: email,
 
+            password: password,
 
-    /* FORM SUBMIT */
+            confirmPassword: confirmPassword,
 
-    form.addEventListener(
-      "submit",
-      function(event) {
+            referralCode: referralCode
 
-        event.preventDefault();
+          });
 
-        if (isSignUp) {
 
-          registerUser();
+        if (data.success !== true) {
 
-        } else {
-
-          loginUser();
-
+          throw new Error(
+            data.message ||
+            data.error ||
+            "Unable to create account."
+          );
         }
 
-      }
-    );
+
+        /*
+          If backend returns token,
+          automatically open dashboard.
+        */
+
+        if (data.token && data.user) {
+
+          localStorage.setItem(
+            "earnnest_token",
+            String(data.token)
+          );
 
 
-    /* CREATE ACCOUNT BUTTON */
-
-    get("toggleBtn").addEventListener(
-      "click",
-      function(event) {
-
-        event.preventDefault();
-
-        toggleMode();
-
-      }
-    );
+          localStorage.setItem(
+            "earnnest_user",
+            JSON.stringify(data.user)
+          );
 
 
-    /* PASSWORD EYE */
+          showMessage(
+            "Account created successfully. Opening dashboard...",
+            "success"
+          );
 
-    get("passwordEye").addEventListener(
-      "click",
-      function() {
 
-        togglePassword(
-          "password",
-          get("passwordEye")
+          setButton(
+            "Opening Dashboard...",
+            true
+          );
+
+
+          setTimeout(function() {
+
+            window.location.href =
+              "/dashboard.html";
+
+          }, 700);
+
+
+          return;
+        }
+
+
+        /*
+          Otherwise return to login.
+        */
+
+        showMessage(
+          "Account created successfully. Please login.",
+          "success"
         );
 
-      }
-    );
+
+        isSignUp = false;
+
+        updateMode();
 
 
-    /* CONFIRM PASSWORD EYE */
+        get("password").value = "";
 
-    get("confirmEye").addEventListener(
-      "click",
-      function() {
+        get("confirmPassword").value = "";
 
-        togglePassword(
-          "confirmPassword",
-          get("confirmEye")
+
+        setButton(
+          "Login",
+          false
         );
 
+
+        isBusy = false;
+
+
+      } catch (error) {
+
+        console.error(
+          "Registration error:",
+          error
+        );
+
+
+        showMessage(
+          error.message ||
+          "Unable to create account. Please try again.",
+          "error"
+        );
+
+
+        setButton(
+          "Create Account",
+          false
+        );
+
+
+        isBusy = false;
       }
-    );
+    }
 
 
-    /* FORGOT PASSWORD */
+    /* =========================
+       LOGIN / REGISTER MODE
+    ========================= */
 
-    get("forgotBtn").addEventListener(
-      "click",
+    function updateMode() {
+
+      document
+        .querySelectorAll(".signup-only")
+        .forEach(function(element) {
+
+          element.style.display =
+            isSignUp
+              ? "block"
+              : "none";
+
+        });
+
+
+      get("title").textContent =
+        isSignUp
+          ? "Create Your Account"
+          : "Welcome Back";
+
+
+      get("subtitle").textContent =
+        isSignUp
+          ? "Join EarnNest and start earning coins"
+          : "Login to continue to your EarnNest account";
+
+
+      get("submitBtn").textContent =
+        isSignUp
+          ? "Create Account"
+          : "Login";
+
+
+      get("toggleText").textContent =
+        isSignUp
+          ? "Already have an account?"
+          : "Don't have an account?";
+
+
+      get("toggleBtn").textContent =
+        isSignUp
+          ? "Login"
+          : "Create Account";
+
+
+      get("forgotBox").style.display =
+        isSignUp
+          ? "none"
+          : "block";
+
+
+      clearMessage();
+    }
+
+
+    function toggleMode() {
+
+      if (isBusy) {
+        return;
+      }
+
+      isSignUp = !isSignUp;
+
+
+      get("password").value = "";
+
+      get("confirmPassword").value = "";
+
+
+      updateMode();
+    }
+
+
+    /* =========================
+       PASSWORD SHOW/HIDE
+    ========================= */
+
+    function togglePassword(inputId, buttonId) {
+
+      const input =
+        get(inputId);
+
+      const button =
+        get(buttonId);
+
+
+      if (input.type === "password") {
+
+        input.type = "text";
+
+        button.textContent = "🙈";
+
+      } else {
+
+        input.type = "password";
+
+        button.textContent = "👁";
+
+      }
+    }
+
+
+    /* =========================
+       FORGOT PASSWORD
+    ========================= */
+
+    function forgotPassword() {
+
+      showMessage(
+        "Password reset is not connected yet. Please contact support.",
+        "error"
+      );
+    }
+
+
+    /* =========================
+       PAGE START
+    ========================= */
+
+    document.addEventListener(
+      "DOMContentLoaded",
       function() {
 
-        forgotPassword();
+        console.log(
+          "EarnNest login page loaded."
+        );
 
-      }
-    );
+
+        const form =
+          get("authForm");
 
 
-    /* ENTER KEY */
+        /*
+          Form submit
+        */
 
-    [
-      "email",
-      "password",
-      "name",
-      "username",
-      "phone",
-      "confirmPassword",
-      "referralCode"
-    ].forEach(function(id) {
-
-      get(id).addEventListener(
-        "keydown",
-        function(event) {
-
-          if (event.key === "Enter") {
+        form.addEventListener(
+          "submit",
+          function(event) {
 
             event.preventDefault();
 
-            form.requestSubmit();
+            event.stopPropagation();
+
+
+            if (isSignUp) {
+
+              registerUser();
+
+            } else {
+
+              loginUser();
+
+            }
 
           }
-
-        }
-      );
-
-    });
-
-  }
-);
+        );
 
 
-/* -----------------------------
-   MONEY ANIMATION
------------------------------ */
+        /*
+          Create Account / Login toggle
+        */
 
-(function() {
+        get("toggleBtn").addEventListener(
+          "click",
+          function(event) {
 
-  const canvas = get("moneyCanvas");
+            event.preventDefault();
 
-  if (!canvas) {
-    return;
-  }
+            event.stopPropagation();
 
-  const ctx =
-    canvas.getContext("2d");
+            toggleMode();
 
-  const symbols = [
-    "$",
-    "€",
-    "£",
-    "₨"
-  ];
-
-  const particles = [];
-
-  let width = 0;
-  let height = 0;
+          }
+        );
 
 
-  function resize() {
+        /*
+          Password eye
+        */
 
-    width =
-      canvas.width =
-      window.innerWidth;
+        get("passwordEye").addEventListener(
+          "click",
+          function(event) {
 
-    height =
-      canvas.height =
-      window.innerHeight;
+            event.preventDefault();
 
-  }
+            togglePassword(
+              "password",
+              "passwordEye"
+            );
+
+          }
+        );
 
 
-  function createParticle() {
+        /*
+          Confirm password eye
+        */
 
-    return {
+        get("confirmEye").addEventListener(
+          "click",
+          function(event) {
 
-      x: Math.random() * width,
+            event.preventDefault();
 
-      y: Math.random() * height,
+            togglePassword(
+              "confirmPassword",
+              "confirmEye"
+            );
 
-      speed:
-        0.3 +
+          }
+        );
+
+
+        /*
+          Forgot password
+        */
+
+        get("forgotBtn").addEventListener(
+          "click",
+          function(event) {
+
+            event.preventDefault();
+
+            forgotPassword();
+
+          }
+        );
+
+
+        /*
+          Enter key
+        */
+
+        [
+          "email",
+          "password",
+          "name",
+          "username",
+          "phone",
+          "confirmPassword",
+          "referralCode"
+        ].forEach(function(id) {
+
+          const field = get(id);
+
+          if (!field) {
+            return;
+          }
+
+
+          field.addEventListener(
+            "keydown",
+            function(event) {
+
+              if (event.key === "Enter") {
+
+                event.preventDefault();
+
+                form.requestSubmit();
+
+              }
+
+            }
+          );
+
+        });
+
+
+        /*
+          Start in Login mode
+        */
+
+        updateMode();
+
+      }
+    );
+
+  </script>
+
+</body>
+</html>
