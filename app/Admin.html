@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#0f7a43" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>EarnNest Admin Dashboard</title>
+  <meta name="theme-color" content="#0f7a45">
+  <meta name="description" content="EarnNest Professional Admin Dashboard">
+
+  <title>EarnNest — Admin Dashboard</title>
 
   <style>
     * {
@@ -15,162 +17,195 @@
     }
 
     body {
-      font-family: Arial, Helvetica, sans-serif;
-      background: #f4f7f6;
+      font-family:
+        Inter,
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+      background: #f3f7f5;
       color: #17231d;
       min-height: 100vh;
     }
 
+    /* =========================
+       WATERMARK
+    ========================= */
+
     body::before {
       content: "E";
       position: fixed;
-      right: 5%;
-      bottom: 3%;
+      right: 4%;
+      bottom: 2%;
       font-size: 260px;
       font-weight: 900;
-      color: rgba(15, 122, 67, 0.035);
+      line-height: 1;
+      color: rgba(15, 122, 69, 0.035);
       pointer-events: none;
-      z-index: 0;
+      z-index: -1;
     }
 
+    /* =========================
+       HEADER
+    ========================= */
+
     .topbar {
-      background: linear-gradient(135deg, #075b31, #0f7a43);
+      background:
+        linear-gradient(
+          135deg,
+          #075c34,
+          #0f7a45,
+          #15995a
+        );
       color: white;
-      padding: 18px 28px;
+      min-height: 78px;
+      padding: 14px 24px;
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 20px;
-      box-shadow: 0 4px 18px rgba(0,0,0,.12);
-      position: relative;
-      z-index: 10;
+      box-shadow: 0 5px 20px rgba(0,0,0,.12);
+      position: sticky;
+      top: 0;
+      z-index: 100;
     }
 
     .brand {
       display: flex;
       align-items: center;
-      gap: 14px;
+      gap: 13px;
     }
 
     .logo {
-      width: 52px;
-      height: 52px;
-      border-radius: 14px;
+      width: 48px;
+      height: 48px;
       background: white;
-      color: #0f7a43;
+      color: #0f7a45;
+      border-radius: 13px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 32px;
+      font-size: 31px;
       font-weight: 900;
-      box-shadow: 0 4px 12px rgba(0,0,0,.15);
+      box-shadow: 0 5px 14px rgba(0,0,0,.15);
     }
 
     .brand-text h1 {
-      font-size: 23px;
-      margin-bottom: 3px;
+      font-size: 21px;
+      font-weight: 800;
     }
 
-    .brand-text p {
-      font-size: 13px;
+    .brand-text span {
+      display: block;
+      font-size: 12px;
       opacity: .82;
+      margin-top: 2px;
     }
 
     .logout-btn {
       border: 1px solid rgba(255,255,255,.35);
       background: rgba(255,255,255,.12);
       color: white;
-      padding: 11px 18px;
+      padding: 10px 17px;
       border-radius: 10px;
-      cursor: pointer;
       font-weight: 700;
-      transition: .2s;
+      cursor: pointer;
     }
 
     .logout-btn:hover {
       background: white;
-      color: #075b31;
+      color: #0f7a45;
     }
 
+    /* =========================
+       PAGE
+    ========================= */
+
     .container {
-      max-width: 1450px;
-      margin: 0 auto;
-      padding: 28px;
-      position: relative;
-      z-index: 1;
+      width: min(1450px, 94%);
+      margin: 28px auto 60px;
     }
 
     .welcome {
-      background: white;
-      border-radius: 18px;
-      padding: 24px;
-      margin-bottom: 24px;
-      box-shadow: 0 5px 20px rgba(0,0,0,.06);
-      border: 1px solid #e4ebe7;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+      margin-bottom: 22px;
     }
 
     .welcome h2 {
-      color: #075b31;
-      margin-bottom: 7px;
-      font-size: 25px;
+      font-size: 27px;
+      color: #123f29;
     }
 
     .welcome p {
-      color: #68756e;
-      line-height: 1.6;
+      color: #64736b;
+      margin-top: 5px;
     }
 
     .admin-info {
-      margin-top: 12px;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
+      background: white;
+      border: 1px solid #dce9e2;
+      border-radius: 13px;
+      padding: 13px 18px;
+      text-align: right;
+      box-shadow: 0 3px 12px rgba(0,0,0,.04);
     }
 
-    .info-pill {
-      background: #eef8f2;
-      color: #075b31;
-      padding: 7px 12px;
-      border-radius: 30px;
-      font-size: 13px;
-      font-weight: 700;
+    .admin-info strong {
+      display: block;
+      color: #0f7a45;
     }
+
+    .admin-info span {
+      font-size: 13px;
+      color: #718078;
+    }
+
+    /* =========================
+       STATUS
+    ========================= */
 
     .status {
-      display: none;
-      margin-bottom: 20px;
-      padding: 14px 16px;
-      border-radius: 12px;
-      font-weight: 700;
-    }
-
-    .status.success {
-      display: block;
-      background: #e9f8ef;
-      color: #096b39;
-      border: 1px solid #bce8ca;
+      padding: 13px 17px;
+      background: white;
+      border-left: 5px solid #0f7a45;
+      border-radius: 10px;
+      margin-bottom: 22px;
+      box-shadow: 0 3px 12px rgba(0,0,0,.04);
+      color: #43524a;
     }
 
     .status.error {
-      display: block;
-      background: #fff0f0;
-      color: #a51f1f;
-      border: 1px solid #f2c2c2;
+      border-left-color: #dc3545;
+      color: #a51f2d;
     }
+
+    .status.success {
+      border-left-color: #198754;
+      color: #11683e;
+    }
+
+    /* =========================
+       STATS
+    ========================= */
 
     .stats {
       display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 18px;
-      margin-bottom: 28px;
+      grid-template-columns:
+        repeat(5, minmax(0, 1fr));
+      gap: 17px;
+      margin-bottom: 26px;
     }
 
     .stat-card {
       background: white;
-      border-radius: 17px;
-      padding: 22px;
-      box-shadow: 0 5px 20px rgba(0,0,0,.06);
-      border: 1px solid #e4ebe7;
+      border: 1px solid #dce9e2;
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 5px 18px rgba(0,0,0,.055);
       position: relative;
       overflow: hidden;
     }
@@ -180,91 +215,102 @@
       position: absolute;
       width: 75px;
       height: 75px;
-      border-radius: 50%;
-      background: rgba(15,122,67,.07);
       right: -25px;
       top: -25px;
+      border-radius: 50%;
+      background: rgba(15,122,69,.07);
     }
 
     .stat-label {
-      color: #748078;
+      color: #718078;
       font-size: 13px;
       font-weight: 700;
-      margin-bottom: 10px;
+      text-transform: uppercase;
+      letter-spacing: .3px;
     }
 
     .stat-value {
-      color: #075b31;
-      font-size: 30px;
-      font-weight: 900;
+      margin-top: 8px;
+      font-size: 29px;
+      font-weight: 850;
+      color: #123f29;
     }
+
+    /* =========================
+       SECTIONS
+    ========================= */
 
     .section {
       background: white;
-      border-radius: 18px;
-      padding: 22px;
-      margin-bottom: 26px;
-      box-shadow: 0 5px 20px rgba(0,0,0,.06);
-      border: 1px solid #e4ebe7;
+      border: 1px solid #dce9e2;
+      border-radius: 17px;
+      margin-bottom: 25px;
       overflow: hidden;
+      box-shadow: 0 5px 18px rgba(0,0,0,.05);
     }
 
     .section-header {
+      padding: 18px 21px;
+      border-bottom: 1px solid #e8efeb;
       display: flex;
       justify-content: space-between;
       align-items: center;
       gap: 15px;
-      margin-bottom: 18px;
-      flex-wrap: wrap;
     }
 
-    .section-header h2 {
-      color: #075b31;
-      font-size: 21px;
+    .section-header h3 {
+      color: #123f29;
+      font-size: 19px;
+    }
+
+    .section-header span {
+      font-size: 13px;
+      color: #718078;
+    }
+
+    .section-body {
+      padding: 0;
+      overflow-x: auto;
     }
 
     .refresh-btn {
+      background: #0f7a45;
       border: none;
-      background: #0f7a43;
       color: white;
-      padding: 10px 16px;
+      padding: 9px 15px;
       border-radius: 9px;
-      cursor: pointer;
       font-weight: 700;
+      cursor: pointer;
     }
 
     .refresh-btn:hover {
-      background: #075b31;
+      background: #095d35;
     }
 
-    .table-wrap {
-      width: 100%;
-      overflow-x: auto;
-      border: 1px solid #e6ece9;
-      border-radius: 12px;
-    }
+    /* =========================
+       TABLES
+    ========================= */
 
     table {
       width: 100%;
       border-collapse: collapse;
-      min-width: 850px;
+      min-width: 900px;
     }
 
     th {
-      background: #f0f7f3;
-      color: #075b31;
+      background: #f5f9f7;
+      color: #506057;
       font-size: 12px;
       text-transform: uppercase;
       letter-spacing: .4px;
-      padding: 14px;
+      padding: 13px 15px;
       text-align: left;
       white-space: nowrap;
     }
 
     td {
-      padding: 14px;
-      border-top: 1px solid #edf1ef;
-      color: #3e4943;
+      padding: 14px 15px;
+      border-top: 1px solid #edf2ef;
       font-size: 13px;
       vertical-align: middle;
     }
@@ -273,50 +319,61 @@
       background: #fbfdfc;
     }
 
-    .empty {
-      text-align: center;
-      padding: 30px;
-      color: #7b8780;
-      font-weight: 600;
+    .primary {
+      font-weight: 750;
+      color: #173f2b;
     }
+
+    .muted {
+      color: #758179;
+      font-size: 12px;
+    }
+
+    /* =========================
+       BADGES
+    ========================= */
 
     .badge {
       display: inline-flex;
       align-items: center;
-      padding: 6px 10px;
-      border-radius: 30px;
+      justify-content: center;
+      padding: 5px 9px;
+      border-radius: 999px;
       font-size: 11px;
       font-weight: 800;
       text-transform: uppercase;
-      white-space: nowrap;
     }
 
     .badge.pending {
-      background: #fff5d9;
-      color: #986900;
+      background: #fff3cd;
+      color: #856404;
     }
 
     .badge.approved {
-      background: #e6f7ed;
-      color: #08733c;
+      background: #d1e7dd;
+      color: #0f5132;
     }
 
     .badge.rejected {
-      background: #ffebeb;
-      color: #a62020;
+      background: #f8d7da;
+      color: #842029;
     }
 
     .badge.admin {
-      background: #e9e8ff;
-      color: #4942a0;
+      background: #d8e7ff;
+      color: #164a91;
     }
 
     .badge.user {
-      background: #edf2f7;
-      color: #475569;
+      background: #e8efeb;
+      color: #4d5d54;
     }
 
-    .action-group {
+    /* =========================
+       BUTTONS
+    ========================= */
+
+    .actions {
       display: flex;
       gap: 7px;
       flex-wrap: wrap;
@@ -326,93 +383,57 @@
       border: none;
       padding: 8px 11px;
       border-radius: 8px;
-      cursor: pointer;
       font-size: 12px;
-      font-weight: 800;
-      transition: .2s;
-    }
-
-    .btn:hover {
-      transform: translateY(-1px);
+      font-weight: 750;
+      cursor: pointer;
     }
 
     .btn-approve {
-      background: #0f7a43;
+      background: #198754;
       color: white;
     }
 
     .btn-reject {
-      background: #c62828;
+      background: #dc3545;
       color: white;
     }
 
     .btn-view {
-      background: #edf4f0;
-      color: #075b31;
+      background: #e8f2ed;
+      color: #0f7a45;
     }
 
     .btn:disabled {
-      opacity: .55;
+      opacity: .5;
       cursor: not-allowed;
-      transform: none;
     }
 
-    .user-name {
-      font-weight: 800;
-      color: #17231d;
-    }
+    /* =========================
+       EMPTY / LOADING
+    ========================= */
 
-    .small {
-      color: #7b8780;
-      font-size: 11px;
-      margin-top: 3px;
-    }
-
-    .document-box {
-      background: #f7faf8;
-      border: 1px solid #e0e9e4;
-      border-radius: 9px;
-      padding: 9px 10px;
-      line-height: 1.6;
-      min-width: 170px;
-    }
-
-    .document-type {
-      font-weight: 800;
-      color: #075b31;
-    }
-
-    .document-number {
-      word-break: break-word;
-    }
-
-    .note {
-      margin-top: 5px;
-      color: #6d7871;
-      font-size: 11px;
-      font-style: italic;
+    .empty {
+      padding: 35px 20px;
+      text-align: center;
+      color: #7a8780;
     }
 
     .loading {
+      padding: 30px;
       text-align: center;
-      padding: 25px;
-      color: #748078;
-      font-weight: 700;
+      color: #718078;
     }
 
-    .footer {
-      text-align: center;
-      color: #87928b;
-      font-size: 12px;
-      padding: 10px 0 30px;
-    }
+    /* =========================
+       MODAL
+    ========================= */
 
     .modal {
       display: none;
       position: fixed;
       inset: 0;
-      background: rgba(0,0,0,.55);
-      z-index: 100;
+      background: rgba(10,25,17,.62);
+      z-index: 999;
       align-items: center;
       justify-content: center;
       padding: 20px;
@@ -422,132 +443,125 @@
       display: flex;
     }
 
-    .modal-card {
-      width: 100%;
-      max-width: 500px;
+    .modal-box {
       background: white;
-      border-radius: 18px;
+      width: min(520px, 100%);
+      border-radius: 17px;
       padding: 24px;
-      box-shadow: 0 15px 50px rgba(0,0,0,.25);
+      box-shadow: 0 20px 60px rgba(0,0,0,.25);
     }
 
-    .modal-card h3 {
-      color: #075b31;
-      margin-bottom: 8px;
+    .modal-box h3 {
+      color: #123f29;
+      margin-bottom: 7px;
     }
 
-    .modal-card p {
-      color: #69756e;
+    .modal-box p {
+      color: #68756e;
       font-size: 13px;
-      margin-bottom: 15px;
-      line-height: 1.5;
+      margin-bottom: 16px;
     }
 
     textarea {
       width: 100%;
       min-height: 110px;
-      resize: vertical;
-      border: 1px solid #ccd8d1;
+      border: 1px solid #ccd9d1;
       border-radius: 10px;
       padding: 12px;
-      font-family: inherit;
+      resize: vertical;
       outline: none;
-      margin-bottom: 14px;
+      font: inherit;
     }
 
     textarea:focus {
-      border-color: #0f7a43;
+      border-color: #0f7a45;
     }
 
     .modal-actions {
       display: flex;
       justify-content: flex-end;
-      gap: 10px;
+      gap: 9px;
+      margin-top: 15px;
     }
 
     .cancel-btn {
-      border: 1px solid #ccd8d1;
-      background: white;
-      color: #45524b;
-      padding: 10px 15px;
-      border-radius: 9px;
-      cursor: pointer;
-      font-weight: 700;
+      background: #eef2ef;
+      color: #34423a;
     }
 
-    .confirm-btn {
-      border: none;
-      background: #0f7a43;
-      color: white;
-      padding: 10px 17px;
-      border-radius: 9px;
-      cursor: pointer;
-      font-weight: 800;
-    }
+    /* =========================
+       MOBILE
+    ========================= */
 
-    @media (max-width: 1150px) {
+    @media (max-width: 1100px) {
       .stats {
-        grid-template-columns: repeat(3, 1fr);
+        grid-template-columns:
+          repeat(3, minmax(0, 1fr));
       }
     }
 
-    @media (max-width: 750px) {
+    @media (max-width: 700px) {
       .topbar {
-        padding: 14px 16px;
+        padding: 12px 15px;
       }
 
       .brand-text h1 {
-        font-size: 19px;
+        font-size: 18px;
       }
 
-      .brand-text p {
+      .brand-text span {
         font-size: 11px;
       }
 
       .logo {
-        width: 44px;
-        height: 44px;
+        width: 42px;
+        height: 42px;
         font-size: 27px;
       }
 
-      .container {
-        padding: 16px;
-      }
-
-      .stats {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 12px;
-      }
-
-      .stat-card {
-        padding: 17px;
-      }
-
-      .stat-value {
-        font-size: 24px;
-      }
-
-      .section {
-        padding: 15px;
-      }
-    }
-
-    @media (max-width: 460px) {
-      .stats {
-        grid-template-columns: 1fr;
-      }
-
-      .topbar {
-        align-items: flex-start;
-      }
-
       .logout-btn {
-        padding: 9px 12px;
+        padding: 8px 11px;
         font-size: 12px;
       }
 
-      .welcome h2 {
-        font-size: 21px;
+      .container {
+        width: 95%;
+        margin-top: 18px;
+      }
+
+      .welcome {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .admin-info {
+        width: 100%;
+        text-align: left;
+      }
+
+      .stats {
+        grid-template-columns:
+          repeat(2, minmax(0, 1fr));
+        gap: 10px;
+      }
+
+      .stat-card {
+        padding: 15px;
+      }
+
+      .stat-value {
+        font-size: 23px;
+      }
+
+      .section-header {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+    }
+
+    @media (max-width: 420px) {
+      .stats {
+        grid-template-columns: 1fr;
       }
     }
   </style>
@@ -555,82 +569,170 @@
 
 <body>
 
+  <!-- =========================
+       HEADER
+  ========================== -->
+
   <header class="topbar">
+
     <div class="brand">
       <div class="logo">E</div>
 
       <div class="brand-text">
         <h1>EarnNest Admin</h1>
-        <p>Administration Dashboard</p>
+        <span>Administration Dashboard</span>
       </div>
     </div>
 
-    <button class="logout-btn" onclick="logout()">
+    <button
+      class="logout-btn"
+      onclick="logout()"
+    >
       Logout
     </button>
+
   </header>
+
 
   <main class="container">
 
-    <section class="welcome">
-      <h2>Welcome, <span id="adminName">Admin</span> 👋</h2>
+    <!-- =========================
+         WELCOME
+    ========================== -->
 
-      <p>
-        Manage users, KYC verification and withdrawal requests from one place.
-      </p>
+    <div class="welcome">
+
+      <div>
+        <h2>Admin Dashboard</h2>
+        <p>
+          Manage users, KYC requests and withdrawals.
+        </p>
+      </div>
 
       <div class="admin-info">
-        <span class="info-pill" id="adminEmail">Admin Account</span>
-        <span class="info-pill">🔐 Admin Access</span>
-        <span class="info-pill">🟢 System Online</span>
+        <strong id="adminName">Admin</strong>
+        <span id="adminEmail">-</span>
       </div>
-    </section>
 
-    <div id="statusBox" class="status"></div>
+    </div>
 
-    <!-- STATS -->
-    <section class="stats">
+
+    <!-- =========================
+         STATUS
+    ========================== -->
+
+    <div
+      id="statusBox"
+      class="status"
+    >
+      Checking admin access...
+    </div>
+
+
+    <!-- =========================
+         STATS
+    ========================== -->
+
+    <div class="stats">
 
       <div class="stat-card">
-        <div class="stat-label">TOTAL USERS</div>
-        <div class="stat-value" id="totalUsers">0</div>
+        <div class="stat-label">
+          Total Users
+        </div>
+
+        <div
+          id="totalUsers"
+          class="stat-value"
+        >
+          0
+        </div>
       </div>
+
 
       <div class="stat-card">
-        <div class="stat-label">TOTAL COINS</div>
-        <div class="stat-value" id="totalCoins">0</div>
+        <div class="stat-label">
+          Total Coins
+        </div>
+
+        <div
+          id="totalCoins"
+          class="stat-value"
+        >
+          0
+        </div>
       </div>
+
 
       <div class="stat-card">
-        <div class="stat-label">TOTAL WITHDRAWALS</div>
-        <div class="stat-value" id="totalWithdrawals">0</div>
+        <div class="stat-label">
+          Approved Withdrawals
+        </div>
+
+        <div
+          id="totalWithdrawals"
+          class="stat-value"
+        >
+          0
+        </div>
       </div>
+
 
       <div class="stat-card">
-        <div class="stat-label">PENDING WITHDRAWALS</div>
-        <div class="stat-value" id="pendingWithdrawals">0</div>
+        <div class="stat-label">
+          Pending Withdrawals
+        </div>
+
+        <div
+          id="pendingWithdrawals"
+          class="stat-value"
+        >
+          0
+        </div>
       </div>
+
 
       <div class="stat-card">
-        <div class="stat-label">PENDING KYC</div>
-        <div class="stat-value" id="pendingKyc">0</div>
+        <div class="stat-label">
+          Pending KYC
+        </div>
+
+        <div
+          id="pendingKyc"
+          class="stat-value"
+        >
+          0
+        </div>
       </div>
 
-    </section>
+    </div>
 
-    <!-- USERS -->
+
+    <!-- =========================
+         USERS
+    ========================== -->
+
     <section class="section">
 
       <div class="section-header">
-        <h2>👥 Users</h2>
 
-        <button class="refresh-btn" onclick="loadDashboard()">
-          Refresh Users
+        <div>
+          <h3>Users Management</h3>
+          <span>All registered EarnNest users</span>
+        </div>
+
+        <button
+          class="refresh-btn"
+          onclick="loadAll()"
+        >
+          Refresh
         </button>
+
       </div>
 
-      <div class="table-wrap">
+      <div class="section-body">
+
         <table>
+
           <thead>
             <tr>
               <th>Name</th>
@@ -640,46 +742,63 @@
               <th>Role</th>
               <th>Coins</th>
               <th>Referral Code</th>
-              <th>Referred By</th>
+              <th>Joined</th>
             </tr>
           </thead>
 
           <tbody id="usersTable">
             <tr>
-              <td colspan="8" class="loading">
+              <td
+                colspan="8"
+                class="loading"
+              >
                 Loading users...
               </td>
             </tr>
           </tbody>
+
         </table>
+
       </div>
 
     </section>
 
-    <!-- KYC -->
+
+    <!-- =========================
+         KYC
+    ========================== -->
+
     <section class="section">
 
       <div class="section-header">
+
         <div>
-          <h2>🪪 KYC Verification</h2>
-          <div class="small">
-            Pending KYC requests are shown here.
-          </div>
+          <h3>KYC Verification</h3>
+          <span>
+            Review identity verification requests
+          </span>
         </div>
 
-        <button class="refresh-btn" onclick="loadKyc()">
+        <button
+          class="refresh-btn"
+          onclick="loadKyc()"
+        >
           Refresh KYC
         </button>
+
       </div>
 
-      <div class="table-wrap">
+      <div class="section-body">
+
         <table>
+
           <thead>
             <tr>
               <th>User</th>
               <th>Email</th>
               <th>Full Name</th>
-              <th>Document</th>
+              <th>Document Type</th>
+              <th>Document Number</th>
               <th>Status</th>
               <th>Submitted</th>
               <th>Admin Note</th>
@@ -688,88 +807,127 @@
           </thead>
 
           <tbody id="kycTable">
+
             <tr>
-              <td colspan="8" class="loading">
+              <td
+                colspan="9"
+                class="loading"
+              >
                 Loading KYC requests...
               </td>
             </tr>
+
           </tbody>
+
         </table>
+
       </div>
 
     </section>
 
-    <!-- WITHDRAWALS -->
+
+    <!-- =========================
+         WITHDRAWALS
+    ========================== -->
+
     <section class="section">
 
       <div class="section-header">
+
         <div>
-          <h2>💰 Withdrawals</h2>
-          <div class="small">
-            Review and process withdrawal requests.
-          </div>
+          <h3>Withdrawal Management</h3>
+          <span>
+            Review user withdrawal requests
+          </span>
         </div>
 
-        <button class="refresh-btn" onclick="loadWithdrawals()">
+        <button
+          class="refresh-btn"
+          onclick="loadWithdrawals()"
+        >
           Refresh Withdrawals
         </button>
+
       </div>
 
-      <div class="table-wrap">
+      <div class="section-body">
+
         <table>
+
           <thead>
             <tr>
               <th>User</th>
+              <th>Email</th>
               <th>Amount</th>
               <th>Payment Method</th>
-              <th>Account</th>
+              <th>Payment Account</th>
               <th>Status</th>
               <th>Date</th>
+              <th>Admin Note</th>
               <th>Action</th>
             </tr>
           </thead>
 
           <tbody id="withdrawalsTable">
+
             <tr>
-              <td colspan="7" class="loading">
+              <td
+                colspan="9"
+                class="loading"
+              >
                 Loading withdrawals...
               </td>
             </tr>
+
           </tbody>
+
         </table>
+
       </div>
 
     </section>
 
-    <div class="footer">
-      EarnNest Admin Panel • Secure Administration
-    </div>
-
   </main>
 
-  <!-- ACTION MODAL -->
-  <div class="modal" id="actionModal">
 
-    <div class="modal-card">
+  <!-- =========================
+       ACTION MODAL
+  ========================== -->
 
-      <h3 id="modalTitle">Review Request</h3>
+  <div
+    id="actionModal"
+    class="modal"
+  >
+
+    <div class="modal-box">
+
+      <h3 id="modalTitle">
+        Confirm Action
+      </h3>
 
       <p id="modalDescription">
-        Add an optional note before continuing.
+        Add an optional admin note.
       </p>
 
       <textarea
         id="adminNote"
-        placeholder="Admin note (optional)"
+        placeholder="Optional admin note..."
       ></textarea>
 
       <div class="modal-actions">
 
-        <button class="cancel-btn" onclick="closeModal()">
+        <button
+          class="btn cancel-btn"
+          onclick="closeModal()"
+        >
           Cancel
         </button>
 
-        <button class="confirm-btn" id="confirmAction">
+        <button
+          id="confirmActionBtn"
+          class="btn btn-approve"
+          onclick="confirmAction()"
+        >
           Confirm
         </button>
 
@@ -779,117 +937,381 @@
 
   </div>
 
-  <script>
-    "use strict";
 
-    const API_BASE = window.EARNNEST_API || "/api";
+  <script>
+
+    /* =====================================================
+       CONFIG
+    ===================================================== */
+
+    const API_BASE =
+      window.EARNNEST_API ||
+      '/api';
+
 
     let pendingAction = null;
 
-    function escapeHtml(value) {
-      if (value === null || value === undefined) return "";
 
-      return String(value)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-    }
+    /* =====================================================
+       HELPERS
+    ===================================================== */
 
     function getUser() {
+
       try {
+
         return JSON.parse(
-          localStorage.getItem("earnnest_user") || "null"
+          localStorage.getItem(
+            'earnnest_user'
+          ) || 'null'
         );
+
       } catch (error) {
+
         return null;
+
       }
+
     }
+
 
     function getToken() {
-      return localStorage.getItem("earnnest_token") || "";
+
+      return (
+        localStorage.getItem(
+          'earnnest_token'
+        ) || ''
+      ).trim();
+
     }
 
-    function showStatus(message, type) {
-      const box = document.getElementById("statusBox");
+
+    function escapeHtml(value) {
+
+      return String(
+        value ?? ''
+      )
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#039;');
+
+    }
+
+
+    function formatNumber(value) {
+
+      const number =
+        Number(value || 0);
+
+      return number.toLocaleString();
+
+    }
+
+
+    function formatDate(value) {
+
+      if (!value) {
+        return '-';
+      }
+
+      const date =
+        new Date(value);
+
+      if (
+        Number.isNaN(
+          date.getTime()
+        )
+      ) {
+        return escapeHtml(value);
+      }
+
+      return date.toLocaleString();
+
+    }
+
+
+    function showStatus(
+      message,
+      type = ''
+    ) {
+
+      const box =
+        document.getElementById(
+          'statusBox'
+        );
 
       box.textContent = message;
-      box.className = "status " + type;
 
-      setTimeout(() => {
-        box.className = "status";
-      }, 5000);
+      box.className =
+        'status ' + type;
+
     }
 
-    function checkAdmin() {
-      const user = getUser();
-      const token = getToken();
 
-      if (!user || !token) {
-        window.location.href = "/";
-        return false;
-      }
+    function authHeaders() {
 
-      const role = String(user.role || "")
-        .trim()
-        .toLowerCase();
+      return {
+        'Authorization':
+          'Bearer ' + getToken(),
 
-      if (role !== "admin") {
-        alert("Admin access required.");
-        window.location.href = "/dashboard.html";
-        return false;
-      }
-
-      document.getElementById("adminName").textContent =
-        user.name || user.username || "Admin";
-
-      document.getElementById("adminEmail").textContent =
-        user.email || "Admin Account";
-
-      return true;
-    }
-
-    async function apiRequest(path, options = {}) {
-      const token = getToken();
-
-      const headers = {
-        "Content-Type": "application/json",
-        ...(options.headers || {})
+        'Content-Type':
+          'application/json'
       };
 
-      if (token) {
-        headers.Authorization = "Bearer " + token;
+    }
+
+
+    /* =====================================================
+       ADMIN CHECK
+    ===================================================== */
+
+    function checkAdmin() {
+
+      const user =
+        getUser();
+
+      const token =
+        getToken();
+
+      if (!user || !token) {
+
+        alert(
+          'Please login as admin first.'
+        );
+
+        window.location.href =
+          '/';
+
+        return false;
+
       }
 
-      const response = await fetch(API_BASE + path, {
-        ...options,
-        headers
-      });
+      const role =
+        String(
+          user.role || ''
+        )
+          .trim()
+          .toLowerCase();
+
+      if (role !== 'admin') {
+
+        alert(
+          'Admin access required.'
+        );
+
+        localStorage.removeItem(
+          'earnnest_token'
+        );
+
+        localStorage.removeItem(
+          'earnnest_user'
+        );
+
+        window.location.href =
+          '/';
+
+        return false;
+
+      }
+
+      document.getElementById(
+        'adminName'
+      ).textContent =
+        user.name ||
+        user.username ||
+        'Admin';
+
+      document.getElementById(
+        'adminEmail'
+      ).textContent =
+        user.email ||
+        '';
+
+      showStatus(
+        'Admin access verified.',
+        'success'
+      );
+
+      return true;
+
+    }
+
+
+    /* =====================================================
+       API GET
+    ===================================================== */
+
+    async function apiGet(path) {
+
+      const response =
+        await fetch(
+          API_BASE + path,
+          {
+            method: 'GET',
+            headers: authHeaders()
+          }
+        );
+
+      const text =
+        await response.text();
 
       let data = {};
 
       try {
-        data = await response.json();
+        data =
+          text
+            ? JSON.parse(text)
+            : {};
       } catch (error) {
-        data = {};
-      }
-
-      if (!response.ok) {
         throw new Error(
-          data.message ||
-          data.error ||
-          ("Server request failed (HTTP " + response.status + ")")
+          'Server returned invalid JSON.'
         );
       }
 
+      if (!response.ok) {
+
+        throw new Error(
+          data.message ||
+          `Request failed (${response.status})`
+        );
+
+      }
+
       return data;
+
     }
 
-    async function loadDashboard() {
-      if (!checkAdmin()) return;
 
-      const table = document.getElementById("usersTable");
+    /* =====================================================
+       API POST
+    ===================================================== */
+
+    async function apiPost(
+      path,
+      body
+    ) {
+
+      const response =
+        await fetch(
+          API_BASE + path,
+          {
+            method: 'POST',
+            headers: authHeaders(),
+            body: JSON.stringify(body)
+          }
+        );
+
+      const text =
+        await response.text();
+
+      let data = {};
+
+      try {
+        data =
+          text
+            ? JSON.parse(text)
+            : {};
+      } catch (error) {
+        throw new Error(
+          'Server returned invalid JSON.'
+        );
+      }
+
+      if (!response.ok) {
+
+        throw new Error(
+          data.message ||
+          `Request failed (${response.status})`
+        );
+
+      }
+
+      return data;
+
+    }
+
+
+    /* =====================================================
+       LOAD STATS
+    ===================================================== */
+
+    async function loadStats() {
+
+      try {
+
+        const data =
+          await apiGet(
+            '/admin/stats'
+          );
+
+        const stats =
+          data.stats || {};
+
+        document.getElementById(
+          'totalUsers'
+        ).textContent =
+          formatNumber(
+            stats.totalUsers
+          );
+
+        document.getElementById(
+          'totalCoins'
+        ).textContent =
+          formatNumber(
+            stats.totalCoins
+          );
+
+        document.getElementById(
+          'totalWithdrawals'
+        ).textContent =
+          formatNumber(
+            stats.totalWithdrawals
+          );
+
+        document.getElementById(
+          'pendingWithdrawals'
+        ).textContent =
+          formatNumber(
+            stats.pendingWithdrawals
+          );
+
+        document.getElementById(
+          'pendingKyc'
+        ).textContent =
+          formatNumber(
+            stats.pendingKyc
+          );
+
+      } catch (error) {
+
+        console.error(
+          'STATS ERROR:',
+          error
+        );
+
+        showStatus(
+          error.message ||
+          'Unable to load admin statistics.',
+          'error'
+        );
+
+      }
+
+    }
+
+
+    /* =====================================================
+       LOAD USERS
+    ===================================================== */
+
+    async function loadUsers() {
+
+      const table =
+        document.getElementById(
+          'usersTable'
+        );
 
       table.innerHTML = `
         <tr>
@@ -900,44 +1322,50 @@
       `;
 
       try {
-        const data = await apiRequest("/admin/stats");
 
-        document.getElementById("totalUsers").textContent =
-          Number(data.totalUsers || 0).toLocaleString();
+        const data =
+          await apiGet(
+            '/admin/users'
+          );
 
-        document.getElementById("totalCoins").textContent =
-          Number(data.totalCoins || 0).toLocaleString();
+        const users =
+          Array.isArray(data.users)
+            ? data.users
+            : [];
 
-        document.getElementById("totalWithdrawals").textContent =
-          Number(data.totalWithdrawals || 0).toLocaleString();
-
-        document.getElementById("pendingWithdrawals").textContent =
-          Number(data.pendingWithdrawals || 0).toLocaleString();
-
-        document.getElementById("pendingKyc").textContent =
-          Number(data.pendingKyc || 0).toLocaleString();
-
-        renderUsers(data.users || []);
+        renderUsers(users);
 
       } catch (error) {
+
+        console.error(
+          'USERS ERROR:',
+          error
+        );
 
         table.innerHTML = `
           <tr>
             <td colspan="8" class="empty">
-              Failed to load users.
+              ${escapeHtml(
+                error.message ||
+                'Unable to load users.'
+              )}
             </td>
           </tr>
         `;
 
-        showStatus(error.message, "error");
       }
+
     }
+
 
     function renderUsers(users) {
 
-      const table = document.getElementById("usersTable");
+      const table =
+        document.getElementById(
+          'usersTable'
+        );
 
-      if (!Array.isArray(users) || users.length === 0) {
+      if (!users.length) {
 
         table.innerHTML = `
           <tr>
@@ -948,77 +1376,104 @@
         `;
 
         return;
+
       }
 
-      table.innerHTML = users.map(user => {
 
-        const role =
-          String(user.role || "user")
-            .trim()
-            .toLowerCase();
+      table.innerHTML =
+        users.map(
+          user => {
 
-        const roleClass =
-          role === "admin" ? "admin" : "user";
+            const role =
+              String(
+                user.role || 'user'
+              )
+                .trim()
+                .toLowerCase();
 
-        return `
-          <tr>
+            return `
+              <tr>
 
-            <td>
-              <div class="user-name">
-                ${escapeHtml(user.name || "-")}
-              </div>
+                <td>
+                  <div class="primary">
+                    ${escapeHtml(
+                      user.name || '-'
+                    )}
+                  </div>
+                </td>
 
-              <div class="small">
-                ID: ${escapeHtml(user.id || "-")}
-              </div>
-            </td>
+                <td>
+                  @${escapeHtml(
+                    user.username || '-'
+                  )}
+                </td>
 
-            <td>
-              ${escapeHtml(user.username || "-")}
-            </td>
+                <td>
+                  ${escapeHtml(
+                    user.email || '-'
+                  )}
+                </td>
 
-            <td>
-              ${escapeHtml(user.email || "-")}
-            </td>
+                <td>
+                  ${escapeHtml(
+                    user.phone || '-'
+                  )}
+                </td>
 
-            <td>
-              ${escapeHtml(user.phone || "-")}
-            </td>
+                <td>
+                  <span class="badge ${role === 'admin'
+                    ? 'admin'
+                    : 'user'}">
+                    ${escapeHtml(role)}
+                  </span>
+                </td>
 
-            <td>
-              <span class="badge ${roleClass}">
-                ${escapeHtml(role)}
-              </span>
-            </td>
+                <td>
+                  <strong>
+                    ${formatNumber(
+                      user.coins
+                    )}
+                  </strong>
+                </td>
 
-            <td>
-              <strong>
-                ${Number(user.coins || 0).toLocaleString()}
-              </strong>
-            </td>
+                <td>
+                  ${escapeHtml(
+                    user.referral_code || '-'
+                  )}
+                </td>
 
-            <td>
-              ${escapeHtml(user.referral_code || "-")}
-            </td>
+                <td>
+                  <span class="muted">
+                    ${formatDate(
+                      user.created_at
+                    )}
+                  </span>
+                </td>
 
-            <td>
-              ${escapeHtml(user.referred_by || "-")}
-            </td>
+              </tr>
+            `;
 
-          </tr>
-        `;
+          }
+        )
+        .join('');
 
-      }).join("");
     }
 
-    async function loadKyc() {
-      if (!checkAdmin()) return;
 
-      const table = document.getElementById("kycTable");
+    /* =====================================================
+       LOAD KYC
+    ===================================================== */
+
+    async function loadKyc() {
+
+      const table =
+        document.getElementById(
+          'kycTable'
+        );
 
       table.innerHTML = `
         <tr>
-          <td colspan="8" class="loading">
+          <td colspan="9" class="loading">
             Loading KYC requests...
           </td>
         </tr>
@@ -1026,268 +1481,228 @@
 
       try {
 
-        const data = await apiRequest("/admin/kyc");
-
-        /*
-          Backend normally returns:
-          {
-            kyc: [...]
-          }
-
-          This also supports:
-          data.items
-          data.requests
-          data.data
-        */
+        const data =
+          await apiGet(
+            '/admin/kyc'
+          );
 
         const items =
           Array.isArray(data.kyc)
             ? data.kyc
-            : Array.isArray(data.items)
-            ? data.items
-            : Array.isArray(data.requests)
-            ? data.requests
-            : Array.isArray(data.data)
-            ? data.data
             : [];
 
         renderKyc(items);
 
-        /*
-          Pending KYC count is refreshed from actual returned
-          KYC records as well.
-        */
-        const pendingCount = items.filter(item => {
-          return String(item.status || "")
-            .trim()
-            .toLowerCase() === "pending";
-        }).length;
-
-        if (items.length > 0) {
-          document.getElementById("pendingKyc").textContent =
-            pendingCount.toLocaleString();
-        }
-
       } catch (error) {
+
+        console.error(
+          'KYC ERROR:',
+          error
+        );
 
         table.innerHTML = `
           <tr>
-            <td colspan="8" class="empty">
-              Failed to load KYC requests.
+            <td colspan="9" class="empty">
+              ${escapeHtml(
+                error.message ||
+                'Unable to load KYC requests.'
+              )}
             </td>
           </tr>
         `;
 
-        showStatus(error.message, "error");
       }
+
     }
+
 
     function renderKyc(items) {
 
-      const table = document.getElementById("kycTable");
+      const table =
+        document.getElementById(
+          'kycTable'
+        );
 
-      if (!Array.isArray(items) || items.length === 0) {
+      if (!items.length) {
 
         table.innerHTML = `
           <tr>
-            <td colspan="8" class="empty">
+            <td colspan="9" class="empty">
               No KYC requests found.
             </td>
           </tr>
         `;
 
         return;
+
       }
 
-      table.innerHTML = items.map(item => {
 
-        const status =
-          String(item.status || "pending")
-            .trim()
-            .toLowerCase();
+      table.innerHTML =
+        items.map(
+          item => {
 
-        const statusClass =
-          status === "approved"
-            ? "approved"
-            : status === "rejected"
-            ? "rejected"
-            : "pending";
+            const status =
+              String(
+                item.status || 'pending'
+              )
+                .trim()
+                .toLowerCase();
 
-        const userName =
-          item.user_name ||
-          item.name ||
-          item.username ||
-          item.user_id ||
-          "-";
+            const isPending =
+              status === 'pending';
 
-        const email =
-          item.email ||
-          item.user_email ||
-          "-";
+            const userName =
+              item.user_name ||
+              item.username ||
+              item.user_id ||
+              '-';
 
-        const fullName =
-          item.full_name ||
-          "-";
+            const adminNote =
+              item.admin_note ||
+              '-';
 
-        const documentType =
-          item.document_type ||
-          "Document";
 
-        const documentNumber =
-          item.document_number ||
-          "-";
+            return `
+              <tr>
 
-        const submitted =
-          formatDate(
-            item.submitted_at ||
-            item.created_at
-          );
+                <td>
+                  <div class="primary">
+                    ${escapeHtml(
+                      userName
+                    )}
+                  </div>
 
-        const note =
-          item.admin_note ||
-          "";
+                  <div class="muted">
+                    ID:
+                    ${escapeHtml(
+                      item.user_id || '-'
+                    )}
+                  </div>
+                </td>
 
-        let documentHtml = `
-          <div class="document-box">
-            <div class="document-type">
-              ${escapeHtml(documentType)}
-            </div>
 
-            <div class="document-number">
-              ${escapeHtml(documentNumber)}
-            </div>
-        `;
+                <td>
+                  ${escapeHtml(
+                    item.email || '-'
+                  )}
+                </td>
 
-        if (item.document_url) {
 
-          documentHtml += `
-            <div style="margin-top:6px;">
-              <a
-                href="${escapeHtml(item.document_url)}"
-                target="_blank"
-                rel="noopener"
-                style="color:#0f7a43;font-weight:800;"
-              >
-                View Document
-              </a>
-            </div>
-          `;
+                <td>
+                  ${escapeHtml(
+                    item.full_name || '-'
+                  )}
+                </td>
 
-        } else {
 
-          documentHtml += `
-            <div class="note">
-              No document file uploaded
-            </div>
-          `;
-        }
+                <td>
+                  ${escapeHtml(
+                    item.document_type || '-'
+                  )}
+                </td>
 
-        documentHtml += `</div>`;
 
-        let actionHtml = "";
+                <td>
+                  <strong>
+                    ${escapeHtml(
+                      item.document_number || '-'
+                    )}
+                  </strong>
+                </td>
 
-        if (status === "pending") {
 
-          actionHtml = `
-            <div class="action-group">
+                <td>
+                  <span class="badge ${getBadgeClass(status)}">
+                    ${escapeHtml(status)}
+                  </span>
+                </td>
 
-              <button
-                class="btn btn-approve"
-                onclick="openActionModal(
-                  'kyc',
-                  '${escapeHtml(item.id)}',
-                  'approved'
-                )"
-              >
-                Approve
-              </button>
 
-              <button
-                class="btn btn-reject"
-                onclick="openActionModal(
-                  'kyc',
-                  '${escapeHtml(item.id)}',
-                  'rejected'
-                )"
-              >
-                Reject
-              </button>
+                <td>
+                  <span class="muted">
+                    ${formatDate(
+                      item.submitted_at
+                    )}
+                  </span>
+                </td>
 
-            </div>
-          `;
 
-        } else {
+                <td>
+                  <span class="muted">
+                    ${escapeHtml(
+                      adminNote
+                    )}
+                  </span>
+                </td>
 
-          actionHtml = `
-            <span class="small">
-              Already reviewed
-            </span>
-          `;
-        }
 
-        return `
-          <tr>
+                <td>
 
-            <td>
-              <div class="user-name">
-                ${escapeHtml(userName)}
-              </div>
+                  ${
+                    isPending
 
-              <div class="small">
-                ID: ${escapeHtml(item.user_id || "-")}
-              </div>
-            </td>
+                    ? `
+                      <div class="actions">
 
-            <td>
-              ${escapeHtml(email)}
-            </td>
+                        <button
+                          class="btn btn-approve"
+                          onclick="openAction(
+                            'kyc',
+                            '${escapeJs(item.id)}',
+                            'approve'
+                          )"
+                        >
+                          Approve
+                        </button>
 
-            <td>
-              ${escapeHtml(fullName)}
-            </td>
+                        <button
+                          class="btn btn-reject"
+                          onclick="openAction(
+                            'kyc',
+                            '${escapeJs(item.id)}',
+                            'reject'
+                          )"
+                        >
+                          Reject
+                        </button>
 
-            <td>
-              ${documentHtml}
-            </td>
+                      </div>
+                    `
 
-            <td>
-              <span class="badge ${statusClass}">
-                ${escapeHtml(status)}
-              </span>
-            </td>
+                    : `
+                      <span class="muted">
+                        Processed
+                      </span>
+                    `
+                  }
 
-            <td>
-              ${escapeHtml(submitted)}
-            </td>
+                </td>
 
-            <td>
-              ${
-                note
-                  ? escapeHtml(note)
-                  : '<span class="small">No note</span>'
-              }
-            </td>
+              </tr>
+            `;
 
-            <td>
-              ${actionHtml}
-            </td>
+          }
+        )
+        .join('');
 
-          </tr>
-        `;
-
-      }).join("");
     }
+
+
+    /* =====================================================
+       LOAD WITHDRAWALS
+    ===================================================== */
 
     async function loadWithdrawals() {
 
-      if (!checkAdmin()) return;
-
       const table =
-        document.getElementById("withdrawalsTable");
+        document.getElementById(
+          'withdrawalsTable'
+        );
 
       table.innerHTML = `
         <tr>
-          <td colspan="7" class="loading">
+          <td colspan="9" class="loading">
             Loading withdrawals...
           </td>
         </tr>
@@ -1296,353 +1711,572 @@
       try {
 
         const data =
-          await apiRequest("/admin/withdrawals");
+          await apiGet(
+            '/admin/withdrawals'
+          );
 
         const items =
-          Array.isArray(data.withdrawals)
+          Array.isArray(
+            data.withdrawals
+          )
             ? data.withdrawals
-            : Array.isArray(data.items)
-            ? data.items
-            : Array.isArray(data.data)
-            ? data.data
             : [];
 
         renderWithdrawals(items);
 
       } catch (error) {
 
+        console.error(
+          'WITHDRAWALS ERROR:',
+          error
+        );
+
         table.innerHTML = `
           <tr>
-            <td colspan="7" class="empty">
-              Failed to load withdrawals.
+            <td colspan="9" class="empty">
+              ${escapeHtml(
+                error.message ||
+                'Unable to load withdrawals.'
+              )}
             </td>
           </tr>
         `;
 
-        showStatus(error.message, "error");
       }
+
     }
+
 
     function renderWithdrawals(items) {
 
       const table =
-        document.getElementById("withdrawalsTable");
+        document.getElementById(
+          'withdrawalsTable'
+        );
 
-      if (!Array.isArray(items) || items.length === 0) {
+      if (!items.length) {
 
         table.innerHTML = `
           <tr>
-            <td colspan="7" class="empty">
+            <td colspan="9" class="empty">
               No withdrawal requests found.
             </td>
           </tr>
         `;
 
         return;
+
       }
 
-      table.innerHTML = items.map(item => {
 
-        const status =
-          String(item.status || "pending")
-            .trim()
-            .toLowerCase();
+      table.innerHTML =
+        items.map(
+          item => {
 
-        const statusClass =
-          status === "approved"
-            ? "approved"
-            : status === "rejected"
-            ? "rejected"
-            : "pending";
+            const status =
+              String(
+                item.status || 'pending'
+              )
+                .trim()
+                .toLowerCase();
 
-        const userName =
-          item.user_name ||
-          item.name ||
-          item.username ||
-          item.user_id ||
-          "-";
+            const isPending =
+              status === 'pending';
 
-        const amount =
-          Number(item.amount || 0);
+            const userName =
+              item.user_name ||
+              item.username ||
+              item.user_id ||
+              '-';
 
-        const paymentMethod =
-          item.payment_method ||
-          "-";
+            const method =
+              item.payment_method ||
+              '-';
 
-        const account =
-          item.account ||
-          item.payment_account ||
-          "-";
+            const account =
+              item.payment_account ||
+              item.account ||
+              '-';
 
-        const date =
-          formatDate(
-            item.created_at ||
-            item.submitted_at
-          );
+            const note =
+              item.admin_note ||
+              '-';
 
-        let actionHtml = "";
 
-        if (status === "pending") {
+            return `
+              <tr>
 
-          actionHtml = `
-            <div class="action-group">
+                <td>
+                  <div class="primary">
+                    ${escapeHtml(
+                      userName
+                    )}
+                  </div>
 
-              <button
-                class="btn btn-approve"
-                onclick="openActionModal(
-                  'withdrawal',
-                  '${escapeHtml(item.id)}',
-                  'approved'
-                )"
-              >
-                Approve
-              </button>
+                  <div class="muted">
+                    ID:
+                    ${escapeHtml(
+                      item.user_id || '-'
+                    )}
+                  </div>
+                </td>
 
-              <button
-                class="btn btn-reject"
-                onclick="openActionModal(
-                  'withdrawal',
-                  '${escapeHtml(item.id)}',
-                  'rejected'
-                )"
-              >
-                Reject
-              </button>
 
-            </div>
-          `;
+                <td>
+                  ${escapeHtml(
+                    item.email || '-'
+                  )}
+                </td>
 
-        } else {
 
-          actionHtml = `
-            <span class="small">
-              Already reviewed
-            </span>
-          `;
-        }
+                <td>
+                  <strong>
+                    ${formatNumber(
+                      item.amount
+                    )}
+                    coins
+                  </strong>
+                </td>
 
-        return `
-          <tr>
 
-            <td>
-              <div class="user-name">
-                ${escapeHtml(userName)}
-              </div>
+                <td>
+                  ${escapeHtml(
+                    String(method)
+                      .toUpperCase()
+                  )}
+                </td>
 
-              <div class="small">
-                ${escapeHtml(item.user_id || "")}
-              </div>
-            </td>
 
-            <td>
-              <strong>
-                ${amount.toLocaleString()}
-              </strong>
-              coins
-            </td>
+                <td>
+                  ${escapeHtml(
+                    account
+                  )}
+                </td>
 
-            <td>
-              ${escapeHtml(paymentMethod)}
-            </td>
 
-            <td>
-              ${escapeHtml(account)}
-            </td>
+                <td>
+                  <span class="badge ${getBadgeClass(status)}">
+                    ${escapeHtml(status)}
+                  </span>
+                </td>
 
-            <td>
-              <span class="badge ${statusClass}">
-                ${escapeHtml(status)}
-              </span>
-            </td>
 
-            <td>
-              ${escapeHtml(date)}
-            </td>
+                <td>
+                  <span class="muted">
+                    ${formatDate(
+                      item.created_at
+                    )}
+                  </span>
+                </td>
 
-            <td>
-              ${actionHtml}
-            </td>
 
-          </tr>
-        `;
+                <td>
+                  <span class="muted">
+                    ${escapeHtml(
+                      note
+                    )}
+                  </span>
+                </td>
 
-      }).join("");
+
+                <td>
+
+                  ${
+                    isPending
+
+                    ? `
+                      <div class="actions">
+
+                        <button
+                          class="btn btn-approve"
+                          onclick="openAction(
+                            'withdrawal',
+                            '${escapeJs(item.id)}',
+                            'approve'
+                          )"
+                        >
+                          Approve
+                        </button>
+
+                        <button
+                          class="btn btn-reject"
+                          onclick="openAction(
+                            'withdrawal',
+                            '${escapeJs(item.id)}',
+                            'reject'
+                          )"
+                        >
+                          Reject
+                        </button>
+
+                      </div>
+                    `
+
+                    : `
+                      <span class="muted">
+                        Processed
+                      </span>
+                    `
+                  }
+
+                </td>
+
+              </tr>
+            `;
+
+          }
+        )
+        .join('');
+
     }
 
-    function formatDate(value) {
 
-      if (!value) return "-";
+    /* =====================================================
+       BADGE
+    ===================================================== */
 
-      try {
+    function getBadgeClass(status) {
 
-        const date = new Date(value);
-
-        if (Number.isNaN(date.getTime())) {
-          return String(value);
-        }
-
-        return date.toLocaleString();
-
-      } catch (error) {
-
-        return String(value);
+      if (
+        status === 'approved'
+      ) {
+        return 'approved';
       }
+
+      if (
+        status === 'rejected'
+      ) {
+        return 'rejected';
+      }
+
+      return 'pending';
+
     }
 
-    function openActionModal(type, id, status) {
+
+    /* =====================================================
+       ESCAPE JS
+    ===================================================== */
+
+    function escapeJs(value) {
+
+      return String(
+        value ?? ''
+      )
+        .replaceAll('\\', '\\\\')
+        .replaceAll("'", "\\'")
+        .replaceAll('"', '\\"')
+        .replaceAll('\n', '\\n')
+        .replaceAll('\r', '\\r');
+
+    }
+
+
+    /* =====================================================
+       ACTION MODAL
+    ===================================================== */
+
+    function openAction(
+      type,
+      id,
+      action
+    ) {
 
       pendingAction = {
         type,
         id,
-        status
+        action
       };
 
       const title =
-        type === "kyc"
-          ? "KYC " + (status === "approved" ? "Approval" : "Rejection")
-          : "Withdrawal " + (status === "approved" ? "Approval" : "Rejection");
+        document.getElementById(
+          'modalTitle'
+        );
 
-      document.getElementById("modalTitle").textContent =
-        title;
+      const description =
+        document.getElementById(
+          'modalDescription'
+        );
 
-      document.getElementById("modalDescription").textContent =
-        status === "approved"
-          ? "Confirm this approval. You may add an optional admin note."
-          : "Confirm this rejection. You may add a reason in the admin note.";
+      const confirmButton =
+        document.getElementById(
+          'confirmActionBtn'
+        );
 
-      document.getElementById("adminNote").value = "";
+      document.getElementById(
+        'adminNote'
+      ).value = '';
 
-      document.getElementById("actionModal")
-        .classList.add("show");
+
+      const objectName =
+        type === 'kyc'
+          ? 'KYC request'
+          : 'withdrawal';
+
+
+      title.textContent =
+        action === 'approve'
+          ? `Approve ${objectName}`
+          : `Reject ${objectName}`;
+
+
+      description.textContent =
+        action === 'approve'
+          ? `You are about to approve this ${objectName}. Add an optional note.`
+          : `You are about to reject this ${objectName}. Add an optional reason/note.`;
+
+
+      confirmButton.textContent =
+        action === 'approve'
+          ? 'Approve'
+          : 'Reject';
+
+
+      confirmButton.className =
+        action === 'approve'
+          ? 'btn btn-approve'
+          : 'btn btn-reject';
+
+
+      document.getElementById(
+        'actionModal'
+      ).classList.add('show');
+
     }
+
 
     function closeModal() {
 
       pendingAction = null;
 
-      document.getElementById("actionModal")
-        .classList.remove("show");
+      document.getElementById(
+        'actionModal'
+      ).classList.remove('show');
 
-      document.getElementById("adminNote").value = "";
     }
 
-    document
-      .getElementById("confirmAction")
-      .addEventListener("click", async function() {
 
-        if (!pendingAction) return;
+    /* =====================================================
+       CONFIRM ACTION
+    ===================================================== */
 
-        const button = this;
+    async function confirmAction() {
 
-        button.disabled = true;
-        button.textContent = "Processing...";
+      if (!pendingAction) {
+        return;
+      }
 
-        const note =
-          document.getElementById("adminNote")
-            .value
-            .trim();
+      const actionData =
+        pendingAction;
 
-        try {
+      const note =
+        document.getElementById(
+          'adminNote'
+        ).value.trim();
 
-          if (pendingAction.type === "kyc") {
+      const button =
+        document.getElementById(
+          'confirmActionBtn'
+        );
 
-            await apiRequest(
-              "/admin/kyc/" +
-              encodeURIComponent(pendingAction.id),
+      button.disabled = true;
+      button.textContent = 'Processing...';
+
+
+      try {
+
+        let data;
+
+
+        if (
+          actionData.type === 'kyc'
+        ) {
+
+          data =
+            await apiPost(
+              '/admin/kyc',
               {
-                method: "POST",
+                id:
+                  actionData.id,
 
-                body: JSON.stringify({
-                  status: pendingAction.status,
-                  adminNote: note,
-                  note: note
-                })
+                action:
+                  actionData.action,
+
+                note
               }
             );
 
-            closeModal();
+        } else {
 
-            showStatus(
-              "KYC request updated successfully.",
-              "success"
-            );
-
-            await Promise.all([
-              loadDashboard(),
-              loadKyc()
-            ]);
-
-          } else {
-
-            await apiRequest(
-              "/admin/withdrawals/" +
-              encodeURIComponent(pendingAction.id),
+          data =
+            await apiPost(
+              '/admin/withdrawals',
               {
-                method: "POST",
+                id:
+                  actionData.id,
 
-                body: JSON.stringify({
-                  status: pendingAction.status,
-                  adminNote: note,
-                  note: note
-                })
+                action:
+                  actionData.action,
+
+                note
               }
             );
 
-            closeModal();
+        }
 
-            showStatus(
-              "Withdrawal request updated successfully.",
-              "success"
-            );
 
-            await Promise.all([
-              loadDashboard(),
-              loadWithdrawals()
-            ]);
-          }
+        showStatus(
+          data.message ||
+          'Action completed successfully.',
+          'success'
+        );
 
-        } catch (error) {
 
-          showStatus(
-            error.message,
-            "error"
+        closeModal();
+
+
+        await Promise.all([
+          loadStats(),
+          loadKyc(),
+          loadWithdrawals()
+        ]);
+
+
+      } catch (error) {
+
+        console.error(
+          'ACTION ERROR:',
+          error
+        );
+
+        showStatus(
+          error.message ||
+          'Action failed.',
+          'error'
+        );
+
+      } finally {
+
+        button.disabled = false;
+
+      }
+
+    }
+
+
+    /* =====================================================
+       LOAD EVERYTHING
+    ===================================================== */
+
+    async function loadAll() {
+
+      if (!checkAdmin()) {
+        return;
+      }
+
+      showStatus(
+        'Loading admin dashboard...'
+      );
+
+      await Promise.all([
+        loadStats(),
+        loadUsers(),
+        loadKyc(),
+        loadWithdrawals()
+      ]);
+
+      showStatus(
+        'Dashboard updated successfully.',
+        'success'
+      );
+
+    }
+
+
+    /* =====================================================
+       LOGOUT
+    ===================================================== */
+
+    async function logout() {
+
+      const token =
+        getToken();
+
+      try {
+
+        if (token) {
+
+          await fetch(
+            API_BASE + '/admin/stats',
+            {
+              method: 'GET',
+              headers: authHeaders()
+            }
           );
 
-        } finally {
-
-          button.disabled = false;
-          button.textContent = "Confirm";
         }
-      });
 
-    function logout() {
+      } catch (error) {
+        console.warn(
+          'Logout cleanup:',
+          error
+        );
+      }
 
-      localStorage.removeItem("earnnest_token");
-      localStorage.removeItem("earnnest_user");
 
-      window.location.href = "/";
+      localStorage.removeItem(
+        'earnnest_token'
+      );
+
+      localStorage.removeItem(
+        'earnnest_user'
+      );
+
+      window.location.href =
+        '/';
+
     }
+
+
+    /* =====================================================
+       MODAL BACKDROP
+    ===================================================== */
 
     document
-      .getElementById("actionModal")
-      .addEventListener("click", function(event) {
+      .getElementById('actionModal')
+      .addEventListener(
+        'click',
+        function(event) {
 
-        if (event.target === this) {
-          closeModal();
+          if (
+            event.target === this
+          ) {
+            closeModal();
+          }
+
+        }
+      );
+
+
+    /* =====================================================
+       START
+    ===================================================== */
+
+    document.addEventListener(
+      'DOMContentLoaded',
+      function() {
+
+        if (
+          checkAdmin()
+        ) {
+
+          loadAll();
+
         }
 
-      });
+      }
+    );
 
-    async function init() {
-
-      if (!checkAdmin()) return;
-
-      await loadDashboard();
-      await loadKyc();
-      await loadWithdrawals();
-    }
-
-    init();
   </script>
 
 </body>
