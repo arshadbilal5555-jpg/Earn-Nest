@@ -30,11 +30,9 @@ const SURVEY_REWARDS = {
 
 const DAILY_BONUS_AMOUNT = 50;
 
-/* Referral */
 const REFERRER_REWARD = 100;
 const NEW_USER_REFERRAL_BONUS = 50;
 
-/* Withdrawal */
 const MIN_WITHDRAWAL = 1000;
 
 
@@ -45,21 +43,12 @@ const MIN_WITHDRAWAL = 1000;
 function send(res, status, data) {
   res.statusCode = status;
 
-  res.setHeader(
-    'Content-Type',
-    'application/json'
-  );
-
-  res.setHeader(
-    'Access-Control-Allow-Origin',
-    '*'
-  );
-
+  res.setHeader('Content-Type', 'application/json');
+  res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader(
     'Access-Control-Allow-Methods',
     'GET,POST,OPTIONS'
   );
-
   res.setHeader(
     'Access-Control-Allow-Headers',
     'Content-Type, Authorization'
@@ -70,8 +59,7 @@ function send(res, status, data) {
 
 
 function getToken(req) {
-  const auth =
-    req.headers.authorization || '';
+  const auth = req.headers.authorization || '';
 
   if (auth.startsWith('Bearer ')) {
     return auth.substring(7).trim();
@@ -98,9 +86,7 @@ async function readBody(req) {
       try {
         resolve(JSON.parse(body));
       } catch (error) {
-        reject(
-          new Error('Invalid JSON body.')
-        );
+        reject(new Error('Invalid JSON body.'));
       }
     });
 
@@ -115,9 +101,7 @@ function makeId() {
 
 
 function makeToken() {
-  return crypto
-    .randomBytes(48)
-    .toString('hex');
+  return crypto.randomBytes(48).toString('hex');
 }
 
 
@@ -134,26 +118,15 @@ function makeReferralCode() {
 ========================================================= */
 
 function walletResponse(wallet) {
-  const balance =
-    Number(wallet?.balance || 0);
-
-  const totalEarned =
-    Number(wallet?.total_earned || 0);
-
-  const totalWithdrawn =
-    Number(wallet?.total_withdrawn || 0);
+  const balance = Number(wallet?.balance || 0);
+  const totalEarned = Number(wallet?.total_earned || 0);
+  const totalWithdrawn = Number(wallet?.total_withdrawn || 0);
 
   return {
     balance,
-
-    total_earned:
-      totalEarned,
-
-    total_withdrawn:
-      totalWithdrawn,
-
+    total_earned: totalEarned,
+    total_withdrawn: totalWithdrawn,
     totalEarned,
-
     totalWithdrawn
   };
 }
@@ -164,8 +137,7 @@ function walletResponse(wallet) {
 ========================================================= */
 
 async function getUserFromToken(req) {
-  const token =
-    getToken(req);
+  const token = getToken(req);
 
   if (!token) {
     return null;
@@ -183,15 +155,11 @@ async function getUserFromToken(req) {
       u.created_at,
       u.referral_code,
       u.referred_by
-
     FROM admin_sessions s
-
     JOIN users u
       ON u.id = s.user_id
-
     WHERE s.token = ${token}
       AND s.expires_at > NOW()
-
     LIMIT 1
   `;
 
@@ -204,8 +172,7 @@ async function getUserFromToken(req) {
 ========================================================= */
 
 async function getWallet(userId) {
-  const uid =
-    String(userId);
+  const uid = String(userId);
 
   const rows = await sql`
     SELECT
@@ -216,11 +183,8 @@ async function getWallet(userId) {
       total_withdrawn,
       created_at,
       updated_at
-
     FROM wallets
-
     WHERE user_id = ${uid}
-
     LIMIT 1
   `;
 
@@ -238,7 +202,6 @@ async function getWallet(userId) {
         created_at,
         updated_at
       )
-
     VALUES
       (
         ${uid},
@@ -248,7 +211,6 @@ async function getWallet(userId) {
         NOW(),
         NOW()
       )
-
     RETURNING
       id,
       user_id,
@@ -268,48 +230,31 @@ async function getWallet(userId) {
 ========================================================= */
 
 async function addCoins(userId, amount) {
-  const uid =
-    String(userId);
+  const uid = String(userId);
+  const value = Number(amount);
 
-  const value =
-    Number(amount);
+  const wallet = await getWallet(uid);
 
-  const wallet =
-    await getWallet(uid);
-
-  const oldBalance =
-    Number(wallet.balance || 0);
-
-  const oldEarned =
-    Number(wallet.total_earned || 0);
-
+  const oldBalance = Number(wallet.balance || 0);
+  const oldEarned = Number(wallet.total_earned || 0);
   const totalWithdrawn =
-    Number(
-      wallet.total_withdrawn || 0
-    );
+    Number(wallet.total_withdrawn || 0);
 
-  const newBalance =
-    oldBalance + value;
-
-  const newEarned =
-    oldEarned + value;
+  const newBalance = oldBalance + value;
+  const newEarned = oldEarned + value;
 
   await sql`
     UPDATE wallets
-
     SET
       balance = ${newBalance},
       total_earned = ${newEarned},
       updated_at = NOW()
-
     WHERE user_id = ${uid}
   `;
 
   await sql`
     UPDATE users
-
     SET coins = ${newBalance}
-
     WHERE id = ${uid}
   `;
 
@@ -326,28 +271,21 @@ async function addCoins(userId, amount) {
 ========================================================= */
 
 async function handleLogin(body, res) {
-  const email =
-    String(body.email || '')
-      .trim()
-      .toLowerCase();
+  const email = String(body.email || '')
+    .trim()
+    .toLowerCase();
 
-  const login =
-    String(body.login || '')
-      .trim()
-      .toLowerCase();
+  const login = String(body.login || '')
+    .trim()
+    .toLowerCase();
 
-  const username =
-    String(body.username || '')
-      .trim()
-      .toLowerCase();
+  const username = String(body.username || '')
+    .trim()
+    .toLowerCase();
 
-  const password =
-    String(body.password || '');
+  const password = String(body.password || '');
 
-  const identifier =
-    email ||
-    login ||
-    username;
+  const identifier = email || login || username;
 
   if (!identifier || !password) {
     return send(res, 400, {
@@ -371,12 +309,9 @@ async function handleLogin(body, res) {
         created_at,
         referral_code,
         referred_by
-
       FROM users
-
       WHERE LOWER(email) = ${identifier}
          OR LOWER(username) = ${identifier}
-
       LIMIT 1
     `;
 
@@ -388,12 +323,10 @@ async function handleLogin(body, res) {
       });
     }
 
-    const dbUser =
-      users[0];
+    const dbUser = users[0];
 
     if (
-      String(dbUser.password || '') !==
-      password
+      String(dbUser.password || '') !== password
     ) {
       return send(res, 401, {
         success: false,
@@ -402,8 +335,7 @@ async function handleLogin(body, res) {
       });
     }
 
-    const token =
-      makeToken();
+    const token = makeToken();
 
     await sql`
       INSERT INTO admin_sessions
@@ -413,7 +345,6 @@ async function handleLogin(body, res) {
           expires_at,
           created_at
         )
-
       VALUES
         (
           ${String(dbUser.id)},
@@ -424,9 +355,7 @@ async function handleLogin(body, res) {
     `;
 
     const wallet =
-      await getWallet(
-        String(dbUser.id)
-      );
+      await getWallet(String(dbUser.id));
 
     const walletData =
       walletResponse(wallet);
@@ -439,11 +368,8 @@ async function handleLogin(body, res) {
       phone: dbUser.phone,
       role: dbUser.role,
 
-      coins:
-        walletData.balance,
-
-      balance:
-        walletData.balance,
+      coins: walletData.balance,
+      balance: walletData.balance,
 
       totalEarned:
         walletData.totalEarned,
@@ -466,30 +392,23 @@ async function handleLogin(body, res) {
 
     return send(res, 200, {
       success: true,
-      message:
-        'Login successful.',
+      message: 'Login successful.',
       token,
       user: safeUser,
       wallet: walletData
     });
 
   } catch (error) {
-    console.error(
-      'LOGIN ERROR:',
-      error
-    );
+    console.error('LOGIN ERROR:', error);
 
     return send(res, 500, {
       success: false,
-      message:
-        'Login database error.',
+      message: 'Login database error.',
       error:
         error.message ||
         'Unknown database error',
-      code:
-        error.code || null,
-      detail:
-        error.detail || null
+      code: error.code || null,
+      detail: error.detail || null
     });
   }
 }
@@ -500,13 +419,10 @@ async function handleLogin(body, res) {
 ========================================================= */
 
 async function handleRegister(body, res) {
-  const name =
-    String(body.name || '')
-      .trim();
+  const name = String(body.name || '').trim();
 
   const username =
-    String(body.username || '')
-      .trim();
+    String(body.username || '').trim();
 
   const email =
     String(body.email || '')
@@ -514,8 +430,7 @@ async function handleRegister(body, res) {
       .toLowerCase();
 
   const phone =
-    String(body.phone || '')
-      .trim();
+    String(body.phone || '').trim();
 
   const password =
     String(body.password || '');
@@ -569,25 +484,19 @@ async function handleRegister(body, res) {
   }
 
   try {
-
-    const existing =
-      await sql`
-        SELECT
-          id,
-          email,
-          username
-
-        FROM users
-
-        WHERE LOWER(email) = ${email}
-           OR LOWER(username) =
-              ${username.toLowerCase()}
-
-        LIMIT 1
-      `;
+    const existing = await sql`
+      SELECT
+        id,
+        email,
+        username
+      FROM users
+      WHERE LOWER(email) = ${email}
+         OR LOWER(username) =
+            ${username.toLowerCase()}
+      LIMIT 1
+    `;
 
     if (existing.length) {
-
       if (
         String(existing[0].email || '')
           .toLowerCase() === email
@@ -606,31 +515,21 @@ async function handleRegister(body, res) {
       });
     }
 
-
-    /* ---------------------------------------------
-       FIND REFERRER
-    --------------------------------------------- */
-
     let referrer = null;
     let referredBy = null;
 
     if (referralCode) {
-
-      const referrerRows =
-        await sql`
-          SELECT
-            id,
-            name,
-            username,
-            referral_code
-
-          FROM users
-
-          WHERE UPPER(referral_code) =
-                ${referralCode}
-
-          LIMIT 1
-        `;
+      const referrerRows = await sql`
+        SELECT
+          id,
+          name,
+          username,
+          referral_code
+        FROM users
+        WHERE UPPER(referral_code) =
+              ${referralCode}
+        LIMIT 1
+      `;
 
       if (!referrerRows.length) {
         return send(res, 400, {
@@ -640,31 +539,21 @@ async function handleRegister(body, res) {
         });
       }
 
-      referrer =
-        referrerRows[0];
-
-      referredBy =
-        String(referrer.id);
+      referrer = referrerRows[0];
+      referredBy = String(referrer.id);
     }
-
-
-    /* ---------------------------------------------
-       UNIQUE REFERRAL CODE
-    --------------------------------------------- */
 
     let newReferralCode =
       makeReferralCode();
 
     for (let i = 0; i < 10; i++) {
-
-      const codeCheck =
-        await sql`
-          SELECT id
-          FROM users
-          WHERE UPPER(referral_code) =
-                ${newReferralCode}
-          LIMIT 1
-        `;
+      const codeCheck = await sql`
+        SELECT id
+        FROM users
+        WHERE UPPER(referral_code) =
+              ${newReferralCode}
+        LIMIT 1
+      `;
 
       if (!codeCheck.length) {
         break;
@@ -674,63 +563,49 @@ async function handleRegister(body, res) {
         makeReferralCode();
     }
 
+    const userId = makeId();
 
-    /* ---------------------------------------------
-       CREATE USER
-    --------------------------------------------- */
-
-    const userId =
-      makeId();
-
-    const created =
-      await sql`
-        INSERT INTO users
-          (
-            id,
-            name,
-            username,
-            email,
-            phone,
-            password,
-            role,
-            coins,
-            created_at,
-            referral_code,
-            referred_by
-          )
-
-        VALUES
-          (
-            ${userId},
-            ${name},
-            ${username},
-            ${email},
-            ${phone},
-            ${password},
-            'user',
-            0,
-            NOW(),
-            ${newReferralCode},
-            ${referredBy}
-          )
-
-        RETURNING
+    const created = await sql`
+      INSERT INTO users
+        (
           id,
           name,
           username,
           email,
           phone,
+          password,
           role,
           coins,
           created_at,
           referral_code,
           referred_by
-      `;
-
-
-    /* ---------------------------------------------
-       CREATE WALLET
-    --------------------------------------------- */
+        )
+      VALUES
+        (
+          ${userId},
+          ${name},
+          ${username},
+          ${email},
+          ${phone},
+          ${password},
+          'user',
+          0,
+          NOW(),
+          ${newReferralCode},
+          ${referredBy}
+        )
+      RETURNING
+        id,
+        name,
+        username,
+        email,
+        phone,
+        role,
+        coins,
+        created_at,
+        referral_code,
+        referred_by
+    `;
 
     await sql`
       INSERT INTO wallets
@@ -742,7 +617,6 @@ async function handleRegister(body, res) {
           created_at,
           updated_at
         )
-
       VALUES
         (
           ${userId},
@@ -754,31 +628,21 @@ async function handleRegister(body, res) {
         )
     `;
 
-
-    /* ---------------------------------------------
-       REFERRAL REWARDS
-    --------------------------------------------- */
-
     if (referrer) {
-
       const referrerClaimKey =
         `referral_referrer_${userId}`;
 
       const referrerAlready =
         await sql`
           SELECT id
-
           FROM reward_claims
-
           WHERE reward_type = 'referral'
             AND reference_key =
                 ${referrerClaimKey}
-
           LIMIT 1
         `;
 
       if (!referrerAlready.length) {
-
         await addCoins(
           String(referrer.id),
           REFERRER_REWARD
@@ -795,7 +659,6 @@ async function handleRegister(body, res) {
               amount,
               created_at
             )
-
           VALUES
             (
               ${makeId()},
@@ -809,26 +672,21 @@ async function handleRegister(body, res) {
         `;
       }
 
-
       const newUserClaimKey =
         `referral_new_user_${userId}`;
 
       const newUserAlready =
         await sql`
           SELECT id
-
           FROM reward_claims
-
           WHERE user_id = ${userId}
             AND reward_type = 'referral'
             AND reference_key =
                 ${newUserClaimKey}
-
           LIMIT 1
         `;
 
       if (!newUserAlready.length) {
-
         await addCoins(
           userId,
           NEW_USER_REFERRAL_BONUS
@@ -845,7 +703,6 @@ async function handleRegister(body, res) {
               amount,
               created_at
             )
-
           VALUES
             (
               ${makeId()},
@@ -860,13 +717,7 @@ async function handleRegister(body, res) {
       }
     }
 
-
-    /* ---------------------------------------------
-       LOGIN SESSION
-    --------------------------------------------- */
-
-    const token =
-      makeToken();
+    const token = makeToken();
 
     await sql`
       INSERT INTO admin_sessions
@@ -876,7 +727,6 @@ async function handleRegister(body, res) {
           expires_at,
           created_at
         )
-
       VALUES
         (
           ${userId},
@@ -885,7 +735,6 @@ async function handleRegister(body, res) {
           NOW()
         )
     `;
-
 
     const wallet =
       await getWallet(userId);
@@ -921,20 +770,12 @@ async function handleRegister(body, res) {
           : 'Account created successfully.',
 
       token,
-
-      user:
-        userData,
-
-      wallet:
-        walletData
+      user: userData,
+      wallet: walletData
     });
 
   } catch (error) {
-
-    console.error(
-      'REGISTER ERROR:',
-      error
-    );
+    console.error('REGISTER ERROR:', error);
 
     return send(res, 500, {
       success: false,
@@ -958,7 +799,6 @@ async function handleRegister(body, res) {
 
 async function handleDashboard(req, res) {
   try {
-
     const user =
       await getUserFromToken(req);
 
@@ -971,9 +811,7 @@ async function handleDashboard(req, res) {
     }
 
     const wallet =
-      await getWallet(
-        String(user.id)
-      );
+      await getWallet(String(user.id));
 
     return send(res, 200, {
       success: true,
@@ -1004,11 +842,7 @@ async function handleDashboard(req, res) {
     });
 
   } catch (error) {
-
-    console.error(
-      'DASHBOARD ERROR:',
-      error
-    );
+    console.error('DASHBOARD ERROR:', error);
 
     return send(res, 500, {
       success: false,
@@ -1027,7 +861,6 @@ async function handleDashboard(req, res) {
 
 async function handleWallet(req, res) {
   try {
-
     const user =
       await getUserFromToken(req);
 
@@ -1040,9 +873,7 @@ async function handleWallet(req, res) {
     }
 
     const wallet =
-      await getWallet(
-        String(user.id)
-      );
+      await getWallet(String(user.id));
 
     return send(res, 200, {
       success: true,
@@ -1062,11 +893,7 @@ async function handleWallet(req, res) {
     });
 
   } catch (error) {
-
-    console.error(
-      'WALLET ERROR:',
-      error
-    );
+    console.error('WALLET ERROR:', error);
 
     return send(res, 500, {
       success: false,
@@ -1080,7 +907,7 @@ async function handleWallet(req, res) {
 
 
 /* =========================================================
-   CLAIM TASK / SURVEY
+   CLAIM TASK / SURVEY / DAILY BONUS
 ========================================================= */
 
 async function handleClaimReward(
@@ -1089,7 +916,6 @@ async function handleClaimReward(
   res
 ) {
   try {
-
     const user =
       await getUserFromToken(req);
 
@@ -1126,8 +952,7 @@ async function handleClaimReward(
         body.title ||
         body.rewardTitle ||
         `${rewardType} reward`
-      )
-        .trim();
+      ).trim();
 
     if (!referenceKey) {
       return send(res, 400, {
@@ -1140,30 +965,18 @@ async function handleClaimReward(
     let amount = 0;
 
     if (rewardType === 'task') {
-
       amount =
         Number(
           TASK_REWARDS[referenceKey] || 0
         );
-
-    } else if (
-      rewardType === 'survey'
-    ) {
-
+    } else if (rewardType === 'survey') {
       amount =
         Number(
           SURVEY_REWARDS[referenceKey] || 0
         );
-
-    } else if (
-      rewardType === 'daily_bonus'
-    ) {
-
-      amount =
-        DAILY_BONUS_AMOUNT;
-
+    } else if (rewardType === 'daily_bonus') {
+      amount = DAILY_BONUS_AMOUNT;
     } else {
-
       return send(res, 400, {
         success: false,
         message:
@@ -1188,13 +1001,10 @@ async function handleClaimReward(
     const alreadyClaimed =
       await sql`
         SELECT id
-
         FROM reward_claims
-
         WHERE user_id = ${userId}
           AND reward_type = ${rewardType}
           AND reference_key = ${referenceKey}
-
         LIMIT 1
       `;
 
@@ -1226,20 +1036,16 @@ async function handleClaimReward(
 
     await sql`
       UPDATE wallets
-
       SET
         balance = ${newBalance},
         total_earned = ${newEarned},
         updated_at = NOW()
-
       WHERE user_id = ${userId}
     `;
 
     await sql`
       UPDATE users
-
       SET coins = ${newBalance}
-
       WHERE id = ${userId}
     `;
 
@@ -1254,7 +1060,6 @@ async function handleClaimReward(
           amount,
           created_at
         )
-
       VALUES
         (
           ${makeId()},
@@ -1303,7 +1108,6 @@ async function handleClaimReward(
     });
 
   } catch (error) {
-
     console.error(
       'REWARD CLAIM ERROR:',
       error
@@ -1331,7 +1135,6 @@ async function handleClaimReward(
 
 async function handleDailyBonus(req, res) {
   try {
-
     const user =
       await getUserFromToken(req);
 
@@ -1343,9 +1146,6 @@ async function handleDailyBonus(req, res) {
       });
     }
 
-    const rewardType =
-      'daily_bonus';
-
     const referenceKey =
       'daily_' +
       new Date()
@@ -1354,18 +1154,15 @@ async function handleDailyBonus(req, res) {
 
     return handleClaimReward(
       {
-        rewardType,
-        rewardId:
-          referenceKey,
-        title:
-          'Daily Bonus'
+        rewardType: 'daily_bonus',
+        rewardId: referenceKey,
+        title: 'Daily Bonus'
       },
       req,
       res
     );
 
   } catch (error) {
-
     console.error(
       'DAILY BONUS ERROR:',
       error
@@ -1388,7 +1185,6 @@ async function handleDailyBonus(req, res) {
 
 async function handleReferralStats(req, res) {
   try {
-
     const user =
       await getUserFromToken(req);
 
@@ -1410,11 +1206,8 @@ async function handleReferralStats(req, res) {
           name,
           username,
           created_at
-
         FROM users
-
         WHERE referred_by = ${userId}
-
         ORDER BY created_at DESC
       `;
 
@@ -1425,9 +1218,7 @@ async function handleReferralStats(req, res) {
             SUM(amount),
             0
           ) AS total
-
         FROM reward_claims
-
         WHERE user_id = ${userId}
           AND reward_type = 'referral'
       `;
@@ -1451,22 +1242,14 @@ async function handleReferralStats(req, res) {
 
       referrals:
         referred.map(item => ({
-          id:
-            item.id,
-
-          name:
-            item.name,
-
-          username:
-            item.username,
-
-          created_at:
-            item.created_at
+          id: item.id,
+          name: item.name,
+          username: item.username,
+          created_at: item.created_at
         }))
     });
 
   } catch (error) {
-
     console.error(
       'REFERRAL STATS ERROR:',
       error
@@ -1485,8 +1268,10 @@ async function handleReferralStats(req, res) {
 
 /* =========================================================
    KYC STATUS
+
    IMPORTANT:
-   Uses existing database columns:
+   Existing database columns:
+
    id bigint
    user_id text
    full_name text
@@ -1497,11 +1282,12 @@ async function handleReferralStats(req, res) {
    admin_note text
    submitted_at timestamptz
    reviewed_at timestamptz
+
+   USER DOES NOT NEED TO PROVIDE DOCUMENT URL.
 ========================================================= */
 
 async function handleKycStatus(req, res) {
   try {
-
     const user =
       await getUserFromToken(req);
 
@@ -1526,13 +1312,9 @@ async function handleKycStatus(req, res) {
           admin_note,
           submitted_at,
           reviewed_at
-
         FROM kyc_submissions
-
         WHERE user_id = ${String(user.id)}
-
         ORDER BY submitted_at DESC
-
         LIMIT 1
       `;
 
@@ -1543,7 +1325,6 @@ async function handleKycStatus(req, res) {
     });
 
   } catch (error) {
-
     console.error(
       'KYC STATUS ERROR:',
       error
@@ -1563,6 +1344,8 @@ async function handleKycStatus(req, res) {
 
 /* =========================================================
    SUBMIT KYC
+
+   NO DOCUMENT URL REQUIRED
 ========================================================= */
 
 async function handleSubmitKyc(
@@ -1571,7 +1354,6 @@ async function handleSubmitKyc(
   res
 ) {
   try {
-
     const user =
       await getUserFromToken(req);
 
@@ -1605,13 +1387,6 @@ async function handleSubmitKyc(
         ''
       ).trim();
 
-    const documentUrl =
-      String(
-        body.documentUrl ||
-        body.document_url ||
-        ''
-      ).trim();
-
     if (!fullName) {
       return send(res, 400, {
         success: false,
@@ -1628,14 +1403,6 @@ async function handleSubmitKyc(
       });
     }
 
-    if (!documentUrl) {
-      return send(res, 400, {
-        success: false,
-        message:
-          'Document URL is required.'
-      });
-    }
-
     const userId =
       String(user.id);
 
@@ -1644,18 +1411,13 @@ async function handleSubmitKyc(
         SELECT
           id,
           status
-
         FROM kyc_submissions
-
         WHERE user_id = ${userId}
-
         ORDER BY submitted_at DESC
-
         LIMIT 1
       `;
 
     if (existing.length) {
-
       const oldStatus =
         String(
           existing[0].status || ''
@@ -1678,6 +1440,14 @@ async function handleSubmitKyc(
       }
     }
 
+    /*
+      document_url column exists in database,
+      but user does not submit a URL.
+
+      Empty string is stored so this also works
+      if document_url is NOT NULL.
+    */
+
     const created =
       await sql`
         INSERT INTO kyc_submissions
@@ -1691,19 +1461,17 @@ async function handleSubmitKyc(
             admin_note,
             submitted_at
           )
-
         VALUES
           (
             ${userId},
             ${fullName},
             ${documentType},
             ${documentNumber},
-            ${documentUrl},
+            '',
             'pending',
             NULL,
             NOW()
           )
-
         RETURNING
           id,
           user_id,
@@ -1728,7 +1496,6 @@ async function handleSubmitKyc(
     });
 
   } catch (error) {
-
     console.error(
       'SUBMIT KYC ERROR:',
       error
@@ -1756,7 +1523,6 @@ async function handleSubmitKyc(
 
 async function handleAdminKyc(req, res) {
   try {
-
     const admin =
       await getUserFromToken(req);
 
@@ -1771,13 +1537,9 @@ async function handleAdminKyc(req, res) {
       });
     }
 
-
-    /* ---------------------------------------------
-       GET ALL KYC
-    --------------------------------------------- */
+    /* GET ALL KYC */
 
     if (req.method === 'GET') {
-
       const rows =
         await sql`
           SELECT
@@ -1808,28 +1570,20 @@ async function handleAdminKyc(req, res) {
 
       return send(res, 200, {
         success: true,
-        kyc:
-          rows
+        kyc: rows
       });
     }
 
-
-    /* ---------------------------------------------
-       APPROVE / REJECT
-    --------------------------------------------- */
+    /* APPROVE / REJECT */
 
     const body =
       await readBody(req);
 
     const id =
-      String(
-        body.id || ''
-      ).trim();
+      String(body.id || '').trim();
 
     const action =
-      String(
-        body.action || ''
-      )
+      String(body.action || '')
         .trim()
         .toLowerCase();
 
@@ -1859,18 +1613,14 @@ async function handleAdminKyc(req, res) {
       });
     }
 
-
     const existing =
       await sql`
         SELECT
           id,
           user_id,
           status
-
         FROM kyc_submissions
-
         WHERE id = ${id}
-
         LIMIT 1
       `;
 
@@ -1937,7 +1687,6 @@ async function handleAdminKyc(req, res) {
     });
 
   } catch (error) {
-
     console.error(
       'ADMIN KYC ERROR:',
       error
@@ -1969,7 +1718,6 @@ async function handleWithdrawal(
   res
 ) {
   try {
-
     const user =
       await getUserFromToken(req);
 
@@ -2042,12 +1790,9 @@ async function handleWithdrawal(
     const pending =
       await sql`
         SELECT id
-
         FROM withdrawals
-
         WHERE user_id = ${userId}
           AND status = 'pending'
-
         LIMIT 1
       `;
 
@@ -2076,30 +1821,27 @@ async function handleWithdrawal(
     const newBalance =
       balance - amount;
 
-
-    /* Reserve coins */
-
     await sql`
       UPDATE wallets
-
       SET
         balance = ${newBalance},
         updated_at = NOW()
-
       WHERE user_id = ${userId}
     `;
 
     await sql`
       UPDATE users
-
       SET coins = ${newBalance}
-
       WHERE id = ${userId}
     `;
 
-
     const withdrawalId =
       makeId();
+
+    /*
+      Current withdrawal code uses
+      payment_account.
+    */
 
     await sql`
       INSERT INTO withdrawals
@@ -2113,7 +1855,6 @@ async function handleWithdrawal(
           created_at,
           updated_at
         )
-
       VALUES
         (
           ${withdrawalId},
@@ -2137,9 +1878,7 @@ async function handleWithdrawal(
         'Withdrawal request submitted successfully.',
 
       withdrawal: {
-        id:
-          withdrawalId,
-
+        id: withdrawalId,
         amount,
 
         payment_method:
@@ -2157,7 +1896,6 @@ async function handleWithdrawal(
     });
 
   } catch (error) {
-
     console.error(
       'WITHDRAWAL ERROR:',
       error
@@ -2188,7 +1926,6 @@ async function handleAdminWithdrawals(
   res
 ) {
   try {
-
     const admin =
       await getUserFromToken(req);
 
@@ -2203,11 +1940,7 @@ async function handleAdminWithdrawals(
       });
     }
 
-
-    /* GET */
-
     if (req.method === 'GET') {
-
       const rows =
         await sql`
           SELECT
@@ -2237,27 +1970,19 @@ async function handleAdminWithdrawals(
 
       return send(res, 200, {
         success: true,
-
         withdrawals:
           rows
       });
     }
 
-
-    /* POST */
-
     const body =
       await readBody(req);
 
     const id =
-      String(
-        body.id || ''
-      ).trim();
+      String(body.id || '').trim();
 
     const action =
-      String(
-        body.action || ''
-      )
+      String(body.action || '')
         .trim()
         .toLowerCase();
 
@@ -2294,11 +2019,8 @@ async function handleAdminWithdrawals(
           user_id,
           amount,
           status
-
         FROM withdrawals
-
         WHERE id = ${id}
-
         LIMIT 1
       `;
 
@@ -2323,36 +2045,28 @@ async function handleAdminWithdrawals(
       });
     }
 
-
     /* APPROVE */
 
     if (action === 'approve') {
-
       const updated =
         await sql`
           UPDATE withdrawals
-
           SET
             status = 'approved',
             admin_note = ${note || null},
             updated_at = NOW(),
             reviewed_at = NOW()
-
           WHERE id = ${id}
-
           RETURNING *
         `;
 
       await sql`
         UPDATE wallets
-
         SET
           total_withdrawn =
             total_withdrawn +
             ${Number(withdrawal.amount)},
-
           updated_at = NOW()
-
         WHERE user_id =
           ${String(withdrawal.user_id)}
       `;
@@ -2368,7 +2082,6 @@ async function handleAdminWithdrawals(
       });
     }
 
-
     /* REJECT */
 
     const userId =
@@ -2383,34 +2096,27 @@ async function handleAdminWithdrawals(
 
     await sql`
       UPDATE wallets
-
       SET
         balance = ${restoredBalance},
         updated_at = NOW()
-
       WHERE user_id = ${userId}
     `;
 
     await sql`
       UPDATE users
-
       SET coins = ${restoredBalance}
-
       WHERE id = ${userId}
     `;
 
     const updated =
       await sql`
         UPDATE withdrawals
-
         SET
           status = 'rejected',
           admin_note = ${note || null},
           updated_at = NOW(),
           reviewed_at = NOW()
-
         WHERE id = ${id}
-
         RETURNING *
       `;
 
@@ -2425,7 +2131,6 @@ async function handleAdminWithdrawals(
     });
 
   } catch (error) {
-
     console.error(
       'ADMIN WITHDRAWAL ERROR:',
       error
@@ -2456,7 +2161,6 @@ async function handleAdminStats(
   res
 ) {
   try {
-
     const admin =
       await getUserFromToken(req);
 
@@ -2473,60 +2177,42 @@ async function handleAdminStats(
 
     const users =
       await sql`
-        SELECT
-          COUNT(*)::int AS count
-
+        SELECT COUNT(*)::int AS count
         FROM users
       `;
 
     const coins =
       await sql`
         SELECT
-          COALESCE(
-            SUM(balance),
-            0
-          ) AS total
-
+          COALESCE(SUM(balance), 0) AS total
         FROM wallets
       `;
 
     const withdrawals =
       await sql`
-        SELECT
-          COUNT(*)::int AS count
-
+        SELECT COUNT(*)::int AS count
         FROM withdrawals
-
         WHERE status = 'approved'
       `;
 
     const pendingWithdrawals =
       await sql`
-        SELECT
-          COUNT(*)::int AS count
-
+        SELECT COUNT(*)::int AS count
         FROM withdrawals
-
         WHERE status = 'pending'
       `;
 
     const pendingKyc =
       await sql`
-        SELECT
-          COUNT(*)::int AS count
-
+        SELECT COUNT(*)::int AS count
         FROM kyc_submissions
-
         WHERE status = 'pending'
       `;
 
     const totalReferrals =
       await sql`
-        SELECT
-          COUNT(*)::int AS count
-
+        SELECT COUNT(*)::int AS count
         FROM users
-
         WHERE referred_by IS NOT NULL
       `;
 
@@ -2567,7 +2253,6 @@ async function handleAdminStats(
     });
 
   } catch (error) {
-
     console.error(
       'ADMIN STATS ERROR:',
       error
@@ -2594,7 +2279,6 @@ async function handleAdminUsers(
   res
 ) {
   try {
-
     const admin =
       await getUserFromToken(req);
 
@@ -2622,9 +2306,7 @@ async function handleAdminUsers(
           created_at,
           referral_code,
           referred_by
-
         FROM users
-
         ORDER BY created_at DESC
       `;
 
@@ -2635,7 +2317,6 @@ async function handleAdminUsers(
     });
 
   } catch (error) {
-
     console.error(
       'ADMIN USERS ERROR:',
       error
@@ -2662,15 +2343,12 @@ async function handleLogout(
   res
 ) {
   try {
-
     const token =
       getToken(req);
 
     if (token) {
-
       await sql`
         DELETE FROM admin_sessions
-
         WHERE token = ${token}
       `;
     }
@@ -2682,7 +2360,6 @@ async function handleLogout(
     });
 
   } catch (error) {
-
     console.error(
       'LOGOUT ERROR:',
       error
@@ -2701,6 +2378,18 @@ async function handleLogout(
 
 
 /* =========================================================
+   PATH ROUTES
+   Supports existing Admin.html URLs
+========================================================= */
+
+function getPath(req) {
+  return String(req.url || '')
+    .split('?')[0]
+    .replace(/\/+$/, '') || '/';
+}
+
+
+/* =========================================================
    MAIN API ROUTER
 ========================================================= */
 
@@ -2708,7 +2397,6 @@ module.exports = async function handler(
   req,
   res
 ) {
-
   if (req.method === 'OPTIONS') {
     return send(res, 200, {
       success: true
@@ -2716,6 +2404,56 @@ module.exports = async function handler(
   }
 
   try {
+    const path =
+      getPath(req);
+
+    /*
+      Support:
+      /api/admin/stats
+      /api/admin/users
+      /api/admin/kyc
+      /api/admin/withdrawals
+    */
+
+    if (
+      path === '/api/admin/stats' ||
+      path === '/admin/stats'
+    ) {
+      return handleAdminStats(
+        req,
+        res
+      );
+    }
+
+    if (
+      path === '/api/admin/users' ||
+      path === '/admin/users'
+    ) {
+      return handleAdminUsers(
+        req,
+        res
+      );
+    }
+
+    if (
+      path === '/api/admin/kyc' ||
+      path === '/admin/kyc'
+    ) {
+      return handleAdminKyc(
+        req,
+        res
+      );
+    }
+
+    if (
+      path === '/api/admin/withdrawals' ||
+      path === '/admin/withdrawals'
+    ) {
+      return handleAdminWithdrawals(
+        req,
+        res
+      );
+    }
 
     const body =
       req.method === 'POST'
@@ -2959,7 +2697,6 @@ module.exports = async function handler(
     });
 
   } catch (error) {
-
     console.error(
       'API ERROR:',
       error
