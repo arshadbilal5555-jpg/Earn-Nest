@@ -1,9 +1,18 @@
 'use strict';
 
 const crypto = require('crypto');
-const { neon } = require('@neondatabase/serverless');
+const { neon, Pool } = require('@neondatabase/serverless');
 
 const sql = neon(process.env.DATABASE_URL);
+
+/*
+  Pool is used only for operations that need a real
+  multi-query transaction.
+*/
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  max: 1
+});
 
 /* =========================================================
    CONFIG
@@ -119,7 +128,10 @@ function makeReferralCode(username) {
     .slice(0, 8)
     .toUpperCase();
 
-  const random = crypto.randomBytes(3).toString('hex').toUpperCase();
+  const random = crypto
+    .randomBytes(3)
+    .toString('hex')
+    .toUpperCase();
 
   return `${clean || 'USER'}${random}`;
 }
@@ -258,9 +270,6 @@ async function getUserFromToken(req) {
 
   const user = rows[0];
 
-  /*
-    Blocked / disabled users cannot use an old session.
-  */
   if (user.status !== 'active') {
     return null;
   }
@@ -329,14 +338,16 @@ async function handleLogin(req, res, body) {
     if (user.status === 'blocked') {
       return send(res, 403, {
         success: false,
-        message: 'Your account has been blocked. Please contact support.'
+        message:
+          'Your account has been blocked. Please contact support.'
       });
     }
 
     if (user.status === 'disabled') {
       return send(res, 403, {
         success: false,
-        message: 'Your account has been disabled. Please contact support.'
+        message:
+          'Your account has been disabled. Please contact support.'
       });
     }
 
@@ -404,6 +415,7 @@ async function handleRegister(req, res, body) {
   const phone = String(body.phone || '').trim();
   const email = String(body.email || '').trim().toLowerCase();
   const password = String(body.password || '');
+
   const confirmPassword = String(
     body.confirmPassword ||
     body.confirm ||
@@ -442,7 +454,10 @@ async function handleRegister(req, res, body) {
 
   try {
     const duplicate = await sql`
-      SELECT id, email, username
+      SELECT
+        id,
+        email,
+        username
       FROM users
       WHERE LOWER(email) = LOWER(${email})
          OR LOWER(username) = LOWER(${username})
@@ -485,9 +500,6 @@ async function handleRegister(req, res, body) {
 
     let newReferralCode = makeReferralCode(username);
 
-    /*
-      Make sure referral code is unique.
-    */
     for (let i = 0; i < 5; i++) {
       const existing = await sql`
         SELECT id
@@ -548,9 +560,8 @@ async function handleRegister(req, res, body) {
 
     await getWallet(user.id);
 
-    /*
-      Referral reward.
-    */
+    /* REFERRAL REWARD */
+
     if (referredBy && referredBy !== user.id) {
       try {
         const claimKey = `signup_${user.id}`;
@@ -595,6 +606,8 @@ async function handleRegister(req, res, body) {
           refError
         );
       }
+
+      /* NEW USER REFERRAL BONUS */
 
       try {
         await addCoins(
@@ -770,7 +783,8 @@ async function handleClaimReward(req, res, body) {
   }
 
   try {
-    const referenceKey = `${rewardType}_${rewardId}`;
+    const referenceKey =
+      `${rewardType}_${rewardId}`;
 
     const already = await sql`
       SELECT id
@@ -804,7 +818,9 @@ async function handleClaimReward(req, res, body) {
         ${user.id},
         ${rewardType},
         ${referenceKey},
-        ${rewardType === 'task' ? 'Task Reward' : 'Survey Reward'},
+        ${rewardType === 'task'
+          ? 'Task Reward'
+          : 'Survey Reward'},
         ${amount}
       )
     `;
@@ -896,7 +912,8 @@ async function handleDailyBonus(req, res) {
 
     return send(res, 200, {
       success: true,
-      message: `Daily bonus: ${DAILY_BONUS_AMOUNT} coins`,
+      message:
+        `Daily bonus: ${DAILY_BONUS_AMOUNT} coins`,
       amount: DAILY_BONUS_AMOUNT,
       wallet: walletResponse(wallet)
     });
@@ -1038,7 +1055,8 @@ async function handleSubmitKyc(req, res, body) {
   if (!fullName || !documentNumber) {
     return send(res, 400, {
       success: false,
-      message: 'Full name and document number are required'
+      message:
+        'Full name and document number are required'
     });
   }
 
@@ -1057,14 +1075,16 @@ async function handleSubmitKyc(req, res, body) {
       if (latest[0].status === 'pending') {
         return send(res, 409, {
           success: false,
-          message: 'Your KYC is already pending'
+          message:
+            'Your KYC is already pending'
         });
       }
 
       if (latest[0].status === 'approved') {
         return send(res, 409, {
           success: false,
-          message: 'Your KYC is already approved'
+          message:
+            'Your KYC is already approved'
         });
       }
     }
@@ -1105,7 +1125,8 @@ async function handleSubmitKyc(req, res, body) {
 
     return send(res, 201, {
       success: true,
-      message: 'KYC submitted successfully',
+      message:
+        'KYC submitted successfully',
       kyc: inserted[0]
     });
 
@@ -1125,6 +1146,7 @@ async function handleSubmitKyc(req, res, body) {
 
 /* =========================================================
    WITHDRAWAL
+   ATOMIC TRANSACTION
 ========================================================= */
 
 async function handleWithdrawal(req, res, body) {
@@ -1151,19 +1173,27 @@ async function handleWithdrawal(req, res, body) {
     ''
   ).trim();
 
+  /* -------------------------
+     VALIDATION
+  ------------------------- */
+
   if (
     !Number.isInteger(amount) ||
     amount < MIN_WITHDRAWAL
   ) {
     return send(res, 400, {
       success: false,
-      message: `Minimum withdrawal is ${MIN_WITHDRAWAL} coins`
+      message:
+        `Minimum withdrawal is ${MIN_WITHDRAWAL} coins`
     });
   }
 
   if (
-    !['easypaisa', 'jazzcash', 'bank']
-      .includes(paymentMethod)
+    ![
+      'easypaisa',
+      'jazzcash',
+      'bank'
+    ].includes(paymentMethod)
   ) {
     return send(res, 400, {
       success: false,
@@ -1174,47 +1204,90 @@ async function handleWithdrawal(req, res, body) {
   if (!paymentAccount) {
     return send(res, 400, {
       success: false,
-      message: 'Payment account is required'
+      message:
+        'Payment account is required'
     });
   }
 
+  let client;
+
   try {
-    const pending = await sql`
-      SELECT id
-      FROM withdrawals
-      WHERE user_id = ${user.id}
-        AND status = 'pending'
-      LIMIT 1
-    `;
-
-    if (pending.length) {
-      return send(res, 409, {
-        success: false,
-        message: 'You already have a pending withdrawal'
-      });
-    }
-
-    const wallet = await getWallet(user.id);
-
-    if (Number(wallet.balance || 0) < amount) {
-      return send(res, 400, {
-        success: false,
-        message: 'Insufficient balance'
-      });
-    }
+    client = await pool.connect();
 
     /*
-      Deduct balance immediately.
-      If admin rejects, amount will be returned.
+      START TRANSACTION
+
+      Everything below succeeds together,
+      or everything is rolled back.
     */
 
-    const walletUpdate = await sql`
+    await client.query('BEGIN');
+
+    /* -------------------------
+       LOCK USER ROW
+       Prevents two simultaneous
+       withdrawals by same user.
+    ------------------------- */
+
+    const userResult = await client.query(
+      `
+      SELECT
+        id,
+        coins
+      FROM users
+      WHERE id = $1
+      FOR UPDATE
+      `,
+      [user.id]
+    );
+
+    if (!userResult.rows.length) {
+      await client.query('ROLLBACK');
+
+      return send(res, 404, {
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    /* -------------------------
+       CHECK PENDING WITHDRAWAL
+    ------------------------- */
+
+    const pendingResult = await client.query(
+      `
+      SELECT
+        id
+      FROM withdrawals
+      WHERE user_id = $1
+        AND status = 'pending'
+      LIMIT 1
+      `,
+      [user.id]
+    );
+
+    if (pendingResult.rows.length) {
+      await client.query('ROLLBACK');
+
+      return send(res, 409, {
+        success: false,
+        message:
+          'You already have a pending withdrawal'
+      });
+    }
+
+    /* -------------------------
+       LOCK / DEDUCT WALLET
+    ------------------------- */
+
+    const walletResult = await client.query(
+      `
       UPDATE wallets
       SET
-        balance = balance - ${amount},
+        balance = COALESCE(balance, 0) - $1,
         updated_at = NOW()
-      WHERE user_id = ${user.id}
-        AND balance >= ${amount}
+      WHERE user_id = $2
+        AND COALESCE(balance, 0) >= $1
       RETURNING
         id,
         user_id,
@@ -1223,25 +1296,58 @@ async function handleWithdrawal(req, res, body) {
         total_withdrawn,
         created_at,
         updated_at
-    `;
+      `,
+      [amount, user.id]
+    );
 
-    if (!walletUpdate.length) {
+    if (!walletResult.rows.length) {
+      await client.query('ROLLBACK');
+
       return send(res, 400, {
         success: false,
         message: 'Insufficient balance'
       });
     }
 
-    await sql`
-      UPDATE users
-      SET coins = GREATEST(
-        COALESCE(coins, 0) - ${amount},
-        0
-      )
-      WHERE id = ${user.id}
-    `;
+    /* -------------------------
+       DEDUCT USERS.COINS
+    ------------------------- */
 
-    const inserted = await sql`
+    const userUpdateResult = await client.query(
+      `
+      UPDATE users
+      SET
+        coins = COALESCE(coins, 0) - $1
+      WHERE id = $2
+        AND COALESCE(coins, 0) >= $1
+      RETURNING
+        id,
+        coins
+      `,
+      [amount, user.id]
+    );
+
+    /*
+      If users.coins does not have enough,
+      rollback wallet deduction too.
+    */
+
+    if (!userUpdateResult.rows.length) {
+      await client.query('ROLLBACK');
+
+      return send(res, 400, {
+        success: false,
+        message:
+          'User balance is insufficient'
+      });
+    }
+
+    /* -------------------------
+       CREATE WITHDRAWAL RECORD
+    ------------------------- */
+
+    const insertedResult = await client.query(
+      `
       INSERT INTO withdrawals (
         user_id,
         amount,
@@ -1253,10 +1359,10 @@ async function handleWithdrawal(req, res, body) {
         updated_at
       )
       VALUES (
-        ${user.id},
-        ${amount},
-        ${paymentMethod},
-        ${paymentAccount},
+        $1,
+        $2,
+        $3,
+        $4,
         'pending',
         NULL,
         NOW(),
@@ -1273,18 +1379,51 @@ async function handleWithdrawal(req, res, body) {
         created_at,
         updated_at,
         reviewed_at
-    `;
+      `,
+      [
+        user.id,
+        amount,
+        paymentMethod,
+        paymentAccount
+      ]
+    );
+
+    /* -------------------------
+       COMMIT
+    ------------------------- */
+
+    await client.query('COMMIT');
+
+    const finalWallet = walletResult.rows[0];
 
     return send(res, 201, {
       success: true,
-      message: 'Withdrawal request submitted',
-      withdrawal: inserted[0],
-      wallet: walletResponse(
-        walletUpdate[0]
-      )
+      message:
+        'Withdrawal request submitted',
+      withdrawal:
+        insertedResult.rows[0],
+      wallet:
+        walletResponse(finalWallet)
     });
 
   } catch (error) {
+    /*
+      IMPORTANT:
+      If INSERT or any other query fails,
+      restore everything by rollback.
+    */
+
+    if (client) {
+      try {
+        await client.query('ROLLBACK');
+      } catch (rollbackError) {
+        console.error(
+          'WITHDRAWAL ROLLBACK ERROR:',
+          rollbackError
+        );
+      }
+    }
+
     console.error(
       'WITHDRAWAL ERROR:',
       error
@@ -1292,9 +1431,15 @@ async function handleWithdrawal(req, res, body) {
 
     return send(res, 500, {
       success: false,
-      message: 'Withdrawal request failed',
+      message:
+        'Withdrawal request failed',
       error: error.message
     });
+
+  } finally {
+    if (client) {
+      client.release();
+    }
   }
 }
 
@@ -1337,10 +1482,11 @@ async function handleAdminStats(req, res) {
     `;
 
     const coinsRows = await sql`
-      SELECT COALESCE(
-        SUM(balance),
-        0
-      )::bigint AS total
+      SELECT
+        COALESCE(
+          SUM(balance),
+          0
+        )::bigint AS total
       FROM wallets
     `;
 
@@ -1372,13 +1518,19 @@ async function handleAdminStats(req, res) {
       success: true,
       stats: {
         totalUsers:
-          Number(usersRows[0]?.count || 0),
+          Number(
+            usersRows[0]?.count || 0
+          ),
 
         totalCoins:
-          Number(coinsRows[0]?.total || 0),
+          Number(
+            coinsRows[0]?.total || 0
+          ),
 
         totalWithdrawals:
-          Number(withdrawalRows[0]?.count || 0),
+          Number(
+            withdrawalRows[0]?.count || 0
+          ),
 
         pendingWithdrawals:
           Number(
@@ -1391,7 +1543,9 @@ async function handleAdminStats(req, res) {
           ),
 
         totalReferrals:
-          Number(referralRows[0]?.count || 0)
+          Number(
+            referralRows[0]?.count || 0
+          )
       }
     });
 
@@ -1403,7 +1557,8 @@ async function handleAdminStats(req, res) {
 
     return send(res, 500, {
       success: false,
-      message: 'Admin stats failed',
+      message:
+        'Admin stats failed',
       error: error.message
     });
   }
@@ -1426,9 +1581,7 @@ async function handleAdminUsers(req, res) {
       });
     }
 
-    /* -------------------------
-       GET USERS
-    ------------------------- */
+    /* GET USERS */
 
     if (req.method === 'GET') {
       const rows = await sql`
@@ -1454,9 +1607,7 @@ async function handleAdminUsers(req, res) {
       });
     }
 
-    /* -------------------------
-       POST USER ACTION
-    ------------------------- */
+    /* POST USER ACTION */
 
     if (req.method === 'POST') {
       const body = await readBody(req);
@@ -1472,7 +1623,8 @@ async function handleAdminUsers(req, res) {
       if (!userId) {
         return send(res, 400, {
           success: false,
-          message: 'User ID is required'
+          message:
+            'User ID is required'
         });
       }
 
@@ -1486,18 +1638,19 @@ async function handleAdminUsers(req, res) {
       if (!allowedActions.includes(action)) {
         return send(res, 400, {
           success: false,
-          message: 'Invalid user action'
+          message:
+            'Invalid user action'
         });
       }
 
-      /*
-        Admin cannot modify own account.
-      */
-
-      if (String(userId) === String(admin.id)) {
+      if (
+        String(userId) ===
+        String(admin.id)
+      ) {
         return send(res, 400, {
           success: false,
-          message: 'Admin account cannot be modified'
+          message:
+            'Admin account cannot be modified'
         });
       }
 
@@ -1520,14 +1673,11 @@ async function handleAdminUsers(req, res) {
 
       const target = targetRows[0];
 
-      /*
-        Protect every admin account.
-      */
-
       if (target.role === 'admin') {
         return send(res, 400, {
           success: false,
-          message: 'Admin account cannot be modified'
+          message:
+            'Admin account cannot be modified'
         });
       }
 
@@ -1570,14 +1720,10 @@ async function handleAdminUsers(req, res) {
       if (!updated.length) {
         return send(res, 400, {
           success: false,
-          message: 'User could not be updated'
+          message:
+            'User could not be updated'
         });
       }
-
-      /*
-        Remove all active sessions when blocking
-        or disabling a user.
-      */
 
       if (
         newStatus === 'blocked' ||
@@ -1591,7 +1737,8 @@ async function handleAdminUsers(req, res) {
 
       return send(res, 200, {
         success: true,
-        message: `User ${newStatus}`,
+        message:
+          `User ${newStatus}`,
         user: updated[0]
       });
     }
@@ -1609,7 +1756,8 @@ async function handleAdminUsers(req, res) {
 
     return send(res, 500, {
       success: false,
-      message: 'Admin users operation failed',
+      message:
+        'Admin users operation failed',
       error: error.message
     });
   }
@@ -1626,9 +1774,12 @@ async function handleAdminKyc(req, res) {
     if (!admin) {
       return send(res, 403, {
         success: false,
-        message: 'Admin access required'
+        message:
+          'Admin access required'
       });
     }
+
+    /* GET KYC */
 
     if (req.method === 'GET') {
       const rows = await sql`
@@ -1659,6 +1810,8 @@ async function handleAdminKyc(req, res) {
       });
     }
 
+    /* POST KYC ACTION */
+
     if (req.method === 'POST') {
       const body = await readBody(req);
 
@@ -1675,7 +1828,8 @@ async function handleAdminKyc(req, res) {
       if (!id) {
         return send(res, 400, {
           success: false,
-          message: 'KYC ID is required'
+          message:
+            'KYC ID is required'
         });
       }
 
@@ -1685,7 +1839,8 @@ async function handleAdminKyc(req, res) {
       ) {
         return send(res, 400, {
           success: false,
-          message: 'Invalid KYC action'
+          message:
+            'Invalid KYC action'
         });
       }
 
@@ -1702,14 +1857,18 @@ async function handleAdminKyc(req, res) {
       if (!existing.length) {
         return send(res, 404, {
           success: false,
-          message: 'KYC record not found'
+          message:
+            'KYC record not found'
         });
       }
 
-      if (existing[0].status !== 'pending') {
+      if (
+        existing[0].status !== 'pending'
+      ) {
         return send(res, 409, {
           success: false,
-          message: 'This KYC has already been reviewed'
+          message:
+            'This KYC has already been reviewed'
         });
       }
 
@@ -1742,7 +1901,8 @@ async function handleAdminKyc(req, res) {
       if (!updated.length) {
         return send(res, 409, {
           success: false,
-          message: 'KYC could not be updated'
+          message:
+            'KYC could not be updated'
         });
       }
 
@@ -1769,7 +1929,8 @@ async function handleAdminKyc(req, res) {
 
     return send(res, 500, {
       success: false,
-      message: 'Admin KYC operation failed',
+      message:
+        'Admin KYC operation failed',
       error: error.message
     });
   }
@@ -1777,6 +1938,7 @@ async function handleAdminKyc(req, res) {
 
 /* =========================================================
    ADMIN WITHDRAWALS
+   ATOMIC APPROVE / REJECT
 ========================================================= */
 
 async function handleAdminWithdrawals(req, res) {
@@ -1786,7 +1948,8 @@ async function handleAdminWithdrawals(req, res) {
     if (!admin) {
       return send(res, 403, {
         success: false,
-        message: 'Admin access required'
+        message:
+          'Admin access required'
       });
     }
 
@@ -1842,7 +2005,8 @@ async function handleAdminWithdrawals(req, res) {
       if (!id) {
         return send(res, 400, {
           success: false,
-          message: 'Withdrawal ID is required'
+          message:
+            'Withdrawal ID is required'
         });
       }
 
@@ -1852,158 +2016,311 @@ async function handleAdminWithdrawals(req, res) {
       ) {
         return send(res, 400, {
           success: false,
-          message: 'Invalid withdrawal action'
+          message:
+            'Invalid withdrawal action'
         });
       }
 
-      const existing = await sql`
-        SELECT
-          id,
-          user_id,
-          amount,
-          status
-        FROM withdrawals
-        WHERE id = ${id}
-        LIMIT 1
-      `;
+      let client;
 
-      if (!existing.length) {
-        return send(res, 404, {
-          success: false,
-          message: 'Withdrawal not found'
-        });
-      }
+      try {
+        client = await pool.connect();
 
-      const withdrawal = existing[0];
+        await client.query('BEGIN');
 
-      if (withdrawal.status !== 'pending') {
-        return send(res, 409, {
-          success: false,
-          message: 'This withdrawal has already been reviewed'
-        });
-      }
+        /* -------------------------
+           LOCK WITHDRAWAL
+        ------------------------- */
 
-      const amount = Number(
-        withdrawal.amount || 0
-      );
+        const existingResult =
+          await client.query(
+            `
+            SELECT
+              id,
+              user_id,
+              amount,
+              status
+            FROM withdrawals
+            WHERE id = $1
+            FOR UPDATE
+            `,
+            [id]
+          );
 
-      /* -------------------------
-         APPROVE
-      ------------------------- */
+        if (!existingResult.rows.length) {
+          await client.query('ROLLBACK');
 
-      if (action === 'approve') {
-        await sql`
-          UPDATE wallets
-          SET
-            total_withdrawn =
-              COALESCE(total_withdrawn, 0)
-              + ${amount},
-            updated_at = NOW()
-          WHERE user_id = ${withdrawal.user_id}
-        `;
-
-        const updated = await sql`
-          UPDATE withdrawals
-          SET
-            status = 'approved',
-            admin_note = ${note || null},
-            reviewed_at = NOW(),
-            updated_at = NOW()
-          WHERE id = ${id}
-            AND status = 'pending'
-          RETURNING
-            id,
-            user_id,
-            amount,
-            payment_method,
-            payment_account,
-            status,
-            admin_note,
-            created_at,
-            updated_at,
-            reviewed_at
-        `;
-
-        if (!updated.length) {
-          return send(res, 409, {
+          return send(res, 404, {
             success: false,
-            message: 'Withdrawal could not be approved'
+            message:
+              'Withdrawal not found'
           });
         }
 
-        return send(res, 200, {
-          success: true,
-          message: 'Withdrawal approved successfully',
-          withdrawal: updated[0]
-        });
-      }
+        const withdrawal =
+          existingResult.rows[0];
 
-      /* -------------------------
-         REJECT
-      ------------------------- */
+        if (
+          withdrawal.status !== 'pending'
+        ) {
+          await client.query('ROLLBACK');
 
-      if (action === 'reject') {
-        /*
-          Return coins to wallet.
-        */
-
-        await sql`
-          UPDATE wallets
-          SET
-            balance =
-              COALESCE(balance, 0)
-              + ${amount},
-            updated_at = NOW()
-          WHERE user_id = ${withdrawal.user_id}
-        `;
-
-        /*
-          Return coins to users table too.
-        */
-
-        await sql`
-          UPDATE users
-          SET
-            coins =
-              COALESCE(coins, 0)
-              + ${amount}
-          WHERE id = ${withdrawal.user_id}
-        `;
-
-        const updated = await sql`
-          UPDATE withdrawals
-          SET
-            status = 'rejected',
-            admin_note = ${note || null},
-            reviewed_at = NOW(),
-            updated_at = NOW()
-          WHERE id = ${id}
-            AND status = 'pending'
-          RETURNING
-            id,
-            user_id,
-            amount,
-            payment_method,
-            payment_account,
-            status,
-            admin_note,
-            created_at,
-            updated_at,
-            reviewed_at
-        `;
-
-        if (!updated.length) {
           return send(res, 409, {
             success: false,
-            message: 'Withdrawal could not be rejected'
+            message:
+              'This withdrawal has already been reviewed'
           });
         }
 
-        return send(res, 200, {
-          success: true,
-          message: 'Withdrawal rejected and coins returned',
-          withdrawal: updated[0]
+        const amount = Number(
+          withdrawal.amount || 0
+        );
+
+        /* -------------------------
+           APPROVE
+        ------------------------- */
+
+        if (action === 'approve') {
+          const walletResult =
+            await client.query(
+              `
+              UPDATE wallets
+              SET
+                total_withdrawn =
+                  COALESCE(total_withdrawn, 0)
+                  + $1,
+                updated_at = NOW()
+              WHERE user_id = $2
+              RETURNING
+                id,
+                balance,
+                total_earned,
+                total_withdrawn,
+                created_at,
+                updated_at
+              `,
+              [
+                amount,
+                withdrawal.user_id
+              ]
+            );
+
+          if (!walletResult.rows.length) {
+            await client.query(
+              'ROLLBACK'
+            );
+
+            return send(res, 400, {
+              success: false,
+              message:
+                'Wallet not found'
+            });
+          }
+
+          const updatedResult =
+            await client.query(
+              `
+              UPDATE withdrawals
+              SET
+                status = 'approved',
+                admin_note = $1,
+                reviewed_at = NOW(),
+                updated_at = NOW()
+              WHERE id = $2
+                AND status = 'pending'
+              RETURNING
+                id,
+                user_id,
+                amount,
+                payment_method,
+                payment_account,
+                status,
+                admin_note,
+                created_at,
+                updated_at,
+                reviewed_at
+              `,
+              [
+                note || null,
+                id
+              ]
+            );
+
+          if (!updatedResult.rows.length) {
+            await client.query(
+              'ROLLBACK'
+            );
+
+            return send(res, 409, {
+              success: false,
+              message:
+                'Withdrawal could not be approved'
+            });
+          }
+
+          await client.query('COMMIT');
+
+          return send(res, 200, {
+            success: true,
+            message:
+              'Withdrawal approved successfully',
+            withdrawal:
+              updatedResult.rows[0]
+          });
+        }
+
+        /* -------------------------
+           REJECT
+        ------------------------- */
+
+        if (action === 'reject') {
+          const walletResult =
+            await client.query(
+              `
+              UPDATE wallets
+              SET
+                balance =
+                  COALESCE(balance, 0)
+                  + $1,
+                updated_at = NOW()
+              WHERE user_id = $2
+              RETURNING
+                id,
+                balance,
+                total_earned,
+                total_withdrawn,
+                created_at,
+                updated_at
+              `,
+              [
+                amount,
+                withdrawal.user_id
+              ]
+            );
+
+          if (!walletResult.rows.length) {
+            await client.query(
+              'ROLLBACK'
+            );
+
+            return send(res, 400, {
+              success: false,
+              message:
+                'Wallet not found'
+            });
+          }
+
+          const userResult =
+            await client.query(
+              `
+              UPDATE users
+              SET
+                coins =
+                  COALESCE(coins, 0)
+                  + $1
+              WHERE id = $2
+              RETURNING
+                id,
+                coins
+              `,
+              [
+                amount,
+                withdrawal.user_id
+              ]
+            );
+
+          if (!userResult.rows.length) {
+            await client.query(
+              'ROLLBACK'
+            );
+
+            return send(res, 400, {
+              success: false,
+              message:
+                'User not found'
+            });
+          }
+
+          const updatedResult =
+            await client.query(
+              `
+              UPDATE withdrawals
+              SET
+                status = 'rejected',
+                admin_note = $1,
+                reviewed_at = NOW(),
+                updated_at = NOW()
+              WHERE id = $2
+                AND status = 'pending'
+              RETURNING
+                id,
+                user_id,
+                amount,
+                payment_method,
+                payment_account,
+                status,
+                admin_note,
+                created_at,
+                updated_at,
+                reviewed_at
+              `,
+              [
+                note || null,
+                id
+              ]
+            );
+
+          if (!updatedResult.rows.length) {
+            await client.query(
+              'ROLLBACK'
+            );
+
+            return send(res, 409, {
+              success: false,
+              message:
+                'Withdrawal could not be rejected'
+            });
+          }
+
+          await client.query('COMMIT');
+
+          return send(res, 200, {
+            success: true,
+            message:
+              'Withdrawal rejected and coins returned',
+            withdrawal:
+              updatedResult.rows[0]
+          });
+        }
+
+        await client.query('ROLLBACK');
+
+        return send(res, 400, {
+          success: false,
+          message:
+            'Invalid withdrawal action'
         });
+
+      } catch (transactionError) {
+        if (client) {
+          try {
+            await client.query(
+              'ROLLBACK'
+            );
+          } catch (rollbackError) {
+            console.error(
+              'ADMIN WITHDRAWAL ROLLBACK ERROR:',
+              rollbackError
+            );
+          }
+        }
+
+        throw transactionError;
+
+      } finally {
+        if (client) {
+          client.release();
+        }
       }
     }
 
@@ -2020,7 +2337,8 @@ async function handleAdminWithdrawals(req, res) {
 
     return send(res, 500, {
       success: false,
-      message: 'Admin withdrawal operation failed',
+      message:
+        'Admin withdrawal operation failed',
       error: error.message
     });
   }
@@ -2062,6 +2380,8 @@ function getPath(req) {
 
 module.exports = async function handler(req, res) {
   try {
+    /* OPTIONS / CORS */
+
     if (req.method === 'OPTIONS') {
       return send(res, 200, {
         success: true
@@ -2078,28 +2398,40 @@ module.exports = async function handler(req, res) {
       path === '/api/admin/stats' ||
       path === '/admin/stats'
     ) {
-      return handleAdminStats(req, res);
+      return handleAdminStats(
+        req,
+        res
+      );
     }
 
     if (
       path === '/api/admin/users' ||
       path === '/admin/users'
     ) {
-      return handleAdminUsers(req, res);
+      return handleAdminUsers(
+        req,
+        res
+      );
     }
 
     if (
       path === '/api/admin/kyc' ||
       path === '/admin/kyc'
     ) {
-      return handleAdminKyc(req, res);
+      return handleAdminKyc(
+        req,
+        res
+      );
     }
 
     if (
       path === '/api/admin/withdrawals' ||
       path === '/admin/withdrawals'
     ) {
-      return handleAdminWithdrawals(req, res);
+      return handleAdminWithdrawals(
+        req,
+        res
+      );
     }
 
     /* -----------------------------------------
@@ -2226,14 +2558,16 @@ module.exports = async function handler(req, res) {
         default:
           return send(res, 400, {
             success: false,
-            message: 'Unknown action'
+            message:
+              'Unknown action'
           });
       }
     }
 
     return send(res, 404, {
       success: false,
-      message: 'API route not found'
+      message:
+        'API route not found'
     });
 
   } catch (error) {
