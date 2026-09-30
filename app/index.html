@@ -449,7 +449,7 @@
 
     /*
       EarnNest Login/Register
-      API endpoint
+      Admin + User Role Redirect
     */
 
     const API_BASE = "/api";
@@ -539,10 +539,13 @@
         body: JSON.stringify(payload)
       });
 
+
       const responseText =
         await response.text();
 
+
       let data = {};
+
 
       try {
 
@@ -557,11 +560,13 @@
         );
       }
 
+
       console.log(
         "EarnNest API:",
         response.status,
         data
       );
+
 
       if (!response.ok) {
 
@@ -572,7 +577,112 @@
         );
       }
 
+
       return data;
+    }
+
+
+    /* =========================
+       ROLE NORMALIZATION
+    ========================= */
+
+    function getUserRole(user) {
+
+      return String(
+        user?.role || ""
+      )
+        .trim()
+        .toLowerCase();
+    }
+
+
+    /* =========================
+       SAVE SESSION
+    ========================= */
+
+    function saveSession(data) {
+
+      if (!data || !data.token || !data.user) {
+        return false;
+      }
+
+
+      const user = data.user;
+
+      localStorage.setItem(
+        "earnnest_token",
+        String(data.token)
+      );
+
+
+      localStorage.setItem(
+        "earnnest_user",
+        JSON.stringify(user)
+      );
+
+
+      console.log(
+        "EarnNest logged-in user:",
+        user
+      );
+
+
+      console.log(
+        "EarnNest user role:",
+        getUserRole(user)
+      );
+
+
+      return true;
+    }
+
+
+    /* =========================
+       REDIRECT USER
+    ========================= */
+
+    function redirectAfterLogin(user) {
+
+      const role =
+        getUserRole(user);
+
+
+      /*
+        ADMIN
+        -----
+        Admin goes to Admin Dashboard.
+      */
+
+      if (role === "admin") {
+
+        console.log(
+          "Admin detected. Opening Admin Dashboard."
+        );
+
+
+        window.location.replace(
+          "/admin.html"
+        );
+
+
+        return;
+      }
+
+
+      /*
+        NORMAL USER
+        -----------
+        Normal users go to User Dashboard.
+      */
+
+      console.log(
+        "Normal user detected. Opening User Dashboard."
+      );
+
+
+      window.location.replace(
+        "/dashboard.html"
+      );
     }
 
 
@@ -586,8 +696,10 @@
         return;
       }
 
+
       const email =
         get("email").value.trim().toLowerCase();
+
 
       const password =
         get("password").value;
@@ -599,6 +711,7 @@
           "Please enter your email address.",
           "error"
         );
+
 
         get("email").focus();
 
@@ -613,6 +726,7 @@
           "error"
         );
 
+
         get("password").focus();
 
         return;
@@ -622,6 +736,7 @@
       isBusy = true;
 
       clearMessage();
+
 
       setButton(
         "Logging in...",
@@ -660,37 +775,57 @@
 
 
         /*
-          Save login information
+          Save token + complete user object.
         */
 
-        localStorage.setItem(
-          "earnnest_token",
-          String(data.token)
-        );
+        saveSession(data);
 
 
-        localStorage.setItem(
-          "earnnest_user",
-          JSON.stringify(data.user)
-        );
+        const role =
+          getUserRole(data.user);
 
 
-        showMessage(
-          "Login successful. Opening dashboard...",
-          "success"
-        );
+        /*
+          Different message for admin/user.
+        */
+
+        if (role === "admin") {
+
+          showMessage(
+            "Admin login successful. Opening Admin Panel...",
+            "success"
+          );
 
 
-        setButton(
-          "Opening Dashboard...",
-          true
-        );
+          setButton(
+            "Opening Admin Panel...",
+            true
+          );
 
+        } else {
+
+          showMessage(
+            "Login successful. Opening dashboard...",
+            "success"
+          );
+
+
+          setButton(
+            "Opening Dashboard...",
+            true
+          );
+        }
+
+
+        /*
+          Redirect according to role.
+        */
 
         setTimeout(function() {
 
-          window.location.href =
-            "/dashboard.html";
+          redirectAfterLogin(
+            data.user
+          );
 
         }, 700);
 
@@ -715,6 +850,7 @@
           false
         );
 
+
         isBusy = false;
       }
     }
@@ -734,20 +870,26 @@
       const name =
         get("name").value.trim();
 
+
       const username =
         get("username").value.trim();
+
 
       const phone =
         get("phone").value.trim();
 
+
       const email =
         get("email").value.trim().toLowerCase();
+
 
       const password =
         get("password").value;
 
+
       const confirmPassword =
         get("confirmPassword").value;
+
 
       const referralCode =
         get("referralCode").value.trim();
@@ -759,6 +901,7 @@
           "Please enter your full name.",
           "error"
         );
+
 
         get("name").focus();
 
@@ -773,6 +916,7 @@
           "error"
         );
 
+
         get("username").focus();
 
         return;
@@ -785,6 +929,7 @@
           "Please enter your phone number.",
           "error"
         );
+
 
         get("phone").focus();
 
@@ -799,6 +944,7 @@
           "error"
         );
 
+
         get("email").focus();
 
         return;
@@ -811,6 +957,7 @@
           "Please create a password.",
           "error"
         );
+
 
         get("password").focus();
 
@@ -825,6 +972,7 @@
           "error"
         );
 
+
         get("password").focus();
 
         return;
@@ -838,6 +986,7 @@
           "error"
         );
 
+
         get("confirmPassword").focus();
 
         return;
@@ -847,6 +996,7 @@
       isBusy = true;
 
       clearMessage();
+
 
       setButton(
         "Creating Account...",
@@ -889,22 +1039,13 @@
 
 
         /*
-          If backend returns token,
-          automatically open dashboard.
+          Backend may automatically
+          return login token.
         */
 
         if (data.token && data.user) {
 
-          localStorage.setItem(
-            "earnnest_token",
-            String(data.token)
-          );
-
-
-          localStorage.setItem(
-            "earnnest_user",
-            JSON.stringify(data.user)
-          );
+          saveSession(data);
 
 
           showMessage(
@@ -921,8 +1062,14 @@
 
           setTimeout(function() {
 
-            window.location.href =
-              "/dashboard.html";
+            /*
+              New registrations should normally
+              be normal users.
+            */
+
+            redirectAfterLogin(
+              data.user
+            );
 
           }, 700);
 
@@ -932,7 +1079,8 @@
 
 
         /*
-          Otherwise return to login.
+          If backend does not return
+          a token, return to login.
         */
 
         showMessage(
@@ -1050,6 +1198,7 @@
         return;
       }
 
+
       isSignUp = !isSignUp;
 
 
@@ -1063,13 +1212,14 @@
 
 
     /* =========================
-       PASSWORD SHOW/HIDE
+       PASSWORD SHOW / HIDE
     ========================= */
 
     function togglePassword(inputId, buttonId) {
 
       const input =
         get(inputId);
+
 
       const button =
         get(buttonId);
@@ -1086,7 +1236,6 @@
         input.type = "password";
 
         button.textContent = "👁";
-
       }
     }
 
@@ -1121,9 +1270,9 @@
           get("authForm");
 
 
-        /*
-          Form submit
-        */
+        /* =====================
+           FORM SUBMIT
+        ===================== */
 
         form.addEventListener(
           "submit",
@@ -1141,16 +1290,15 @@
             } else {
 
               loginUser();
-
             }
 
           }
         );
 
 
-        /*
-          Create Account / Login toggle
-        */
+        /* =====================
+           TOGGLE
+        ===================== */
 
         get("toggleBtn").addEventListener(
           "click",
@@ -1166,9 +1314,9 @@
         );
 
 
-        /*
-          Password eye
-        */
+        /* =====================
+           PASSWORD EYE
+        ===================== */
 
         get("passwordEye").addEventListener(
           "click",
@@ -1185,9 +1333,9 @@
         );
 
 
-        /*
-          Confirm password eye
-        */
+        /* =====================
+           CONFIRM PASSWORD EYE
+        ===================== */
 
         get("confirmEye").addEventListener(
           "click",
@@ -1204,9 +1352,9 @@
         );
 
 
-        /*
-          Forgot password
-        */
+        /* =====================
+           FORGOT PASSWORD
+        ===================== */
 
         get("forgotBtn").addEventListener(
           "click",
@@ -1220,9 +1368,9 @@
         );
 
 
-        /*
-          Enter key
-        */
+        /* =====================
+           ENTER KEY
+        ===================== */
 
         [
           "email",
@@ -1234,7 +1382,9 @@
           "referralCode"
         ].forEach(function(id) {
 
-          const field = get(id);
+          const field =
+            get(id);
+
 
           if (!field) {
             return;
@@ -1259,9 +1409,9 @@
         });
 
 
-        /*
-          Start in Login mode
-        */
+        /* =====================
+           START LOGIN MODE
+        ===================== */
 
         updateMode();
 
