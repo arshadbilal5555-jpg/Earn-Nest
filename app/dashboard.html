@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#166534">
-  <meta name="description" content="EarnNest Dashboard - Earn rewards, complete tasks and manage your balance.">
+  <meta name="description" content="EarnNest Dashboard">
   <title>EarnNest Dashboard</title>
 
   <style>
@@ -12,7 +12,8 @@
       box-sizing: border-box;
     }
 
-    html, body {
+    html,
+    body {
       margin: 0;
       padding: 0;
       min-height: 100%;
@@ -26,49 +27,25 @@
       overflow-x: hidden;
     }
 
-    body::before {
-      content: "";
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      z-index: 0;
-      background:
-        radial-gradient(circle at 80% 80%, rgba(34,197,94,.10), transparent 50%),
-        radial-gradient(circle at 20% 20%, rgba(22,101,52,.08), transparent 50%);
-    }
-
-    .watermark {
-      position: fixed;
-      right: 5%;
-      bottom: 5%;
-      font-size: 110px;
-      opacity: .05;
-      pointer-events: none;
-      z-index: 0;
-    }
-
-    /* SIDEBAR */
-
     .sidebar {
       position: fixed;
       left: 0;
       top: 0;
       width: 235px;
       height: 100vh;
-      background: linear-gradient(180deg,#166534,#15803d);
-      color: #fff;
-      padding: 22px 14px;
+      background: linear-gradient(180deg, #166534, #15803d);
+      color: white;
+      padding: 20px 14px;
       z-index: 4000;
       box-shadow: 3px 0 15px rgba(0,0,0,.15);
       transition: transform .25s ease;
-      overflow-y: auto;
     }
 
     .sidebar-logo {
       text-align: center;
-      padding: 8px 5px 25px;
+      padding: 8px 5px 22px;
       border-bottom: 1px solid rgba(255,255,255,.25);
-      margin-bottom: 20px;
+      margin-bottom: 18px;
     }
 
     .logo-box {
@@ -76,14 +53,14 @@
       height: 54px;
       margin: auto auto 8px;
       border-radius: 14px;
-      background: rgba(255,255,255,.16);
+      background: rgba(255,255,255,.15);
       display: flex;
       align-items: center;
       justify-content: center;
     }
 
     .logo-e {
-      font-size: 36px;
+      font-size: 35px;
       font-weight: 900;
     }
 
@@ -95,25 +72,25 @@
     .nav {
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 7px;
     }
 
     .nav button {
       width: 100%;
       border: 0;
-      padding: 13px 15px;
+      padding: 13px 14px;
       border-radius: 9px;
       background: transparent;
-      color: #fff;
+      color: white;
       cursor: pointer;
-      font-weight: 600;
       font-size: 15px;
+      font-weight: 600;
       text-align: left;
     }
 
     .nav button:hover,
     .nav button.active {
-      background: #fff;
+      background: white;
       color: #166534;
     }
 
@@ -121,18 +98,18 @@
       position: absolute;
       left: 14px;
       right: 14px;
-      bottom: 22px;
+      bottom: 20px;
     }
 
     .logout-btn {
       width: 100%;
-      background: #dc2626;
-      color: #fff;
       border: 0;
-      padding: 11px 14px;
+      padding: 11px;
       border-radius: 8px;
-      cursor: pointer;
+      background: #dc2626;
+      color: white;
       font-weight: 700;
+      cursor: pointer;
     }
 
     .sidebar-overlay {
@@ -147,26 +124,22 @@
       display: block;
     }
 
-    /* MAIN */
-
     .main {
       margin-left: 235px;
       min-height: 100vh;
-      position: relative;
-      z-index: 1;
     }
 
     header {
-      background: #fff;
-      padding: 18px 25px;
+      min-height: 70px;
+      background: white;
+      border-bottom: 1px solid #e5e7eb;
+      padding: 15px 25px;
       display: flex;
-      justify-content: space-between;
       align-items: center;
+      justify-content: space-between;
       position: sticky;
       top: 0;
       z-index: 100;
-      border-bottom: 1px solid #e5e7eb;
-      min-height: 70px;
     }
 
     header h1 {
@@ -187,8 +160,8 @@
       border: 0;
       border-radius: 9px;
       background: #166534;
-      color: #fff;
-      font-size: 25px;
+      color: white;
+      font-size: 24px;
       cursor: pointer;
     }
 
@@ -198,11 +171,9 @@
       padding: 25px;
     }
 
-    /* WELCOME */
-
     .welcome {
-      background: linear-gradient(135deg,#166534,#15803d);
-      color: #fff;
+      background: linear-gradient(135deg, #166534, #15803d);
+      color: white;
       padding: 24px;
       border-radius: 16px;
       margin-bottom: 20px;
@@ -210,7 +181,7 @@
     }
 
     .welcome h2 {
-      margin: 0 0 6px;
+      margin: 0 0 7px;
     }
 
     .welcome p {
@@ -218,31 +189,29 @@
       color: rgba(255,255,255,.85);
     }
 
-    /* BALANCE */
-
     .balance-grid {
       display: grid;
-      grid-template-columns: repeat(3,1fr);
+      grid-template-columns: repeat(3, 1fr);
       gap: 15px;
       margin-bottom: 20px;
     }
 
     .balance-card {
-      background: #fff;
+      background: white;
       padding: 20px;
       border-radius: 14px;
-      box-shadow: 0 2px 10px rgba(0,0,0,.04);
       border: 1px solid #eef2f7;
+      box-shadow: 0 2px 10px rgba(0,0,0,.04);
     }
 
     .balance-card h3 {
       margin: 0 0 8px;
+      color: #64748b;
       font-size: 14px;
-      color: #6b7280;
     }
 
     .balance-card strong {
-      font-size: 25px;
+      font-size: 26px;
       color: #166534;
     }
 
@@ -252,21 +221,19 @@
     }
 
     .pkr-value {
-      margin-top: 7px;
+      margin-top: 6px;
       color: #16a34a;
       font-size: 12px;
       font-weight: 700;
     }
 
-    /* SECTION */
-
     .section {
       display: none;
-      background: #fff;
+      background: white;
       padding: 20px;
       border-radius: 14px;
-      box-shadow: 0 2px 10px rgba(0,0,0,.04);
       border: 1px solid #eef2f7;
+      box-shadow: 0 2px 10px rgba(0,0,0,.04);
       margin-bottom: 20px;
     }
 
@@ -285,57 +252,6 @@
       margin-bottom: 20px;
     }
 
-    /* ITEMS */
-
-    .item {
-      border: 1px solid #e5e7eb;
-      border-radius: 12px;
-      padding: 16px;
-      margin-bottom: 12px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 15px;
-    }
-
-    .item h3 {
-      margin: 0 0 5px;
-    }
-
-    .item p {
-      margin: 0 0 6px;
-      color: #6b7280;
-      font-size: 14px;
-      line-height: 1.45;
-    }
-
-    .reward {
-      color: #16a34a;
-      font-weight: bold;
-    }
-
-    .action-btn {
-      background: #166534;
-      color: #fff;
-      border: 0;
-      padding: 10px 18px;
-      border-radius: 8px;
-      cursor: pointer;
-      white-space: nowrap;
-      font-weight: 700;
-    }
-
-    .action-btn:disabled {
-      opacity: .6;
-      cursor: not-allowed;
-    }
-
-    .success-btn {
-      background: #16a34a;
-    }
-
-    /* INFO */
-
     .earning-info {
       background: #f0fdf4;
       border: 1px solid #bbf7d0;
@@ -349,16 +265,61 @@
     }
 
     .earning-info p {
-      margin: 5px 0 0;
+      margin: 6px 0 0;
       color: #64748b;
       font-size: 13px;
       line-height: 1.5;
     }
 
-    /* REFERRAL */
+    .item {
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 15px;
+    }
+
+    .item h3 {
+      margin: 0 0 5px;
+    }
+
+    .item p {
+      margin: 0 0 6px;
+      color: #64748b;
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
+    .reward {
+      color: #16a34a;
+      font-weight: bold;
+    }
+
+    .action-btn {
+      border: 0;
+      background: #166534;
+      color: white;
+      padding: 10px 18px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .action-btn:disabled {
+      opacity: .6;
+      cursor: not-allowed;
+    }
+
+    .success-btn {
+      background: #16a34a;
+    }
 
     .referral-card {
-      background: linear-gradient(135deg,#effdf5,#f0fdf4);
+      background: #f0fdf4;
       border: 1px solid #bbf7d0;
       border-radius: 14px;
       padding: 20px;
@@ -383,11 +344,10 @@
 
     .referral-value {
       flex: 1;
-      background: #fff;
+      background: white;
       border: 1px solid #dbe5ef;
       border-radius: 9px;
       padding: 12px;
-      color: #111827;
       font-weight: 700;
       word-break: break-all;
     }
@@ -395,14 +355,16 @@
     .copy-btn {
       border: 0;
       background: #166534;
-      color: #fff;
+      color: white;
       padding: 0 18px;
       border-radius: 9px;
       cursor: pointer;
       font-weight: 700;
     }
 
-    /* FORM */
+    .form-box {
+      max-width: 600px;
+    }
 
     .form-group {
       margin-bottom: 15px;
@@ -422,17 +384,13 @@
       border-radius: 8px;
       font-size: 15px;
       outline: none;
+      background: white;
     }
 
     .form-group input:focus,
     .form-group select:focus {
       border-color: #16a34a;
       box-shadow: 0 0 0 3px rgba(22,101,52,.12);
-    }
-
-    .withdraw-box,
-    .kyc-box {
-      max-width: 600px;
     }
 
     .conversion-box {
@@ -443,9 +401,38 @@
       margin-bottom: 18px;
       color: #475569;
       font-size: 14px;
+      line-height: 1.5;
     }
 
-    /* PROFILE */
+    .kyc-status {
+      border-radius: 10px;
+      padding: 15px;
+      margin-bottom: 20px;
+    }
+
+    .kyc-status.pending {
+      background: #fefce8;
+      border: 1px solid #fde68a;
+      color: #854d0e;
+    }
+
+    .kyc-status.approved {
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      color: #166534;
+    }
+
+    .kyc-status.rejected {
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      color: #991b1b;
+    }
+
+    .kyc-status.none {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      color: #475569;
+    }
 
     .profile-row {
       display: flex;
@@ -466,15 +453,13 @@
       word-break: break-word;
     }
 
-    /* TOAST */
-
     #toast {
       position: fixed;
       right: 20px;
       bottom: 20px;
       max-width: 350px;
       background: #16a34a;
-      color: #fff;
+      color: white;
       padding: 13px 16px;
       border-radius: 9px;
       display: none;
@@ -487,46 +472,27 @@
       background: #dc2626;
     }
 
-    /* MOBILE */
-
-    @media (max-width:700px) {
-
-      .menu-toggle {
-        display: block;
-      }
+    @media (max-width: 700px) {
 
       .sidebar {
         width: 270px;
-        transform: translate3d(-110%,0,0);
+        transform: translateX(-110%);
       }
 
       .sidebar.open {
-        transform: translate3d(0,0,0);
+        transform: translateX(0);
       }
 
       .main {
         margin-left: 0;
       }
 
+      .menu-toggle {
+        display: block;
+      }
+
       .balance-grid {
         grid-template-columns: 1fr;
-      }
-
-      .item {
-        flex-direction: column;
-        align-items: stretch;
-      }
-
-      .item .action-btn {
-        width: 100%;
-      }
-
-      .referral-row {
-        flex-direction: column;
-      }
-
-      .copy-btn {
-        padding: 12px;
       }
 
       header {
@@ -546,6 +512,23 @@
         padding: 15px;
       }
 
+      .item {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .item .action-btn {
+        width: 100%;
+      }
+
+      .referral-row {
+        flex-direction: column;
+      }
+
+      .copy-btn {
+        padding: 12px;
+      }
+
       .profile-row {
         flex-direction: column;
         gap: 5px;
@@ -558,7 +541,6 @@
       #toast {
         left: 15px;
         right: 15px;
-        bottom: 15px;
         max-width: none;
       }
     }
@@ -567,701 +549,724 @@
 
 <body>
 
-<div id="sidebarOverlay" class="sidebar-overlay"
-     onclick="window.closeMobileMenu(event)"></div>
-
-<aside id="sidebar" class="sidebar">
-
-  <div class="sidebar-logo">
-    <div class="logo-box">
-      <div class="logo-e">E</div>
-    </div>
-    <div class="logo-name">EarnNest</div>
+  <div id="sidebarOverlay"
+       class="sidebar-overlay"
+       onclick="window.closeMobileMenu(event)">
   </div>
 
-  <div class="nav">
+  <aside id="sidebar" class="sidebar">
 
-    <button type="button"
-            class="active"
-            data-section="home"
-            onclick="window.showSection('home',this,event)">
-      🏠 Home
-    </button>
+    <div class="sidebar-logo">
+      <div class="logo-box">
+        <div class="logo-e">E</div>
+      </div>
 
-    <button type="button"
-            data-section="tasks"
-            onclick="window.showSection('tasks',this,event)">
-      📝 Tasks
-    </button>
-
-    <button type="button"
-            data-section="surveys"
-            onclick="window.showSection('surveys',this,event)">
-      📋 Surveys
-    </button>
-
-    <button type="button"
-            data-section="wallet"
-            onclick="window.showSection('wallet',this,event)">
-      💰 Wallet
-    </button>
-
-    <button type="button"
-            data-section="referral"
-            onclick="window.showSection('referral',this,event)">
-      🎁 Referral
-    </button>
-
-    <button type="button"
-            data-section="kyc"
-            onclick="window.showSection('kyc',this,event); window.loadKycStatus()">
-      🪪 KYC
-    </button>
-
-    <button type="button"
-            data-section="profile"
-            onclick="window.showSection('profile',this,event)">
-      👤 Profile
-    </button>
-
-  </div>
-
-  <div class="sidebar-logout">
-    <button type="button"
-            class="logout-btn"
-            onclick="window.logout(event)">
-      Logout
-    </button>
-  </div>
-
-</aside>
-
-<div class="main">
-
-<header>
-
-  <button type="button"
-          id="menuToggle"
-          class="menu-toggle"
-          onclick="window.toggleMobileMenu(event)">
-    ☰
-  </button>
-
-  <h1>EarnNest Dashboard</h1>
-
-  <div id="headerUser" class="header-user">
-    User
-  </div>
-
-</header>
-
-<div class="container">
-
-  <!-- WELCOME -->
-
-  <div class="welcome">
-    <h2>
-      Welcome, <span id="userName">User</span>
-    </h2>
-
-    <p>
-      Complete tasks and surveys to earn coins and build your balance.
-    </p>
-  </div>
-
-  <!-- BALANCE -->
-
-  <div class="balance-grid">
-
-    <div class="balance-card">
-      <h3>Available Balance</h3>
-
-      <strong id="balance">0</strong>
-      <span class="unit"> Coins</span>
-
-      <div id="balancePkr" class="pkr-value">
-        ≈ PKR 0
+      <div class="logo-name">
+        EarnNest
       </div>
     </div>
 
-    <div class="balance-card">
-      <h3>Total Earned</h3>
+    <div class="nav">
 
-      <strong id="totalEarned">0</strong>
-      <span class="unit"> Coins</span>
+      <button class="active"
+              data-section="home"
+              onclick="window.showSection('home',this,event)">
+        🏠 Home
+      </button>
 
-      <div id="earnedPkr" class="pkr-value">
-        ≈ PKR 0
+      <button data-section="tasks"
+              onclick="window.showSection('tasks',this,event)">
+        📝 Tasks
+      </button>
+
+      <button data-section="surveys"
+              onclick="window.showSection('surveys',this,event)">
+        📋 Surveys
+      </button>
+
+      <button data-section="wallet"
+              onclick="window.showSection('wallet',this,event)">
+        💰 Wallet
+      </button>
+
+      <button data-section="referral"
+              onclick="window.showSection('referral',this,event)">
+        🎁 Referral
+      </button>
+
+      <button data-section="kyc"
+              onclick="window.showSection('kyc',this,event);window.loadKycStatus()">
+        🪪 KYC
+      </button>
+
+      <button data-section="profile"
+              onclick="window.showSection('profile',this,event)">
+        👤 Profile
+      </button>
+
+    </div>
+
+    <div class="sidebar-logout">
+      <button class="logout-btn"
+              onclick="window.logout(event)">
+        Logout
+      </button>
+    </div>
+
+  </aside>
+
+  <main class="main">
+
+    <header>
+
+      <button id="menuToggle"
+              class="menu-toggle"
+              onclick="window.toggleMobileMenu(event)">
+        ☰
+      </button>
+
+      <h1>EarnNest Dashboard</h1>
+
+      <div id="headerUser"
+           class="header-user">
+        User
       </div>
-    </div>
 
-    <div class="balance-card">
-      <h3>Total Withdrawn</h3>
+    </header>
 
-      <strong id="totalWithdrawn">0</strong>
-      <span class="unit"> Coins</span>
-    </div>
+    <div class="container">
 
-  </div>
+      <!-- WELCOME -->
 
-  <!-- HOME -->
+      <div class="welcome">
 
-  <section id="home" class="section active">
-
-    <h2>Dashboard</h2>
-
-    <div class="earning-info">
-      <strong>💰 EarnNest Conversion</strong>
-
-      <p>
-        1000 Coins = 500 PKR. Complete available tasks and surveys to increase your balance.
-      </p>
-    </div>
-
-    <div class="item">
-
-      <div>
-        <h3>Daily Reward</h3>
+        <h2>
+          Welcome,
+          <span id="userName">User</span>
+        </h2>
 
         <p>
-          Claim your daily bonus once per day.
+          Earn coins by completing tasks, surveys and referrals.
         </p>
 
-        <span class="reward">+50 Coins</span>
       </div>
 
-      <button id="dailyBonusBtn"
-              class="action-btn success-btn"
-              onclick="window.claimDailyBonus(event)">
-        Claim 50 Coins
-      </button>
+      <!-- BALANCE -->
 
-    </div>
+      <div class="balance-grid">
 
-    <div class="referral-card">
+        <div class="balance-card">
 
-      <h3>🎁 Invite & Earn</h3>
+          <h3>Available Balance</h3>
 
-      <p>
-        Share your referral code with friends.
-      </p>
+          <strong id="balance">0</strong>
+          <span class="unit"> Coins</span>
 
-      <div class="referral-row">
+          <div id="balancePkr"
+               class="pkr-value">
+            ≈ PKR 0
+          </div>
 
-        <div id="myReferralCode"
-             class="referral-value">
-          —
         </div>
 
-        <button class="copy-btn"
-                onclick="window.copyReferralCode(event)">
-          Copy Code
-        </button>
+        <div class="balance-card">
 
-      </div>
+          <h3>Total Earned</h3>
 
-    </div>
+          <strong id="totalEarned">0</strong>
+          <span class="unit"> Coins</span>
 
-  </section>
+          <div id="earnedPkr"
+               class="pkr-value">
+            ≈ PKR 0
+          </div>
 
-  <!-- TASKS -->
-
-  <section id="tasks" class="section">
-
-    <h2>Tasks</h2>
-
-    <p class="section-description">
-      Complete available EarnNest tasks and receive coins.
-    </p>
-
-    <div class="earning-info">
-      <strong>📝 Task Rewards</strong>
-
-      <p>
-        Complete eligible tasks to receive the displayed reward.
-      </p>
-    </div>
-
-    <div class="item">
-      <div>
-        <h3>Daily Check-in</h3>
-        <p>Check in daily and receive your reward.</p>
-        <span class="reward">+50 Coins</span>
-      </div>
-
-      <button class="action-btn"
-              onclick="window.completeTask('task1',this,event)">
-        Complete
-      </button>
-    </div>
-
-    <div class="item">
-      <div>
-        <h3>Follow Social Page</h3>
-        <p>Visit and follow the EarnNest social page.</p>
-        <span class="reward">+100 Coins</span>
-      </div>
-
-      <button class="action-btn"
-              onclick="window.completeTask('task2',this,event)">
-        Complete
-      </button>
-    </div>
-
-    <div class="item">
-      <div>
-        <h3>Read EarnNest Guide</h3>
-        <p>Read the EarnNest earning guide.</p>
-        <span class="reward">+75 Coins</span>
-      </div>
-
-      <button class="action-btn"
-              onclick="window.completeTask('task3',this,event)">
-        Complete
-      </button>
-    </div>
-
-    <div class="item">
-      <div>
-        <h3>Complete Profile</h3>
-        <p>Make sure your profile information is complete.</p>
-        <span class="reward">+100 Coins</span>
-      </div>
-
-      <button class="action-btn"
-              onclick="window.completeTask('task4',this,event)">
-        Complete
-      </button>
-    </div>
-
-    <div class="item">
-      <div>
-        <h3>Invite a Friend</h3>
-        <p>Invite a new user using your referral code.</p>
-        <span class="reward">+150 Coins</span>
-      </div>
-
-      <button class="action-btn"
-              onclick="window.completeTask('task5',this,event)">
-        Complete
-      </button>
-    </div>
-
-    <div class="item">
-      <div>
-        <h3>Daily Learning</h3>
-        <p>Read today's short earning tip.</p>
-        <span class="reward">+50 Coins</span>
-      </div>
-
-      <button class="action-btn"
-              onclick="window.completeTask('task6',this,event)">
-        Complete
-      </button>
-    </div>
-
-    <div class="item">
-      <div>
-        <h3>App Engagement</h3>
-        <p>Visit the main EarnNest dashboard sections.</p>
-        <span class="reward">+50 Coins</span>
-      </div>
-
-      <button class="action-btn"
-              onclick="window.completeTask('task7',this,event)">
-        Complete
-      </button>
-    </div>
-
-    <div class="item">
-      <div>
-        <h3>Daily Activity</h3>
-        <p>Complete today's EarnNest activity.</p>
-        <span class="reward">+75 Coins</span>
-      </div>
-
-      <button class="action-btn"
-              onclick="window.completeTask('task8',this,event)">
-        Complete
-      </button>
-    </div>
-
-  </section>
-
-  <!-- SURVEYS -->
-
-  <section id="surveys" class="section">
-
-    <h2>Surveys</h2>
-
-    <p class="section-description">
-      Complete available surveys and receive rewards.
-    </p>
-
-    <div class="earning-info">
-      <strong>📋 Survey Rewards</strong>
-
-      <p>
-        Survey availability may change.
-      </p>
-    </div>
-
-    <div class="item">
-      <div>
-        <h3>Quick Opinion Survey</h3>
-        <p>Answer 3 quick questions.</p>
-        <span class="reward">+150 Coins</span>
-      </div>
-
-      <button class="action-btn"
-              onclick="window.completeSurvey('survey1',this,event)">
-        Start
-      </button>
-    </div>
-
-    <div class="item">
-      <div>
-        <h3>User Experience Survey</h3>
-        <p>Tell us about your EarnNest experience.</p>
-        <span class="reward">+200 Coins</span>
-      </div>
-
-      <button class="action-btn"
-              onclick="window.completeSurvey('survey2',this,event)">
-        Start
-      </button>
-    </div>
-
-    <div class="item">
-      <div>
-        <h3>Rewards Survey</h3>
-        <p>Answer questions about reward preferences.</p>
-        <span class="reward">+250 Coins</span>
-      </div>
-
-      <button class="action-btn"
-              onclick="window.completeSurvey('survey3',this,event)">
-        Start
-      </button>
-    </div>
-
-    <div class="item">
-      <div>
-        <h3>Shopping Survey</h3>
-        <p>Answer questions about shopping habits.</p>
-        <span class="reward">+300 Coins</span>
-      </div>
-
-      <button class="action-btn"
-              onclick="window.completeSurvey('survey4',this,event)">
-        Start
-      </button>
-    </div>
-
-    <div class="item">
-      <div>
-        <h3>Technology Survey</h3>
-        <p>Complete a short technology opinion survey.</p>
-        <span class="reward">+250 Coins</span>
-      </div>
-
-      <button class="action-btn"
-              onclick="window.completeSurvey('survey5',this,event)">
-        Start
-      </button>
-    </div>
-
-  </section>
-
-  <!-- WALLET -->
-
-  <section id="wallet" class="section">
-
-    <h2>Wallet & Withdrawal</h2>
-
-    <p class="section-description">
-      Request a withdrawal from your available balance.
-    </p>
-
-    <div class="conversion-box">
-      <strong>Withdrawal conversion:</strong>
-      1000 Coins = 500 PKR
-
-      <br>
-
-      <small>
-        Minimum withdrawal: 1000 Coins
-      </small>
-    </div>
-
-    <div class="withdraw-box">
-
-      <div class="form-group">
-        <label for="withdrawAmount">
-          Amount (Coins)
-        </label>
-
-        <input
-          type="number"
-          id="withdrawAmount"
-          min="1000"
-          step="1"
-          placeholder="Minimum 1000 coins"
-        >
-      </div>
-
-      <div class="form-group">
-        <label for="paymentMethod">
-          Payment Method
-        </label>
-
-        <select id="paymentMethod">
-
-          <option value="">
-            Select Method
-          </option>
-
-          <option value="easypaisa">
-            Easypaisa
-          </option>
-
-          <option value="jazzcash">
-            JazzCash
-          </option>
-
-          <option value="bank">
-            Bank Transfer
-          </option>
-
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label for="paymentAccount">
-          Account / Mobile Number
-        </label>
-
-        <input
-          type="text"
-          id="paymentAccount"
-          placeholder="Enter account details"
-        >
-      </div>
-
-      <button class="action-btn"
-              onclick="window.requestWithdrawal(event)">
-        Submit Withdrawal Request
-      </button>
-
-    </div>
-
-  </section>
-
-  <!-- REFERRAL -->
-
-  <section id="referral" class="section">
-
-    <h2>Referral Program</h2>
-
-    <p class="section-description">
-      Invite friends and earn referral rewards.
-    </p>
-
-    <div class="referral-card">
-
-      <h3>🎁 Your Referral Code</h3>
-
-      <p>
-        Share this code when your friends register.
-      </p>
-
-      <div class="referral-row">
-
-        <div id="referralCodeLarge"
-             class="referral-value">
-          —
         </div>
 
-        <button class="copy-btn"
-                onclick="window.copyReferralCode(event)">
-          Copy Code
-        </button>
+        <div class="balance-card">
+
+          <h3>Total Withdrawn</h3>
+
+          <strong id="totalWithdrawn">0</strong>
+          <span class="unit"> Coins</span>
+
+        </div>
 
       </div>
 
-    </div>
+      <!-- HOME -->
 
-    <div class="conversion-box" style="margin-top:18px;">
+      <section id="home"
+               class="section active">
 
-      <strong>Referral Rewards</strong>
+        <h2>Dashboard</h2>
 
-      <p style="margin:8px 0 0;">
-        New user gets 50 coins and the referring user gets 100 coins when a valid referral is used during registration.
-      </p>
+        <div class="earning-info">
 
-    </div>
+          <strong>💰 EarnNest Conversion</strong>
 
-  </section>
+          <p>
+            1000 Coins = 500 PKR.
+          </p>
 
-  <!-- KYC -->
+        </div>
 
-  <section id="kyc" class="section">
+        <div class="item">
 
-    <h2>KYC Verification</h2>
+          <div>
 
-    <p class="section-description">
-      Submit your identity information for verification.
-    </p>
+            <h3>Daily Reward</h3>
 
-    <div id="kycStatusBox" class="conversion-box">
-      Checking KYC status...
-    </div>
+            <p>
+              Claim your daily bonus once per day.
+            </p>
 
-    <div id="kycForm" class="kyc-box">
+            <span class="reward">
+              +50 Coins
+            </span>
 
-      <div class="earning-info">
-        <strong>🪪 Identity Verification</strong>
+          </div>
 
-        <p>
-          Enter your correct information. Your KYC request will be reviewed by the EarnNest admin.
+          <button id="dailyBonusBtn"
+                  class="action-btn success-btn"
+                  onclick="window.claimDailyBonus(event)">
+            Claim 50 Coins
+          </button>
+
+        </div>
+
+        <div class="referral-card">
+
+          <h3>🎁 Invite & Earn</h3>
+
+          <p>
+            Share your referral code with friends.
+          </p>
+
+          <div class="referral-row">
+
+            <div id="myReferralCode"
+                 class="referral-value">
+              —
+            </div>
+
+            <button class="copy-btn"
+                    onclick="window.copyReferralCode(event)">
+              Copy Code
+            </button>
+
+          </div>
+
+        </div>
+
+      </section>
+
+      <!-- TASKS -->
+
+      <section id="tasks"
+               class="section">
+
+        <h2>Tasks</h2>
+
+        <p class="section-description">
+          Complete available tasks and earn coins.
         </p>
-      </div>
 
-      <div class="form-group">
+        <div class="item">
+          <div>
+            <h3>Daily Check-in</h3>
+            <p>Check in daily.</p>
+            <span class="reward">+50 Coins</span>
+          </div>
 
-        <label for="kycFullName">
-          Full Name
-        </label>
+          <button class="action-btn"
+                  onclick="window.completeTask('task1',this,event)">
+            Complete
+          </button>
+        </div>
 
-        <input
-          type="text"
-          id="kycFullName"
-          placeholder="Enter your full name"
-          autocomplete="name"
-        >
+        <div class="item">
+          <div>
+            <h3>Follow Social Page</h3>
+            <p>Visit and follow the EarnNest social page.</p>
+            <span class="reward">+100 Coins</span>
+          </div>
 
-      </div>
+          <button class="action-btn"
+                  onclick="window.completeTask('task2',this,event)">
+            Complete
+          </button>
+        </div>
 
-      <div class="form-group">
+        <div class="item">
+          <div>
+            <h3>Read EarnNest Guide</h3>
+            <p>Read the EarnNest earning guide.</p>
+            <span class="reward">+75 Coins</span>
+          </div>
 
-        <label for="kycDocumentType">
-          Document Type
-        </label>
+          <button class="action-btn"
+                  onclick="window.completeTask('task3',this,event)">
+            Complete
+          </button>
+        </div>
 
-        <select id="kycDocumentType">
+        <div class="item">
+          <div>
+            <h3>Complete Profile</h3>
+            <p>Make sure your profile is complete.</p>
+            <span class="reward">+100 Coins</span>
+          </div>
 
-          <option value="CNIC">
-            CNIC
-          </option>
+          <button class="action-btn"
+                  onclick="window.completeTask('task4',this,event)">
+            Complete
+          </button>
+        </div>
 
-          <option value="Passport">
-            Passport
-          </option>
+        <div class="item">
+          <div>
+            <h3>Invite a Friend</h3>
+            <p>Invite a new user using your referral code.</p>
+            <span class="reward">+150 Coins</span>
+          </div>
 
-          <option value="Driving License">
-            Driving License
-          </option>
+          <button class="action-btn"
+                  onclick="window.completeTask('task5',this,event)">
+            Complete
+          </button>
+        </div>
 
-        </select>
+        <div class="item">
+          <div>
+            <h3>Daily Learning</h3>
+            <p>Read today's earning tip.</p>
+            <span class="reward">+50 Coins</span>
+          </div>
 
-      </div>
+          <button class="action-btn"
+                  onclick="window.completeTask('task6',this,event)">
+            Complete
+          </button>
+        </div>
 
-      <div class="form-group">
+        <div class="item">
+          <div>
+            <h3>App Engagement</h3>
+            <p>Visit EarnNest dashboard sections.</p>
+            <span class="reward">+50 Coins</span>
+          </div>
 
-        <label for="kycDocumentNumber">
-          CNIC / Document Number
-        </label>
+          <button class="action-btn"
+                  onclick="window.completeTask('task7',this,event)">
+            Complete
+          </button>
+        </div>
 
-        <input
-          type="text"
-          id="kycDocumentNumber"
-          placeholder="Enter document number"
-        >
+        <div class="item">
+          <div>
+            <h3>Daily Activity</h3>
+            <p>Complete today's EarnNest activity.</p>
+            <span class="reward">+75 Coins</span>
+          </div>
 
-      </div>
+          <button class="action-btn"
+                  onclick="window.completeTask('task8',this,event)">
+            Complete
+          </button>
+        </div>
 
-      <div class="form-group">
+      </section>
 
-        <label for="kycDocumentUrl">
-          Document Image URL
-        </label>
+      <!-- SURVEYS -->
 
-        <input
-          type="url"
-          id="kycDocumentUrl"
-          placeholder="https://example.com/document.jpg"
-        >
+      <section id="surveys"
+               class="section">
 
-        <small style="display:block;margin-top:6px;color:#64748b;">
-          Enter the image URL of your document.
-        </small>
+        <h2>Surveys</h2>
 
-      </div>
+        <p class="section-description">
+          Complete available surveys and earn coins.
+        </p>
 
-      <button
-        id="kycSubmitBtn"
-        type="button"
-        class="action-btn"
-        onclick="window.submitKyc(event)"
-      >
-        Submit KYC
-      </button>
+        <div class="item">
+
+          <div>
+            <h3>Quick Opinion Survey</h3>
+            <p>Answer a few quick questions.</p>
+            <span class="reward">+150 Coins</span>
+          </div>
+
+          <button class="action-btn"
+                  onclick="window.completeSurvey('survey1',this,event)">
+            Start
+          </button>
+
+        </div>
+
+        <div class="item">
+
+          <div>
+            <h3>User Experience Survey</h3>
+            <p>Tell us about your experience.</p>
+            <span class="reward">+200 Coins</span>
+          </div>
+
+          <button class="action-btn"
+                  onclick="window.completeSurvey('survey2',this,event)">
+            Start
+          </button>
+
+        </div>
+
+        <div class="item">
+
+          <div>
+            <h3>Rewards Survey</h3>
+            <p>Answer questions about rewards.</p>
+            <span class="reward">+250 Coins</span>
+          </div>
+
+          <button class="action-btn"
+                  onclick="window.completeSurvey('survey3',this,event)">
+            Start
+          </button>
+
+        </div>
+
+        <div class="item">
+
+          <div>
+            <h3>Shopping Survey</h3>
+            <p>Answer questions about shopping.</p>
+            <span class="reward">+300 Coins</span>
+          </div>
+
+          <button class="action-btn"
+                  onclick="window.completeSurvey('survey4',this,event)">
+            Start
+          </button>
+
+        </div>
+
+        <div class="item">
+
+          <div>
+            <h3>Technology Survey</h3>
+            <p>Complete a technology opinion survey.</p>
+            <span class="reward">+250 Coins</span>
+          </div>
+
+          <button class="action-btn"
+                  onclick="window.completeSurvey('survey5',this,event)">
+            Start
+          </button>
+
+        </div>
+
+      </section>
+
+      <!-- WALLET -->
+
+      <section id="wallet"
+               class="section">
+
+        <h2>Wallet & Withdrawal</h2>
+
+        <p class="section-description">
+          Request a withdrawal from your available balance.
+        </p>
+
+        <div class="conversion-box">
+
+          <strong>
+            Withdrawal conversion:
+          </strong>
+
+          1000 Coins = 500 PKR
+
+          <br>
+
+          <small>
+            Minimum withdrawal: 1000 Coins
+          </small>
+
+        </div>
+
+        <div class="form-box">
+
+          <div class="form-group">
+
+            <label for="withdrawAmount">
+              Amount (Coins)
+            </label>
+
+            <input
+              type="number"
+              id="withdrawAmount"
+              min="1000"
+              placeholder="Minimum 1000 coins"
+            >
+
+          </div>
+
+          <div class="form-group">
+
+            <label for="paymentMethod">
+              Payment Method
+            </label>
+
+            <select id="paymentMethod">
+
+              <option value="">
+                Select Method
+              </option>
+
+              <option value="easypaisa">
+                Easypaisa
+              </option>
+
+              <option value="jazzcash">
+                JazzCash
+              </option>
+
+              <option value="bank">
+                Bank Transfer
+              </option>
+
+            </select>
+
+          </div>
+
+          <div class="form-group">
+
+            <label for="paymentAccount">
+              Account / Mobile Number
+            </label>
+
+            <input
+              type="text"
+              id="paymentAccount"
+              placeholder="Enter account details"
+            >
+
+          </div>
+
+          <button class="action-btn"
+                  onclick="window.requestWithdrawal(event)">
+            Submit Withdrawal Request
+          </button>
+
+        </div>
+
+      </section>
+
+      <!-- REFERRAL -->
+
+      <section id="referral"
+               class="section">
+
+        <h2>Referral Program</h2>
+
+        <p class="section-description">
+          Invite friends and earn referral rewards.
+        </p>
+
+        <div class="referral-card">
+
+          <h3>
+            🎁 Your Referral Code
+          </h3>
+
+          <p>
+            Share this code when your friends register.
+          </p>
+
+          <div class="referral-row">
+
+            <div id="referralCodeLarge"
+                 class="referral-value">
+              —
+            </div>
+
+            <button class="copy-btn"
+                    onclick="window.copyReferralCode(event)">
+              Copy Code
+            </button>
+
+          </div>
+
+        </div>
+
+        <div class="conversion-box"
+             style="margin-top:18px;">
+
+          <strong>
+            Referral Rewards
+          </strong>
+
+          <p style="margin:7px 0 0;">
+            New user gets 50 coins and the referring user gets 100 coins when a valid referral code is used during registration.
+          </p>
+
+        </div>
+
+      </section>
+
+      <!-- KYC -->
+
+      <section id="kyc"
+               class="section">
+
+        <h2>KYC Verification</h2>
+
+        <p class="section-description">
+          Complete identity verification when KYC is required.
+        </p>
+
+        <div id="kycStatusBox"
+             class="kyc-status none">
+          Checking KYC status...
+        </div>
+
+        <div id="kycForm"
+             class="form-box">
+
+          <div class="earning-info">
+
+            <strong>
+              🪪 Identity Verification
+            </strong>
+
+            <p>
+              Please enter your correct information. Your KYC request will be reviewed by the EarnNest admin.
+            </p>
+
+          </div>
+
+          <div class="form-group">
+
+            <label for="kycFullName">
+              Full Name
+            </label>
+
+            <input
+              type="text"
+              id="kycFullName"
+              placeholder="Enter your full name"
+              autocomplete="name"
+            >
+
+          </div>
+
+          <div class="form-group">
+
+            <label for="kycDocumentType">
+              Document Type
+            </label>
+
+            <select id="kycDocumentType">
+
+              <option value="CNIC">
+                CNIC
+              </option>
+
+              <option value="Passport">
+                Passport
+              </option>
+
+              <option value="Driving License">
+                Driving License
+              </option>
+
+            </select>
+
+          </div>
+
+          <div class="form-group">
+
+            <label for="kycDocumentNumber">
+              CNIC / Document Number
+            </label>
+
+            <input
+              type="text"
+              id="kycDocumentNumber"
+              placeholder="Enter document number"
+              autocomplete="off"
+            >
+
+          </div>
+
+          <button
+            id="kycSubmitBtn"
+            type="button"
+            class="action-btn"
+            onclick="window.submitKyc(event)">
+            Submit KYC
+          </button>
+
+        </div>
+
+      </section>
+
+      <!-- PROFILE -->
+
+      <section id="profile"
+               class="section">
+
+        <h2>Profile Details</h2>
+
+        <div class="profile-row">
+          <span class="profile-label">Name</span>
+          <span id="profileName"
+                class="profile-value">—</span>
+        </div>
+
+        <div class="profile-row">
+          <span class="profile-label">Username</span>
+          <span id="profileUsername"
+                class="profile-value">—</span>
+        </div>
+
+        <div class="profile-row">
+          <span class="profile-label">Email</span>
+          <span id="profileEmail"
+                class="profile-value">—</span>
+        </div>
+
+        <div class="profile-row">
+          <span class="profile-label">Phone</span>
+          <span id="profilePhone"
+                class="profile-value">—</span>
+        </div>
+
+        <div class="profile-row">
+          <span class="profile-label">Referral Code</span>
+          <span id="profileRef"
+                class="profile-value">—</span>
+        </div>
+
+        <div class="profile-row">
+          <span class="profile-label">Account Role</span>
+          <span id="profileRole"
+                class="profile-value">user</span>
+        </div>
+
+      </section>
 
     </div>
 
-  </section>
+  </main>
 
-  <!-- PROFILE -->
-
-  <section id="profile" class="section">
-
-    <h2>Profile Details</h2>
-
-    <div class="profile-row">
-      <span class="profile-label">Name</span>
-      <span id="profileName" class="profile-value">—</span>
-    </div>
-
-    <div class="profile-row">
-      <span class="profile-label">Username</span>
-      <span id="profileUsername" class="profile-value">—</span>
-    </div>
-
-    <div class="profile-row">
-      <span class="profile-label">Email</span>
-      <span id="profileEmail" class="profile-value">—</span>
-    </div>
-
-    <div class="profile-row">
-      <span class="profile-label">Phone</span>
-      <span id="profilePhone" class="profile-value">—</span>
-    </div>
-
-    <div class="profile-row">
-      <span class="profile-label">Referral Code</span>
-      <span id="profileRef" class="profile-value">—</span>
-    </div>
-
-    <div class="profile-row">
-      <span class="profile-label">Account Role</span>
-      <span id="profileRole" class="profile-value">user</span>
-    </div>
-
-  </section>
-
-</div>
-</div>
-
-<div id="toast"></div>
-
-<div class="watermark">E</div>
+  <div id="toast"></div>
 
 <script>
 'use strict';
 
-/* ================================
+/* =========================
    CONFIG
-================================ */
+========================= */
 
 const API_BASE =
   window.EARNNEST_API || '/api';
@@ -1271,9 +1276,9 @@ const COINS_PER_PKR = 2;
 let currentUser = null;
 
 
-/* ================================
+/* =========================
    SESSION
-================================ */
+========================= */
 
 function getCurrentUser() {
 
@@ -1282,11 +1287,11 @@ function getCurrentUser() {
     const raw =
       localStorage.getItem('earnnest_user');
 
-    return raw ? JSON.parse(raw) : null;
+    return raw
+      ? JSON.parse(raw)
+      : null;
 
   } catch (error) {
-
-    console.error('User session error:', error);
 
     return null;
   }
@@ -1307,10 +1312,7 @@ function requireLogin() {
   currentUser =
     getCurrentUser();
 
-  const token =
-    getToken();
-
-  if (!currentUser || !token) {
+  if (!currentUser || !getToken()) {
 
     window.location.href =
       '/index.html';
@@ -1322,9 +1324,9 @@ function requireLogin() {
 }
 
 
-/* ================================
-   API HELPER
-================================ */
+/* =========================
+   API
+========================= */
 
 async function apiRequest(body) {
 
@@ -1332,25 +1334,30 @@ async function apiRequest(body) {
     getToken();
 
   const response =
-    await fetch(
-      API_BASE,
-      {
-        method: 'POST',
+    await fetch(API_BASE, {
 
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + token
-        },
+      method: 'POST',
 
-        body: JSON.stringify(body)
-      }
-    );
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization':
+          'Bearer ' + token
+      },
+
+      body:
+        JSON.stringify(body)
+
+    });
 
   let data = {};
 
   try {
-    data = await response.json();
+
+    data =
+      await response.json();
+
   } catch (error) {
+
     data = {};
   }
 
@@ -1367,7 +1374,7 @@ async function apiRequest(body) {
 
     throw new Error(
       data.message ||
-      'Request failed. Please try again.'
+      'Request failed.'
     );
   }
 
@@ -1375,97 +1382,9 @@ async function apiRequest(body) {
 }
 
 
-/* ================================
-   PKR
-================================ */
-
-function coinsToPKR(coins) {
-
-  return (
-    Number(coins || 0) /
-    COINS_PER_PKR
-  ).toLocaleString(
-    'en-PK',
-    {
-      maximumFractionDigits: 0
-    }
-  );
-
-}
-
-
-function updateBalanceDisplay(
-  balance,
-  totalEarned,
-  totalWithdrawn
-) {
-
-  balance =
-    Number(balance || 0);
-
-  totalEarned =
-    Number(totalEarned || 0);
-
-  totalWithdrawn =
-    Number(totalWithdrawn || 0);
-
-  const balanceEl =
-    document.getElementById('balance');
-
-  const earnedEl =
-    document.getElementById('totalEarned');
-
-  const withdrawnEl =
-    document.getElementById('totalWithdrawn');
-
-  if (balanceEl)
-    balanceEl.textContent = balance;
-
-  if (earnedEl)
-    earnedEl.textContent = totalEarned;
-
-  if (withdrawnEl)
-    withdrawnEl.textContent = totalWithdrawn;
-
-  const balancePkr =
-    document.getElementById('balancePkr');
-
-  const earnedPkr =
-    document.getElementById('earnedPkr');
-
-  if (balancePkr)
-    balancePkr.textContent =
-      '≈ PKR ' + coinsToPKR(balance);
-
-  if (earnedPkr)
-    earnedPkr.textContent =
-      '≈ PKR ' + coinsToPKR(totalEarned);
-
-  if (currentUser) {
-
-    currentUser.balance =
-      balance;
-
-    currentUser.coins =
-      balance;
-
-    currentUser.totalEarned =
-      totalEarned;
-
-    currentUser.totalWithdrawn =
-      totalWithdrawn;
-
-    localStorage.setItem(
-      'earnnest_user',
-      JSON.stringify(currentUser)
-    );
-  }
-}
-
-
-/* ================================
-   USER INFO
-================================ */
+/* =========================
+   USER
+========================= */
 
 function loadUserInfo() {
 
@@ -1543,14 +1462,93 @@ function loadUserInfo() {
 }
 
 
-/* ================================
+/* =========================
+   BALANCE
+========================= */
+
+function coinsToPKR(coins) {
+
+  return (
+    Number(coins || 0) /
+    COINS_PER_PKR
+  ).toLocaleString(
+    'en-PK',
+    {
+      maximumFractionDigits: 0
+    }
+  );
+}
+
+
+function updateBalanceDisplay(
+  balance,
+  totalEarned,
+  totalWithdrawn
+) {
+
+  balance =
+    Number(balance || 0);
+
+  totalEarned =
+    Number(totalEarned || 0);
+
+  totalWithdrawn =
+    Number(totalWithdrawn || 0);
+
+  document.getElementById(
+    'balance'
+  ).textContent =
+    balance;
+
+  document.getElementById(
+    'totalEarned'
+  ).textContent =
+    totalEarned;
+
+  document.getElementById(
+    'totalWithdrawn'
+  ).textContent =
+    totalWithdrawn;
+
+  document.getElementById(
+    'balancePkr'
+  ).textContent =
+    '≈ PKR ' +
+    coinsToPKR(balance);
+
+  document.getElementById(
+    'earnedPkr'
+  ).textContent =
+    '≈ PKR ' +
+    coinsToPKR(totalEarned);
+
+  if (currentUser) {
+
+    currentUser.balance =
+      balance;
+
+    currentUser.coins =
+      balance;
+
+    currentUser.totalEarned =
+      totalEarned;
+
+    currentUser.totalWithdrawn =
+      totalWithdrawn;
+
+    localStorage.setItem(
+      'earnnest_user',
+      JSON.stringify(currentUser)
+    );
+  }
+}
+
+
+/* =========================
    WALLET
-================================ */
+========================= */
 
 async function refreshWallet() {
-
-  if (!getToken())
-    return;
 
   try {
 
@@ -1571,16 +1569,16 @@ async function refreshWallet() {
   } catch (error) {
 
     console.error(
-      'Wallet refresh error:',
+      'Wallet error:',
       error
     );
   }
 }
 
 
-/* ================================
+/* =========================
    NAVIGATION
-================================ */
+========================= */
 
 window.showSection =
 function(sectionId, element, event) {
@@ -1593,23 +1591,41 @@ function(sectionId, element, event) {
   document
     .querySelectorAll('.section')
     .forEach(function(section) {
-      section.classList.remove('active');
+
+      section.classList.remove(
+        'active'
+      );
+
     });
 
   const target =
-    document.getElementById(sectionId);
+    document.getElementById(
+      sectionId
+    );
 
-  if (target)
-    target.classList.add('active');
+  if (target) {
+
+    target.classList.add(
+      'active'
+    );
+  }
 
   document
     .querySelectorAll('.nav button')
     .forEach(function(button) {
-      button.classList.remove('active');
+
+      button.classList.remove(
+        'active'
+      );
+
     });
 
-  if (element)
-    element.classList.add('active');
+  if (element) {
+
+    element.classList.add(
+      'active'
+    );
+  }
 
   window.closeMobileMenu();
 };
@@ -1623,17 +1639,13 @@ function(event) {
     event.stopPropagation();
   }
 
-  const sidebar =
-    document.getElementById('sidebar');
+  document
+    .getElementById('sidebar')
+    .classList.toggle('open');
 
-  const overlay =
-    document.getElementById('sidebarOverlay');
-
-  if (!sidebar || !overlay)
-    return;
-
-  sidebar.classList.toggle('open');
-  overlay.classList.toggle('show');
+  document
+    .getElementById('sidebarOverlay')
+    .classList.toggle('show');
 };
 
 
@@ -1645,32 +1657,25 @@ function(event) {
     event.stopPropagation();
   }
 
-  const sidebar =
-    document.getElementById('sidebar');
+  document
+    .getElementById('sidebar')
+    .classList.remove('open');
 
-  const overlay =
-    document.getElementById('sidebarOverlay');
-
-  if (sidebar)
-    sidebar.classList.remove('open');
-
-  if (overlay)
-    overlay.classList.remove('show');
+  document
+    .getElementById('sidebarOverlay')
+    .classList.remove('show');
 };
 
 
-/* ================================
+/* =========================
    TOAST
-================================ */
+========================= */
 
 window.toast =
 function(message, isError = false) {
 
   const box =
     document.getElementById('toast');
-
-  if (!box)
-    return;
 
   box.textContent =
     message;
@@ -1691,40 +1696,34 @@ function(message, isError = false) {
       box.style.display =
         'none';
 
-    },3500);
+    }, 3500);
 };
 
 
-/* ================================
-   REWARDS
-================================ */
+/* =========================
+   TASKS / SURVEYS
+========================= */
 
 async function claimReward(
   rewardType,
   rewardId,
-  btn
+  button
 ) {
 
-  if (!btn)
+  if (!button)
     return;
 
-  if (!getToken()) {
-
-    window.location.href =
-      '/index.html';
-
-    return;
-  }
-
-  btn.disabled = true;
-  btn.textContent = 'Processing...';
+  button.disabled = true;
+  button.textContent =
+    'Processing...';
 
   try {
 
     const data =
       await apiRequest({
 
-        action: 'claim_reward',
+        action:
+          'claim_reward',
 
         rewardType:
           rewardType,
@@ -1740,33 +1739,26 @@ async function claimReward(
     updateBalanceDisplay(
       wallet.balance || 0,
       wallet.totalEarned || 0,
-      wallet.totalWithdrawn ||
-        currentUser?.totalWithdrawn ||
-        0
+      wallet.totalWithdrawn || 0
     );
 
-    btn.textContent =
+    button.textContent =
       'Completed';
 
-    btn.classList.add(
+    button.classList.add(
       'success-btn'
     );
 
     window.toast(
       data.message ||
-      'Coins added successfully!'
+      'Reward added successfully!'
     );
 
   } catch (error) {
 
-    console.error(
-      'Reward error:',
-      error
-    );
+    button.disabled = false;
 
-    btn.disabled = false;
-
-    btn.textContent =
+    button.textContent =
       rewardType === 'survey'
         ? 'Start'
         : 'Complete';
@@ -1781,7 +1773,7 @@ async function claimReward(
 
 
 window.completeTask =
-function(taskId, btn, event) {
+function(taskId, button, event) {
 
   if (event)
     event.preventDefault();
@@ -1789,13 +1781,13 @@ function(taskId, btn, event) {
   claimReward(
     'task',
     taskId,
-    btn
+    button
   );
 };
 
 
 window.completeSurvey =
-function(surveyId, btn, event) {
+function(surveyId, button, event) {
 
   if (event)
     event.preventDefault();
@@ -1803,14 +1795,14 @@ function(surveyId, btn, event) {
   claimReward(
     'survey',
     surveyId,
-    btn
+    button
   );
 };
 
 
-/* ================================
+/* =========================
    DAILY BONUS
-================================ */
+========================= */
 
 window.claimDailyBonus =
 async function(event) {
@@ -1818,16 +1810,14 @@ async function(event) {
   if (event)
     event.preventDefault();
 
-  const btn =
+  const button =
     document.getElementById(
       'dailyBonusBtn'
     );
 
-  if (!btn)
-    return;
-
-  btn.disabled = true;
-  btn.textContent = 'Processing...';
+  button.disabled = true;
+  button.textContent =
+    'Processing...';
 
   try {
 
@@ -1842,24 +1832,22 @@ async function(event) {
     updateBalanceDisplay(
       wallet.balance || 0,
       wallet.totalEarned || 0,
-      wallet.totalWithdrawn ||
-        currentUser?.totalWithdrawn ||
-        0
+      wallet.totalWithdrawn || 0
     );
 
-    btn.textContent =
+    button.textContent =
       'Claimed';
 
     window.toast(
       data.message ||
-      '50 coins added successfully!'
+      'Daily bonus claimed!'
     );
 
   } catch (error) {
 
-    btn.disabled = false;
+    button.disabled = false;
 
-    btn.textContent =
+    button.textContent =
       'Claim 50 Coins';
 
     window.toast(
@@ -1871,9 +1859,9 @@ async function(event) {
 };
 
 
-/* ================================
+/* =========================
    WITHDRAWAL
-================================ */
+========================= */
 
 window.requestWithdrawal =
 async function(event) {
@@ -1888,7 +1876,7 @@ async function(event) {
       ).value
     );
 
-  const method =
+  const paymentMethod =
     document.getElementById(
       'paymentMethod'
     ).value;
@@ -1901,14 +1889,14 @@ async function(event) {
   if (!amount || amount < 1000) {
 
     window.toast(
-      'Minimum withdrawal is 1000 coins (500 PKR).',
+      'Minimum withdrawal is 1000 coins.',
       true
     );
 
     return;
   }
 
-  if (!method) {
+  if (!paymentMethod) {
 
     window.toast(
       'Please select a payment method.',
@@ -1921,7 +1909,7 @@ async function(event) {
   if (!account) {
 
     window.toast(
-      'Please enter your account/mobile number.',
+      'Please enter your account details.',
       true
     );
 
@@ -1932,20 +1920,22 @@ async function(event) {
     event.currentTarget;
 
   button.disabled = true;
-  button.textContent = 'Submitting...';
+  button.textContent =
+    'Submitting...';
 
   try {
 
     const data =
       await apiRequest({
 
-        action: 'withdraw',
+        action:
+          'withdraw',
 
         amount:
           amount,
 
         paymentMethod:
-          method,
+          paymentMethod,
 
         account:
           account
@@ -1958,9 +1948,7 @@ async function(event) {
     updateBalanceDisplay(
       wallet.balance || 0,
       wallet.totalEarned || 0,
-      wallet.totalWithdrawn ||
-        currentUser?.totalWithdrawn ||
-        0
+      wallet.totalWithdrawn || 0
     );
 
     document.getElementById(
@@ -1977,7 +1965,7 @@ async function(event) {
 
     window.toast(
       data.message ||
-      'Withdrawal request submitted successfully!'
+      'Withdrawal request submitted!'
     );
 
   } catch (error) {
@@ -1991,15 +1979,16 @@ async function(event) {
   } finally {
 
     button.disabled = false;
+
     button.textContent =
       'Submit Withdrawal Request';
   }
 };
 
 
-/* ================================
+/* =========================
    REFERRAL
-================================ */
+========================= */
 
 window.copyReferralCode =
 async function(event) {
@@ -2008,12 +1997,9 @@ async function(event) {
     event.preventDefault();
 
   const code =
-    currentUser?.referralCode ||
-    document.getElementById(
-      'myReferralCode'
-    ).textContent;
+    currentUser?.referralCode || '';
 
-  if (!code || code === '—') {
+  if (!code) {
 
     window.toast(
       'Referral code is not available.',
@@ -2043,14 +2029,14 @@ async function(event) {
 };
 
 
-/* ================================
+/* =========================
    KYC STATUS
-================================ */
+========================= */
 
 window.loadKycStatus =
 async function() {
 
-  const box =
+  const statusBox =
     document.getElementById(
       'kycStatusBox'
     );
@@ -2060,10 +2046,13 @@ async function() {
       'kycForm'
     );
 
-  if (!box)
+  if (!statusBox)
     return;
 
-  box.innerHTML =
+  statusBox.className =
+    'kyc-status none';
+
+  statusBox.textContent =
     'Checking KYC status...';
 
   try {
@@ -2078,14 +2067,16 @@ async function() {
 
     if (!kyc) {
 
-      box.innerHTML =
-        '<strong>KYC Status: Not Submitted</strong>' +
-        '<p style="margin:6px 0 0;">' +
-        'Please complete the form below.' +
-        '</p>';
+      statusBox.className =
+        'kyc-status none';
 
-      if (form)
-        form.style.display = 'block';
+      statusBox.innerHTML =
+        '<strong>KYC Status: Not Submitted</strong>' +
+        '<br>' +
+        '<small>Please complete the form below.</small>';
+
+      form.style.display =
+        'block';
 
       return;
     }
@@ -2097,51 +2088,53 @@ async function() {
 
     if (status === 'approved') {
 
-      box.innerHTML =
-        '<strong style="color:#15803d;">' +
-        '✅ KYC Approved' +
-        '</strong>' +
-        '<p style="margin:6px 0 0;">' +
-        'Your identity verification has been approved.' +
-        '</p>';
+      statusBox.className =
+        'kyc-status approved';
 
-      if (form)
-        form.style.display = 'none';
+      statusBox.innerHTML =
+        '<strong>✅ KYC Approved</strong>' +
+        '<br>' +
+        '<small>Your identity verification has been approved.</small>';
+
+      form.style.display =
+        'none';
 
       return;
     }
 
     if (status === 'rejected') {
 
+      statusBox.className =
+        'kyc-status rejected';
+
       const note =
         kyc.adminNote ||
         kyc.admin_note ||
-        'Your KYC was rejected. Please submit again with correct information.';
+        'Your KYC was rejected. Please submit again.';
 
-      box.innerHTML =
-        '<strong style="color:#dc2626;">' +
-        '❌ KYC Rejected' +
-        '</strong>' +
-        '<p style="margin:6px 0 0;">' +
+      statusBox.innerHTML =
+        '<strong>❌ KYC Rejected</strong>' +
+        '<br>' +
+        '<small>' +
         escapeHtml(note) +
-        '</p>';
+        '</small>';
 
-      if (form)
-        form.style.display = 'block';
+      form.style.display =
+        'block';
 
       return;
     }
 
-    box.innerHTML =
-      '<strong style="color:#ca8a04;">' +
-      '⏳ KYC Pending' +
-      '</strong>' +
-      '<p style="margin:6px 0 0;">' +
-      'Your KYC request is waiting for admin review.' +
-      '</p>';
+    statusBox.className =
+      'kyc-status pending';
 
-    if (form)
-      form.style.display = 'none';
+    statusBox.innerHTML =
+      '<strong>⏳ KYC Pending</strong>' +
+      '<br>' +
+      '<small>Your KYC request is waiting for admin review.</small>';
+
+    form.style.display =
+      'none';
 
   } catch (error) {
 
@@ -2150,23 +2143,28 @@ async function() {
       error
     );
 
-    box.innerHTML =
-      '<strong style="color:#dc2626;">' +
-      'KYC status could not be loaded.' +
-      '</strong>' +
-      '<p style="margin:6px 0 0;">' +
+    statusBox.className =
+      'kyc-status rejected';
+
+    statusBox.innerHTML =
+      '<strong>KYC status could not be loaded.</strong>' +
+      '<br>' +
+      '<small>' +
       escapeHtml(
         error.message ||
         'Request failed.'
       ) +
-      '</p>';
+      '</small>';
+
+    form.style.display =
+      'block';
   }
 };
 
 
-/* ================================
+/* =========================
    SUBMIT KYC
-================================ */
+========================= */
 
 window.submitKyc =
 async function(event) {
@@ -2189,12 +2187,7 @@ async function(event) {
       'kycDocumentNumber'
     ).value.trim();
 
-  const documentUrl =
-    document.getElementById(
-      'kycDocumentUrl'
-    ).value.trim();
-
-  const btn =
+  const button =
     document.getElementById(
       'kycSubmitBtn'
     );
@@ -2219,24 +2212,17 @@ async function(event) {
     return;
   }
 
-  if (!documentUrl) {
-
-    window.toast(
-      'Please enter your document image URL.',
-      true
-    );
-
-    return;
-  }
-
-  if (btn) {
-
-    btn.disabled = true;
-    btn.textContent = 'Submitting...';
-
-  }
+  button.disabled = true;
+  button.textContent =
+    'Submitting...';
 
   try {
+
+    /*
+      IMPORTANT:
+      No Document Image URL is sent.
+      Only these three KYC fields are sent.
+    */
 
     const data =
       await apiRequest({
@@ -2251,10 +2237,7 @@ async function(event) {
           documentType,
 
         documentNumber:
-          documentNumber,
-
-        documentUrl:
-          documentUrl
+          documentNumber
 
       });
 
@@ -2280,35 +2263,32 @@ async function(event) {
 
   } finally {
 
-    if (btn) {
+    button.disabled = false;
 
-      btn.disabled = false;
-      btn.textContent =
-        'Submit KYC';
-
-    }
+    button.textContent =
+      'Submit KYC';
   }
 };
 
 
-/* ================================
+/* =========================
    HTML ESCAPE
-================================ */
+========================= */
 
 function escapeHtml(value) {
 
   return String(value || '')
-    .replace(/&/g,'&amp;')
-    .replace(/</g,'&lt;')
-    .replace(/>/g,'&gt;')
-    .replace(/"/g,'&quot;')
-    .replace(/'/g,'&#039;');
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
 }
 
 
-/* ================================
+/* =========================
    LOGOUT
-================================ */
+========================= */
 
 window.logout =
 function(event) {
@@ -2333,9 +2313,9 @@ function(event) {
 };
 
 
-/* ================================
+/* =========================
    START
-================================ */
+========================= */
 
 document.addEventListener(
   'DOMContentLoaded',
