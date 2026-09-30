@@ -76,7 +76,7 @@
     }
 
     .container {
-      max-width: 1250px;
+      max-width: 1400px;
       margin: 30px auto;
       padding: 0 20px;
     }
@@ -144,7 +144,7 @@
     table {
       width: 100%;
       border-collapse: collapse;
-      min-width: 750px;
+      min-width: 900px;
     }
 
     th,
@@ -196,6 +196,13 @@
       margin-bottom: 5px;
     }
 
+    .view {
+      background: #2563eb;
+      color: white;
+      margin-right: 5px;
+      margin-bottom: 5px;
+    }
+
     .status {
       margin-bottom: 20px;
       padding: 12px;
@@ -218,6 +225,42 @@
       border-radius: 10px;
       margin-bottom: 15px;
       line-height: 1.5;
+    }
+
+    .ref-code {
+      display: inline-block;
+      background: #f3f4f6;
+      padding: 5px 8px;
+      border-radius: 6px;
+      font-family: monospace;
+      font-weight: bold;
+    }
+
+    .kyc-details {
+      background: #f9fafb;
+      border-radius: 10px;
+      padding: 15px;
+      margin-top: 10px;
+      line-height: 1.7;
+      display: none;
+    }
+
+    .kyc-details strong {
+      color: #111827;
+    }
+
+    .document-link {
+      display: inline-block;
+      margin: 5px 5px 5px 0;
+      padding: 7px 10px;
+      background: #e5e7eb;
+      color: #111827;
+      border-radius: 6px;
+      text-decoration: none;
+    }
+
+    .document-link:hover {
+      background: #d1d5db;
     }
 
     @media (max-width: 1100px) {
@@ -287,6 +330,7 @@
 
 </header>
 
+
 <main class="container">
 
   <!-- WELCOME -->
@@ -303,12 +347,14 @@
 
   </div>
 
+
   <!-- STATUS -->
 
   <div
     id="status"
     class="status"
   ></div>
+
 
   <!-- STATISTICS -->
 
@@ -329,6 +375,7 @@
 
     </div>
 
+
     <div class="card">
 
       <div class="stat-title">
@@ -343,6 +390,7 @@
       </div>
 
     </div>
+
 
     <div class="card">
 
@@ -359,6 +407,7 @@
 
     </div>
 
+
     <div class="card">
 
       <div class="stat-title">
@@ -373,6 +422,7 @@
       </div>
 
     </div>
+
 
     <div class="card">
 
@@ -391,6 +441,7 @@
 
   </div>
 
+
   <!-- USERS -->
 
   <section class="section">
@@ -398,6 +449,14 @@
     <h2>
       Users
     </h2>
+
+    <div class="info-box">
+
+      Yahan registered users,
+      referral codes aur referral information
+      dekhi ja sakti hai.
+
+    </div>
 
     <button
       class="refresh"
@@ -415,11 +474,20 @@
           <tr>
 
             <th>Name</th>
+
             <th>Username</th>
+
             <th>Email</th>
+
             <th>Phone</th>
+
             <th>Role</th>
+
             <th>Coins</th>
+
+            <th>Referral Code</th>
+
+            <th>Referred By</th>
 
           </tr>
 
@@ -430,7 +498,7 @@
           <tr>
 
             <td
-              colspan="6"
+              colspan="8"
               class="empty"
             >
               Loading users...
@@ -446,6 +514,78 @@
 
   </section>
 
+
+  <!-- KYC -->
+
+  <section class="section">
+
+    <h2>
+      KYC Verification
+    </h2>
+
+    <div class="info-box">
+
+      Users ki KYC requests yahan show hongi.
+      Admin documents dekh kar request approve
+      ya reject kar sakta hai.
+
+    </div>
+
+    <button
+      class="refresh"
+      onclick="loadKyc()"
+    >
+      Refresh KYC
+    </button>
+
+    <div class="table-wrapper">
+
+      <table>
+
+        <thead>
+
+          <tr>
+
+            <th>User</th>
+
+            <th>Email</th>
+
+            <th>CNIC / ID</th>
+
+            <th>Status</th>
+
+            <th>Submitted</th>
+
+            <th>Documents</th>
+
+            <th>Action</th>
+
+          </tr>
+
+        </thead>
+
+        <tbody id="kycTable">
+
+          <tr>
+
+            <td
+              colspan="7"
+              class="empty"
+            >
+              Loading KYC requests...
+            </td>
+
+          </tr>
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+  </section>
+
+
   <!-- WITHDRAWALS -->
 
   <section class="section">
@@ -456,10 +596,8 @@
 
     <div class="info-box">
 
-      Users submit withdrawal requests from their wallet.
-      Admin can review each request and approve or reject it.
-      Approved requests should then be paid to the user's
-      selected payment account.
+      Users withdrawal requests yahan show hongi.
+      Admin request approve ya reject kar sakta hai.
 
     </div>
 
@@ -479,11 +617,17 @@
           <tr>
 
             <th>User</th>
+
             <th>Amount</th>
+
             <th>Payment Method</th>
+
             <th>Account</th>
+
             <th>Status</th>
+
             <th>Date</th>
+
             <th>Action</th>
 
           </tr>
@@ -513,11 +657,12 @@
 
 </main>
 
+
 <script>
 
-/* =========================
-   GET USER
-========================= */
+/* =========================================================
+   USER
+========================================================= */
 
 function getUser() {
 
@@ -538,9 +683,9 @@ function getUser() {
 }
 
 
-/* =========================
-   GET TOKEN
-========================= */
+/* =========================================================
+   TOKEN
+========================================================= */
 
 function getToken() {
 
@@ -551,13 +696,14 @@ function getToken() {
 }
 
 
-/* =========================
-   AUTH CHECK
-========================= */
+/* =========================================================
+   ADMIN CHECK
+========================================================= */
 
 async function checkAdmin() {
 
   const user = getUser();
+
   const token = getToken();
 
   if (!user || !token) {
@@ -568,7 +714,9 @@ async function checkAdmin() {
 
   }
 
-  if (user.role !== "admin") {
+  if (
+    user.role !== "admin"
+  ) {
 
     alert(
       "Admin access required."
@@ -584,7 +732,10 @@ async function checkAdmin() {
     "adminName"
   ).textContent =
     "Welcome, " +
-    (user.name || "Admin");
+    (
+      user.name ||
+      "Admin"
+    );
 
   document.getElementById(
     "adminEmail"
@@ -596,13 +747,14 @@ async function checkAdmin() {
 }
 
 
-/* =========================
-   DASHBOARD
-========================= */
+/* =========================================================
+   ADMIN DASHBOARD
+========================================================= */
 
 async function loadDashboard() {
 
-  const token = getToken();
+  const token =
+    getToken();
 
   if (!token) {
 
@@ -626,7 +778,8 @@ async function loadDashboard() {
 
           headers: {
             "Authorization":
-              "Bearer " + token
+              "Bearer " +
+              token
           }
         }
       );
@@ -634,9 +787,11 @@ async function loadDashboard() {
     const data =
       await response
         .json()
-        .catch(function() {
-          return {};
-        });
+        .catch(
+          function() {
+            return {};
+          }
+        );
 
     if (!response.ok) {
 
@@ -711,9 +866,9 @@ async function loadDashboard() {
 }
 
 
-/* =========================
+/* =========================================================
    USERS
-========================= */
+========================================================= */
 
 function renderUsers(users) {
 
@@ -731,7 +886,7 @@ function renderUsers(users) {
       <tr>
 
         <td
-          colspan="6"
+          colspan="8"
           class="empty"
         >
           No users found.
@@ -795,6 +950,24 @@ function renderUsers(users) {
           )}
         </td>
 
+        <td>
+
+          <span class="ref-code">
+            ${escapeHtml(
+              user.referral_code ||
+              "-"
+            )}
+          </span>
+
+        </td>
+
+        <td>
+          ${escapeHtml(
+            user.referred_by ||
+            "-"
+          )}
+        </td>
+
       `;
 
       table.appendChild(
@@ -807,13 +980,19 @@ function renderUsers(users) {
 }
 
 
-/* =========================
-   LOAD WITHDRAWALS
-========================= */
+/* =========================================================
+   KYC
+========================================================= */
 
-async function loadWithdrawals() {
+async function loadKyc() {
 
-  const token = getToken();
+  const token =
+    getToken();
+
+  const table =
+    document.getElementById(
+      "kycTable"
+    );
 
   if (!token) {
 
@@ -823,11 +1002,6 @@ async function loadWithdrawals() {
 
   }
 
-  const table =
-    document.getElementById(
-      "withdrawalsTable"
-    );
-
   table.innerHTML = `
 
     <tr>
@@ -836,7 +1010,7 @@ async function loadWithdrawals() {
         colspan="7"
         class="empty"
       >
-        Loading withdrawals...
+        Loading KYC requests...
       </td>
 
     </tr>
@@ -847,13 +1021,14 @@ async function loadWithdrawals() {
 
     const response =
       await fetch(
-        "/api/admin/withdrawals",
+        "/api/admin/kyc",
         {
           method: "GET",
 
           headers: {
             "Authorization":
-              "Bearer " + token
+              "Bearer " +
+              token
           }
         }
       );
@@ -861,9 +1036,11 @@ async function loadWithdrawals() {
     const data =
       await response
         .json()
-        .catch(function() {
-          return {};
-        });
+        .catch(
+          function() {
+            return {};
+          }
+        );
 
     if (!response.ok) {
 
@@ -875,13 +1052,11 @@ async function loadWithdrawals() {
             colspan="7"
             class="empty"
           >
-            ${
-              escapeHtml(
-                data.message ||
-                data.error ||
-                "Unable to load withdrawals."
-              )
-            }
+            ${escapeHtml(
+              data.message ||
+              data.error ||
+              "Unable to load KYC."
+            )}
           </td>
 
         </tr>
@@ -892,14 +1067,14 @@ async function loadWithdrawals() {
 
     }
 
-    renderWithdrawals(
-      data.withdrawals || []
+    renderKyc(
+      data.kyc || []
     );
 
   } catch (error) {
 
     console.error(
-      "Withdrawals error:",
+      "KYC error:",
       error
     );
 
@@ -923,22 +1098,20 @@ async function loadWithdrawals() {
 }
 
 
-/* =========================
-   RENDER WITHDRAWALS
-========================= */
+/* =========================================================
+   RENDER KYC
+========================================================= */
 
-function renderWithdrawals(
-  withdrawals
-) {
+function renderKyc(items) {
 
   const table =
     document.getElementById(
-      "withdrawalsTable"
+      "kycTable"
     );
 
   table.innerHTML = "";
 
-  if (!withdrawals.length) {
+  if (!items.length) {
 
     table.innerHTML = `
 
@@ -948,7 +1121,7 @@ function renderWithdrawals(
           colspan="7"
           class="empty"
         >
-          No withdrawal requests found.
+          No KYC requests found.
         </td>
 
       </tr>
@@ -959,7 +1132,7 @@ function renderWithdrawals(
 
   }
 
-  withdrawals.forEach(
+  items.forEach(
     function(item) {
 
       const row =
@@ -969,34 +1142,9 @@ function renderWithdrawals(
 
       const status =
         String(
-          item.status || "pending"
+          item.status ||
+          "pending"
         ).toLowerCase();
-
-      let actionButtons = "-";
-
-      if (
-        status === "pending"
-      ) {
-
-        actionButtons = `
-
-          <button
-            class="approve"
-            onclick="approveWithdrawal('${escapeJs(item.id)}')"
-          >
-            Approve
-          </button>
-
-          <button
-            class="reject"
-            onclick="rejectWithdrawal('${escapeJs(item.id)}')"
-          >
-            Reject
-          </button>
-
-        `;
-
-      }
 
       const statusClass =
         status === "approved"
@@ -1005,434 +1153,66 @@ function renderWithdrawals(
             ? "rejected"
             : "pending";
 
-      row.innerHTML = `
-
-        <td>
-
-          ${escapeHtml(
-            item.name ||
-            item.email ||
-            item.user_id ||
-            "-"
-          )}
-
-        </td>
-
-        <td>
-
-          <strong>
-            ${Number(
-              item.amount || 0
-            )}
-          </strong>
-
-          coins
-
-        </td>
-
-        <td>
-
-          ${escapeHtml(
-            item.payment_method ||
-            item.paymentMethod ||
-            "-"
-          )}
-
-        </td>
-
-        <td>
-
-          ${escapeHtml(
-            item.account_number ||
-            item.accountNumber ||
-            "-"
-          )}
-
-        </td>
-
-        <td>
-
-          <span
-            class="badge ${statusClass}"
-          >
-            ${escapeHtml(status)}
-          </span>
-
-        </td>
-
-        <td>
-
-          ${escapeHtml(
-            item.created_at ||
-            item.createdAt ||
-            "-"
-          )}
-
-        </td>
-
-        <td>
-
-          ${actionButtons}
-
-        </td>
-
-      `;
-
-      table.appendChild(
-        row
-      );
-
-    }
-  );
-
-}
-
-
-/* =========================
-   APPROVE
-========================= */
-
-async function approveWithdrawal(
-  id
-) {
-
-  const confirmed =
-    confirm(
-      "Approve this withdrawal request?"
-    );
-
-  if (!confirmed) {
-    return;
-  }
-
-  await processWithdrawal(
-    id,
-    "approve"
-  );
-
-}
-
-
-/* =========================
-   REJECT
-========================= */
-
-async function rejectWithdrawal(
-  id
-) {
-
-  const confirmed =
-    confirm(
-      "Reject this withdrawal request?"
-    );
-
-  if (!confirmed) {
-    return;
-  }
-
-  await processWithdrawal(
-    id,
-    "reject"
-  );
-
-}
-
-
-/* =========================
-   PROCESS WITHDRAWAL
-========================= */
-
-async function processWithdrawal(
-  id,
-  action
-) {
-
-  const token = getToken();
-
-  if (!token) {
-
-    window.location.href = "/";
-
-    return;
-
-  }
-
-  if (
-    action !== "approve" &&
-    action !== "reject"
-  ) {
-
-    alert(
-      "Invalid withdrawal action."
-    );
-
-    return;
-
-  }
-
-  try {
-
-    const response =
-      await fetch(
-        "/api/admin/withdrawals",
-        {
-
-          method: "POST",
-
-          headers: {
-
-            "Content-Type":
-              "application/json",
-
-            "Authorization":
-              "Bearer " + token
-
-          },
-
-          body: JSON.stringify({
-            id: String(id),
-            action: action
-          })
-
-        }
-      );
-
-    const data =
-      await response
-        .json()
-        .catch(function() {
-          return {};
-        });
-
-    if (!response.ok) {
+      let actions = "-";
 
       if (
-        response.status === 401 ||
-        response.status === 403
+        status === "pending"
       ) {
 
-        alert(
-          data.message ||
-          "Admin access required."
-        );
+        actions = `
 
-        logout();
+          <button
+            class="approve"
+            onclick="updateKyc(
+              '${escapeJs(item.id)}',
+              'approve'
+            )"
+          >
+            Approve
+          </button>
 
-        return;
+          <button
+            class="reject"
+            onclick="updateKyc(
+              '${escapeJs(item.id)}',
+              'reject'
+            )"
+          >
+            Reject
+          </button>
+
+        `;
 
       }
 
-      alert(
-        data.message ||
-        data.error ||
-        "Withdrawal action failed."
-      );
-
-      return;
-
-    }
-
-    alert(
-      data.message ||
-      "Withdrawal updated successfully."
-    );
-
-    await loadWithdrawals();
-
-    await loadDashboard();
-
-  } catch (error) {
-
-    console.error(
-      "Withdrawal action error:",
-      error
-    );
-
-    alert(
-      "Unable to connect to server."
-    );
-
-  }
-
-}
-
-
-/* =========================
-   SECURITY
-========================= */
-
-function escapeHtml(value) {
-
-  return String(value)
-
-    .replaceAll(
-      "&",
-      "&amp;"
-    )
-
-    .replaceAll(
-      "<",
-      "&lt;"
-    )
-
-    .replaceAll(
-      ">",
-      "&gt;"
-    )
-
-    .replaceAll(
-      '"',
-      "&quot;"
-    )
-
-    .replaceAll(
-      "'",
-      "&#039;"
-    );
-
-}
-
-
-/* =========================
-   JAVASCRIPT STRING ESCAPE
-========================= */
-
-function escapeJs(value) {
-
-  return String(value)
-    .replaceAll(
-      "\\",
-      "\\\\"
-    )
-    .replaceAll(
-      "'",
-      "\\'"
-    )
-    .replaceAll(
-      "\n",
-      "\\n"
-    )
-    .replaceAll(
-      "\r",
-      "\\r"
-    );
-
-}
-
-
-/* =========================
-   STATUS
-========================= */
-
-function showStatus(
-  message
-) {
-
-  const box =
-    document.getElementById(
-      "status"
-    );
-
-  box.textContent =
-    message;
-
-  box.style.display =
-    "block";
-
-}
-
-
-function hideStatus() {
-
-  const box =
-    document.getElementById(
-      "status"
-    );
-
-  box.textContent =
-    "";
-
-  box.style.display =
-    "none";
-
-}
-
-
-/* =========================
-   LOGOUT
-========================= */
-
-async function logout() {
-
-  const token =
-    getToken();
-
-  try {
-
-    if (token) {
-
-      await fetch(
-        "/api/admin/logout",
-        {
-
-          method: "POST",
-
-          headers: {
-
-            "Authorization":
-              "Bearer " + token
-
-          }
-
-        }
-      );
-
-    }
-
-  } catch (error) {
-
-    console.error(
-      "Logout error:",
-      error
-    );
-
-  }
-
-  localStorage.removeItem(
-    "earnnest_user"
-  );
-
-  localStorage.removeItem(
-    "earnnest_token"
-  );
-
-  window.location.href =
-    "/";
-
-}
-
-
-/* =========================
-   START
-========================= */
-
-(async function() {
-
-  const allowed =
-    await checkAdmin();
-
-  if (allowed) {
-
-    await loadDashboard();
-
-    await loadWithdrawals();
-
-  }
-
-})();
-
-</script>
-
-</body>
-
-</html>
+      let documents = "-";
+
+      if (
+        item.document_front ||
+        item.documentFront
+      ) {
+
+        documents += `
+          <br>
+          <a
+            class="document-link"
+            href="${escapeHtml(
+              item.document_front ||
+              item.documentFront
+            )}"
+            target="_blank"
+            rel="noopener"
+          >
+            Front
+          </a>
+        `;
+
+      }
+
+      if (
+        item.document_back ||
+        item.documentBack
+      ) {
+
+        documents += `
+          <
