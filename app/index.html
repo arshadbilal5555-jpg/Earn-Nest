@@ -1,249 +1,1170 @@
-```html
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
   <title>EarnNest — Login & Register</title>
 
   <style>
-    *{
-      box-sizing:border-box;
-      margin:0;
-      padding:0;
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
     }
 
-    body{
-      font-family:"Segoe UI",Arial,sans-serif;
-      min-height:100vh;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      padding:20px;
-      overflow-x:hidden;
-      position:relative;
-
+    body {
+      min-height: 100vh;
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: Arial, "Segoe UI", sans-serif;
       background:
-        radial-gradient(circle at 10% 10%,rgba(34,197,94,.25),transparent 30%),
-        radial-gradient(circle at 90% 90%,rgba(16,185,129,.20),transparent 30%),
-        linear-gradient(135deg,#022c22,#064e3b,#052e16);
+        radial-gradient(circle at 10% 10%, rgba(34,197,94,.25), transparent 30%),
+        radial-gradient(circle at 90% 90%, rgba(16,185,129,.20), transparent 30%),
+        linear-gradient(135deg, #022c22, #064e3b, #052e16);
     }
 
-    body::before{
-      content:"";
-      position:fixed;
-      width:420px;
-      height:420px;
-      border-radius:50%;
-      background:rgba(34,197,94,.08);
-      top:-220px;
-      left:-180px;
-      pointer-events:none;
+    #moneyCanvas {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
     }
 
-    body::after{
-      content:"";
-      position:fixed;
-      width:500px;
-      height:500px;
-      border-radius:50%;
-      background:rgba(16,185,129,.07);
-      bottom:-280px;
-      right:-200px;
-      pointer-events:none;
+    .page {
+      width: 100%;
+      max-width: 440px;
+      position: relative;
+      z-index: 5;
     }
 
-    #moneyCanvas{
-      position:fixed;
-      inset:0;
-      width:100%;
-      height:100%;
-      z-index:1;
-      pointer-events:none;
+    .card {
+      background: rgba(255,255,255,.98);
+      padding: 32px;
+      border-radius: 24px;
+      box-shadow: 0 30px 70px rgba(0,0,0,.32);
     }
 
-    .page{
-      width:100%;
-      max-width:440px;
-      position:relative;
-      z-index:5;
+    .brand {
+      text-align: center;
+      margin-bottom: 24px;
     }
 
-    .card{
-      background:rgba(255,255,255,.97);
-      border-radius:24px;
-      padding:32px;
-      box-shadow:
-        0 30px 70px rgba(0,0,0,.32),
-        0 8px 25px rgba(0,0,0,.16);
-      border:1px solid rgba(255,255,255,.8);
+    .logo {
+      width: 72px;
+      height: 72px;
+      margin: 0 auto 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 18px;
+      color: white;
+      font-size: 46px;
+      font-weight: 900;
+      background: linear-gradient(145deg,#22c55e,#15803d);
     }
 
-    .brand{
-      text-align:center;
-      margin-bottom:24px;
+    .brand-name {
+      color: #166534;
+      font-size: 27px;
+      font-weight: 800;
     }
 
-    .logo-box{
-      width:72px;
-      height:72px;
-      margin:0 auto 10px;
-      border-radius:18px;
-      background:linear-gradient(145deg,#22c55e,#15803d);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      box-shadow:
-        0 10px 25px rgba(22,163,74,.35),
-        inset 0 1px 0 rgba(255,255,255,.35);
+    .tagline {
+      margin-top: 4px;
+      color: #64748b;
+      font-size: 13px;
     }
 
-    .logo-e{
-      color:white;
-      font-size:46px;
-      font-weight:900;
-      line-height:1;
-      font-family:Arial,sans-serif;
+    h1 {
+      text-align: center;
+      color: #0f172a;
+      font-size: 22px;
+      margin-bottom: 6px;
     }
 
-    .brand-name{
-      color:#166534;
-      font-size:27px;
-      font-weight:800;
-      letter-spacing:-.6px;
+    .subtitle {
+      margin-bottom: 20px;
+      text-align: center;
+      color: #64748b;
+      font-size: 13px;
     }
 
-    .brand-tagline{
-      color:#64748b;
-      font-size:13px;
-      margin-top:4px;
+    #message {
+      display: none;
+      margin-bottom: 15px;
+      padding: 11px 13px;
+      border-radius: 10px;
+      font-size: 13px;
+      line-height: 1.45;
+      font-weight: 600;
+      word-break: break-word;
     }
 
-    .title{
-      text-align:center;
-      color:#0f172a;
-      font-size:22px;
-      font-weight:800;
-      margin-bottom:5px;
+    #message.success {
+      display: block;
+      color: #166534;
+      background: #dcfce7;
+      border: 1px solid #86efac;
     }
 
-    .subtitle{
-      text-align:center;
-      color:#64748b;
-      font-size:13px;
-      margin-bottom:21px;
+    #message.error {
+      display: block;
+      color: #991b1b;
+      background: #fee2e2;
+      border: 1px solid #fca5a5;
     }
 
-    #message{
-      display:none;
-      padding:11px 13px;
-      margin-bottom:15px;
-      border-radius:10px;
-      font-size:13px;
-      line-height:1.45;
-      font-weight:600;
-      word-break:break-word;
+    .field {
+      margin-bottom: 15px;
     }
 
-    #message.success{
-      display:block;
-      color:#166534;
-      background:#dcfce7;
-      border:1px solid #86efac;
+    label {
+      display: block;
+      margin-bottom: 6px;
+      color: #334155;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
     }
 
-    #message.error{
-      display:block;
-      color:#991b1b;
-      background:#fee2e2;
-      border:1px solid #fca5a5;
+    input {
+      width: 100%;
+      height: 48px;
+      padding: 0 14px;
+      border: 1.5px solid #d1d5db;
+      border-radius: 11px;
+      outline: none;
+      background: #f8fafc;
+      color: #0f172a;
+      font-size: 14px;
     }
 
-    .group{
-      margin-bottom:15px;
+    input:focus {
+      background: white;
+      border-color: #16a34a;
+      box-shadow: 0 0 0 4px rgba(22,163,74,.10);
     }
 
-    .group label{
-      display:block;
-      margin-bottom:6px;
-      color:#334155;
-      font-size:12px;
-      font-weight:750;
-      text-transform:uppercase;
-      letter-spacing:.35px;
+    .password-box {
+      position: relative;
     }
 
-    .input{
-      width:100%;
-      height:48px;
-      border:1.5px solid #d1d5db;
-      border-radius:11px;
-      padding:0 14px;
-      background:#f8fafc;
-      color:#0f172a;
-      outline:none;
-      font-size:14px;
-      transition:.2s;
+    .password-box input {
+      padding-right: 50px;
     }
 
-    .input::placeholder{
-      color:#94a3b8;
+    .eye {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      width: 32px;
+      height: 32px;
+      border: 0;
+      border-radius: 7px;
+      background: transparent;
+      cursor: pointer;
+      font-size: 16px;
     }
 
-    .input:focus{
-      background:#fff;
-      border-color:#16a34a;
-      box-shadow:0 0 0 4px rgba(22,163,74,.10);
+    .forgot {
+      margin-top: -5px;
+      margin-bottom: 6px;
+      text-align: right;
     }
 
-    .password-wrap{
-      position:relative;
+    .forgot button,
+    .toggle button {
+      border: 0;
+      background: transparent;
+      color: #15803d;
+      cursor: pointer;
+      font-weight: 700;
     }
 
-    .password-wrap .input{
-      padding-right:48px;
+    .forgot button {
+      font-size: 12px;
     }
 
-    .eye{
-      position:absolute;
-      right:8px;
-      top:8px;
-      width:32px;
-      height:32px;
-      border:0;
-      border-radius:7px;
-      background:transparent;
-      cursor:pointer;
-      font-size:16px;
+    .submit {
+      width: 100%;
+      height: 50px;
+      margin-top: 9px;
+      border: 0;
+      border-radius: 11px;
+      background: linear-gradient(135deg,#22c55e,#15803d);
+      color: white;
+      font-size: 15px;
+      font-weight: 800;
+      cursor: pointer;
     }
 
-    .eye:hover{
-      background:#f1f5f9;
+    .submit:disabled {
+      opacity: .65;
+      cursor: wait;
     }
 
-    .forgot{
-      text-align:right;
-      margin-top:-5px;
-      margin-bottom:6px;
+    .toggle {
+      margin-top: 20px;
+      text-align: center;
+      color: #64748b;
+      font-size: 13px;
     }
 
-    .forgot button{
-      border:0;
-      background:transparent;
-      color:#15803d;
-      cursor:pointer;
-      font-size:12px;
-      font-weight:700;
+    .toggle button {
+      margin-left: 4px;
+      font-size: 13px;
     }
 
-    .forgot button:hover{
-      text-decoration:underline;
+    .signup-only {
+      display: none;
     }
 
-    .submit{
-      width:100%;
-      height:50px;
-      border:0;
-      border-radius:11px;
+    .footer {
+      margin-top: 16px;
+      text-align: center;
+      color: rgba(255,255,255,.8);
+      font-size: 11px;
+    }
+
+    .footer a {
+      color: white;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    @media (max-width: 480px) {
+      body {
+        padding: 14px;
+      }
+
+      .card {
+        padding: 25px 20px;
+        border-radius: 20px;
+      }
+
+      .logo {
+        width: 64px;
+        height: 64px;
+        font-size: 41px;
+      }
+
+      .brand-name {
+        font-size: 24px;
+      }
+    }
+  </style>
+
+</head>
+
+<body>
+
+<canvas id="moneyCanvas"></canvas>
+
+<main class="page">
+
+  <section class="card">
+
 ```
+<div class="brand">
+  <div class="logo">E</div>
+  <div class="brand-name">Earn Nest</div>
+  <div class="tagline">Work Hard, Grow Your Balance</div>
+</div>
+
+<h1 id="title">Welcome Back</h1>
+
+<p class="subtitle" id="subtitle">
+  Login to continue to your EarnNest account
+</p>
+
+<div id="message"></div>
+
+<form id="authForm">
+
+  <div class="field signup-only">
+    <label for="name">Full Name</label>
+    <input
+      id="name"
+      type="text"
+      placeholder="Enter your full name"
+      autocomplete="name"
+    >
+  </div>
+
+  <div class="field signup-only">
+    <label for="username">Username</label>
+    <input
+      id="username"
+      type="text"
+      placeholder="Choose a username"
+      autocomplete="username"
+    >
+  </div>
+
+  <div class="field signup-only">
+    <label for="phone">Phone Number</label>
+    <input
+      id="phone"
+      type="tel"
+      placeholder="03XXXXXXXXX"
+      autocomplete="tel"
+    >
+  </div>
+
+  <div class="field">
+    <label for="email">Email Address</label>
+    <input
+      id="email"
+      type="email"
+      placeholder="Enter your email"
+      autocomplete="email"
+    >
+  </div>
+
+  <div class="field">
+    <label for="password">Password</label>
+
+    <div class="password-box">
+      <input
+        id="password"
+        type="password"
+        placeholder="Enter your password"
+        autocomplete="current-password"
+      >
+
+      <button
+        type="button"
+        class="eye"
+        id="passwordEye"
+      >👁</button>
+    </div>
+  </div>
+
+  <div class="field signup-only">
+    <label for="confirmPassword">Confirm Password</label>
+
+    <div class="password-box">
+      <input
+        id="confirmPassword"
+        type="password"
+        placeholder="Confirm your password"
+        autocomplete="new-password"
+      >
+
+      <button
+        type="button"
+        class="eye"
+        id="confirmEye"
+      >👁</button>
+    </div>
+  </div>
+
+  <div class="field signup-only">
+    <label for="referralCode">Referral Code (Optional)</label>
+
+    <input
+      id="referralCode"
+      type="text"
+      placeholder="Enter referral code"
+    >
+  </div>
+
+  <div class="forgot" id="forgotBox">
+    <button type="button" id="forgotBtn">
+      Forgot Password?
+    </button>
+  </div>
+
+  <button
+    type="submit"
+    class="submit"
+    id="submitBtn"
+  >
+    Login
+  </button>
+
+</form>
+
+<div class="toggle">
+  <span id="toggleText">Don't have an account?</span>
+
+  <button
+    type="button"
+    id="toggleBtn"
+  >
+    Create Account
+  </button>
+</div>
+```
+
+  </section>
+
+  <div class="footer">
+    © 2026 EarnNest ·
+    <a href="/privacy.html">Privacy</a>
+    ·
+    <a href="/terms.html">Terms</a>
+  </div>
+
+</main>
+
+<script>
+"use strict";
+
+const API_BASE = "/api";
+
+let isSignUp = false;
+let isBusy = false;
+
+
+/* -----------------------------
+   BASIC HELPERS
+----------------------------- */
+
+function get(id) {
+  return document.getElementById(id);
+}
+
+
+function showMessage(message, type) {
+
+  const box = get("message");
+
+  box.textContent = String(
+    message || "Something went wrong."
+  );
+
+  box.className =
+    type === "success"
+      ? "success"
+      : "error";
+
+  box.style.display = "block";
+}
+
+
+function clearMessage() {
+
+  const box = get("message");
+
+  box.textContent = "";
+  box.className = "";
+  box.style.display = "none";
+}
+
+
+function setButton(text, disabled) {
+
+  const button = get("submitBtn");
+
+  button.textContent = text;
+  button.disabled = disabled;
+}
+
+
+/* -----------------------------
+   API REQUEST
+----------------------------- */
+
+async function apiRequest(payload) {
+
+  const response = await fetch(API_BASE, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Accept": "application/json"
+    },
+    body: JSON.stringify(payload)
+  });
+
+  const text = await response.text();
+
+  let data;
+
+  try {
+    data = text ? JSON.parse(text) : {};
+  } catch (error) {
+    throw new Error(
+      "Server returned an invalid response."
+    );
+  }
+
+  console.log("EarnNest API:", response.status, data);
+
+  if (!response.ok) {
+
+    throw new Error(
+      data.message ||
+      data.error ||
+      "Server request failed."
+    );
+  }
+
+  return data;
+}
+
+
+/* -----------------------------
+   LOGIN
+----------------------------- */
+
+async function loginUser() {
+
+  if (isBusy) {
+    return;
+  }
+
+  const email =
+    get("email").value.trim().toLowerCase();
+
+  const password =
+    get("password").value;
+
+  if (!email) {
+
+    showMessage(
+      "Please enter your email address.",
+      "error"
+    );
+
+    get("email").focus();
+    return;
+  }
+
+  if (!password) {
+
+    showMessage(
+      "Please enter your password.",
+      "error"
+    );
+
+    get("password").focus();
+    return;
+  }
+
+  isBusy = true;
+
+  clearMessage();
+
+  setButton(
+    "Logging in...",
+    true
+  );
+
+  try {
+
+    const data = await apiRequest({
+
+      action: "login",
+
+      email: email,
+
+      login: email,
+
+      password: password
+
+    });
+
+
+    if (
+      data.success !== true ||
+      !data.token ||
+      !data.user
+    ) {
+
+      throw new Error(
+        data.message ||
+        data.error ||
+        "Unable to login."
+      );
+    }
+
+
+    localStorage.setItem(
+      "earnnest_token",
+      String(data.token)
+    );
+
+
+    localStorage.setItem(
+      "earnnest_user",
+      JSON.stringify(data.user)
+    );
+
+
+    showMessage(
+      "Login successful. Opening dashboard...",
+      "success"
+    );
+
+
+    setButton(
+      "Opening Dashboard...",
+      true
+    );
+
+
+    setTimeout(function() {
+
+      window.location.assign(
+        "/dashboard.html"
+      );
+
+    }, 600);
+
+
+  } catch (error) {
+
+    console.error(
+      "Login error:",
+      error
+    );
+
+    showMessage(
+      error.message ||
+      "Unable to login. Please try again.",
+      "error"
+    );
+
+    setButton(
+      "Login",
+      false
+    );
+
+    isBusy = false;
+  }
+}
+
+
+/* -----------------------------
+   REGISTER
+----------------------------- */
+
+async function registerUser() {
+
+  if (isBusy) {
+    return;
+  }
+
+  const name =
+    get("name").value.trim();
+
+  const username =
+    get("username").value.trim();
+
+  const phone =
+    get("phone").value.trim();
+
+  const email =
+    get("email").value.trim().toLowerCase();
+
+  const password =
+    get("password").value;
+
+  const confirmPassword =
+    get("confirmPassword").value;
+
+  const referralCode =
+    get("referralCode").value.trim();
+
+
+  if (!name) {
+
+    showMessage(
+      "Please enter your full name.",
+      "error"
+    );
+
+    get("name").focus();
+    return;
+  }
+
+
+  if (!username) {
+
+    showMessage(
+      "Please choose a username.",
+      "error"
+    );
+
+    get("username").focus();
+    return;
+  }
+
+
+  if (!phone) {
+
+    showMessage(
+      "Please enter your phone number.",
+      "error"
+    );
+
+    get("phone").focus();
+    return;
+  }
+
+
+  if (!email) {
+
+    showMessage(
+      "Please enter your email address.",
+      "error"
+    );
+
+    get("email").focus();
+    return;
+  }
+
+
+  if (!password) {
+
+    showMessage(
+      "Please create a password.",
+      "error"
+    );
+
+    get("password").focus();
+    return;
+  }
+
+
+  if (password.length < 6) {
+
+    showMessage(
+      "Password must be at least 6 characters.",
+      "error"
+    );
+
+    get("password").focus();
+    return;
+  }
+
+
+  if (password !== confirmPassword) {
+
+    showMessage(
+      "Passwords do not match.",
+      "error"
+    );
+
+    get("confirmPassword").focus();
+    return;
+  }
+
+
+  isBusy = true;
+
+  clearMessage();
+
+  setButton(
+    "Creating Account...",
+    true
+  );
+
+
+  try {
+
+    const data = await apiRequest({
+
+      action: "register",
+
+      name: name,
+
+      username: username,
+
+      phone: phone,
+
+      email: email,
+
+      password: password,
+
+      confirmPassword: confirmPassword,
+
+      referralCode: referralCode
+
+    });
+
+
+    if (data.success !== true) {
+
+      throw new Error(
+        data.message ||
+        data.error ||
+        "Unable to create account."
+      );
+    }
+
+
+    if (data.token && data.user) {
+
+      localStorage.setItem(
+        "earnnest_token",
+        String(data.token)
+      );
+
+      localStorage.setItem(
+        "earnnest_user",
+        JSON.stringify(data.user)
+      );
+
+
+      showMessage(
+        "Account created successfully. Opening dashboard...",
+        "success"
+      );
+
+
+      setButton(
+        "Opening Dashboard...",
+        true
+      );
+
+
+      setTimeout(function() {
+
+        window.location.assign(
+          "/dashboard.html"
+        );
+
+      }, 700);
+
+
+      return;
+    }
+
+
+    showMessage(
+      "Account created successfully. Please login.",
+      "success"
+    );
+
+
+    isSignUp = false;
+
+    updateMode();
+
+    get("password").value = "";
+    get("confirmPassword").value = "";
+
+    setButton(
+      "Login",
+      false
+    );
+
+    isBusy = false;
+
+
+  } catch (error) {
+
+    console.error(
+      "Registration error:",
+      error
+    );
+
+    showMessage(
+      error.message ||
+      "Unable to create account. Please try again.",
+      "error"
+    );
+
+    setButton(
+      "Create Account",
+      false
+    );
+
+    isBusy = false;
+  }
+}
+
+
+/* -----------------------------
+   LOGIN / REGISTER MODE
+----------------------------- */
+
+function updateMode() {
+
+  document
+    .querySelectorAll(".signup-only")
+    .forEach(function(element) {
+
+      element.style.display =
+        isSignUp
+          ? "block"
+          : "none";
+
+    });
+
+
+  get("title").textContent =
+    isSignUp
+      ? "Create Your Account"
+      : "Welcome Back";
+
+
+  get("subtitle").textContent =
+    isSignUp
+      ? "Join EarnNest and start earning coins"
+      : "Login to continue to your EarnNest account";
+
+
+  get("submitBtn").textContent =
+    isSignUp
+      ? "Create Account"
+      : "Login";
+
+
+  get("toggleText").textContent =
+    isSignUp
+      ? "Already have an account?"
+      : "Don't have an account?";
+
+
+  get("toggleBtn").textContent =
+    isSignUp
+      ? "Login"
+      : "Create Account";
+
+
+  get("forgotBox").style.display =
+    isSignUp
+      ? "none"
+      : "block";
+
+
+  clearMessage();
+}
+
+
+function toggleMode() {
+
+  if (isBusy) {
+    return;
+  }
+
+  isSignUp = !isSignUp;
+
+  get("password").value = "";
+  get("confirmPassword").value = "";
+
+  updateMode();
+}
+
+
+/* -----------------------------
+   PASSWORD
+----------------------------- */
+
+function togglePassword(inputId, button) {
+
+  const input = get(inputId);
+
+  if (input.type === "password") {
+
+    input.type = "text";
+    button.textContent = "🙈";
+
+  } else {
+
+    input.type = "password";
+    button.textContent = "👁";
+
+  }
+}
+
+
+/* -----------------------------
+   FORGOT PASSWORD
+----------------------------- */
+
+function forgotPassword() {
+
+  showMessage(
+    "Password reset is not connected yet. Please contact support.",
+    "error"
+  );
+}
+
+
+/* -----------------------------
+   START PAGE
+----------------------------- */
+
+document.addEventListener(
+  "DOMContentLoaded",
+  function() {
+
+    console.log(
+      "EarnNest login page loaded."
+    );
+
+
+    const form = get("authForm");
+
+
+    /* FORM SUBMIT */
+
+    form.addEventListener(
+      "submit",
+      function(event) {
+
+        event.preventDefault();
+
+        if (isSignUp) {
+
+          registerUser();
+
+        } else {
+
+          loginUser();
+
+        }
+
+      }
+    );
+
+
+    /* CREATE ACCOUNT BUTTON */
+
+    get("toggleBtn").addEventListener(
+      "click",
+      function(event) {
+
+        event.preventDefault();
+
+        toggleMode();
+
+      }
+    );
+
+
+    /* PASSWORD EYE */
+
+    get("passwordEye").addEventListener(
+      "click",
+      function() {
+
+        togglePassword(
+          "password",
+          get("passwordEye")
+        );
+
+      }
+    );
+
+
+    /* CONFIRM PASSWORD EYE */
+
+    get("confirmEye").addEventListener(
+      "click",
+      function() {
+
+        togglePassword(
+          "confirmPassword",
+          get("confirmEye")
+        );
+
+      }
+    );
+
+
+    /* FORGOT PASSWORD */
+
+    get("forgotBtn").addEventListener(
+      "click",
+      function() {
+
+        forgotPassword();
+
+      }
+    );
+
+
+    /* ENTER KEY */
+
+    [
+      "email",
+      "password",
+      "name",
+      "username",
+      "phone",
+      "confirmPassword",
+      "referralCode"
+    ].forEach(function(id) {
+
+      get(id).addEventListener(
+        "keydown",
+        function(event) {
+
+          if (event.key === "Enter") {
+
+            event.preventDefault();
+
+            form.requestSubmit();
+
+          }
+
+        }
+      );
+
+    });
+
+  }
+);
+
+
+/* -----------------------------
+   MONEY ANIMATION
+----------------------------- */
+
+(function() {
+
+  const canvas = get("moneyCanvas");
+
+  if (!canvas) {
+    return;
+  }
+
+  const ctx =
+    canvas.getContext("2d");
+
+  const symbols = [
+    "$",
+    "€",
+    "£",
+    "₨"
+  ];
+
+  const particles = [];
+
+  let width = 0;
+  let height = 0;
+
+
+  function resize() {
+
+    width =
+      canvas.width =
+      window.innerWidth;
+
+    height =
+      canvas.height =
+      window.innerHeight;
+
+  }
+
+
+  function createParticle() {
+
+    return {
+
+      x: Math.random() * width,
+
+      y: Math.random() * height,
+
+      speed:
+        0.3 +
