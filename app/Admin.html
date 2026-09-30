@@ -3,11 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <meta name="theme-color" content="#0f7a45">
-  <meta name="description" content="EarnNest Professional Admin Dashboard">
-
-  <title>EarnNest — Admin Dashboard</title>
+  <title>EarnNest Admin Panel</title>
 
   <style>
     * {
@@ -17,423 +13,324 @@
     }
 
     body {
-      font-family:
-        Inter,
-        system-ui,
-        -apple-system,
-        BlinkMacSystemFont,
-        "Segoe UI",
-        sans-serif;
-      background: #f3f7f5;
-      color: #17231d;
-      min-height: 100vh;
+      font-family: Arial, sans-serif;
+      background: #f4f7f5;
+      color: #17251d;
     }
 
-    /* =========================
-       WATERMARK
-    ========================= */
-
+    /* WATERMARK */
     body::before {
       content: "E";
       position: fixed;
-      right: 4%;
-      bottom: 2%;
-      font-size: 260px;
+      right: 7%;
+      bottom: 3%;
+      font-size: 300px;
       font-weight: 900;
-      line-height: 1;
-      color: rgba(15, 122, 69, 0.035);
-      pointer-events: none;
+      color: rgba(21, 128, 61, 0.035);
       z-index: -1;
+      pointer-events: none;
     }
 
-    /* =========================
-       HEADER
-    ========================= */
-
-    .topbar {
-      background:
-        linear-gradient(
-          135deg,
-          #075c34,
-          #0f7a45,
-          #15995a
-        );
-      color: white;
-      min-height: 78px;
-      padding: 14px 24px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 20px;
-      box-shadow: 0 5px 20px rgba(0,0,0,.12);
-      position: sticky;
+    /* SIDEBAR */
+    .sidebar {
+      position: fixed;
+      left: 0;
       top: 0;
-      z-index: 100;
+      width: 250px;
+      height: 100vh;
+      background: linear-gradient(180deg, #087443, #064f31);
+      color: white;
+      padding: 22px 15px;
+      z-index: 1000;
+      transition: 0.3s;
     }
 
     .brand {
-      display: flex;
-      align-items: center;
-      gap: 13px;
+      text-align: center;
+      padding-bottom: 25px;
+      border-bottom: 1px solid rgba(255,255,255,0.15);
+      margin-bottom: 20px;
     }
 
     .logo {
-      width: 48px;
-      height: 48px;
+      width: 58px;
+      height: 58px;
       background: white;
-      color: #0f7a45;
-      border-radius: 13px;
+      color: #087443;
+      border-radius: 14px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 31px;
-      font-weight: 900;
-      box-shadow: 0 5px 14px rgba(0,0,0,.15);
+      font-size: 34px;
+      font-weight: bold;
+      margin: auto;
     }
 
-    .brand-text h1 {
+    .brand h2 {
+      margin-top: 10px;
       font-size: 21px;
-      font-weight: 800;
     }
 
-    .brand-text span {
-      display: block;
+    .brand p {
       font-size: 12px;
-      opacity: .82;
-      margin-top: 2px;
+      opacity: .75;
+      margin-top: 4px;
     }
 
-    .logout-btn {
-      border: 1px solid rgba(255,255,255,.35);
-      background: rgba(255,255,255,.12);
+    .menu {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+
+    .menu button {
+      width: 100%;
+      border: none;
+      background: transparent;
       color: white;
-      padding: 10px 17px;
-      border-radius: 10px;
-      font-weight: 700;
+      padding: 13px 15px;
+      text-align: left;
+      border-radius: 9px;
       cursor: pointer;
+      font-size: 14px;
+      transition: .2s;
     }
 
-    .logout-btn:hover {
+    .menu button:hover,
+    .menu button.active {
+      background: rgba(255,255,255,.15);
+    }
+
+    .logout {
+      margin-top: 25px;
+      border-top: 1px solid rgba(255,255,255,.15) !important;
+      padding-top: 18px !important;
+    }
+
+    /* MAIN */
+    .main {
+      margin-left: 250px;
+      min-height: 100vh;
+      padding: 25px;
+    }
+
+    .topbar {
       background: white;
-      color: #0f7a45;
-    }
-
-    /* =========================
-       PAGE
-    ========================= */
-
-    .container {
-      width: min(1450px, 94%);
-      margin: 28px auto 60px;
-    }
-
-    .welcome {
+      border-radius: 14px;
+      padding: 18px 22px;
+      margin-bottom: 25px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      gap: 20px;
-      margin-bottom: 22px;
+      box-shadow: 0 3px 15px rgba(0,0,0,.05);
     }
 
-    .welcome h2 {
-      font-size: 27px;
-      color: #123f29;
-    }
-
-    .welcome p {
-      color: #64736b;
-      margin-top: 5px;
+    .topbar h1 {
+      font-size: 24px;
     }
 
     .admin-info {
-      background: white;
-      border: 1px solid #dce9e2;
-      border-radius: 13px;
-      padding: 13px 18px;
-      text-align: right;
-      box-shadow: 0 3px 12px rgba(0,0,0,.04);
-    }
-
-    .admin-info strong {
-      display: block;
-      color: #0f7a45;
-    }
-
-    .admin-info span {
       font-size: 13px;
-      color: #718078;
+      color: #607067;
     }
 
-    /* =========================
-       STATUS
-    ========================= */
-
-    .status {
-      padding: 13px 17px;
-      background: white;
-      border-left: 5px solid #0f7a45;
-      border-radius: 10px;
-      margin-bottom: 22px;
-      box-shadow: 0 3px 12px rgba(0,0,0,.04);
-      color: #43524a;
-    }
-
-    .status.error {
-      border-left-color: #dc3545;
-      color: #a51f2d;
-    }
-
-    .status.success {
-      border-left-color: #198754;
-      color: #11683e;
-    }
-
-    /* =========================
-       STATS
-    ========================= */
-
-    .stats {
-      display: grid;
-      grid-template-columns:
-        repeat(5, minmax(0, 1fr));
-      gap: 17px;
-      margin-bottom: 26px;
-    }
-
-    .stat-card {
-      background: white;
-      border: 1px solid #dce9e2;
-      border-radius: 16px;
-      padding: 20px;
-      box-shadow: 0 5px 18px rgba(0,0,0,.055);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .stat-card::after {
-      content: "";
-      position: absolute;
-      width: 75px;
-      height: 75px;
-      right: -25px;
-      top: -25px;
-      border-radius: 50%;
-      background: rgba(15,122,69,.07);
-    }
-
-    .stat-label {
-      color: #718078;
-      font-size: 13px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: .3px;
-    }
-
-    .stat-value {
-      margin-top: 8px;
-      font-size: 29px;
-      font-weight: 850;
-      color: #123f29;
-    }
-
-    /* =========================
-       SECTIONS
-    ========================= */
-
-    .section {
-      background: white;
-      border: 1px solid #dce9e2;
-      border-radius: 17px;
-      margin-bottom: 25px;
-      overflow: hidden;
-      box-shadow: 0 5px 18px rgba(0,0,0,.05);
-    }
-
-    .section-header {
-      padding: 18px 21px;
-      border-bottom: 1px solid #e8efeb;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 15px;
-    }
-
-    .section-header h3 {
-      color: #123f29;
-      font-size: 19px;
-    }
-
-    .section-header span {
-      font-size: 13px;
-      color: #718078;
-    }
-
-    .section-body {
-      padding: 0;
-      overflow-x: auto;
-    }
-
-    .refresh-btn {
-      background: #0f7a45;
+    .menu-toggle {
+      display: none;
       border: none;
+      background: #087443;
       color: white;
-      padding: 9px 15px;
-      border-radius: 9px;
-      font-weight: 700;
+      padding: 9px 12px;
+      border-radius: 8px;
+      font-size: 20px;
       cursor: pointer;
     }
 
-    .refresh-btn:hover {
-      background: #095d35;
+    /* SECTIONS */
+    .section {
+      display: none;
     }
 
-    /* =========================
-       TABLES
-    ========================= */
+    .section.active {
+      display: block;
+    }
+
+    .section-title {
+      margin-bottom: 18px;
+    }
+
+    .section-title h2 {
+      font-size: 22px;
+    }
+
+    .section-title p {
+      color: #6b7b72;
+      margin-top: 5px;
+      font-size: 13px;
+    }
+
+    /* STATS */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 25px;
+    }
+
+    .stat {
+      background: white;
+      padding: 20px;
+      border-radius: 14px;
+      box-shadow: 0 3px 15px rgba(0,0,0,.05);
+      border-left: 4px solid #087443;
+    }
+
+    .stat small {
+      color: #718078;
+      font-size: 12px;
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 27px;
+      margin-top: 8px;
+      color: #087443;
+    }
+
+    /* CARD */
+    .card {
+      background: white;
+      border-radius: 14px;
+      padding: 20px;
+      box-shadow: 0 3px 15px rgba(0,0,0,.05);
+      margin-bottom: 20px;
+    }
+
+    /* TABLE */
+    .table-wrap {
+      overflow-x: auto;
+    }
 
     table {
       width: 100%;
       border-collapse: collapse;
-      min-width: 900px;
+      min-width: 800px;
     }
 
     th {
-      background: #f5f9f7;
-      color: #506057;
+      background: #f1f6f3;
+      color: #365044;
       font-size: 12px;
-      text-transform: uppercase;
-      letter-spacing: .4px;
-      padding: 13px 15px;
       text-align: left;
+      padding: 13px;
       white-space: nowrap;
     }
 
     td {
-      padding: 14px 15px;
-      border-top: 1px solid #edf2ef;
+      padding: 13px;
+      border-bottom: 1px solid #edf1ee;
       font-size: 13px;
-      vertical-align: middle;
+      white-space: nowrap;
     }
 
     tr:hover td {
-      background: #fbfdfc;
+      background: #fafcfb;
     }
 
-    .primary {
-      font-weight: 750;
-      color: #173f2b;
-    }
-
-    .muted {
-      color: #758179;
-      font-size: 12px;
-    }
-
-    /* =========================
-       BADGES
-    ========================= */
-
+    /* BADGES */
     .badge {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
+      display: inline-block;
       padding: 5px 9px;
-      border-radius: 999px;
+      border-radius: 20px;
       font-size: 11px;
-      font-weight: 800;
-      text-transform: uppercase;
+      font-weight: bold;
     }
 
-    .badge.pending {
-      background: #fff3cd;
-      color: #856404;
+    .pending {
+      background: #fff4d6;
+      color: #9a6900;
     }
 
-    .badge.approved {
-      background: #d1e7dd;
-      color: #0f5132;
+    .approved {
+      background: #dff7e8;
+      color: #087443;
     }
 
-    .badge.rejected {
-      background: #f8d7da;
-      color: #842029;
+    .rejected {
+      background: #ffe3e3;
+      color: #b42318;
     }
 
-    .badge.admin {
-      background: #d8e7ff;
-      color: #164a91;
-    }
-
-    .badge.user {
-      background: #e8efeb;
-      color: #4d5d54;
-    }
-
-    /* =========================
-       BUTTONS
-    ========================= */
-
-    .actions {
-      display: flex;
-      gap: 7px;
-      flex-wrap: wrap;
-    }
-
+    /* BUTTONS */
     .btn {
       border: none;
-      padding: 8px 11px;
-      border-radius: 8px;
-      font-size: 12px;
-      font-weight: 750;
+      border-radius: 7px;
+      padding: 8px 12px;
       cursor: pointer;
+      font-size: 12px;
+      font-weight: bold;
+      margin: 2px;
     }
 
-    .btn-approve {
-      background: #198754;
+    .btn-green {
+      background: #087443;
       color: white;
     }
 
-    .btn-reject {
-      background: #dc3545;
+    .btn-red {
+      background: #c62828;
       color: white;
     }
 
-    .btn-view {
-      background: #e8f2ed;
-      color: #0f7a45;
+    .btn-gray {
+      background: #e9eeeb;
+      color: #26382e;
     }
 
-    .btn:disabled {
-      opacity: .5;
-      cursor: not-allowed;
+    .btn:hover {
+      opacity: .85;
     }
 
-    /* =========================
-       EMPTY / LOADING
-    ========================= */
-
-    .empty {
-      padding: 35px 20px;
-      text-align: center;
-      color: #7a8780;
+    /* DASHBOARD BOXES */
+    .quick-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
     }
 
-    .loading {
-      padding: 30px;
-      text-align: center;
+    .quick {
+      background: white;
+      padding: 25px;
+      border-radius: 14px;
+      box-shadow: 0 3px 15px rgba(0,0,0,.05);
+      cursor: pointer;
+      transition: .2s;
+    }
+
+    .quick:hover {
+      transform: translateY(-2px);
+    }
+
+    .quick-icon {
+      font-size: 30px;
+      margin-bottom: 12px;
+    }
+
+    .quick h3 {
+      margin-bottom: 6px;
+    }
+
+    .quick p {
       color: #718078;
+      font-size: 13px;
     }
 
-    /* =========================
-       MODAL
-    ========================= */
-
+    /* MODAL */
     .modal {
       display: none;
       position: fixed;
       inset: 0;
-      background: rgba(10,25,17,.62);
-      z-index: 999;
+      background: rgba(0,0,0,.55);
+      z-index: 2000;
       align-items: center;
       justify-content: center;
       padding: 20px;
@@ -444,124 +341,107 @@
     }
 
     .modal-box {
+      width: 100%;
+      max-width: 460px;
       background: white;
-      width: min(520px, 100%);
-      border-radius: 17px;
-      padding: 24px;
-      box-shadow: 0 20px 60px rgba(0,0,0,.25);
+      border-radius: 15px;
+      padding: 25px;
     }
 
     .modal-box h3 {
-      color: #123f29;
-      margin-bottom: 7px;
+      margin-bottom: 15px;
     }
 
-    .modal-box p {
-      color: #68756e;
-      font-size: 13px;
-      margin-bottom: 16px;
-    }
-
-    textarea {
+    .modal-box textarea {
       width: 100%;
       min-height: 110px;
-      border: 1px solid #ccd9d1;
-      border-radius: 10px;
+      border: 1px solid #ccd7d0;
+      border-radius: 8px;
       padding: 12px;
       resize: vertical;
       outline: none;
-      font: inherit;
-    }
-
-    textarea:focus {
-      border-color: #0f7a45;
+      margin-bottom: 12px;
     }
 
     .modal-actions {
       display: flex;
       justify-content: flex-end;
-      gap: 9px;
-      margin-top: 15px;
+      gap: 7px;
     }
 
-    .cancel-btn {
-      background: #eef2ef;
-      color: #34423a;
+    .loading {
+      padding: 25px;
+      text-align: center;
+      color: #718078;
     }
 
-    /* =========================
-       MOBILE
-    ========================= */
+    .empty {
+      padding: 30px;
+      text-align: center;
+      color: #718078;
+    }
 
-    @media (max-width: 1100px) {
+    .error {
+      background: #ffe8e8;
+      color: #a32121;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      display: none;
+    }
+
+    /* MOBILE */
+    @media (max-width: 1000px) {
       .stats {
-        grid-template-columns:
-          repeat(3, minmax(0, 1fr));
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .quick-grid {
+        grid-template-columns: 1fr;
       }
     }
 
     @media (max-width: 700px) {
+      .sidebar {
+        left: -260px;
+      }
+
+      .sidebar.open {
+        left: 0;
+      }
+
+      .main {
+        margin-left: 0;
+        padding: 12px;
+      }
+
+      .menu-toggle {
+        display: block;
+      }
+
       .topbar {
-        padding: 12px 15px;
+        padding: 14px;
       }
 
-      .brand-text h1 {
-        font-size: 18px;
-      }
-
-      .brand-text span {
-        font-size: 11px;
-      }
-
-      .logo {
-        width: 42px;
-        height: 42px;
-        font-size: 27px;
-      }
-
-      .logout-btn {
-        padding: 8px 11px;
-        font-size: 12px;
-      }
-
-      .container {
-        width: 95%;
-        margin-top: 18px;
-      }
-
-      .welcome {
-        align-items: flex-start;
-        flex-direction: column;
+      .topbar h1 {
+        font-size: 19px;
       }
 
       .admin-info {
-        width: 100%;
-        text-align: left;
+        display: none;
       }
 
       .stats {
-        grid-template-columns:
-          repeat(2, minmax(0, 1fr));
+        grid-template-columns: 1fr 1fr;
         gap: 10px;
       }
 
-      .stat-card {
+      .stat {
         padding: 15px;
       }
 
-      .stat-value {
-        font-size: 23px;
-      }
-
-      .section-header {
-        align-items: flex-start;
-        flex-direction: column;
-      }
-    }
-
-    @media (max-width: 420px) {
-      .stats {
-        grid-template-columns: 1fr;
+      .stat strong {
+        font-size: 22px;
       }
     }
   </style>
@@ -569,319 +449,310 @@
 
 <body>
 
-  <!-- =========================
-       HEADER
-  ========================== -->
-
-  <header class="topbar">
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
 
     <div class="brand">
       <div class="logo">E</div>
+      <h2>EarnNest</h2>
+      <p>Administration Panel</p>
+    </div>
 
-      <div class="brand-text">
-        <h1>EarnNest Admin</h1>
-        <span>Administration Dashboard</span>
+    <nav class="menu">
+
+      <button class="active" onclick="showSection('dashboard', this)">
+        🏠 Dashboard
+      </button>
+
+      <button onclick="showSection('users', this)">
+        👥 Users
+      </button>
+
+      <button onclick="showSection('kyc', this)">
+        🪪 KYC Verification
+      </button>
+
+      <button onclick="showSection('withdrawals', this)">
+        💸 Withdrawals
+      </button>
+
+      <button onclick="showSection('statistics', this)">
+        📊 Statistics
+      </button>
+
+      <button onclick="showSection('settings', this)">
+        ⚙️ Settings
+      </button>
+
+      <button class="logout" onclick="logout()">
+        🚪 Logout
+      </button>
+
+    </nav>
+  </aside>
+
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <div class="topbar">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+        <h1>Admin Panel</h1>
+      </div>
+
+      <div class="admin-info" id="adminInfo">
+        Checking admin...
       </div>
     </div>
 
-    <button
-      class="logout-btn"
-      onclick="logout()"
-    >
-      Logout
-    </button>
 
-  </header>
+    <div id="errorBox" class="error"></div>
 
 
-  <main class="container">
+    <!-- DASHBOARD -->
+    <section id="dashboard" class="section active">
 
-    <!-- =========================
-         WELCOME
-    ========================== -->
+      <div class="section-title">
+        <h2>Dashboard</h2>
+        <p>EarnNest system overview</p>
+      </div>
 
-    <div class="welcome">
+      <div class="stats">
 
-      <div>
-        <h2>Admin Dashboard</h2>
-        <p>
-          Manage users, KYC requests and withdrawals.
+        <div class="stat">
+          <small>Total Users</small>
+          <strong id="totalUsers">0</strong>
+        </div>
+
+        <div class="stat">
+          <small>Total Coins</small>
+          <strong id="totalCoins">0</strong>
+        </div>
+
+        <div class="stat">
+          <small>Withdrawals</small>
+          <strong id="totalWithdrawals">0</strong>
+        </div>
+
+        <div class="stat">
+          <small>Pending KYC</small>
+          <strong id="pendingKyc">0</strong>
+        </div>
+
+      </div>
+
+
+      <div class="quick-grid">
+
+        <div class="quick" onclick="openMenu('users')">
+          <div class="quick-icon">👥</div>
+          <h3>Users</h3>
+          <p>View and manage registered users.</p>
+        </div>
+
+        <div class="quick" onclick="openMenu('kyc')">
+          <div class="quick-icon">🪪</div>
+          <h3>KYC</h3>
+          <p>Review pending KYC verification requests.</p>
+        </div>
+
+        <div class="quick" onclick="openMenu('withdrawals')">
+          <div class="quick-icon">💸</div>
+          <h3>Withdrawals</h3>
+          <p>Review user withdrawal requests.</p>
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- USERS -->
+    <section id="users" class="section">
+
+      <div class="section-title">
+        <h2>Users Management</h2>
+        <p>All registered EarnNest users</p>
+      </div>
+
+      <div class="card">
+        <div class="table-wrap">
+
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Role</th>
+                <th>Coins</th>
+                <th>Referral Code</th>
+                <th>Joined</th>
+              </tr>
+            </thead>
+
+            <tbody id="usersTable">
+              <tr>
+                <td colspan="8" class="loading">
+                  Loading users...
+                </td>
+              </tr>
+            </tbody>
+
+          </table>
+
+        </div>
+      </div>
+
+    </section>
+
+
+    <!-- KYC -->
+    <section id="kyc" class="section">
+
+      <div class="section-title">
+        <h2>KYC Verification</h2>
+        <p>Review user identity verification requests</p>
+      </div>
+
+      <div class="card">
+
+        <div class="table-wrap">
+
+          <table>
+
+            <thead>
+              <tr>
+                <th>User</th>
+                <th>Email</th>
+                <th>Full Name</th>
+                <th>Document</th>
+                <th>Number</th>
+                <th>Status</th>
+                <th>Submitted</th>
+                <th>Note</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+
+            <tbody id="kycTable">
+              <tr>
+                <td colspan="9" class="loading">
+                  Loading KYC...
+                </td>
+              </tr>
+            </tbody>
+
+          </table>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- WITHDRAWALS -->
+    <section id="withdrawals" class="section">
+
+      <div class="section-title">
+        <h2>Withdrawals</h2>
+        <p>Manage user withdrawal requests</p>
+      </div>
+
+      <div class="card">
+
+        <div class="table-wrap">
+
+          <table>
+
+            <thead>
+              <tr>
+                <th>User</th>
+                <th>Email</th>
+                <th>Amount</th>
+                <th>Method</th>
+                <th>Account</th>
+                <th>Status</th>
+                <th>Date</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+
+            <tbody id="withdrawalsTable">
+              <tr>
+                <td colspan="8" class="loading">
+                  Loading withdrawals...
+                </td>
+              </tr>
+            </tbody>
+
+          </table>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- STATISTICS -->
+    <section id="statistics" class="section">
+
+      <div class="section-title">
+        <h2>Statistics</h2>
+        <p>EarnNest platform statistics</p>
+      </div>
+
+      <div class="stats">
+
+        <div class="stat">
+          <small>Registered Users</small>
+          <strong id="statUsers">0</strong>
+        </div>
+
+        <div class="stat">
+          <small>Coins in System</small>
+          <strong id="statCoins">0</strong>
+        </div>
+
+        <div class="stat">
+          <small>Total Withdrawals</small>
+          <strong id="statWithdrawals">0</strong>
+        </div>
+
+        <div class="stat">
+          <small>Total Referrals</small>
+          <strong id="statReferrals">0</strong>
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- SETTINGS -->
+    <section id="settings" class="section">
+
+      <div class="section-title">
+        <h2>Settings</h2>
+        <p>Admin panel settings</p>
+      </div>
+
+      <div class="card">
+
+        <h3>EarnNest Administration</h3>
+
+        <p style="margin-top:10px;color:#718078;">
+          Admin account:
+          <strong id="settingsAdmin">Loading...</strong>
         </p>
-      </div>
 
-      <div class="admin-info">
-        <strong id="adminName">Admin</strong>
-        <span id="adminEmail">-</span>
-      </div>
-
-    </div>
-
-
-    <!-- =========================
-         STATUS
-    ========================== -->
-
-    <div
-      id="statusBox"
-      class="status"
-    >
-      Checking admin access...
-    </div>
-
-
-    <!-- =========================
-         STATS
-    ========================== -->
-
-    <div class="stats">
-
-      <div class="stat-card">
-        <div class="stat-label">
-          Total Users
-        </div>
-
-        <div
-          id="totalUsers"
-          class="stat-value"
-        >
-          0
-        </div>
-      </div>
-
-
-      <div class="stat-card">
-        <div class="stat-label">
-          Total Coins
-        </div>
-
-        <div
-          id="totalCoins"
-          class="stat-value"
-        >
-          0
-        </div>
-      </div>
-
-
-      <div class="stat-card">
-        <div class="stat-label">
-          Approved Withdrawals
-        </div>
-
-        <div
-          id="totalWithdrawals"
-          class="stat-value"
-        >
-          0
-        </div>
-      </div>
-
-
-      <div class="stat-card">
-        <div class="stat-label">
-          Pending Withdrawals
-        </div>
-
-        <div
-          id="pendingWithdrawals"
-          class="stat-value"
-        >
-          0
-        </div>
-      </div>
-
-
-      <div class="stat-card">
-        <div class="stat-label">
-          Pending KYC
-        </div>
-
-        <div
-          id="pendingKyc"
-          class="stat-value"
-        >
-          0
-        </div>
-      </div>
-
-    </div>
-
-
-    <!-- =========================
-         USERS
-    ========================== -->
-
-    <section class="section">
-
-      <div class="section-header">
-
-        <div>
-          <h3>Users Management</h3>
-          <span>All registered EarnNest users</span>
-        </div>
-
-        <button
-          class="refresh-btn"
-          onclick="loadAll()"
-        >
-          Refresh
-        </button>
-
-      </div>
-
-      <div class="section-body">
-
-        <table>
-
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Username</th>
-              <th>Email</th>
-              <th>Phone</th>
-              <th>Role</th>
-              <th>Coins</th>
-              <th>Referral Code</th>
-              <th>Joined</th>
-            </tr>
-          </thead>
-
-          <tbody id="usersTable">
-            <tr>
-              <td
-                colspan="8"
-                class="loading"
-              >
-                Loading users...
-              </td>
-            </tr>
-          </tbody>
-
-        </table>
-
-      </div>
-
-    </section>
-
-
-    <!-- =========================
-         KYC
-    ========================== -->
-
-    <section class="section">
-
-      <div class="section-header">
-
-        <div>
-          <h3>KYC Verification</h3>
-          <span>
-            Review identity verification requests
-          </span>
-        </div>
-
-        <button
-          class="refresh-btn"
-          onclick="loadKyc()"
-        >
-          Refresh KYC
-        </button>
-
-      </div>
-
-      <div class="section-body">
-
-        <table>
-
-          <thead>
-            <tr>
-              <th>User</th>
-              <th>Email</th>
-              <th>Full Name</th>
-              <th>Document Type</th>
-              <th>Document Number</th>
-              <th>Status</th>
-              <th>Submitted</th>
-              <th>Admin Note</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-
-          <tbody id="kycTable">
-
-            <tr>
-              <td
-                colspan="9"
-                class="loading"
-              >
-                Loading KYC requests...
-              </td>
-            </tr>
-
-          </tbody>
-
-        </table>
-
-      </div>
-
-    </section>
-
-
-    <!-- =========================
-         WITHDRAWALS
-    ========================== -->
-
-    <section class="section">
-
-      <div class="section-header">
-
-        <div>
-          <h3>Withdrawal Management</h3>
-          <span>
-            Review user withdrawal requests
-          </span>
-        </div>
-
-        <button
-          class="refresh-btn"
-          onclick="loadWithdrawals()"
-        >
-          Refresh Withdrawals
-        </button>
-
-      </div>
-
-      <div class="section-body">
-
-        <table>
-
-          <thead>
-            <tr>
-              <th>User</th>
-              <th>Email</th>
-              <th>Amount</th>
-              <th>Payment Method</th>
-              <th>Payment Account</th>
-              <th>Status</th>
-              <th>Date</th>
-              <th>Admin Note</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-
-          <tbody id="withdrawalsTable">
-
-            <tr>
-              <td
-                colspan="9"
-                class="loading"
-              >
-                Loading withdrawals...
-              </td>
-            </tr>
-
-          </tbody>
-
-        </table>
+        <p style="margin-top:8px;color:#718078;">
+          This panel is restricted to administrator accounts.
+        </p>
 
       </div>
 
@@ -890,44 +761,29 @@
   </main>
 
 
-  <!-- =========================
-       ACTION MODAL
-  ========================== -->
-
-  <div
-    id="actionModal"
-    class="modal"
-  >
+  <!-- ACTION MODAL -->
+  <div class="modal" id="actionModal">
 
     <div class="modal-box">
 
-      <h3 id="modalTitle">
-        Confirm Action
-      </h3>
-
-      <p id="modalDescription">
-        Add an optional admin note.
-      </p>
+      <h3 id="modalTitle">Action</h3>
 
       <textarea
-        id="adminNote"
+        id="actionNote"
         placeholder="Optional admin note..."
       ></textarea>
 
       <div class="modal-actions">
 
         <button
-          class="btn cancel-btn"
-          onclick="closeModal()"
-        >
+          class="btn btn-gray"
+          onclick="closeModal()">
           Cancel
         </button>
 
         <button
-          id="confirmActionBtn"
-          class="btn btn-approve"
-          onclick="confirmAction()"
-        >
+          class="btn btn-green"
+          id="confirmAction">
           Confirm
         </button>
 
@@ -938,1346 +794,745 @@
   </div>
 
 
-  <script>
+<script>
 
-    /* =====================================================
-       CONFIG
-    ===================================================== */
+  const API = window.EARNNEST_API || "/api";
 
-    const API_BASE =
-      window.EARNNEST_API ||
-      '/api';
+  const token = localStorage.getItem("earnnest_token");
+  const savedUser = JSON.parse(
+    localStorage.getItem("earnnest_user") || "null"
+  );
 
-
-    let pendingAction = null;
+  let pendingAction = null;
 
 
-    /* =====================================================
-       HELPERS
-    ===================================================== */
+  /* -----------------------------
+     API HELPERS
+  ----------------------------- */
 
-    function getUser() {
+  async function apiGet(path) {
 
-      try {
-
-        return JSON.parse(
-          localStorage.getItem(
-            'earnnest_user'
-          ) || 'null'
-        );
-
-      } catch (error) {
-
-        return null;
-
+    const res = await fetch(API + path, {
+      method: "GET",
+      headers: {
+        "Authorization": "Bearer " + token
       }
+    });
 
-    }
+    const data = await res.json().catch(() => ({}));
 
-
-    function getToken() {
-
-      return (
-        localStorage.getItem(
-          'earnnest_token'
-        ) || ''
-      ).trim();
-
-    }
-
-
-    function escapeHtml(value) {
-
-      return String(
-        value ?? ''
-      )
-        .replaceAll('&', '&amp;')
-        .replaceAll('<', '&lt;')
-        .replaceAll('>', '&gt;')
-        .replaceAll('"', '&quot;')
-        .replaceAll("'", '&#039;');
-
-    }
-
-
-    function formatNumber(value) {
-
-      const number =
-        Number(value || 0);
-
-      return number.toLocaleString();
-
-    }
-
-
-    function formatDate(value) {
-
-      if (!value) {
-        return '-';
-      }
-
-      const date =
-        new Date(value);
-
-      if (
-        Number.isNaN(
-          date.getTime()
-        )
-      ) {
-        return escapeHtml(value);
-      }
-
-      return date.toLocaleString();
-
-    }
-
-
-    function showStatus(
-      message,
-      type = ''
-    ) {
-
-      const box =
-        document.getElementById(
-          'statusBox'
-        );
-
-      box.textContent = message;
-
-      box.className =
-        'status ' + type;
-
-    }
-
-
-    function authHeaders() {
-
-      return {
-        'Authorization':
-          'Bearer ' + getToken(),
-
-        'Content-Type':
-          'application/json'
-      };
-
-    }
-
-
-    /* =====================================================
-       ADMIN CHECK
-    ===================================================== */
-
-    function checkAdmin() {
-
-      const user =
-        getUser();
-
-      const token =
-        getToken();
-
-      if (!user || !token) {
-
-        alert(
-          'Please login as admin first.'
-        );
-
-        window.location.href =
-          '/';
-
-        return false;
-
-      }
-
-      const role =
-        String(
-          user.role || ''
-        )
-          .trim()
-          .toLowerCase();
-
-      if (role !== 'admin') {
-
-        alert(
-          'Admin access required.'
-        );
-
-        localStorage.removeItem(
-          'earnnest_token'
-        );
-
-        localStorage.removeItem(
-          'earnnest_user'
-        );
-
-        window.location.href =
-          '/';
-
-        return false;
-
-      }
-
-      document.getElementById(
-        'adminName'
-      ).textContent =
-        user.name ||
-        user.username ||
-        'Admin';
-
-      document.getElementById(
-        'adminEmail'
-      ).textContent =
-        user.email ||
-        '';
-
-      showStatus(
-        'Admin access verified.',
-        'success'
+    if (!res.ok) {
+      throw new Error(
+        data.message ||
+        data.error ||
+        "Server request failed (HTTP " + res.status + ")"
       );
+    }
+
+    return data;
+  }
+
+
+  async function apiPost(path, body) {
+
+    const res = await fetch(API + path, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + token
+      },
+      body: JSON.stringify(body)
+    });
+
+    const data = await res.json().catch(() => ({}));
+
+    if (!res.ok) {
+      throw new Error(
+        data.message ||
+        data.error ||
+        "Server request failed (HTTP " + res.status + ")"
+      );
+    }
+
+    return data;
+  }
+
+
+  /* -----------------------------
+     ADMIN CHECK
+  ----------------------------- */
+
+  async function checkAdmin() {
+
+    if (!token) {
+      window.location.href = "/";
+      return false;
+    }
+
+    try {
+
+      const data = await apiPost("/action", {
+        action: "dashboard"
+      });
+
+      const user = data.user || savedUser;
+
+      if (!user || user.role !== "admin") {
+        alert("Admin access required.");
+        logout();
+        return false;
+      }
+
+      document.getElementById("adminInfo").textContent =
+        user.email || "Administrator";
+
+      document.getElementById("settingsAdmin").textContent =
+        user.email || "Administrator";
 
       return true;
 
+    } catch (error) {
+
+      /*
+       * Fallback for current EarnNest API.
+       * Admin endpoints themselves also verify admin role.
+       */
+
+      if (savedUser && savedUser.role === "admin") {
+
+        document.getElementById("adminInfo").textContent =
+          savedUser.email || "Administrator";
+
+        document.getElementById("settingsAdmin").textContent =
+          savedUser.email || "Administrator";
+
+        return true;
+      }
+
+      showError(error.message);
+      return false;
+    }
+  }
+
+
+  /* -----------------------------
+     MENU
+  ----------------------------- */
+
+  function showSection(id, button) {
+
+    document.querySelectorAll(".section")
+      .forEach(section => {
+        section.classList.remove("active");
+      });
+
+    const section = document.getElementById(id);
+
+    if (section) {
+      section.classList.add("active");
     }
 
+    document.querySelectorAll(".menu button")
+      .forEach(btn => {
+        btn.classList.remove("active");
+      });
 
-    /* =====================================================
-       API GET
-    ===================================================== */
-
-    async function apiGet(path) {
-
-      const response =
-        await fetch(
-          API_BASE + path,
-          {
-            method: 'GET',
-            headers: authHeaders()
-          }
-        );
-
-      const text =
-        await response.text();
-
-      let data = {};
-
-      try {
-        data =
-          text
-            ? JSON.parse(text)
-            : {};
-      } catch (error) {
-        throw new Error(
-          'Server returned invalid JSON.'
-        );
-      }
-
-      if (!response.ok) {
-
-        throw new Error(
-          data.message ||
-          `Request failed (${response.status})`
-        );
-
-      }
-
-      return data;
-
+    if (button) {
+      button.classList.add("active");
     }
 
+    document.getElementById("sidebar")
+      .classList.remove("open");
 
-    /* =====================================================
-       API POST
-    ===================================================== */
-
-    async function apiPost(
-      path,
-      body
-    ) {
-
-      const response =
-        await fetch(
-          API_BASE + path,
-          {
-            method: 'POST',
-            headers: authHeaders(),
-            body: JSON.stringify(body)
-          }
-        );
-
-      const text =
-        await response.text();
-
-      let data = {};
-
-      try {
-        data =
-          text
-            ? JSON.parse(text)
-            : {};
-      } catch (error) {
-        throw new Error(
-          'Server returned invalid JSON.'
-        );
-      }
-
-      if (!response.ok) {
-
-        throw new Error(
-          data.message ||
-          `Request failed (${response.status})`
-        );
-
-      }
-
-      return data;
-
+    if (id === "users") {
+      loadUsers();
     }
 
-
-    /* =====================================================
-       LOAD STATS
-    ===================================================== */
-
-    async function loadStats() {
-
-      try {
-
-        const data =
-          await apiGet(
-            '/admin/stats'
-          );
-
-        const stats =
-          data.stats || {};
-
-        document.getElementById(
-          'totalUsers'
-        ).textContent =
-          formatNumber(
-            stats.totalUsers
-          );
-
-        document.getElementById(
-          'totalCoins'
-        ).textContent =
-          formatNumber(
-            stats.totalCoins
-          );
-
-        document.getElementById(
-          'totalWithdrawals'
-        ).textContent =
-          formatNumber(
-            stats.totalWithdrawals
-          );
-
-        document.getElementById(
-          'pendingWithdrawals'
-        ).textContent =
-          formatNumber(
-            stats.pendingWithdrawals
-          );
-
-        document.getElementById(
-          'pendingKyc'
-        ).textContent =
-          formatNumber(
-            stats.pendingKyc
-          );
-
-      } catch (error) {
-
-        console.error(
-          'STATS ERROR:',
-          error
-        );
-
-        showStatus(
-          error.message ||
-          'Unable to load admin statistics.',
-          'error'
-        );
-
-      }
-
+    if (id === "kyc") {
+      loadKyc();
     }
 
-
-    /* =====================================================
-       LOAD USERS
-    ===================================================== */
-
-    async function loadUsers() {
-
-      const table =
-        document.getElementById(
-          'usersTable'
-        );
-
-      table.innerHTML = `
-        <tr>
-          <td colspan="8" class="loading">
-            Loading users...
-          </td>
-        </tr>
-      `;
-
-      try {
-
-        const data =
-          await apiGet(
-            '/admin/users'
-          );
-
-        const users =
-          Array.isArray(data.users)
-            ? data.users
-            : [];
-
-        renderUsers(users);
-
-      } catch (error) {
-
-        console.error(
-          'USERS ERROR:',
-          error
-        );
-
-        table.innerHTML = `
-          <tr>
-            <td colspan="8" class="empty">
-              ${escapeHtml(
-                error.message ||
-                'Unable to load users.'
-              )}
-            </td>
-          </tr>
-        `;
-
-      }
-
+    if (id === "withdrawals") {
+      loadWithdrawals();
     }
 
+    if (id === "statistics") {
+      loadStats();
+    }
+  }
 
-    function renderUsers(users) {
 
-      const table =
-        document.getElementById(
-          'usersTable'
-        );
+  function openMenu(id) {
+
+    const buttons = document.querySelectorAll(".menu button");
+
+    let targetButton = null;
+
+    buttons.forEach(btn => {
+
+      if (
+        btn.textContent
+          .toLowerCase()
+          .includes(
+            id === "users"
+              ? "users"
+              : id === "kyc"
+              ? "kyc"
+              : "withdrawals"
+          )
+      ) {
+        targetButton = btn;
+      }
+
+    });
+
+    showSection(id, targetButton);
+  }
+
+
+  function toggleSidebar() {
+    document.getElementById("sidebar")
+      .classList.toggle("open");
+  }
+
+
+  /* -----------------------------
+     STATS
+  ----------------------------- */
+
+  async function loadStats() {
+
+    try {
+
+      const data = await apiGet("/admin/stats");
+
+      const stats = data.stats || {};
+
+      const users =
+        Number(stats.totalUsers || 0);
+
+      const coins =
+        Number(stats.totalCoins || 0);
+
+      const withdrawals =
+        Number(stats.totalWithdrawals || 0);
+
+      const pendingKyc =
+        Number(stats.pendingKyc || 0);
+
+      const referrals =
+        Number(stats.totalReferrals || 0);
+
+
+      document.getElementById("totalUsers")
+        .textContent = users.toLocaleString();
+
+      document.getElementById("totalCoins")
+        .textContent = coins.toLocaleString();
+
+      document.getElementById("totalWithdrawals")
+        .textContent = withdrawals.toLocaleString();
+
+      document.getElementById("pendingKyc")
+        .textContent = pendingKyc.toLocaleString();
+
+
+      document.getElementById("statUsers")
+        .textContent = users.toLocaleString();
+
+      document.getElementById("statCoins")
+        .textContent = coins.toLocaleString();
+
+      document.getElementById("statWithdrawals")
+        .textContent = withdrawals.toLocaleString();
+
+      document.getElementById("statReferrals")
+        .textContent = referrals.toLocaleString();
+
+    } catch (error) {
+
+      showError("Stats: " + error.message);
+    }
+  }
+
+
+  /* -----------------------------
+     USERS
+  ----------------------------- */
+
+  async function loadUsers() {
+
+    const tbody =
+      document.getElementById("usersTable");
+
+    tbody.innerHTML =
+      '<tr><td colspan="8" class="loading">Loading users...</td></tr>';
+
+    try {
+
+      const data =
+        await apiGet("/admin/users");
+
+      const users =
+        Array.isArray(data.users)
+          ? data.users
+          : [];
 
       if (!users.length) {
 
-        table.innerHTML = `
-          <tr>
-            <td colspan="8" class="empty">
-              No users found.
-            </td>
-          </tr>
-        `;
+        tbody.innerHTML =
+          '<tr><td colspan="8" class="empty">No users found.</td></tr>';
 
         return;
-
       }
 
 
-      table.innerHTML =
-        users.map(
-          user => {
+      tbody.innerHTML = users.map(user => {
 
-            const role =
-              String(
-                user.role || 'user'
-              )
-                .trim()
-                .toLowerCase();
+        const joined =
+          user.created_at
+            ? new Date(user.created_at)
+                .toLocaleDateString()
+            : "-";
 
-            return `
-              <tr>
+        const role =
+          user.role || "user";
 
-                <td>
-                  <div class="primary">
-                    ${escapeHtml(
-                      user.name || '-'
-                    )}
-                  </div>
-                </td>
+        return `
+          <tr>
 
-                <td>
-                  @${escapeHtml(
-                    user.username || '-'
-                  )}
-                </td>
+            <td>${escapeHtml(user.name || "-")}</td>
 
-                <td>
-                  ${escapeHtml(
-                    user.email || '-'
-                  )}
-                </td>
+            <td>${escapeHtml(user.username || "-")}</td>
 
-                <td>
-                  ${escapeHtml(
-                    user.phone || '-'
-                  )}
-                </td>
+            <td>${escapeHtml(user.email || "-")}</td>
 
-                <td>
-                  <span class="badge ${role === 'admin'
-                    ? 'admin'
-                    : 'user'}">
-                    ${escapeHtml(role)}
-                  </span>
-                </td>
+            <td>${escapeHtml(user.phone || "-")}</td>
 
-                <td>
-                  <strong>
-                    ${formatNumber(
-                      user.coins
-                    )}
-                  </strong>
-                </td>
+            <td>
+              <span class="badge ${
+                role === "admin"
+                  ? "approved"
+                  : "pending"
+              }">
+                ${escapeHtml(role)}
+              </span>
+            </td>
 
-                <td>
-                  ${escapeHtml(
-                    user.referral_code || '-'
-                  )}
-                </td>
+            <td>
+              <strong>
+                ${Number(user.coins || 0).toLocaleString()}
+              </strong>
+            </td>
 
-                <td>
-                  <span class="muted">
-                    ${formatDate(
-                      user.created_at
-                    )}
-                  </span>
-                </td>
+            <td>
+              ${escapeHtml(user.referral_code || "-")}
+            </td>
 
-              </tr>
-            `;
+            <td>${joined}</td>
 
-          }
-        )
-        .join('');
+          </tr>
+        `;
 
-    }
+      }).join("");
 
+    } catch (error) {
 
-    /* =====================================================
-       LOAD KYC
-    ===================================================== */
-
-    async function loadKyc() {
-
-      const table =
-        document.getElementById(
-          'kycTable'
-        );
-
-      table.innerHTML = `
-        <tr>
-          <td colspan="9" class="loading">
-            Loading KYC requests...
+      tbody.innerHTML =
+        `<tr>
+          <td colspan="8" class="empty">
+            ${escapeHtml(error.message)}
           </td>
-        </tr>
-      `;
-
-      try {
-
-        const data =
-          await apiGet(
-            '/admin/kyc'
-          );
-
-        const items =
-          Array.isArray(data.kyc)
-            ? data.kyc
-            : [];
-
-        renderKyc(items);
-
-      } catch (error) {
-
-        console.error(
-          'KYC ERROR:',
-          error
-        );
-
-        table.innerHTML = `
-          <tr>
-            <td colspan="9" class="empty">
-              ${escapeHtml(
-                error.message ||
-                'Unable to load KYC requests.'
-              )}
-            </td>
-          </tr>
-        `;
-
-      }
-
+        </tr>`;
     }
+  }
 
 
-    function renderKyc(items) {
+  /* -----------------------------
+     KYC
+  ----------------------------- */
 
-      const table =
-        document.getElementById(
-          'kycTable'
-        );
+  async function loadKyc() {
 
-      if (!items.length) {
+    const tbody =
+      document.getElementById("kycTable");
 
-        table.innerHTML = `
-          <tr>
-            <td colspan="9" class="empty">
-              No KYC requests found.
-            </td>
-          </tr>
-        `;
+    tbody.innerHTML =
+      '<tr><td colspan="9" class="loading">Loading KYC...</td></tr>';
+
+    try {
+
+      const data =
+        await apiGet("/admin/kyc");
+
+      const rows =
+        Array.isArray(data.kyc)
+          ? data.kyc
+          : [];
+
+      if (!rows.length) {
+
+        tbody.innerHTML =
+          '<tr><td colspan="9" class="empty">No KYC submissions found.</td></tr>';
 
         return;
-
       }
 
 
-      table.innerHTML =
-        items.map(
-          item => {
+      tbody.innerHTML = rows.map(k => {
 
-            const status =
-              String(
-                item.status || 'pending'
-              )
-                .trim()
-                .toLowerCase();
+        const status =
+          String(k.status || "pending").toLowerCase();
 
-            const isPending =
-              status === 'pending';
+        const statusClass =
+          status === "approved"
+            ? "approved"
+            : status === "rejected"
+            ? "rejected"
+            : "pending";
 
-            const userName =
-              item.user_name ||
-              item.username ||
-              item.user_id ||
-              '-';
-
-            const adminNote =
-              item.admin_note ||
-              '-';
+        const submitted =
+          k.submitted_at
+            ? new Date(k.submitted_at)
+                .toLocaleString()
+            : "-";
 
 
-            return `
-              <tr>
+        let action = "-";
 
-                <td>
-                  <div class="primary">
-                    ${escapeHtml(
-                      userName
-                    )}
-                  </div>
+        if (status === "pending") {
 
-                  <div class="muted">
-                    ID:
-                    ${escapeHtml(
-                      item.user_id || '-'
-                    )}
-                  </div>
-                </td>
+          action = `
+            <button
+              class="btn btn-green"
+              onclick="openAction('kyc', ${Number(k.id)}, 'approve')">
+              Approve
+            </button>
 
-
-                <td>
-                  ${escapeHtml(
-                    item.email || '-'
-                  )}
-                </td>
+            <button
+              class="btn btn-red"
+              onclick="openAction('kyc', ${Number(k.id)}, 'reject')">
+              Reject
+            </button>
+          `;
+        }
 
 
-                <td>
-                  ${escapeHtml(
-                    item.full_name || '-'
-                  )}
-                </td>
+        return `
+          <tr>
 
+            <td>${escapeHtml(k.user_name || k.username || "-")}</td>
 
-                <td>
-                  ${escapeHtml(
-                    item.document_type || '-'
-                  )}
-                </td>
+            <td>${escapeHtml(k.email || "-")}</td>
 
+            <td>${escapeHtml(k.full_name || "-")}</td>
 
-                <td>
-                  <strong>
-                    ${escapeHtml(
-                      item.document_number || '-'
-                    )}
-                  </strong>
-                </td>
+            <td>${escapeHtml(k.document_type || "-")}</td>
 
+            <td>${escapeHtml(k.document_number || "-")}</td>
 
-                <td>
-                  <span class="badge ${getBadgeClass(status)}">
-                    ${escapeHtml(status)}
-                  </span>
-                </td>
+            <td>
+              <span class="badge ${statusClass}">
+                ${escapeHtml(status)}
+              </span>
+            </td>
 
+            <td>${submitted}</td>
 
-                <td>
-                  <span class="muted">
-                    ${formatDate(
-                      item.submitted_at
-                    )}
-                  </span>
-                </td>
+            <td>${escapeHtml(k.admin_note || "-")}</td>
 
+            <td>${action}</td>
 
-                <td>
-                  <span class="muted">
-                    ${escapeHtml(
-                      adminNote
-                    )}
-                  </span>
-                </td>
+          </tr>
+        `;
 
+      }).join("");
 
-                <td>
+    } catch (error) {
 
-                  ${
-                    isPending
-
-                    ? `
-                      <div class="actions">
-
-                        <button
-                          class="btn btn-approve"
-                          onclick="openAction(
-                            'kyc',
-                            '${escapeJs(item.id)}',
-                            'approve'
-                          )"
-                        >
-                          Approve
-                        </button>
-
-                        <button
-                          class="btn btn-reject"
-                          onclick="openAction(
-                            'kyc',
-                            '${escapeJs(item.id)}',
-                            'reject'
-                          )"
-                        >
-                          Reject
-                        </button>
-
-                      </div>
-                    `
-
-                    : `
-                      <span class="muted">
-                        Processed
-                      </span>
-                    `
-                  }
-
-                </td>
-
-              </tr>
-            `;
-
-          }
-        )
-        .join('');
-
-    }
-
-
-    /* =====================================================
-       LOAD WITHDRAWALS
-    ===================================================== */
-
-    async function loadWithdrawals() {
-
-      const table =
-        document.getElementById(
-          'withdrawalsTable'
-        );
-
-      table.innerHTML = `
-        <tr>
-          <td colspan="9" class="loading">
-            Loading withdrawals...
+      tbody.innerHTML =
+        `<tr>
+          <td colspan="9" class="empty">
+            ${escapeHtml(error.message)}
           </td>
-        </tr>
-      `;
-
-      try {
-
-        const data =
-          await apiGet(
-            '/admin/withdrawals'
-          );
-
-        const items =
-          Array.isArray(
-            data.withdrawals
-          )
-            ? data.withdrawals
-            : [];
-
-        renderWithdrawals(items);
-
-      } catch (error) {
-
-        console.error(
-          'WITHDRAWALS ERROR:',
-          error
-        );
-
-        table.innerHTML = `
-          <tr>
-            <td colspan="9" class="empty">
-              ${escapeHtml(
-                error.message ||
-                'Unable to load withdrawals.'
-              )}
-            </td>
-          </tr>
-        `;
-
-      }
-
+        </tr>`;
     }
+  }
 
 
-    function renderWithdrawals(items) {
+  /* -----------------------------
+     WITHDRAWALS
+  ----------------------------- */
 
-      const table =
-        document.getElementById(
-          'withdrawalsTable'
-        );
+  async function loadWithdrawals() {
 
-      if (!items.length) {
+    const tbody =
+      document.getElementById("withdrawalsTable");
 
-        table.innerHTML = `
-          <tr>
-            <td colspan="9" class="empty">
-              No withdrawal requests found.
-            </td>
-          </tr>
-        `;
+    tbody.innerHTML =
+      '<tr><td colspan="8" class="loading">Loading withdrawals...</td></tr>';
+
+    try {
+
+      const data =
+        await apiGet("/admin/withdrawals");
+
+      const rows =
+        Array.isArray(data.withdrawals)
+          ? data.withdrawals
+          : [];
+
+      if (!rows.length) {
+
+        tbody.innerHTML =
+          '<tr><td colspan="8" class="empty">No withdrawals found.</td></tr>';
 
         return;
-
       }
 
 
-      table.innerHTML =
-        items.map(
-          item => {
+      tbody.innerHTML = rows.map(w => {
 
-            const status =
-              String(
-                item.status || 'pending'
-              )
-                .trim()
-                .toLowerCase();
+        const status =
+          String(w.status || "pending").toLowerCase();
 
-            const isPending =
-              status === 'pending';
+        const statusClass =
+          status === "approved"
+            ? "approved"
+            : status === "rejected"
+            ? "rejected"
+            : "pending";
 
-            const userName =
-              item.user_name ||
-              item.username ||
-              item.user_id ||
-              '-';
-
-            const method =
-              item.payment_method ||
-              '-';
-
-            const account =
-              item.payment_account ||
-              item.account ||
-              '-';
-
-            const note =
-              item.admin_note ||
-              '-';
+        const date =
+          w.created_at
+            ? new Date(w.created_at)
+                .toLocaleString()
+            : "-";
 
 
-            return `
-              <tr>
+        let action = "-";
 
-                <td>
-                  <div class="primary">
-                    ${escapeHtml(
-                      userName
-                    )}
-                  </div>
+        if (status === "pending") {
 
-                  <div class="muted">
-                    ID:
-                    ${escapeHtml(
-                      item.user_id || '-'
-                    )}
-                  </div>
-                </td>
+          action = `
+            <button
+              class="btn btn-green"
+              onclick="openAction('withdrawal', ${Number(w.id)}, 'approve')">
+              Approve
+            </button>
 
-
-                <td>
-                  ${escapeHtml(
-                    item.email || '-'
-                  )}
-                </td>
+            <button
+              class="btn btn-red"
+              onclick="openAction('withdrawal', ${Number(w.id)}, 'reject')">
+              Reject
+            </button>
+          `;
+        }
 
 
-                <td>
-                  <strong>
-                    ${formatNumber(
-                      item.amount
-                    )}
-                    coins
-                  </strong>
-                </td>
+        return `
+          <tr>
 
+            <td>${escapeHtml(w.user_name || w.username || "-")}</td>
 
-                <td>
-                  ${escapeHtml(
-                    String(method)
-                      .toUpperCase()
-                  )}
-                </td>
+            <td>${escapeHtml(w.email || "-")}</td>
 
+            <td>
+              <strong>
+                ${Number(w.amount || 0).toLocaleString()}
+              </strong>
+            </td>
 
-                <td>
-                  ${escapeHtml(
-                    account
-                  )}
-                </td>
+            <td>${escapeHtml(w.payment_method || "-")}</td>
 
+            <td>${escapeHtml(w.payment_account || "-")}</td>
 
-                <td>
-                  <span class="badge ${getBadgeClass(status)}">
-                    ${escapeHtml(status)}
-                  </span>
-                </td>
+            <td>
+              <span class="badge ${statusClass}">
+                ${escapeHtml(status)}
+              </span>
+            </td>
 
+            <td>${date}</td>
 
-                <td>
-                  <span class="muted">
-                    ${formatDate(
-                      item.created_at
-                    )}
-                  </span>
-                </td>
+            <td>${action}</td>
 
+          </tr>
+        `;
 
-                <td>
-                  <span class="muted">
-                    ${escapeHtml(
-                      note
-                    )}
-                  </span>
-                </td>
+      }).join("");
 
+    } catch (error) {
 
-                <td>
-
-                  ${
-                    isPending
-
-                    ? `
-                      <div class="actions">
-
-                        <button
-                          class="btn btn-approve"
-                          onclick="openAction(
-                            'withdrawal',
-                            '${escapeJs(item.id)}',
-                            'approve'
-                          )"
-                        >
-                          Approve
-                        </button>
-
-                        <button
-                          class="btn btn-reject"
-                          onclick="openAction(
-                            'withdrawal',
-                            '${escapeJs(item.id)}',
-                            'reject'
-                          )"
-                        >
-                          Reject
-                        </button>
-
-                      </div>
-                    `
-
-                    : `
-                      <span class="muted">
-                        Processed
-                      </span>
-                    `
-                  }
-
-                </td>
-
-              </tr>
-            `;
-
-          }
-        )
-        .join('');
-
+      tbody.innerHTML =
+        `<tr>
+          <td colspan="8" class="empty">
+            ${escapeHtml(error.message)}
+          </td>
+        </tr>`;
     }
+  }
 
 
-    /* =====================================================
-       BADGE
-    ===================================================== */
+  /* -----------------------------
+     ACTION MODAL
+  ----------------------------- */
 
-    function getBadgeClass(status) {
+  function openAction(type, id, action) {
 
-      if (
-        status === 'approved'
-      ) {
-        return 'approved';
-      }
-
-      if (
-        status === 'rejected'
-      ) {
-        return 'rejected';
-      }
-
-      return 'pending';
-
-    }
-
-
-    /* =====================================================
-       ESCAPE JS
-    ===================================================== */
-
-    function escapeJs(value) {
-
-      return String(
-        value ?? ''
-      )
-        .replaceAll('\\', '\\\\')
-        .replaceAll("'", "\\'")
-        .replaceAll('"', '\\"')
-        .replaceAll('\n', '\\n')
-        .replaceAll('\r', '\\r');
-
-    }
-
-
-    /* =====================================================
-       ACTION MODAL
-    ===================================================== */
-
-    function openAction(
+    pendingAction = {
       type,
       id,
       action
-    ) {
+    };
 
-      pendingAction = {
-        type,
-        id,
-        action
-      };
+    document.getElementById("modalTitle")
+      .textContent =
+        action === "approve"
+          ? "Approve Request"
+          : "Reject Request";
 
-      const title =
-        document.getElementById(
-          'modalTitle'
-        );
+    document.getElementById("actionNote")
+      .value = "";
 
-      const description =
-        document.getElementById(
-          'modalDescription'
-        );
-
-      const confirmButton =
-        document.getElementById(
-          'confirmActionBtn'
-        );
-
-      document.getElementById(
-        'adminNote'
-      ).value = '';
+    document.getElementById("actionModal")
+      .classList.add("show");
+  }
 
 
-      const objectName =
-        type === 'kyc'
-          ? 'KYC request'
-          : 'withdrawal';
+  function closeModal() {
+
+    pendingAction = null;
+
+    document.getElementById("actionModal")
+      .classList.remove("show");
+  }
 
 
-      title.textContent =
-        action === 'approve'
-          ? `Approve ${objectName}`
-          : `Reject ${objectName}`;
-
-
-      description.textContent =
-        action === 'approve'
-          ? `You are about to approve this ${objectName}. Add an optional note.`
-          : `You are about to reject this ${objectName}. Add an optional reason/note.`;
-
-
-      confirmButton.textContent =
-        action === 'approve'
-          ? 'Approve'
-          : 'Reject';
-
-
-      confirmButton.className =
-        action === 'approve'
-          ? 'btn btn-approve'
-          : 'btn btn-reject';
-
-
-      document.getElementById(
-        'actionModal'
-      ).classList.add('show');
-
-    }
-
-
-    function closeModal() {
-
-      pendingAction = null;
-
-      document.getElementById(
-        'actionModal'
-      ).classList.remove('show');
-
-    }
-
-
-    /* =====================================================
-       CONFIRM ACTION
-    ===================================================== */
-
-    async function confirmAction() {
+  document.getElementById("confirmAction")
+    .addEventListener("click", async function() {
 
       if (!pendingAction) {
         return;
       }
 
+      const note =
+        document.getElementById("actionNote")
+          .value.trim();
+
       const actionData =
         pendingAction;
 
-      const note =
-        document.getElementById(
-          'adminNote'
-        ).value.trim();
-
-      const button =
-        document.getElementById(
-          'confirmActionBtn'
-        );
-
-      button.disabled = true;
-      button.textContent = 'Processing...';
-
+      this.disabled = true;
+      this.textContent = "Processing...";
 
       try {
 
-        let data;
+        if (actionData.type === "kyc") {
 
+          await apiPost("/admin/kyc", {
+            id: actionData.id,
+            action: actionData.action,
+            note: note
+          });
 
-        if (
-          actionData.type === 'kyc'
-        ) {
+          closeModal();
+          await loadKyc();
+          await loadStats();
 
-          data =
-            await apiPost(
-              '/admin/kyc',
-              {
-                id:
-                  actionData.id,
-
-                action:
-                  actionData.action,
-
-                note
-              }
-            );
-
-        } else {
-
-          data =
-            await apiPost(
-              '/admin/withdrawals',
-              {
-                id:
-                  actionData.id,
-
-                action:
-                  actionData.action,
-
-                note
-              }
-            );
+          alert(
+            actionData.action === "approve"
+              ? "KYC approved successfully."
+              : "KYC rejected successfully."
+          );
 
         }
 
 
-        showStatus(
-          data.message ||
-          'Action completed successfully.',
-          'success'
-        );
+        if (actionData.type === "withdrawal") {
 
+          await apiPost("/admin/withdrawals", {
+            id: actionData.id,
+            action: actionData.action,
+            note: note
+          });
 
-        closeModal();
+          closeModal();
+          await loadWithdrawals();
+          await loadStats();
 
-
-        await Promise.all([
-          loadStats(),
-          loadKyc(),
-          loadWithdrawals()
-        ]);
-
-
-      } catch (error) {
-
-        console.error(
-          'ACTION ERROR:',
-          error
-        );
-
-        showStatus(
-          error.message ||
-          'Action failed.',
-          'error'
-        );
-
-      } finally {
-
-        button.disabled = false;
-
-      }
-
-    }
-
-
-    /* =====================================================
-       LOAD EVERYTHING
-    ===================================================== */
-
-    async function loadAll() {
-
-      if (!checkAdmin()) {
-        return;
-      }
-
-      showStatus(
-        'Loading admin dashboard...'
-      );
-
-      await Promise.all([
-        loadStats(),
-        loadUsers(),
-        loadKyc(),
-        loadWithdrawals()
-      ]);
-
-      showStatus(
-        'Dashboard updated successfully.',
-        'success'
-      );
-
-    }
-
-
-    /* =====================================================
-       LOGOUT
-    ===================================================== */
-
-    async function logout() {
-
-      const token =
-        getToken();
-
-      try {
-
-        if (token) {
-
-          await fetch(
-            API_BASE + '/admin/stats',
-            {
-              method: 'GET',
-              headers: authHeaders()
-            }
+          alert(
+            actionData.action === "approve"
+              ? "Withdrawal approved successfully."
+              : "Withdrawal rejected successfully."
           );
 
         }
 
       } catch (error) {
-        console.warn(
-          'Logout cleanup:',
-          error
-        );
+
+        alert(error.message);
+
+      } finally {
+
+        this.disabled = false;
+        this.textContent = "Confirm";
       }
 
+    });
 
-      localStorage.removeItem(
-        'earnnest_token'
-      );
 
-      localStorage.removeItem(
-        'earnnest_user'
-      );
+  /* -----------------------------
+     HELPERS
+  ----------------------------- */
 
-      window.location.href =
-        '/';
+  function escapeHtml(value) {
 
+    return String(value ?? "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
+
+
+  function showError(message) {
+
+    const box =
+      document.getElementById("errorBox");
+
+    box.textContent = message;
+    box.style.display = "block";
+  }
+
+
+  function logout() {
+
+    localStorage.removeItem("earnnest_token");
+    localStorage.removeItem("earnnest_user");
+
+    window.location.href = "/";
+  }
+
+
+  /* -----------------------------
+     START
+  ----------------------------- */
+
+  (async function() {
+
+    const ok = await checkAdmin();
+
+    if (!ok) {
+      return;
     }
 
+    await loadStats();
 
-    /* =====================================================
-       MODAL BACKDROP
-    ===================================================== */
+  })();
 
-    document
-      .getElementById('actionModal')
-      .addEventListener(
-        'click',
-        function(event) {
-
-          if (
-            event.target === this
-          ) {
-            closeModal();
-          }
-
-        }
-      );
-
-
-    /* =====================================================
-       START
-    ===================================================== */
-
-    document.addEventListener(
-      'DOMContentLoaded',
-      function() {
-
-        if (
-          checkAdmin()
-        ) {
-
-          loadAll();
-
-        }
-
-      }
-    );
-
-  </script>
+</script>
 
 </body>
 </html>
