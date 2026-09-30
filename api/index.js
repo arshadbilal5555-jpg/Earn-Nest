@@ -6,6 +6,15 @@ const { neon } = require('@neondatabase/serverless');
 const sql = neon(process.env.DATABASE_URL);
 
 /* =========================================================
+   CONFIG
+========================================================= */
+
+const DAILY_BONUS_AMOUNT = 50;
+const REFERRER_REWARD = 100;
+const NEW_USER_REFERRAL_BONUS = 50;
+const MIN_WITHDRAWAL = 1000;
+
+/* =========================================================
    REWARD CATALOG
 ========================================================= */
 
@@ -28,16 +37,8 @@ const SURVEY_REWARDS = {
   survey5: 250
 };
 
-const DAILY_BONUS_AMOUNT = 50;
-
-const REFERRER_REWARD = 100;
-const NEW_USER_REFERRAL_BONUS = 50;
-
-const MIN_WITHDRAWAL = 1000;
-
-
 /* =========================================================
-   BASIC HELPERS
+   RESPONSE HELPER
 ========================================================= */
 
 function send(res, status, data) {
@@ -57,17 +58,23 @@ function send(res, status, data) {
   return res.end(JSON.stringify(data));
 }
 
+/* =========================================================
+   TOKEN
+========================================================= */
 
 function getToken(req) {
   const auth = req.headers.authorization || '';
 
-  if (auth.startsWith('Bearer ')) {
-    return auth.substring(7).trim();
+  if (!auth.startsWith('Bearer ')) {
+    return null;
   }
 
-  return '';
+  return auth.substring(7).trim();
 }
 
+/* =========================================================
+   BODY
+========================================================= */
 
 async function readBody(req) {
   return new Promise((resolve, reject) => {
@@ -86,7 +93,7 @@ async function readBody(req) {
       try {
         resolve(JSON.parse(body));
       } catch (error) {
-        reject(new Error('Invalid JSON body.'));
+        reject(error);
       }
     });
 
@@ -94,46 +101,127 @@ async function readBody(req) {
   });
 }
 
-
-function makeId() {
-  return crypto.randomUUID();
-}
-
-
-function makeToken() {
-  return crypto.randomBytes(48).toString('hex');
-}
-
-
-function makeReferralCode() {
-  return crypto
-    .randomBytes(5)
-    .toString('hex')
-    .toUpperCase();
-}
-
-
 /* =========================================================
-   WALLET RESPONSE
+   ID / TOKEN HELPERS
 ========================================================= */
 
-function walletResponse(wallet) {
-  const balance = Number(wallet?.balance || 0);
-  const totalEarned = Number(wallet?.total_earned || 0);
-  const totalWithdrawn = Number(wallet?.total_withdrawn || 0);
+function makeId() {
+  return crypto.randomBytes(16).toString('hex');
+}
 
+function makeToken() {
+  return crypto.randomBytes(32).toString('hex');
+}
+
+function makeReferralCode(username) {
+  const clean = String(username || '')
+    .replace(/[^a-zA-Z0-9]/g, '')
+    .slice(0, 8)
+    .toUpperCase();
+
+  const random = crypto.randomBytes(3).toString('hex').toUpperCase();
+
+  return `${clean || 'USER'}${random}`;
+}
+
+/* =========================================================
+   WALLET
+========================================================= */
+
+async function getWallet(userId) {
+  const rows = await sql`
+    SELECT
+      id,
+      user_id,
+      balance,
+      total_earned,
+      total_withdrawn,
+      created_at,
+      updated_at
+    FROM wallets
+    WHERE user_id = ${userId}
+    LIMIT 1
+  `;
+
+  if (rows.length) {
+    return rows[0];
+  }
+
+  const created = await sql`
+    INSERT INTO wallets (
+      user_id,
+      balance,
+      total_earned,
+      total_withdrawn
+    )
+    VALUES (
+      ${userId},
+      0,
+      0,
+      0
+    )
+    RETURNING
+      id,
+      user_id,
+      balance,
+      total_earned,
+      total_withdrawn,
+      created_at,
+      updated_at
+  `;
+
+  return created[0];
+}
+
+function walletResponse(wallet) {
   return {
-    balance,
-    total_earned: totalEarned,
-    total_withdrawn: totalWithdrawn,
-    totalEarned,
-    totalWithdrawn
+    balance: Number(wallet.balance || 0),
+    totalEarned: Number(wallet.total_earned || 0),
+    totalWithdrawn: Number(wallet.total_withdrawn || 0)
   };
 }
 
+/* =========================================================
+   ADD COINS
+========================================================= */
+
+async function addCoins(userId, amount) {
+  const value = Number(amount);
+
+  if (!Number.isFinite(value) || value <= 0) {
+    throw new Error('Invalid coin amount');
+  }
+
+  await sql`
+    UPDATE users
+    SET coins = COALESCE(coins, 0) + ${value}
+    WHERE id = ${userId}
+  `;
+
+  const wallet = await getWallet(userId);
+
+  const updated = await sql`
+    UPDATE wallets
+    SET
+      balance = COALESCE(balance, 0) + ${value},
+      total_earned = COALESCE(total_earned, 0) + ${value},
+      updated_at = NOW()
+    WHERE user_id = ${userId}
+    RETURNING
+      id,
+      user_id,
+      balance,
+      total_earned,
+      total_withdrawn,
+      created_at,
+      updated_at
+  `;
+
+  return updated[0] || wallet;
+}
 
 /* =========================================================
-   GET USER FROM TOKEN
+   CURRENT USER FROM TOKEN
 ========================================================= */
 
 async function getUserFromToken(req) {
@@ -154,149 +242,55 @@ async function getUserFromToken(req) {
       u.coins,
       u.created_at,
       u.referral_code,
-      u.referred_by
+      u.referred_by,
+      u.status
     FROM admin_sessions s
-    JOIN users u
+    INNER JOIN users u
       ON u.id = s.user_id
     WHERE s.token = ${token}
       AND s.expires_at > NOW()
     LIMIT 1
   `;
 
-  return rows[0] || null;
-}
-
-
-/* =========================================================
-   GET WALLET
-========================================================= */
-
-async function getWallet(userId) {
-  const uid = String(userId);
-
-  const rows = await sql`
-    SELECT
-      id,
-      user_id,
-      balance,
-      total_earned,
-      total_withdrawn,
-      created_at,
-      updated_at
-    FROM wallets
-    WHERE user_id = ${uid}
-    LIMIT 1
-  `;
-
-  if (rows.length) {
-    return rows[0];
+  if (!rows.length) {
+    return null;
   }
 
-  const created = await sql`
-    INSERT INTO wallets
-      (
-        user_id,
-        balance,
-        total_earned,
-        total_withdrawn,
-        created_at,
-        updated_at
-      )
-    VALUES
-      (
-        ${uid},
-        0,
-        0,
-        0,
-        NOW(),
-        NOW()
-      )
-    RETURNING
-      id,
-      user_id,
-      balance,
-      total_earned,
-      total_withdrawn,
-      created_at,
-      updated_at
-  `;
+  const user = rows[0];
 
-  return created[0];
+  /*
+    Blocked / disabled users cannot use an old session.
+  */
+  if (user.status !== 'active') {
+    return null;
+  }
+
+  return user;
 }
-
-
-/* =========================================================
-   ADD COINS
-========================================================= */
-
-async function addCoins(userId, amount) {
-  const uid = String(userId);
-  const value = Number(amount);
-
-  const wallet = await getWallet(uid);
-
-  const oldBalance = Number(wallet.balance || 0);
-  const oldEarned = Number(wallet.total_earned || 0);
-  const totalWithdrawn =
-    Number(wallet.total_withdrawn || 0);
-
-  const newBalance = oldBalance + value;
-  const newEarned = oldEarned + value;
-
-  await sql`
-    UPDATE wallets
-    SET
-      balance = ${newBalance},
-      total_earned = ${newEarned},
-      updated_at = NOW()
-    WHERE user_id = ${uid}
-  `;
-
-  await sql`
-    UPDATE users
-    SET coins = ${newBalance}
-    WHERE id = ${uid}
-  `;
-
-  return {
-    balance: newBalance,
-    total_earned: newEarned,
-    total_withdrawn: totalWithdrawn
-  };
-}
-
 
 /* =========================================================
    LOGIN
 ========================================================= */
 
-async function handleLogin(body, res) {
-  const email = String(body.email || '')
-    .trim()
-    .toLowerCase();
-
-  const login = String(body.login || '')
-    .trim()
-    .toLowerCase();
-
-  const username = String(body.username || '')
-    .trim()
-    .toLowerCase();
+async function handleLogin(req, res, body) {
+  const login = String(
+    body.login ||
+    body.email ||
+    body.username ||
+    ''
+  ).trim();
 
   const password = String(body.password || '');
 
-  const identifier = email || login || username;
-
-  if (!identifier || !password) {
+  if (!login || !password) {
     return send(res, 400, {
       success: false,
-      message:
-        'Email/username and password are required.'
+      message: 'Login and password are required'
     });
   }
 
   try {
-    const users = await sql`
+    const rows = await sql`
       SELECT
         id,
         name,
@@ -308,94 +302,86 @@ async function handleLogin(body, res) {
         coins,
         created_at,
         referral_code,
-        referred_by
+        referred_by,
+        status
       FROM users
-      WHERE LOWER(email) = ${identifier}
-         OR LOWER(username) = ${identifier}
+      WHERE LOWER(email) = LOWER(${login})
+         OR LOWER(username) = LOWER(${login})
       LIMIT 1
     `;
 
-    if (!users.length) {
+    if (!rows.length) {
       return send(res, 401, {
         success: false,
-        message:
-          'Invalid email/username or password.'
+        message: 'Invalid login details'
       });
     }
 
-    const dbUser = users[0];
+    const user = rows[0];
 
-    if (
-      String(dbUser.password || '') !== password
-    ) {
+    if (user.password !== password) {
       return send(res, 401, {
         success: false,
-        message:
-          'Invalid email/username or password.'
+        message: 'Invalid login details'
+      });
+    }
+
+    if (user.status === 'blocked') {
+      return send(res, 403, {
+        success: false,
+        message: 'Your account has been blocked. Please contact support.'
+      });
+    }
+
+    if (user.status === 'disabled') {
+      return send(res, 403, {
+        success: false,
+        message: 'Your account has been disabled. Please contact support.'
+      });
+    }
+
+    if (user.status !== 'active') {
+      return send(res, 403, {
+        success: false,
+        message: 'Your account is not active.'
       });
     }
 
     const token = makeToken();
 
     await sql`
-      INSERT INTO admin_sessions
-        (
-          user_id,
-          token,
-          expires_at,
-          created_at
-        )
-      VALUES
-        (
-          ${String(dbUser.id)},
-          ${token},
-          NOW() + INTERVAL '30 days',
-          NOW()
-        )
+      INSERT INTO admin_sessions (
+        user_id,
+        token,
+        expires_at
+      )
+      VALUES (
+        ${user.id},
+        ${token},
+        NOW() + INTERVAL '30 days'
+      )
     `;
 
-    const wallet =
-      await getWallet(String(dbUser.id));
-
-    const walletData =
-      walletResponse(wallet);
-
-    const safeUser = {
-      id: dbUser.id,
-      name: dbUser.name,
-      username: dbUser.username,
-      email: dbUser.email,
-      phone: dbUser.phone,
-      role: dbUser.role,
-
-      coins: walletData.balance,
-      balance: walletData.balance,
-
-      totalEarned:
-        walletData.totalEarned,
-
-      totalWithdrawn:
-        walletData.totalWithdrawn,
-
-      created_at:
-        dbUser.created_at,
-
-      referral_code:
-        dbUser.referral_code,
-
-      referralCode:
-        dbUser.referral_code,
-
-      referred_by:
-        dbUser.referred_by
-    };
+    const wallet = await getWallet(user.id);
 
     return send(res, 200, {
       success: true,
-      message: 'Login successful.',
+      message: 'Login successful',
       token,
-      user: safeUser,
-      wallet: walletData
+      user: {
+        id: user.id,
+        name: user.name,
+        username: user.username,
+        email: user.email,
+        phone: user.phone,
+        role: user.role,
+        coins: Number(user.coins || 0),
+        created_at: user.created_at,
+        referral_code: user.referral_code,
+        referred_by: user.referred_by,
+        status: user.status
+      },
+      wallet: walletResponse(wallet)
     });
 
   } catch (error) {
@@ -403,72 +389,44 @@ async function handleLogin(body, res) {
 
     return send(res, 500, {
       success: false,
-      message: 'Login database error.',
-      error:
-        error.message ||
-        'Unknown database error',
-      code: error.code || null,
-      detail: error.detail || null
+      message: 'Server error'
     });
   }
 }
 
-
 /* =========================================================
-   REGISTER + REFERRAL
+   REGISTER
 ========================================================= */
 
-async function handleRegister(body, res) {
+async function handleRegister(req, res, body) {
   const name = String(body.name || '').trim();
+  const username = String(body.username || '').trim();
+  const phone = String(body.phone || '').trim();
+  const email = String(body.email || '').trim().toLowerCase();
+  const password = String(body.password || '');
+  const confirmPassword = String(
+    body.confirmPassword ||
+    body.confirm ||
+    ''
+  );
 
-  const username =
-    String(body.username || '').trim();
+  const referralCode = String(
+    body.referralCode ||
+    body.referral ||
+    ''
+  ).trim();
 
-  const email =
-    String(body.email || '')
-      .trim()
-      .toLowerCase();
-
-  const phone =
-    String(body.phone || '').trim();
-
-  const password =
-    String(body.password || '');
-
-  const confirmPassword =
-    String(
-      body.confirmPassword ||
-      body.confirm_password ||
-      ''
-    );
-
-  const referralCode =
-    String(
-      body.referralCode ||
-      body.referral_code ||
-      ''
-    )
-      .trim()
-      .toUpperCase();
-
-  if (
-    !name ||
-    !username ||
-    !email ||
-    !password
-  ) {
+  if (!name || !username || !email || !password) {
     return send(res, 400, {
       success: false,
-      message:
-        'Name, username, email and password are required.'
+      message: 'Please fill all required fields'
     });
   }
 
   if (password.length < 6) {
     return send(res, 400, {
       success: false,
-      message:
-        'Password must be at least 6 characters.'
+      message: 'Password must be at least 6 characters'
     });
   }
 
@@ -478,122 +436,100 @@ async function handleRegister(body, res) {
   ) {
     return send(res, 400, {
       success: false,
-      message:
-        'Passwords do not match.'
+      message: 'Passwords do not match'
     });
   }
 
   try {
-    const existing = await sql`
-      SELECT
-        id,
-        email,
-        username
+    const duplicate = await sql`
+      SELECT id, email, username
       FROM users
-      WHERE LOWER(email) = ${email}
-         OR LOWER(username) =
-            ${username.toLowerCase()}
+      WHERE LOWER(email) = LOWER(${email})
+         OR LOWER(username) = LOWER(${username})
       LIMIT 1
     `;
 
-    if (existing.length) {
+    if (duplicate.length) {
       if (
-        String(existing[0].email || '')
-          .toLowerCase() === email
+        String(duplicate[0].email).toLowerCase() ===
+        email.toLowerCase()
       ) {
         return send(res, 409, {
           success: false,
-          message:
-            'Email already registered.'
+          message: 'Email already registered'
         });
       }
 
       return send(res, 409, {
         success: false,
-        message:
-          'Username already taken.'
+        message: 'Username already taken'
       });
     }
 
-    let referrer = null;
     let referredBy = null;
 
     if (referralCode) {
-      const referrerRows = await sql`
-        SELECT
-          id,
-          name,
-          username,
-          referral_code
-        FROM users
-        WHERE UPPER(referral_code) =
-              ${referralCode}
-        LIMIT 1
-      `;
-
-      if (!referrerRows.length) {
-        return send(res, 400, {
-          success: false,
-          message:
-            'Invalid referral code.'
-        });
-      }
-
-      referrer = referrerRows[0];
-      referredBy = String(referrer.id);
-    }
-
-    let newReferralCode =
-      makeReferralCode();
-
-    for (let i = 0; i < 10; i++) {
-      const codeCheck = await sql`
+      const refRows = await sql`
         SELECT id
         FROM users
-        WHERE UPPER(referral_code) =
-              ${newReferralCode}
+        WHERE LOWER(referral_code) = LOWER(${referralCode})
         LIMIT 1
       `;
 
-      if (!codeCheck.length) {
-        break;
+      if (refRows.length) {
+        referredBy = refRows[0].id;
       }
-
-      newReferralCode =
-        makeReferralCode();
     }
 
     const userId = makeId();
 
-    const created = await sql`
-      INSERT INTO users
-        (
-          id,
-          name,
-          username,
-          email,
-          phone,
-          password,
-          role,
-          coins,
-          created_at,
-          referral_code,
-          referred_by
-        )
-      VALUES
-        (
-          ${userId},
-          ${name},
-          ${username},
-          ${email},
-          ${phone},
-          ${password},
-          'user',
-          0,
-          NOW(),
-          ${newReferralCode},
-          ${referredBy}
-        )
+    let newReferralCode = makeReferralCode(username);
+
+    /*
+      Make sure referral code is unique.
+    */
+    for (let i = 0; i < 5; i++) {
+      const existing = await sql`
+        SELECT id
+        FROM users
+        WHERE referral_code = ${newReferralCode}
+        LIMIT 1
+      `;
+
+      if (!existing.length) {
+        break;
+      }
+
+      newReferralCode = makeReferralCode(username);
+    }
+
+    const inserted = await sql`
+      INSERT INTO users (
+        id,
+        name,
+        username,
+        email,
+        phone,
+        password,
+        role,
+        coins,
+        referral_code,
+        referred_by,
+        status
+      )
+      VALUES (
+        ${userId},
+        ${name},
+        ${username},
+        ${email},
+        ${phone},
+        ${password},
+        'user',
+        0,
+        ${newReferralCode},
+        ${referredBy},
+        'active'
+      )
       RETURNING
         id,
         name,
@@ -604,174 +540,120 @@ async function handleRegister(body, res) {
         coins,
         created_at,
         referral_code,
-        referred_by
+        referred_by,
+        status
     `;
 
-    await sql`
-      INSERT INTO wallets
-        (
-          user_id,
-          balance,
-          total_earned,
-          total_withdrawn,
-          created_at,
-          updated_at
-        )
-      VALUES
-        (
-          ${userId},
-          0,
-          0,
-          0,
-          NOW(),
-          NOW()
-        )
-    `;
+    const user = inserted[0];
 
-    if (referrer) {
-      const referrerClaimKey =
-        `referral_referrer_${userId}`;
+    await getWallet(user.id);
 
-      const referrerAlready =
-        await sql`
+    /*
+      Referral reward.
+    */
+    if (referredBy && referredBy !== user.id) {
+      try {
+        const claimKey = `signup_${user.id}`;
+
+        const claim = await sql`
           SELECT id
           FROM reward_claims
-          WHERE reward_type = 'referral'
-            AND reference_key =
-                ${referrerClaimKey}
+          WHERE user_id = ${referredBy}
+            AND reward_type = 'referral'
+            AND reference_key = ${claimKey}
           LIMIT 1
         `;
 
-      if (!referrerAlready.length) {
-        await addCoins(
-          String(referrer.id),
-          REFERRER_REWARD
-        );
+        if (!claim.length) {
+          await addCoins(
+            referredBy,
+            REFERRER_REWARD
+          );
 
-        await sql`
-          INSERT INTO reward_claims
-            (
+          await sql`
+            INSERT INTO reward_claims (
               id,
               user_id,
               reward_type,
               reference_key,
               title,
-              amount,
-              created_at
+              amount
             )
-          VALUES
-            (
+            VALUES (
               ${makeId()},
-              ${String(referrer.id)},
+              ${referredBy},
               'referral',
-              ${referrerClaimKey},
-              'Referral Signup Reward',
-              ${REFERRER_REWARD},
-              NOW()
+              ${claimKey},
+              'Referral Reward',
+              ${REFERRER_REWARD}
             )
-        `;
+          `;
+        }
+      } catch (refError) {
+        console.error(
+          'REFERRAL REWARD ERROR:',
+          refError
+        );
       }
 
-      const newUserClaimKey =
-        `referral_new_user_${userId}`;
-
-      const newUserAlready =
-        await sql`
-          SELECT id
-          FROM reward_claims
-          WHERE user_id = ${userId}
-            AND reward_type = 'referral'
-            AND reference_key =
-                ${newUserClaimKey}
-          LIMIT 1
-        `;
-
-      if (!newUserAlready.length) {
+      try {
         await addCoins(
-          userId,
+          user.id,
           NEW_USER_REFERRAL_BONUS
         );
 
         await sql`
-          INSERT INTO reward_claims
-            (
-              id,
-              user_id,
-              reward_type,
-              reference_key,
-              title,
-              amount,
-              created_at
-            )
-          VALUES
-            (
-              ${makeId()},
-              ${userId},
-              'referral',
-              ${newUserClaimKey},
-              'Referral Welcome Bonus',
-              ${NEW_USER_REFERRAL_BONUS},
-              NOW()
-            )
+          INSERT INTO reward_claims (
+            id,
+            user_id,
+            reward_type,
+            reference_key,
+            title,
+            amount
+          )
+          VALUES (
+            ${makeId()},
+            ${user.id},
+            'referral_bonus',
+            ${`welcome_${user.id}`},
+            'Referral Welcome Bonus',
+            ${NEW_USER_REFERRAL_BONUS}
+          )
         `;
+      } catch (bonusError) {
+        console.error(
+          'NEW USER BONUS ERROR:',
+          bonusError
+        );
       }
     }
 
     const token = makeToken();
 
     await sql`
-      INSERT INTO admin_sessions
-        (
-          user_id,
-          token,
-          expires_at,
-          created_at
-        )
-      VALUES
-        (
-          ${userId},
-          ${token},
-          NOW() + INTERVAL '30 days',
-          NOW()
-        )
+      INSERT INTO admin_sessions (
+        user_id,
+        token,
+        expires_at
+      )
+      VALUES (
+        ${user.id},
+        ${token},
+        NOW() + INTERVAL '30 days'
+      )
     `;
 
-    const wallet =
-      await getWallet(userId);
-
-    const walletData =
-      walletResponse(wallet);
-
-    const userData = {
-      ...created[0],
-
-      coins:
-        walletData.balance,
-
-      balance:
-        walletData.balance,
-
-      totalEarned:
-        walletData.totalEarned,
-
-      totalWithdrawn:
-        walletData.totalWithdrawn,
-
-      referralCode:
-        created[0].referral_code
-    };
+    const wallet = await getWallet(user.id);
 
     return send(res, 201, {
       success: true,
-
-      message:
-        referrer
-          ? `Account created successfully. Referral bonus added: ${NEW_USER_REFERRAL_BONUS} coins.`
-          : 'Account created successfully.',
-
+      message: 'Account created successfully',
       token,
-      user: userData,
-      wallet: walletData
+      user: {
+        ...user,
+        coins: Number(user.coins || 0)
+      },
+      wallet: walletResponse(wallet)
     });
 
   } catch (error) {
@@ -779,388 +661,245 @@ async function handleRegister(body, res) {
 
     return send(res, 500, {
       success: false,
-      message:
-        'Unable to create account.',
-      error:
-        error.message ||
-        'Database error',
-      code:
-        error.code || null,
-      detail:
-        error.detail || null
+      message: 'Account creation failed',
+      error: error.message
     });
   }
 }
-
 
 /* =========================================================
    DASHBOARD
 ========================================================= */
 
 async function handleDashboard(req, res) {
-  try {
-    const user =
-      await getUserFromToken(req);
+  const user = await getUserFromToken(req);
 
-    if (!user) {
-      return send(res, 401, {
-        success: false,
-        message:
-          'Authentication required.'
-      });
-    }
-
-    const wallet =
-      await getWallet(String(user.id));
-
-    return send(res, 200, {
-      success: true,
-
-      user: {
-        id: user.id,
-        name: user.name,
-        username: user.username,
-        email: user.email,
-        phone: user.phone,
-        role: user.role,
-
-        coins:
-          Number(wallet.balance || 0),
-
-        referral_code:
-          user.referral_code,
-
-        referralCode:
-          user.referral_code,
-
-        referred_by:
-          user.referred_by
-      },
-
-      wallet:
-        walletResponse(wallet)
-    });
-
-  } catch (error) {
-    console.error('DASHBOARD ERROR:', error);
-
-    return send(res, 500, {
+  if (!user) {
+    return send(res, 401, {
       success: false,
-      message:
-        'Unable to load dashboard.',
-      error:
-        error.message
+      message: 'Unauthorized'
     });
   }
-}
 
+  const wallet = await getWallet(user.id);
+
+  return send(res, 200, {
+    success: true,
+    user: {
+      id: user.id,
+      name: user.name,
+      username: user.username,
+      email: user.email,
+      phone: user.phone,
+      role: user.role,
+      coins: Number(user.coins || 0),
+      referral_code: user.referral_code,
+      status: user.status
+    },
+    wallet: walletResponse(wallet)
+  });
+}
 
 /* =========================================================
    WALLET
 ========================================================= */
 
 async function handleWallet(req, res) {
-  try {
-    const user =
-      await getUserFromToken(req);
+  const user = await getUserFromToken(req);
 
-    if (!user) {
-      return send(res, 401, {
-        success: false,
-        message:
-          'Authentication required.'
-      });
-    }
-
-    const wallet =
-      await getWallet(String(user.id));
-
-    return send(res, 200, {
-      success: true,
-
-      wallet: {
-        id: wallet.id,
-        user_id: wallet.user_id,
-
-        ...walletResponse(wallet),
-
-        created_at:
-          wallet.created_at,
-
-        updated_at:
-          wallet.updated_at
-      }
-    });
-
-  } catch (error) {
-    console.error('WALLET ERROR:', error);
-
-    return send(res, 500, {
+  if (!user) {
+    return send(res, 401, {
       success: false,
-      message:
-        'Unable to load wallet.',
-      error:
-        error.message
+      message: 'Unauthorized'
     });
   }
+
+  const wallet = await getWallet(user.id);
+
+  return send(res, 200, {
+    success: true,
+    wallet: walletResponse(wallet),
+    coins: Number(user.coins || 0)
+  });
 }
 
-
 /* =========================================================
-   CLAIM TASK / SURVEY / DAILY BONUS
+   CLAIM REWARD
 ========================================================= */
 
-async function handleClaimReward(
-  body,
-  req,
-  res
-) {
+async function handleClaimReward(req, res, body) {
+  const user = await getUserFromToken(req);
+
+  if (!user) {
+    return send(res, 401, {
+      success: false,
+      message: 'Unauthorized'
+    });
+  }
+
+  const rewardType = String(
+    body.rewardType || ''
+  ).trim().toLowerCase();
+
+  const rewardId = String(
+    body.rewardId || ''
+  ).trim();
+
+  if (!rewardType || !rewardId) {
+    return send(res, 400, {
+      success: false,
+      message: 'Reward information is required'
+    });
+  }
+
+  let amount = 0;
+
+  if (rewardType === 'task') {
+    amount = TASK_REWARDS[rewardId] || 0;
+  }
+
+  if (rewardType === 'survey') {
+    amount = SURVEY_REWARDS[rewardId] || 0;
+  }
+
+  if (!amount) {
+    return send(res, 400, {
+      success: false,
+      message: 'Invalid reward'
+    });
+  }
+
   try {
-    const user =
-      await getUserFromToken(req);
+    const referenceKey = `${rewardType}_${rewardId}`;
 
-    if (!user) {
-      return send(res, 401, {
-        success: false,
-        message:
-          'Please login first.'
-      });
-    }
+    const already = await sql`
+      SELECT id
+      FROM reward_claims
+      WHERE user_id = ${user.id}
+        AND reward_type = ${rewardType}
+        AND reference_key = ${referenceKey}
+      LIMIT 1
+    `;
 
-    const rewardType =
-      String(
-        body.rewardType ||
-        body.reward_type ||
-        'task'
-      )
-        .trim()
-        .toLowerCase();
-
-    const referenceKey =
-      String(
-        body.rewardId ||
-        body.reward_id ||
-        body.referenceKey ||
-        body.reference_key ||
-        ''
-      )
-        .trim()
-        .toLowerCase();
-
-    const title =
-      String(
-        body.title ||
-        body.rewardTitle ||
-        `${rewardType} reward`
-      ).trim();
-
-    if (!referenceKey) {
-      return send(res, 400, {
-        success: false,
-        message:
-          'Reward ID is required.'
-      });
-    }
-
-    let amount = 0;
-
-    if (rewardType === 'task') {
-      amount =
-        Number(
-          TASK_REWARDS[referenceKey] || 0
-        );
-    } else if (rewardType === 'survey') {
-      amount =
-        Number(
-          SURVEY_REWARDS[referenceKey] || 0
-        );
-    } else if (rewardType === 'daily_bonus') {
-      amount = DAILY_BONUS_AMOUNT;
-    } else {
-      return send(res, 400, {
-        success: false,
-        message:
-          'Invalid reward type.'
-      });
-    }
-
-    if (
-      !Number.isFinite(amount) ||
-      amount <= 0
-    ) {
-      return send(res, 400, {
-        success: false,
-        message:
-          'Invalid reward ID.'
-      });
-    }
-
-    const userId =
-      String(user.id);
-
-    const alreadyClaimed =
-      await sql`
-        SELECT id
-        FROM reward_claims
-        WHERE user_id = ${userId}
-          AND reward_type = ${rewardType}
-          AND reference_key = ${referenceKey}
-        LIMIT 1
-      `;
-
-    if (alreadyClaimed.length) {
+    if (already.length) {
       return send(res, 409, {
         success: false,
-        message:
-          'This reward has already been claimed.'
+        message: 'Reward already claimed'
       });
     }
 
-    const wallet =
-      await getWallet(userId);
-
-    const oldBalance =
-      Number(wallet.balance || 0);
-
-    const oldEarned =
-      Number(wallet.total_earned || 0);
-
-    const totalWithdrawn =
-      Number(wallet.total_withdrawn || 0);
-
-    const newBalance =
-      oldBalance + amount;
-
-    const newEarned =
-      oldEarned + amount;
+    await addCoins(user.id, amount);
 
     await sql`
-      UPDATE wallets
-      SET
-        balance = ${newBalance},
-        total_earned = ${newEarned},
-        updated_at = NOW()
-      WHERE user_id = ${userId}
+      INSERT INTO reward_claims (
+        id,
+        user_id,
+        reward_type,
+        reference_key,
+        title,
+        amount
+      )
+      VALUES (
+        ${makeId()},
+        ${user.id},
+        ${rewardType},
+        ${referenceKey},
+        ${rewardType === 'task' ? 'Task Reward' : 'Survey Reward'},
+        ${amount}
+      )
     `;
 
-    await sql`
-      UPDATE users
-      SET coins = ${newBalance}
-      WHERE id = ${userId}
-    `;
-
-    await sql`
-      INSERT INTO reward_claims
-        (
-          id,
-          user_id,
-          reward_type,
-          reference_key,
-          title,
-          amount,
-          created_at
-        )
-      VALUES
-        (
-          ${makeId()},
-          ${userId},
-          ${rewardType},
-          ${referenceKey},
-          ${title},
-          ${amount},
-          NOW()
-        )
-    `;
+    const wallet = await getWallet(user.id);
 
     return send(res, 200, {
       success: true,
-
-      message:
-        `You earned ${amount} coins.`,
-
-      reward: {
-        type:
-          rewardType,
-
-        reference_key:
-          referenceKey,
-
-        title,
-
-        amount
-      },
-
-      wallet: {
-        balance:
-          newBalance,
-
-        total_earned:
-          newEarned,
-
-        total_withdrawn:
-          totalWithdrawn,
-
-        totalEarned:
-          newEarned,
-
-        totalWithdrawn
-      }
+      message: `You earned ${amount} coins`,
+      amount,
+      wallet: walletResponse(wallet)
     });
 
   } catch (error) {
     console.error(
-      'REWARD CLAIM ERROR:',
+      'CLAIM REWARD ERROR:',
       error
     );
 
     return send(res, 500, {
       success: false,
-      message:
-        'Unable to process reward.',
-      error:
-        error.message ||
-        'Database error',
-      code:
-        error.code || null,
-      detail:
-        error.detail || null
+      message: 'Reward claim failed'
     });
   }
 }
-
 
 /* =========================================================
    DAILY BONUS
 ========================================================= */
 
 async function handleDailyBonus(req, res) {
-  try {
-    const user =
-      await getUserFromToken(req);
+  const user = await getUserFromToken(req);
 
-    if (!user) {
-      return send(res, 401, {
+  if (!user) {
+    return send(res, 401, {
+      success: false,
+      message: 'Unauthorized'
+    });
+  }
+
+  try {
+    const today = new Date()
+      .toISOString()
+      .slice(0, 10);
+
+    const referenceKey = `daily_${today}`;
+
+    const existing = await sql`
+      SELECT id
+      FROM reward_claims
+      WHERE user_id = ${user.id}
+        AND reward_type = 'daily_bonus'
+        AND reference_key = ${referenceKey}
+      LIMIT 1
+    `;
+
+    if (existing.length) {
+      return send(res, 409, {
         success: false,
-        message:
-          'Please login first.'
+        message: 'Daily bonus already claimed today'
       });
     }
 
-    const referenceKey =
-      'daily_' +
-      new Date()
-        .toISOString()
-        .slice(0, 10);
-
-    return handleClaimReward(
-      {
-        rewardType: 'daily_bonus',
-        rewardId: referenceKey,
-        title: 'Daily Bonus'
-      },
-      req,
-      res
+    await addCoins(
+      user.id,
+      DAILY_BONUS_AMOUNT
     );
+
+    await sql`
+      INSERT INTO reward_claims (
+        id,
+        user_id,
+        reward_type,
+        reference_key,
+        title,
+        amount
+      )
+      VALUES (
+        ${makeId()},
+        ${user.id},
+        'daily_bonus',
+        ${referenceKey},
+        'Daily Bonus',
+        ${DAILY_BONUS_AMOUNT}
+      )
+    `;
+
+    const wallet = await getWallet(user.id);
+
+    return send(res, 200, {
+      success: true,
+      message: `Daily bonus: ${DAILY_BONUS_AMOUNT} coins`,
+      amount: DAILY_BONUS_AMOUNT,
+      wallet: walletResponse(wallet)
+    });
 
   } catch (error) {
     console.error(
@@ -1170,158 +909,91 @@ async function handleDailyBonus(req, res) {
 
     return send(res, 500, {
       success: false,
-      message:
-        'Unable to claim daily bonus.',
-      error:
-        error.message
+      message: 'Daily bonus failed'
     });
   }
 }
 
-
 /* =========================================================
-   REFERRAL STATS
+   REFERRAL
 ========================================================= */
 
-async function handleReferralStats(req, res) {
+async function handleReferral(req, res) {
+  const user = await getUserFromToken(req);
+
+  if (!user) {
+    return send(res, 401, {
+      success: false,
+      message: 'Unauthorized'
+    });
+  }
+
   try {
-    const user =
-      await getUserFromToken(req);
+    const rows = await sql`
+      SELECT
+        COUNT(*)::int AS total_referrals
+      FROM users
+      WHERE referred_by = ${user.id}
+    `;
 
-    if (!user) {
-      return send(res, 401, {
-        success: false,
-        message:
-          'Authentication required.'
-      });
-    }
-
-    const userId =
-      String(user.id);
-
-    const referred =
-      await sql`
-        SELECT
-          id,
-          name,
-          username,
-          created_at
-        FROM users
-        WHERE referred_by = ${userId}
-        ORDER BY created_at DESC
-      `;
-
-    const earnings =
-      await sql`
-        SELECT
-          COALESCE(
-            SUM(amount),
-            0
-          ) AS total
-        FROM reward_claims
-        WHERE user_id = ${userId}
-          AND reward_type = 'referral'
-      `;
+    const totalReferrals =
+      Number(rows[0]?.total_referrals || 0);
 
     return send(res, 200, {
       success: true,
-
-      referralCode:
-        user.referral_code,
-
-      referral_code:
-        user.referral_code,
-
-      totalReferrals:
-        referred.length,
-
-      totalEarnings:
-        Number(
-          earnings[0]?.total || 0
-        ),
-
-      referrals:
-        referred.map(item => ({
-          id: item.id,
-          name: item.name,
-          username: item.username,
-          created_at: item.created_at
-        }))
+      referralCode: user.referral_code,
+      totalReferrals
     });
 
   } catch (error) {
     console.error(
-      'REFERRAL STATS ERROR:',
+      'REFERRAL ERROR:',
       error
     );
 
     return send(res, 500, {
       success: false,
-      message:
-        'Unable to load referral information.',
-      error:
-        error.message
+      message: 'Referral data failed'
     });
   }
 }
 
-
 /* =========================================================
    KYC STATUS
-
-   IMPORTANT:
-   Existing database columns:
-
-   id bigint
-   user_id text
-   full_name text
-   document_type text
-   document_number text
-   document_url text
-   status text
-   admin_note text
-   submitted_at timestamptz
-   reviewed_at timestamptz
-
-   USER DOES NOT NEED TO PROVIDE DOCUMENT URL.
 ========================================================= */
 
 async function handleKycStatus(req, res) {
+  const user = await getUserFromToken(req);
+
+  if (!user) {
+    return send(res, 401, {
+      success: false,
+      message: 'Unauthorized'
+    });
+  }
+
   try {
-    const user =
-      await getUserFromToken(req);
-
-    if (!user) {
-      return send(res, 401, {
-        success: false,
-        message:
-          'Authentication required.'
-      });
-    }
-
-    const rows =
-      await sql`
-        SELECT
-          id,
-          user_id,
-          full_name,
-          document_type,
-          document_number,
-          document_url,
-          status,
-          admin_note,
-          submitted_at,
-          reviewed_at
-        FROM kyc_submissions
-        WHERE user_id = ${String(user.id)}
-        ORDER BY submitted_at DESC
-        LIMIT 1
-      `;
+    const rows = await sql`
+      SELECT
+        id,
+        user_id,
+        full_name,
+        document_type,
+        document_number,
+        document_url,
+        status,
+        admin_note,
+        submitted_at,
+        reviewed_at
+      FROM kyc_submissions
+      WHERE user_id = ${user.id}
+      ORDER BY submitted_at DESC
+      LIMIT 1
+    `;
 
     return send(res, 200, {
       success: true,
-      kyc:
-        rows[0] || null
+      kyc: rows[0] || null
     });
 
   } catch (error) {
@@ -1332,167 +1004,109 @@ async function handleKycStatus(req, res) {
 
     return send(res, 500, {
       success: false,
-      message:
-        'Unable to load KYC status.',
-      error:
-        error.message ||
-        'Database error'
+      message: 'KYC status failed'
     });
   }
 }
 
-
 /* =========================================================
    SUBMIT KYC
-
-   NO DOCUMENT URL REQUIRED
 ========================================================= */
 
-async function handleSubmitKyc(
-  body,
-  req,
-  res
-) {
+async function handleSubmitKyc(req, res, body) {
+  const user = await getUserFromToken(req);
+
+  if (!user) {
+    return send(res, 401, {
+      success: false,
+      message: 'Unauthorized'
+    });
+  }
+
+  const fullName = String(
+    body.fullName || ''
+  ).trim();
+
+  const documentType = String(
+    body.documentType || 'CNIC'
+  ).trim();
+
+  const documentNumber = String(
+    body.documentNumber || ''
+  ).trim();
+
+  if (!fullName || !documentNumber) {
+    return send(res, 400, {
+      success: false,
+      message: 'Full name and document number are required'
+    });
+  }
+
   try {
-    const user =
-      await getUserFromToken(req);
+    const latest = await sql`
+      SELECT
+        id,
+        status
+      FROM kyc_submissions
+      WHERE user_id = ${user.id}
+      ORDER BY submitted_at DESC
+      LIMIT 1
+    `;
 
-    if (!user) {
-      return send(res, 401, {
-        success: false,
-        message:
-          'Please login first.'
-      });
-    }
-
-    const fullName =
-      String(
-        body.fullName ||
-        body.full_name ||
-        ''
-      ).trim();
-
-    const documentType =
-      String(
-        body.documentType ||
-        body.document_type ||
-        'CNIC'
-      ).trim();
-
-    const documentNumber =
-      String(
-        body.documentNumber ||
-        body.document_number ||
-        body.cnic ||
-        ''
-      ).trim();
-
-    if (!fullName) {
-      return send(res, 400, {
-        success: false,
-        message:
-          'Full name is required.'
-      });
-    }
-
-    if (!documentNumber) {
-      return send(res, 400, {
-        success: false,
-        message:
-          'CNIC / document number is required.'
-      });
-    }
-
-    const userId =
-      String(user.id);
-
-    const existing =
-      await sql`
-        SELECT
-          id,
-          status
-        FROM kyc_submissions
-        WHERE user_id = ${userId}
-        ORDER BY submitted_at DESC
-        LIMIT 1
-      `;
-
-    if (existing.length) {
-      const oldStatus =
-        String(
-          existing[0].status || ''
-        ).toLowerCase();
-
-      if (oldStatus === 'pending') {
+    if (latest.length) {
+      if (latest[0].status === 'pending') {
         return send(res, 409, {
           success: false,
-          message:
-            'Your KYC is already under review.'
+          message: 'Your KYC is already pending'
         });
       }
 
-      if (oldStatus === 'approved') {
+      if (latest[0].status === 'approved') {
         return send(res, 409, {
           success: false,
-          message:
-            'Your KYC is already approved.'
+          message: 'Your KYC is already approved'
         });
       }
     }
 
-    /*
-      document_url column exists in database,
-      but user does not submit a URL.
-
-      Empty string is stored so this also works
-      if document_url is NOT NULL.
-    */
-
-    const created =
-      await sql`
-        INSERT INTO kyc_submissions
-          (
-            user_id,
-            full_name,
-            document_type,
-            document_number,
-            document_url,
-            status,
-            admin_note,
-            submitted_at
-          )
-        VALUES
-          (
-            ${userId},
-            ${fullName},
-            ${documentType},
-            ${documentNumber},
-            '',
-            'pending',
-            NULL,
-            NOW()
-          )
-        RETURNING
-          id,
-          user_id,
-          full_name,
-          document_type,
-          document_number,
-          document_url,
-          status,
-          admin_note,
-          submitted_at,
-          reviewed_at
-      `;
+    const inserted = await sql`
+      INSERT INTO kyc_submissions (
+        user_id,
+        full_name,
+        document_type,
+        document_number,
+        document_url,
+        status,
+        admin_note,
+        submitted_at
+      )
+      VALUES (
+        ${user.id},
+        ${fullName},
+        ${documentType},
+        ${documentNumber},
+        '',
+        'pending',
+        NULL,
+        NOW()
+      )
+      RETURNING
+        id,
+        user_id,
+        full_name,
+        document_type,
+        document_number,
+        document_url,
+        status,
+        admin_note,
+        submitted_at,
+        reviewed_at
+    `;
 
     return send(res, 201, {
       success: true,
-
-      message:
-        'KYC submitted successfully. It is now under review.',
-
-      kyc:
-        created[0]
+      message: 'KYC submitted successfully',
+      kyc: inserted[0]
     });
 
   } catch (error) {
@@ -1503,396 +1117,171 @@ async function handleSubmitKyc(
 
     return send(res, 500, {
       success: false,
-      message:
-        'Unable to submit KYC.',
-      error:
-        error.message ||
-        'Database error',
-      code:
-        error.code || null,
-      detail:
-        error.detail || null
+      message: 'KYC submission failed',
+      error: error.message
     });
   }
 }
-
-
-/* =========================================================
-   ADMIN KYC
-========================================================= */
-
-async function handleAdminKyc(req, res) {
-  try {
-    const admin =
-      await getUserFromToken(req);
-
-    if (
-      !admin ||
-      String(admin.role).toLowerCase() !== 'admin'
-    ) {
-      return send(res, 403, {
-        success: false,
-        message:
-          'Admin access required.'
-      });
-    }
-
-    /* GET ALL KYC */
-
-    if (req.method === 'GET') {
-      const rows =
-        await sql`
-          SELECT
-            k.id,
-            k.user_id,
-            k.full_name,
-            k.document_type,
-            k.document_number,
-            k.document_url,
-            k.status,
-            k.admin_note,
-            k.submitted_at,
-            k.reviewed_at,
-
-            u.name AS user_name,
-            u.username,
-            u.email,
-            u.phone
-
-          FROM kyc_submissions k
-
-          LEFT JOIN users u
-            ON u.id = k.user_id
-
-          ORDER BY
-            k.submitted_at DESC
-        `;
-
-      return send(res, 200, {
-        success: true,
-        kyc: rows
-      });
-    }
-
-    /* APPROVE / REJECT */
-
-    const body =
-      await readBody(req);
-
-    const id =
-      String(body.id || '').trim();
-
-    const action =
-      String(body.action || '')
-        .trim()
-        .toLowerCase();
-
-    const note =
-      String(
-        body.note ||
-        body.adminNote ||
-        ''
-      ).trim();
-
-    if (!id) {
-      return send(res, 400, {
-        success: false,
-        message:
-          'KYC ID is required.'
-      });
-    }
-
-    if (
-      action !== 'approve' &&
-      action !== 'reject'
-    ) {
-      return send(res, 400, {
-        success: false,
-        message:
-          'Action must be approve or reject.'
-      });
-    }
-
-    const existing =
-      await sql`
-        SELECT
-          id,
-          user_id,
-          status
-        FROM kyc_submissions
-        WHERE id = ${id}
-        LIMIT 1
-      `;
-
-    if (!existing.length) {
-      return send(res, 404, {
-        success: false,
-        message:
-          'KYC submission not found.'
-      });
-    }
-
-    const currentStatus =
-      String(
-        existing[0].status || ''
-      ).toLowerCase();
-
-    if (currentStatus !== 'pending') {
-      return send(res, 409, {
-        success: false,
-        message:
-          'This KYC has already been processed.'
-      });
-    }
-
-    const newStatus =
-      action === 'approve'
-        ? 'approved'
-        : 'rejected';
-
-    const updated =
-      await sql`
-        UPDATE kyc_submissions
-
-        SET
-          status = ${newStatus},
-          admin_note = ${note || null},
-          reviewed_at = NOW()
-
-        WHERE id = ${id}
-
-        RETURNING
-          id,
-          user_id,
-          full_name,
-          document_type,
-          document_number,
-          document_url,
-          status,
-          admin_note,
-          submitted_at,
-          reviewed_at
-      `;
-
-    return send(res, 200, {
-      success: true,
-
-      message:
-        action === 'approve'
-          ? 'KYC approved successfully.'
-          : 'KYC rejected successfully.',
-
-      kyc:
-        updated[0]
-    });
-
-  } catch (error) {
-    console.error(
-      'ADMIN KYC ERROR:',
-      error
-    );
-
-    return send(res, 500, {
-      success: false,
-      message:
-        'Unable to process KYC.',
-      error:
-        error.message ||
-        'Database error',
-      code:
-        error.code || null,
-      detail:
-        error.detail || null
-    });
-  }
-}
-
 
 /* =========================================================
    WITHDRAWAL
 ========================================================= */
 
-async function handleWithdrawal(
-  body,
-  req,
-  res
-) {
+async function handleWithdrawal(req, res, body) {
+  const user = await getUserFromToken(req);
+
+  if (!user) {
+    return send(res, 401, {
+      success: false,
+      message: 'Unauthorized'
+    });
+  }
+
+  const amount = Number(body.amount);
+
+  const paymentMethod = String(
+    body.paymentMethod ||
+    body.method ||
+    ''
+  ).trim().toLowerCase();
+
+  const paymentAccount = String(
+    body.account ||
+    body.paymentAccount ||
+    ''
+  ).trim();
+
+  if (
+    !Number.isInteger(amount) ||
+    amount < MIN_WITHDRAWAL
+  ) {
+    return send(res, 400, {
+      success: false,
+      message: `Minimum withdrawal is ${MIN_WITHDRAWAL} coins`
+    });
+  }
+
+  if (
+    !['easypaisa', 'jazzcash', 'bank']
+      .includes(paymentMethod)
+  ) {
+    return send(res, 400, {
+      success: false,
+      message: 'Invalid payment method'
+    });
+  }
+
+  if (!paymentAccount) {
+    return send(res, 400, {
+      success: false,
+      message: 'Payment account is required'
+    });
+  }
+
   try {
-    const user =
-      await getUserFromToken(req);
-
-    if (!user) {
-      return send(res, 401, {
-        success: false,
-        message:
-          'Please login first.'
-      });
-    }
-
-    const amount =
-      Number(body.amount || 0);
-
-    const method =
-      String(
-        body.paymentMethod ||
-        body.payment_method ||
-        ''
-      )
-        .trim()
-        .toLowerCase();
-
-    const account =
-      String(
-        body.paymentAccount ||
-        body.payment_account ||
-        body.account ||
-        ''
-      ).trim();
-
-    if (
-      !Number.isInteger(amount) ||
-      amount < MIN_WITHDRAWAL
-    ) {
-      return send(res, 400, {
-        success: false,
-        message:
-          `Minimum withdrawal is ${MIN_WITHDRAWAL} coins.`
-      });
-    }
-
-    const allowedMethods = [
-      'easypaisa',
-      'jazzcash',
-      'bank'
-    ];
-
-    if (
-      !allowedMethods.includes(method)
-    ) {
-      return send(res, 400, {
-        success: false,
-        message:
-          'Invalid payment method.'
-      });
-    }
-
-    if (!account) {
-      return send(res, 400, {
-        success: false,
-        message:
-          'Payment account is required.'
-      });
-    }
-
-    const userId =
-      String(user.id);
-
-    const pending =
-      await sql`
-        SELECT id
-        FROM withdrawals
-        WHERE user_id = ${userId}
-          AND status = 'pending'
-        LIMIT 1
-      `;
+    const pending = await sql`
+      SELECT id
+      FROM withdrawals
+      WHERE user_id = ${user.id}
+        AND status = 'pending'
+      LIMIT 1
+    `;
 
     if (pending.length) {
       return send(res, 409, {
         success: false,
-        message:
-          'You already have a pending withdrawal request.'
+        message: 'You already have a pending withdrawal'
       });
     }
 
-    const wallet =
-      await getWallet(userId);
+    const wallet = await getWallet(user.id);
 
-    const balance =
-      Number(wallet.balance || 0);
-
-    if (amount > balance) {
+    if (Number(wallet.balance || 0) < amount) {
       return send(res, 400, {
         success: false,
-        message:
-          'Insufficient balance.'
+        message: 'Insufficient balance'
       });
     }
 
-    const newBalance =
-      balance - amount;
+    /*
+      Deduct balance immediately.
+      If admin rejects, amount will be returned.
+    */
 
-    await sql`
+    const walletUpdate = await sql`
       UPDATE wallets
       SET
-        balance = ${newBalance},
+        balance = balance - ${amount},
         updated_at = NOW()
-      WHERE user_id = ${userId}
+      WHERE user_id = ${user.id}
+        AND balance >= ${amount}
+      RETURNING
+        id,
+        user_id,
+        balance,
+        total_earned,
+        total_withdrawn,
+        created_at,
+        updated_at
     `;
+
+    if (!walletUpdate.length) {
+      return send(res, 400, {
+        success: false,
+        message: 'Insufficient balance'
+      });
+    }
 
     await sql`
       UPDATE users
-      SET coins = ${newBalance}
-      WHERE id = ${userId}
+      SET coins = GREATEST(
+        COALESCE(coins, 0) - ${amount},
+        0
+      )
+      WHERE id = ${user.id}
     `;
 
-    const withdrawalId =
-      makeId();
-
-    /*
-      Current withdrawal code uses
-      payment_account.
-    */
-
-    await sql`
-      INSERT INTO withdrawals
-        (
-          id,
-          user_id,
-          amount,
-          payment_method,
-          payment_account,
-          status,
-          created_at,
-          updated_at
-        )
-      VALUES
-        (
-          ${withdrawalId},
-          ${userId},
-          ${amount},
-          ${method},
-          ${account},
-          'pending',
-          NOW(),
-          NOW()
-        )
+    const inserted = await sql`
+      INSERT INTO withdrawals (
+        user_id,
+        amount,
+        payment_method,
+        payment_account,
+        status,
+        admin_note,
+        created_at,
+        updated_at
+      )
+      VALUES (
+        ${user.id},
+        ${amount},
+        ${paymentMethod},
+        ${paymentAccount},
+        'pending',
+        NULL,
+        NOW(),
+        NOW()
+      )
+      RETURNING
+        id,
+        user_id,
+        amount,
+        payment_method,
+        payment_account,
+        status,
+        admin_note,
+        created_at,
+        updated_at,
+        reviewed_at
     `;
-
-    const newWallet =
-      await getWallet(userId);
 
     return send(res, 201, {
       success: true,
-
-      message:
-        'Withdrawal request submitted successfully.',
-
-      withdrawal: {
-        id: withdrawalId,
-        amount,
-
-        payment_method:
-          method,
-
-        payment_account:
-          account,
-
-        status:
-          'pending'
-      },
-
-      wallet:
-        walletResponse(newWallet)
+      message: 'Withdrawal request submitted',
+      withdrawal: inserted[0],
+      wallet: walletResponse(
+        walletUpdate[0]
+      )
     });
 
   } catch (error) {
@@ -1903,352 +1292,106 @@ async function handleWithdrawal(
 
     return send(res, 500, {
       success: false,
-      message:
-        'Unable to submit withdrawal request.',
-      error:
-        error.message ||
-        'Database error',
-      code:
-        error.code || null,
-      detail:
-        error.detail || null
+      message: 'Withdrawal request failed',
+      error: error.message
     });
   }
 }
-
 
 /* =========================================================
-   ADMIN WITHDRAWALS
+   ADMIN AUTH CHECK
 ========================================================= */
 
-async function handleAdminWithdrawals(
-  req,
-  res
-) {
-  try {
-    const admin =
-      await getUserFromToken(req);
+async function getAdmin(req) {
+  const user = await getUserFromToken(req);
 
-    if (
-      !admin ||
-      String(admin.role).toLowerCase() !== 'admin'
-    ) {
-      return send(res, 403, {
-        success: false,
-        message:
-          'Admin access required.'
-      });
-    }
-
-    if (req.method === 'GET') {
-      const rows =
-        await sql`
-          SELECT
-            w.id,
-            w.user_id,
-            w.amount,
-            w.payment_method,
-            w.payment_account,
-            w.status,
-            w.admin_note,
-            w.created_at,
-            w.updated_at,
-            w.reviewed_at,
-
-            u.name AS user_name,
-            u.username,
-            u.email
-
-          FROM withdrawals w
-
-          LEFT JOIN users u
-            ON u.id = w.user_id
-
-          ORDER BY
-            w.created_at DESC
-        `;
-
-      return send(res, 200, {
-        success: true,
-        withdrawals:
-          rows
-      });
-    }
-
-    const body =
-      await readBody(req);
-
-    const id =
-      String(body.id || '').trim();
-
-    const action =
-      String(body.action || '')
-        .trim()
-        .toLowerCase();
-
-    const note =
-      String(
-        body.note ||
-        body.adminNote ||
-        ''
-      ).trim();
-
-    if (!id) {
-      return send(res, 400, {
-        success: false,
-        message:
-          'Withdrawal ID is required.'
-      });
-    }
-
-    if (
-      action !== 'approve' &&
-      action !== 'reject'
-    ) {
-      return send(res, 400, {
-        success: false,
-        message:
-          'Invalid withdrawal action.'
-      });
-    }
-
-    const rows =
-      await sql`
-        SELECT
-          id,
-          user_id,
-          amount,
-          status
-        FROM withdrawals
-        WHERE id = ${id}
-        LIMIT 1
-      `;
-
-    if (!rows.length) {
-      return send(res, 404, {
-        success: false,
-        message:
-          'Withdrawal not found.'
-      });
-    }
-
-    const withdrawal =
-      rows[0];
-
-    if (
-      withdrawal.status !== 'pending'
-    ) {
-      return send(res, 409, {
-        success: false,
-        message:
-          'This withdrawal has already been processed.'
-      });
-    }
-
-    /* APPROVE */
-
-    if (action === 'approve') {
-      const updated =
-        await sql`
-          UPDATE withdrawals
-          SET
-            status = 'approved',
-            admin_note = ${note || null},
-            updated_at = NOW(),
-            reviewed_at = NOW()
-          WHERE id = ${id}
-          RETURNING *
-        `;
-
-      await sql`
-        UPDATE wallets
-        SET
-          total_withdrawn =
-            total_withdrawn +
-            ${Number(withdrawal.amount)},
-          updated_at = NOW()
-        WHERE user_id =
-          ${String(withdrawal.user_id)}
-      `;
-
-      return send(res, 200, {
-        success: true,
-
-        message:
-          'Withdrawal approved successfully.',
-
-        withdrawal:
-          updated[0]
-      });
-    }
-
-    /* REJECT */
-
-    const userId =
-      String(withdrawal.user_id);
-
-    const wallet =
-      await getWallet(userId);
-
-    const restoredBalance =
-      Number(wallet.balance || 0) +
-      Number(withdrawal.amount);
-
-    await sql`
-      UPDATE wallets
-      SET
-        balance = ${restoredBalance},
-        updated_at = NOW()
-      WHERE user_id = ${userId}
-    `;
-
-    await sql`
-      UPDATE users
-      SET coins = ${restoredBalance}
-      WHERE id = ${userId}
-    `;
-
-    const updated =
-      await sql`
-        UPDATE withdrawals
-        SET
-          status = 'rejected',
-          admin_note = ${note || null},
-          updated_at = NOW(),
-          reviewed_at = NOW()
-        WHERE id = ${id}
-        RETURNING *
-      `;
-
-    return send(res, 200, {
-      success: true,
-
-      message:
-        'Withdrawal rejected and coins returned.',
-
-      withdrawal:
-        updated[0]
-    });
-
-  } catch (error) {
-    console.error(
-      'ADMIN WITHDRAWAL ERROR:',
-      error
-    );
-
-    return send(res, 500, {
-      success: false,
-      message:
-        'Unable to process withdrawal.',
-      error:
-        error.message ||
-        'Database error',
-      code:
-        error.code || null,
-      detail:
-        error.detail || null
-    });
+  if (!user) {
+    return null;
   }
-}
 
+  if (user.role !== 'admin') {
+    return null;
+  }
+
+  return user;
+}
 
 /* =========================================================
    ADMIN STATS
 ========================================================= */
 
-async function handleAdminStats(
-  req,
-  res
-) {
+async function handleAdminStats(req, res) {
   try {
-    const admin =
-      await getUserFromToken(req);
+    const admin = await getAdmin(req);
 
-    if (
-      !admin ||
-      String(admin.role).toLowerCase() !== 'admin'
-    ) {
+    if (!admin) {
       return send(res, 403, {
         success: false,
-        message:
-          'Admin access required.'
+        message: 'Admin access required'
       });
     }
 
-    const users =
-      await sql`
-        SELECT COUNT(*)::int AS count
-        FROM users
-      `;
+    const usersRows = await sql`
+      SELECT COUNT(*)::int AS count
+      FROM users
+    `;
 
-    const coins =
-      await sql`
-        SELECT
-          COALESCE(SUM(balance), 0) AS total
-        FROM wallets
-      `;
+    const coinsRows = await sql`
+      SELECT COALESCE(
+        SUM(balance),
+        0
+      )::bigint AS total
+      FROM wallets
+    `;
 
-    const withdrawals =
-      await sql`
-        SELECT COUNT(*)::int AS count
-        FROM withdrawals
-        WHERE status = 'approved'
-      `;
+    const withdrawalRows = await sql`
+      SELECT COUNT(*)::int AS count
+      FROM withdrawals
+      WHERE status = 'approved'
+    `;
 
-    const pendingWithdrawals =
-      await sql`
-        SELECT COUNT(*)::int AS count
-        FROM withdrawals
-        WHERE status = 'pending'
-      `;
+    const pendingWithdrawalRows = await sql`
+      SELECT COUNT(*)::int AS count
+      FROM withdrawals
+      WHERE status = 'pending'
+    `;
 
-    const pendingKyc =
-      await sql`
-        SELECT COUNT(*)::int AS count
-        FROM kyc_submissions
-        WHERE status = 'pending'
-      `;
+    const pendingKycRows = await sql`
+      SELECT COUNT(*)::int AS count
+      FROM kyc_submissions
+      WHERE status = 'pending'
+    `;
 
-    const totalReferrals =
-      await sql`
-        SELECT COUNT(*)::int AS count
-        FROM users
-        WHERE referred_by IS NOT NULL
-      `;
+    const referralRows = await sql`
+      SELECT COUNT(*)::int AS count
+      FROM users
+      WHERE referred_by IS NOT NULL
+    `;
 
     return send(res, 200, {
       success: true,
-
       stats: {
         totalUsers:
-          Number(
-            users[0]?.count || 0
-          ),
+          Number(usersRows[0]?.count || 0),
 
         totalCoins:
-          Number(
-            coins[0]?.total || 0
-          ),
+          Number(coinsRows[0]?.total || 0),
 
         totalWithdrawals:
-          Number(
-            withdrawals[0]?.count || 0
-          ),
+          Number(withdrawalRows[0]?.count || 0),
 
         pendingWithdrawals:
           Number(
-            pendingWithdrawals[0]?.count || 0
+            pendingWithdrawalRows[0]?.count || 0
           ),
 
         pendingKyc:
           Number(
-            pendingKyc[0]?.count || 0
+            pendingKycRows[0]?.count || 0
           ),
 
         totalReferrals:
-          Number(
-            totalReferrals[0]?.count || 0
-          )
+          Number(referralRows[0]?.count || 0)
       }
     });
 
@@ -2260,41 +1403,35 @@ async function handleAdminStats(
 
     return send(res, 500, {
       success: false,
-      message:
-        'Unable to load admin statistics.',
-      error:
-        error.message ||
-        'Database error'
+      message: 'Admin stats failed',
+      error: error.message
     });
   }
 }
 
-
 /* =========================================================
    ADMIN USERS
+   GET = LIST USERS
+   POST = BLOCK / UNBLOCK / DISABLE / ENABLE
 ========================================================= */
 
-async function handleAdminUsers(
-  req,
-  res
-) {
+async function handleAdminUsers(req, res) {
   try {
-    const admin =
-      await getUserFromToken(req);
+    const admin = await getAdmin(req);
 
-    if (
-      !admin ||
-      String(admin.role).toLowerCase() !== 'admin'
-    ) {
+    if (!admin) {
       return send(res, 403, {
         success: false,
-        message:
-          'Admin access required.'
+        message: 'Admin access required'
       });
     }
 
-    const rows =
-      await sql`
+    /* -------------------------
+       GET USERS
+    ------------------------- */
+
+    if (req.method === 'GET') {
+      const rows = await sql`
         SELECT
           id,
           name,
@@ -2305,15 +1442,163 @@ async function handleAdminUsers(
           coins,
           created_at,
           referral_code,
-          referred_by
+          referred_by,
+          status
         FROM users
         ORDER BY created_at DESC
       `;
 
-    return send(res, 200, {
-      success: true,
-      users:
-        rows
+      return send(res, 200, {
+        success: true,
+        users: rows
+      });
+    }
+
+    /* -------------------------
+       POST USER ACTION
+    ------------------------- */
+
+    if (req.method === 'POST') {
+      const body = await readBody(req);
+
+      const userId = String(
+        body.id || ''
+      ).trim();
+
+      const action = String(
+        body.action || ''
+      ).trim().toLowerCase();
+
+      if (!userId) {
+        return send(res, 400, {
+          success: false,
+          message: 'User ID is required'
+        });
+      }
+
+      const allowedActions = [
+        'block',
+        'unblock',
+        'disable',
+        'enable'
+      ];
+
+      if (!allowedActions.includes(action)) {
+        return send(res, 400, {
+          success: false,
+          message: 'Invalid user action'
+        });
+      }
+
+      /*
+        Admin cannot modify own account.
+      */
+
+      if (String(userId) === String(admin.id)) {
+        return send(res, 400, {
+          success: false,
+          message: 'Admin account cannot be modified'
+        });
+      }
+
+      const targetRows = await sql`
+        SELECT
+          id,
+          role,
+          status
+        FROM users
+        WHERE id = ${userId}
+        LIMIT 1
+      `;
+
+      if (!targetRows.length) {
+        return send(res, 404, {
+          success: false,
+          message: 'User not found'
+        });
+      }
+
+      const target = targetRows[0];
+
+      /*
+        Protect every admin account.
+      */
+
+      if (target.role === 'admin') {
+        return send(res, 400, {
+          success: false,
+          message: 'Admin account cannot be modified'
+        });
+      }
+
+      let newStatus = 'active';
+
+      if (action === 'block') {
+        newStatus = 'blocked';
+      }
+
+      if (
+        action === 'unblock' ||
+        action === 'enable'
+      ) {
+        newStatus = 'active';
+      }
+
+      if (action === 'disable') {
+        newStatus = 'disabled';
+      }
+
+      const updated = await sql`
+        UPDATE users
+        SET status = ${newStatus}
+        WHERE id = ${userId}
+          AND role <> 'admin'
+        RETURNING
+          id,
+          name,
+          username,
+          email,
+          phone,
+          role,
+          coins,
+          created_at,
+          referral_code,
+          referred_by,
+          status
+      `;
+
+      if (!updated.length) {
+        return send(res, 400, {
+          success: false,
+          message: 'User could not be updated'
+        });
+      }
+
+      /*
+        Remove all active sessions when blocking
+        or disabling a user.
+      */
+
+      if (
+        newStatus === 'blocked' ||
+        newStatus === 'disabled'
+      ) {
+        await sql`
+          DELETE FROM admin_sessions
+          WHERE user_id = ${userId}
+        `;
+      }
+
+      return send(res, 200, {
+        success: true,
+        message: `User ${newStatus}`,
+        user: updated[0]
+      });
+    }
+
+    return send(res, 405, {
+      success: false,
+      message: 'Method not allowed'
     });
 
   } catch (error) {
@@ -2324,376 +1609,631 @@ async function handleAdminUsers(
 
     return send(res, 500, {
       success: false,
-      message:
-        'Unable to load users.',
-      error:
-        error.message ||
-        'Database error'
+      message: 'Admin users operation failed',
+      error: error.message
     });
   }
 }
 
-
 /* =========================================================
-   LOGOUT
+   ADMIN KYC
 ========================================================= */
 
-async function handleLogout(
-  req,
-  res
-) {
+async function handleAdminKyc(req, res) {
   try {
-    const token =
-      getToken(req);
+    const admin = await getAdmin(req);
 
-    if (token) {
-      await sql`
-        DELETE FROM admin_sessions
-        WHERE token = ${token}
-      `;
+    if (!admin) {
+      return send(res, 403, {
+        success: false,
+        message: 'Admin access required'
+      });
     }
 
-    return send(res, 200, {
-      success: true,
-      message:
-        'Logged out successfully.'
+    if (req.method === 'GET') {
+      const rows = await sql`
+        SELECT
+          k.id,
+          k.user_id,
+          k.full_name,
+          k.document_type,
+          k.document_number,
+          k.document_url,
+          k.status,
+          k.admin_note,
+          k.submitted_at,
+          k.reviewed_at,
+          u.name AS user_name,
+          u.username,
+          u.email,
+          u.phone
+        FROM kyc_submissions k
+        LEFT JOIN users u
+          ON u.id = k.user_id
+        ORDER BY k.submitted_at DESC
+      `;
+
+      return send(res, 200, {
+        success: true,
+        kyc: rows
+      });
+    }
+
+    if (req.method === 'POST') {
+      const body = await readBody(req);
+
+      const id = body.id;
+
+      const action = String(
+        body.action || ''
+      ).trim().toLowerCase();
+
+      const note = String(
+        body.note || ''
+      ).trim();
+
+      if (!id) {
+        return send(res, 400, {
+          success: false,
+          message: 'KYC ID is required'
+        });
+      }
+
+      if (
+        action !== 'approve' &&
+        action !== 'reject'
+      ) {
+        return send(res, 400, {
+          success: false,
+          message: 'Invalid KYC action'
+        });
+      }
+
+      const existing = await sql`
+        SELECT
+          id,
+          user_id,
+          status
+        FROM kyc_submissions
+        WHERE id = ${id}
+        LIMIT 1
+      `;
+
+      if (!existing.length) {
+        return send(res, 404, {
+          success: false,
+          message: 'KYC record not found'
+        });
+      }
+
+      if (existing[0].status !== 'pending') {
+        return send(res, 409, {
+          success: false,
+          message: 'This KYC has already been reviewed'
+        });
+      }
+
+      const newStatus =
+        action === 'approve'
+          ? 'approved'
+          : 'rejected';
+
+      const updated = await sql`
+        UPDATE kyc_submissions
+        SET
+          status = ${newStatus},
+          admin_note = ${note || null},
+          reviewed_at = NOW()
+        WHERE id = ${id}
+          AND status = 'pending'
+        RETURNING
+          id,
+          user_id,
+          full_name,
+          document_type,
+          document_number,
+          document_url,
+          status,
+          admin_note,
+          submitted_at,
+          reviewed_at
+      `;
+
+      if (!updated.length) {
+        return send(res, 409, {
+          success: false,
+          message: 'KYC could not be updated'
+        });
+      }
+
+      return send(res, 200, {
+        success: true,
+        message:
+          newStatus === 'approved'
+            ? 'KYC approved successfully'
+            : 'KYC rejected successfully',
+        kyc: updated[0]
+      });
+    }
+
+    return send(res, 405, {
+      success: false,
+      message: 'Method not allowed'
     });
 
   } catch (error) {
     console.error(
-      'LOGOUT ERROR:',
+      'ADMIN KYC ERROR:',
       error
     );
 
     return send(res, 500, {
       success: false,
-      message:
-        'Logout failed.',
-      error:
-        error.message ||
-        'Database error'
+      message: 'Admin KYC operation failed',
+      error: error.message
     });
   }
 }
 
+/* =========================================================
+   ADMIN WITHDRAWALS
+========================================================= */
+
+async function handleAdminWithdrawals(req, res) {
+  try {
+    const admin = await getAdmin(req);
+
+    if (!admin) {
+      return send(res, 403, {
+        success: false,
+        message: 'Admin access required'
+      });
+    }
+
+    /* -------------------------
+       GET WITHDRAWALS
+    ------------------------- */
+
+    if (req.method === 'GET') {
+      const rows = await sql`
+        SELECT
+          w.id,
+          w.user_id,
+          w.amount,
+          w.payment_method,
+          w.payment_account,
+          w.status,
+          w.admin_note,
+          w.created_at,
+          w.updated_at,
+          w.reviewed_at,
+          u.name AS user_name,
+          u.username,
+          u.email
+        FROM withdrawals w
+        LEFT JOIN users u
+          ON u.id = w.user_id
+        ORDER BY w.created_at DESC
+      `;
+
+      return send(res, 200, {
+        success: true,
+        withdrawals: rows
+      });
+    }
+
+    /* -------------------------
+       APPROVE / REJECT
+    ------------------------- */
+
+    if (req.method === 'POST') {
+      const body = await readBody(req);
+
+      const id = body.id;
+
+      const action = String(
+        body.action || ''
+      ).trim().toLowerCase();
+
+      const note = String(
+        body.note || ''
+      ).trim();
+
+      if (!id) {
+        return send(res, 400, {
+          success: false,
+          message: 'Withdrawal ID is required'
+        });
+      }
+
+      if (
+        action !== 'approve' &&
+        action !== 'reject'
+      ) {
+        return send(res, 400, {
+          success: false,
+          message: 'Invalid withdrawal action'
+        });
+      }
+
+      const existing = await sql`
+        SELECT
+          id,
+          user_id,
+          amount,
+          status
+        FROM withdrawals
+        WHERE id = ${id}
+        LIMIT 1
+      `;
+
+      if (!existing.length) {
+        return send(res, 404, {
+          success: false,
+          message: 'Withdrawal not found'
+        });
+      }
+
+      const withdrawal = existing[0];
+
+      if (withdrawal.status !== 'pending') {
+        return send(res, 409, {
+          success: false,
+          message: 'This withdrawal has already been reviewed'
+        });
+      }
+
+      const amount = Number(
+        withdrawal.amount || 0
+      );
+
+      /* -------------------------
+         APPROVE
+      ------------------------- */
+
+      if (action === 'approve') {
+        await sql`
+          UPDATE wallets
+          SET
+            total_withdrawn =
+              COALESCE(total_withdrawn, 0)
+              + ${amount},
+            updated_at = NOW()
+          WHERE user_id = ${withdrawal.user_id}
+        `;
+
+        const updated = await sql`
+          UPDATE withdrawals
+          SET
+            status = 'approved',
+            admin_note = ${note || null},
+            reviewed_at = NOW(),
+            updated_at = NOW()
+          WHERE id = ${id}
+            AND status = 'pending'
+          RETURNING
+            id,
+            user_id,
+            amount,
+            payment_method,
+            payment_account,
+            status,
+            admin_note,
+            created_at,
+            updated_at,
+            reviewed_at
+        `;
+
+        if (!updated.length) {
+          return send(res, 409, {
+            success: false,
+            message: 'Withdrawal could not be approved'
+          });
+        }
+
+        return send(res, 200, {
+          success: true,
+          message: 'Withdrawal approved successfully',
+          withdrawal: updated[0]
+        });
+      }
+
+      /* -------------------------
+         REJECT
+      ------------------------- */
+
+      if (action === 'reject') {
+        /*
+          Return coins to wallet.
+        */
+
+        await sql`
+          UPDATE wallets
+          SET
+            balance =
+              COALESCE(balance, 0)
+              + ${amount},
+            updated_at = NOW()
+          WHERE user_id = ${withdrawal.user_id}
+        `;
+
+        /*
+          Return coins to users table too.
+        */
+
+        await sql`
+          UPDATE users
+          SET
+            coins =
+              COALESCE(coins, 0)
+              + ${amount}
+          WHERE id = ${withdrawal.user_id}
+        `;
+
+        const updated = await sql`
+          UPDATE withdrawals
+          SET
+            status = 'rejected',
+            admin_note = ${note || null},
+            reviewed_at = NOW(),
+            updated_at = NOW()
+          WHERE id = ${id}
+            AND status = 'pending'
+          RETURNING
+            id,
+            user_id,
+            amount,
+            payment_method,
+            payment_account,
+            status,
+            admin_note,
+            created_at,
+            updated_at,
+            reviewed_at
+        `;
+
+        if (!updated.length) {
+          return send(res, 409, {
+            success: false,
+            message: 'Withdrawal could not be rejected'
+          });
+        }
+
+        return send(res, 200, {
+          success: true,
+          message: 'Withdrawal rejected and coins returned',
+          withdrawal: updated[0]
+        });
+      }
+    }
+
+    return send(res, 405, {
+      success: false,
+      message: 'Method not allowed'
+    });
+
+  } catch (error) {
+    console.error(
+      'ADMIN WITHDRAWALS ERROR:',
+      error
+    );
+
+    return send(res, 500, {
+      success: false,
+      message: 'Admin withdrawal operation failed',
+      error: error.message
+    });
+  }
+}
 
 /* =========================================================
-   PATH ROUTES
-   Supports existing Admin.html URLs
+   LOGOUT
+========================================================= */
+
+async function handleLogout(req, res) {
+  const token = getToken(req);
+
+  if (token) {
+    await sql`
+      DELETE FROM admin_sessions
+      WHERE token = ${token}
+    `;
+  }
+
+  return send(res, 200, {
+    success: true,
+    message: 'Logged out'
+  });
+}
+
+/* =========================================================
+   PATH
 ========================================================= */
 
 function getPath(req) {
-  return String(req.url || '')
-    .split('?')[0]
-    .replace(/\/+$/, '') || '/';
+  const url = req.url || '/';
+
+  return url.split('?')[0];
 }
 
-
 /* =========================================================
-   MAIN API ROUTER
+   MAIN ROUTER
 ========================================================= */
 
-module.exports = async function handler(
-  req,
-  res
-) {
-  if (req.method === 'OPTIONS') {
-    return send(res, 200, {
-      success: true
-    });
-  }
-
+module.exports = async function handler(req, res) {
   try {
-    const path =
-      getPath(req);
+    if (req.method === 'OPTIONS') {
+      return send(res, 200, {
+        success: true
+      });
+    }
 
-    /*
-      Support:
-      /api/admin/stats
-      /api/admin/users
-      /api/admin/kyc
-      /api/admin/withdrawals
-    */
+    const path = getPath(req);
+
+    /* -----------------------------------------
+       DIRECT ADMIN ROUTES
+    ----------------------------------------- */
 
     if (
       path === '/api/admin/stats' ||
       path === '/admin/stats'
     ) {
-      return handleAdminStats(
-        req,
-        res
-      );
+      return handleAdminStats(req, res);
     }
 
     if (
       path === '/api/admin/users' ||
       path === '/admin/users'
     ) {
-      return handleAdminUsers(
-        req,
-        res
-      );
+      return handleAdminUsers(req, res);
     }
 
     if (
       path === '/api/admin/kyc' ||
       path === '/admin/kyc'
     ) {
-      return handleAdminKyc(
-        req,
-        res
-      );
+      return handleAdminKyc(req, res);
     }
 
     if (
       path === '/api/admin/withdrawals' ||
       path === '/admin/withdrawals'
     ) {
-      return handleAdminWithdrawals(
-        req,
-        res
-      );
+      return handleAdminWithdrawals(req, res);
     }
 
-    const body =
-      req.method === 'POST'
-        ? await readBody(req)
-        : {};
-
-    const action =
-      String(
-        body.action ||
-        req.query?.action ||
-        ''
-      )
-        .trim()
-        .toLowerCase();
-
-
-    /* HEALTH */
+    /* -----------------------------------------
+       ACTION ROUTES
+    ----------------------------------------- */
 
     if (
-      req.method === 'GET' &&
-      !action
+      path === '/api' ||
+      path === '/api/index' ||
+      path === '/action'
     ) {
-      return send(res, 200, {
-        success: true,
-        service:
-          'EarnNest API',
-        status:
-          'running'
-      });
+      let body = {};
+
+      if (
+        req.method === 'POST' ||
+        req.method === 'PUT' ||
+        req.method === 'PATCH'
+      ) {
+        body = await readBody(req);
+      }
+
+      const action = String(
+        body.action || ''
+      ).trim().toLowerCase();
+
+      switch (action) {
+        case 'login':
+          return handleLogin(
+            req,
+            res,
+            body
+          );
+
+        case 'register':
+          return handleRegister(
+            req,
+            res,
+            body
+          );
+
+        case 'dashboard':
+          return handleDashboard(
+            req,
+            res
+          );
+
+        case 'wallet':
+          return handleWallet(
+            req,
+            res
+          );
+
+        case 'claim_reward':
+          return handleClaimReward(
+            req,
+            res,
+            body
+          );
+
+        case 'daily_bonus':
+          return handleDailyBonus(
+            req,
+            res
+          );
+
+        case 'referral':
+        case 'referrals':
+        case 'referral_stats':
+          return handleReferral(
+            req,
+            res
+          );
+
+        case 'kyc_status':
+          return handleKycStatus(
+            req,
+            res
+          );
+
+        case 'submit_kyc':
+          return handleSubmitKyc(
+            req,
+            res,
+            body
+          );
+
+        case 'withdraw':
+          return handleWithdrawal(
+            req,
+            res,
+            body
+          );
+
+        case 'logout':
+          return handleLogout(
+            req,
+            res
+          );
+
+        case 'admin_stats':
+          return handleAdminStats(
+            req,
+            res
+          );
+
+        case 'admin_users':
+          return handleAdminUsers(
+            req,
+            res
+          );
+
+        case 'admin_kyc':
+          return handleAdminKyc(
+            req,
+            res
+          );
+
+        case 'admin_withdrawals':
+          return handleAdminWithdrawals(
+            req,
+            res
+          );
+
+        default:
+          return send(res, 400, {
+            success: false,
+            message: 'Unknown action'
+          });
+      }
     }
 
-
-    /* LOGIN */
-
-    if (
-      action === 'login' ||
-      action === 'signin'
-    ) {
-      return handleLogin(
-        body,
-        res
-      );
-    }
-
-
-    /* REGISTER */
-
-    if (
-      action === 'register' ||
-      action === 'signup' ||
-      action === 'create_account'
-    ) {
-      return handleRegister(
-        body,
-        res
-      );
-    }
-
-
-    /* DASHBOARD */
-
-    if (
-      action === 'dashboard' ||
-      action === 'get_dashboard' ||
-      action === 'me'
-    ) {
-      return handleDashboard(
-        req,
-        res
-      );
-    }
-
-
-    /* WALLET */
-
-    if (
-      action === 'wallet' ||
-      action === 'get_wallet'
-    ) {
-      return handleWallet(
-        req,
-        res
-      );
-    }
-
-
-    /* REWARD */
-
-    if (
-      action === 'claim_reward' ||
-      action === 'complete_task' ||
-      action === 'complete_survey'
-    ) {
-      return handleClaimReward(
-        body,
-        req,
-        res
-      );
-    }
-
-
-    /* DAILY BONUS */
-
-    if (
-      action === 'daily_bonus' ||
-      action === 'claim_daily_bonus'
-    ) {
-      return handleDailyBonus(
-        req,
-        res
-      );
-    }
-
-
-    /* REFERRAL */
-
-    if (
-      action === 'referral_stats' ||
-      action === 'get_referral_stats'
-    ) {
-      return handleReferralStats(
-        req,
-        res
-      );
-    }
-
-
-    /* KYC STATUS */
-
-    if (
-      action === 'kyc_status' ||
-      action === 'get_kyc'
-    ) {
-      return handleKycStatus(
-        req,
-        res
-      );
-    }
-
-
-    /* SUBMIT KYC */
-
-    if (
-      action === 'submit_kyc' ||
-      action === 'kyc_submit'
-    ) {
-      return handleSubmitKyc(
-        body,
-        req,
-        res
-      );
-    }
-
-
-    /* WITHDRAWAL */
-
-    if (
-      action === 'withdraw' ||
-      action === 'request_withdrawal' ||
-      action === 'create_withdrawal'
-    ) {
-      return handleWithdrawal(
-        body,
-        req,
-        res
-      );
-    }
-
-
-    /* ADMIN STATS */
-
-    if (
-      action === 'admin_stats' ||
-      action === 'get_admin_stats'
-    ) {
-      return handleAdminStats(
-        req,
-        res
-      );
-    }
-
-
-    /* ADMIN USERS */
-
-    if (
-      action === 'admin_users' ||
-      action === 'get_admin_users'
-    ) {
-      return handleAdminUsers(
-        req,
-        res
-      );
-    }
-
-
-    /* ADMIN KYC */
-
-    if (
-      action === 'admin_kyc' ||
-      action === 'get_admin_kyc'
-    ) {
-      return handleAdminKyc(
-        req,
-        res
-      );
-    }
-
-
-    /* ADMIN WITHDRAWALS */
-
-    if (
-      action === 'admin_withdrawals' ||
-      action === 'get_admin_withdrawals'
-    ) {
-      return handleAdminWithdrawals(
-        req,
-        res
-      );
-    }
-
-
-    /* LOGOUT */
-
-    if (
-      action === 'logout'
-    ) {
-      return handleLogout(
-        req,
-        res
-      );
-    }
-
-
-    /* UNKNOWN */
-
-    return send(res, 400, {
+    return send(res, 404, {
       success: false,
-      message:
-        'Unknown API action.',
-      action
+      message: 'API route not found'
     });
 
   } catch (error) {
@@ -2704,15 +2244,8 @@ module.exports = async function handler(
 
     return send(res, 500, {
       success: false,
-      message:
-        'Server error.',
-      error:
-        error.message ||
-        'Unknown error',
-      code:
-        error.code || null,
-      detail:
-        error.detail || null
+      message: 'Server error',
+      error: error.message
     });
   }
 };
