@@ -1,730 +1,1698 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0f7a45">
 
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  >
-
-  <meta
-    name="theme-color"
-    content="#2563eb"
-  >
-
-  <title>EarnNest Admin Dashboard</title>
+  <title>EarnNest Admin Panel</title>
 
   <style>
-
     * {
       box-sizing: border-box;
     }
 
+    :root {
+      --green: #0f7a45;
+      --green-dark: #075c33;
+      --green-light: #e8f7ef;
+      --bg: #f4f7f6;
+      --card: #ffffff;
+      --text: #17211b;
+      --muted: #6b7280;
+      --border: #e5e7eb;
+      --red: #dc2626;
+      --orange: #d97706;
+      --blue: #2563eb;
+    }
+
     body {
       margin: 0;
-      font-family: Arial, sans-serif;
-      background: #f5f7fb;
-      color: #1f2937;
-    }
-
-    .header {
-      background: #2563eb;
-      color: white;
-      padding: 18px 24px;
-
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-
-      gap: 15px;
-    }
-
-    .header h1 {
-      margin: 0;
-      font-size: 24px;
-    }
-
-    .header small {
-      opacity: .9;
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--bg);
+      color: var(--text);
     }
 
     button {
       border: 0;
-      border-radius: 8px;
-      padding: 11px 18px;
       cursor: pointer;
-      font-size: 15px;
+      font-family: inherit;
     }
 
-    .logout {
+    /* =========================
+       WATERMARK
+    ========================== */
+
+    body::before {
+      content: "E";
+      position: fixed;
+      right: 8%;
+      bottom: 5%;
+      font-size: 280px;
+      font-weight: 900;
+      color: rgba(15, 122, 69, 0.035);
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    /* =========================
+       SIDEBAR
+    ========================== */
+
+    .sidebar {
+      position: fixed;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 245px;
+      background: linear-gradient(
+        180deg,
+        var(--green-dark),
+        var(--green)
+      );
+      color: white;
+      padding: 22px 15px;
+      z-index: 1000;
+      overflow-y: auto;
+    }
+
+    .brand {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .logo {
+      width: 58px;
+      height: 58px;
+      margin: auto;
+      border-radius: 14px;
+      background: white;
+      color: var(--green);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 38px;
+      font-weight: 900;
+      box-shadow: 0 8px 25px rgba(0,0,0,.15);
+    }
+
+    .brand-name {
+      margin-top: 10px;
+      font-size: 21px;
+      font-weight: 800;
+    }
+
+    .brand-small {
+      font-size: 12px;
+      opacity: .75;
+      margin-top: 4px;
+    }
+
+    .nav-btn {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 13px 14px;
+      margin: 6px 0;
+      border-radius: 10px;
+      background: transparent;
+      color: white;
+      text-align: left;
+      font-size: 14px;
+    }
+
+    .nav-btn:hover,
+    .nav-btn.active {
+      background: rgba(255,255,255,.15);
+    }
+
+    .nav-icon {
+      width: 25px;
+      text-align: center;
+      font-size: 18px;
+    }
+
+    .sidebar-bottom {
+      margin-top: 25px;
+      border-top: 1px solid rgba(255,255,255,.15);
+      padding-top: 18px;
+    }
+
+    .logout-btn {
+      width: 100%;
+      padding: 12px;
       background: #dc2626;
       color: white;
-      width: auto;
+      border-radius: 9px;
+      font-weight: 700;
     }
 
-    .logout:hover {
+    .logout-btn:hover {
       background: #b91c1c;
     }
 
-    .container {
-      max-width: 1200px;
-      margin: 30px auto;
-      padding: 0 20px;
+    /* =========================
+       MAIN
+    ========================== */
+
+    .main {
+      margin-left: 245px;
+      min-height: 100vh;
+    }
+
+    .topbar {
+      height: 72px;
+      background: white;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 28px;
+      position: sticky;
+      top: 0;
+      z-index: 900;
+    }
+
+    .page-title {
+      font-size: 21px;
+      font-weight: 800;
+    }
+
+    .admin-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .admin-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--green-light);
+      color: var(--green);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+    }
+
+    .content {
+      padding: 25px;
+      max-width: 1500px;
+    }
+
+    /* =========================
+       STATUS
+    ========================== */
+
+    #status {
+      display: none;
+      padding: 13px 16px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      background: #eff6ff;
+      color: #1d4ed8;
+      border: 1px solid #bfdbfe;
+    }
+
+    /* =========================
+       SECTIONS
+    ========================== */
+
+    .page {
+      display: none;
+    }
+
+    .page.active {
+      display: block;
     }
 
     .welcome {
-      background: white;
-      padding: 20px;
-      border-radius: 14px;
-      margin-bottom: 20px;
-
-      box-shadow:
-        0 4px 18px rgba(0,0,0,.06);
-    }
-
-    .welcome h2 {
-      margin: 0 0 5px;
-    }
-
-    .cards {
-      display: grid;
-
-      grid-template-columns:
-        repeat(4, minmax(0, 1fr));
-
-      gap: 18px;
-
-      margin-bottom: 25px;
-    }
-
-    .card {
-      background: white;
-      border-radius: 14px;
-      padding: 22px;
-
-      box-shadow:
-        0 4px 18px rgba(0,0,0,.06);
-    }
-
-    .stat-title {
-      color: #6b7280;
-      font-size: 14px;
-      margin-bottom: 10px;
-    }
-
-    .stat-value {
-      font-size: 30px;
-      font-weight: bold;
-    }
-
-    .section {
-      background: white;
-      border-radius: 14px;
-      padding: 22px;
-
-      box-shadow:
-        0 4px 18px rgba(0,0,0,.06);
-
-      margin-bottom: 25px;
-    }
-
-    .section h2 {
-      margin-top: 0;
-    }
-
-    .refresh {
-      background: #2563eb;
+      background: linear-gradient(
+        135deg,
+        var(--green-dark),
+        var(--green)
+      );
       color: white;
+      border-radius: 18px;
+      padding: 25px;
+      margin-bottom: 22px;
+      box-shadow: 0 10px 30px rgba(15,122,69,.16);
+    }
+
+    .welcome h1 {
+      margin: 0 0 7px;
+      font-size: 25px;
+    }
+
+    .welcome p {
+      margin: 0;
+      opacity: .88;
+    }
+
+    /* =========================
+       STATS
+    ========================== */
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0,1fr));
+      gap: 18px;
+      margin-bottom: 25px;
+    }
+
+    .stat-card {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 15px;
+      padding: 21px;
+      box-shadow: 0 5px 20px rgba(0,0,0,.04);
+    }
+
+    .stat-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 11px;
+      background: var(--green-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 21px;
       margin-bottom: 15px;
     }
 
-    .refresh:hover {
-      background: #1d4ed8;
+    .stat-label {
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 7px;
     }
 
-    .table-wrapper {
+    .stat-value {
+      font-size: 28px;
+      font-weight: 900;
+    }
+
+    /* =========================
+       CARD
+    ========================== */
+
+    .card {
+      background: white;
+      border-radius: 15px;
+      border: 1px solid var(--border);
+      box-shadow: 0 5px 20px rgba(0,0,0,.04);
+      margin-bottom: 22px;
+      overflow: hidden;
+    }
+
+    .card-header {
+      padding: 19px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .card-header h2 {
+      margin: 0;
+      font-size: 18px;
+    }
+
+    .card-body {
+      padding: 20px;
+    }
+
+    /* =========================
+       BUTTONS
+    ========================== */
+
+    .btn {
+      padding: 9px 13px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      margin: 2px;
+    }
+
+    .btn-green {
+      background: var(--green);
+      color: white;
+    }
+
+    .btn-green:hover {
+      background: var(--green-dark);
+    }
+
+    .btn-red {
+      background: #fee2e2;
+      color: #b91c1c;
+    }
+
+    .btn-red:hover {
+      background: #fecaca;
+    }
+
+    .btn-orange {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .btn-blue {
+      background: #dbeafe;
+      color: #1d4ed8;
+    }
+
+    .btn-gray {
+      background: #f3f4f6;
+      color: #374151;
+    }
+
+    /* =========================
+       TABLE
+    ========================== */
+
+    .table-wrap {
       overflow-x: auto;
     }
 
     table {
       width: 100%;
+      min-width: 900px;
       border-collapse: collapse;
-      min-width: 700px;
     }
 
     th,
     td {
+      padding: 13px 14px;
+      border-bottom: 1px solid var(--border);
       text-align: left;
-      padding: 12px;
-      border-bottom:
-        1px solid #e5e7eb;
+      vertical-align: middle;
+      font-size: 13px;
     }
 
     th {
-      background: #f9fafb;
-    }
-
-    .badge {
-      display: inline-block;
-
-      padding: 5px 9px;
-
-      border-radius: 20px;
-
+      background: #f8faf9;
+      color: #4b5563;
       font-size: 12px;
-
-      background: #dbeafe;
-      color: #1d4ed8;
+      text-transform: uppercase;
+      letter-spacing: .03em;
     }
 
-    .status {
-      margin-bottom: 20px;
-      padding: 12px;
-
-      border-radius: 8px;
-
-      background: #eff6ff;
-      color: #1e40af;
-
-      display: none;
+    tr:hover td {
+      background: #fafdfb;
     }
 
     .empty {
       text-align: center;
-      padding: 25px;
-      color: #6b7280;
+      padding: 35px;
+      color: var(--muted);
     }
 
-    @media (max-width: 900px) {
+    /* =========================
+       BADGES
+    ========================== */
 
-      .cards {
-        grid-template-columns:
-          repeat(2, minmax(0, 1fr));
+    .badge {
+      display: inline-block;
+      padding: 5px 9px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: capitalize;
+    }
+
+    .badge-active,
+    .badge-approved {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .badge-pending {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .badge-blocked,
+    .badge-rejected {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .badge-disabled {
+      background: #e5e7eb;
+      color: #374151;
+    }
+
+    /* =========================
+       SEARCH
+    ========================== */
+
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 15px;
+    }
+
+    .search {
+      flex: 1;
+      min-width: 220px;
+      padding: 11px 13px;
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      outline: none;
+    }
+
+    .search:focus {
+      border-color: var(--green);
+    }
+
+    /* =========================
+       MODAL
+    ========================== */
+
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.55);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 2000;
+    }
+
+    .modal.show {
+      display: flex;
+    }
+
+    .modal-box {
+      width: 100%;
+      max-width: 480px;
+      background: white;
+      border-radius: 16px;
+      padding: 22px;
+      box-shadow: 0 20px 60px rgba(0,0,0,.2);
+    }
+
+    .modal-box h2 {
+      margin-top: 0;
+    }
+
+    .modal-textarea {
+      width: 100%;
+      min-height: 110px;
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      resize: vertical;
+      outline: none;
+    }
+
+    .modal-actions {
+      margin-top: 15px;
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    /* =========================
+       MOBILE
+    ========================== */
+
+    .mobile-menu {
+      display: none;
+      background: var(--green);
+      color: white;
+      border-radius: 8px;
+      padding: 9px 12px;
+      font-size: 20px;
+    }
+
+    @media (max-width: 1100px) {
+      .stats-grid {
+        grid-template-columns: repeat(2, minmax(0,1fr));
+      }
+    }
+
+    @media (max-width: 800px) {
+      .sidebar {
+        transform: translateX(-100%);
+        transition: .25s;
       }
 
+      .sidebar.open {
+        transform: translateX(0);
+      }
+
+      .main {
+        margin-left: 0;
+      }
+
+      .mobile-menu {
+        display: block;
+      }
+
+      .topbar {
+        padding: 0 15px;
+      }
+
+      .content {
+        padding: 15px;
+      }
     }
 
     @media (max-width: 600px) {
-
-      .header {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-
-      .logout {
-        width: 100%;
-      }
-
-      .cards {
+      .stats-grid {
         grid-template-columns: 1fr;
       }
 
-      .container {
-        padding: 0 12px;
+      .admin-info div {
+        display: none;
       }
 
+      .welcome h1 {
+        font-size: 21px;
+      }
     }
-
   </style>
-
 </head>
-
 
 <body>
 
+  <!-- =========================
+       SIDEBAR
+  ========================== -->
 
-  <header class="header">
+  <aside class="sidebar" id="sidebar">
 
-    <div>
+    <div class="brand">
 
-      <h1>
-        EarnNest Admin
-      </h1>
+      <div class="logo">E</div>
 
-      <small>
-        Administration Dashboard
-      </small>
+      <div class="brand-name">
+        EarnNest
+      </div>
+
+      <div class="brand-small">
+        Administration Panel
+      </div>
 
     </div>
 
     <button
-      class="logout"
-      onclick="logout()"
+      class="nav-btn active"
+      onclick="showPage('dashboard', this)"
     >
-      Logout
+      <span class="nav-icon">📊</span>
+      Dashboard
     </button>
 
-  </header>
+    <button
+      class="nav-btn"
+      onclick="showPage('users', this)"
+    >
+      <span class="nav-icon">👥</span>
+      Users
+    </button>
 
+    <button
+      class="nav-btn"
+      onclick="showPage('kyc', this)"
+    >
+      <span class="nav-icon">🪪</span>
+      KYC Verification
+    </button>
 
-  <main class="container">
+    <button
+      class="nav-btn"
+      onclick="showPage('withdrawals', this)"
+    >
+      <span class="nav-icon">💰</span>
+      Withdrawals
+    </button>
 
+    <button
+      class="nav-btn"
+      onclick="showPage('statistics', this)"
+    >
+      <span class="nav-icon">📈</span>
+      Statistics
+    </button>
 
-    <!-- WELCOME -->
-
-    <div class="welcome">
-
-      <h2 id="adminName">
-        Admin Dashboard
-      </h2>
-
-      <div id="adminEmail">
-        Loading...
-      </div>
-
-    </div>
-
-
-    <!-- STATUS -->
-
-    <div
-      id="status"
-      class="status"
-    ></div>
-
-
-    <!-- STATS -->
-
-    <div class="cards">
-
-
-      <div class="card">
-
-        <div class="stat-title">
-          Total Users
-        </div>
-
-        <div
-          id="totalUsers"
-          class="stat-value"
-        >
-          0
-        </div>
-
-      </div>
-
-
-      <div class="card">
-
-        <div class="stat-title">
-          Total Coins
-        </div>
-
-        <div
-          id="totalCoins"
-          class="stat-value"
-        >
-          0
-        </div>
-
-      </div>
-
-
-      <div class="card">
-
-        <div class="stat-title">
-          Withdrawals
-        </div>
-
-        <div
-          id="totalWithdrawals"
-          class="stat-value"
-        >
-          0
-        </div>
-
-      </div>
-
-
-      <div class="card">
-
-        <div class="stat-title">
-          Pending KYC
-        </div>
-
-        <div
-          id="pendingKyc"
-          class="stat-value"
-        >
-          0
-        </div>
-
-      </div>
-
-
-    </div>
-
-
-    <!-- USERS -->
-
-    <section class="section">
-
-      <h2>
-        Users
-      </h2>
+    <div class="sidebar-bottom">
 
       <button
-        class="refresh"
-        onclick="loadDashboard()"
+        class="logout-btn"
+        onclick="logout()"
       >
-        Refresh
+        Logout
       </button>
 
-      <div class="table-wrapper">
+    </div>
 
-        <table>
+  </aside>
 
-          <thead>
 
-            <tr>
+  <!-- =========================
+       MAIN
+  ========================== -->
 
-              <th>
-                Name
-              </th>
+  <main class="main">
 
-              <th>
-                Username
-              </th>
+    <header class="topbar">
 
-              <th>
-                Email
-              </th>
+      <div style="display:flex;align-items:center;gap:12px;">
 
-              <th>
-                Phone
-              </th>
+        <button
+          class="mobile-menu"
+          onclick="toggleSidebar()"
+        >
+          ☰
+        </button>
 
-              <th>
-                Role
-              </th>
-
-              <th>
-                Coins
-              </th>
-
-            </tr>
-
-          </thead>
-
-          <tbody id="usersTable">
-
-            <tr>
-
-              <td
-                colspan="6"
-                class="empty"
-              >
-                Loading users...
-              </td>
-
-            </tr>
-
-          </tbody>
-
-        </table>
+        <div class="page-title" id="pageTitle">
+          Dashboard
+        </div>
 
       </div>
 
-    </section>
+      <div class="admin-info">
 
+        <div class="admin-avatar">
+          👨‍💼
+        </div>
+
+        <div>
+          <strong id="topAdminName">
+            Admin
+          </strong>
+
+          <br>
+
+          <small
+            id="topAdminEmail"
+            style="color:#6b7280;"
+          >
+            Loading...
+          </small>
+        </div>
+
+      </div>
+
+    </header>
+
+
+    <div class="content">
+
+      <div id="status"></div>
+
+
+      <!-- =========================
+           DASHBOARD PAGE
+      ========================== -->
+
+      <section
+        class="page active"
+        id="page-dashboard"
+      >
+
+        <div class="welcome">
+
+          <h1 id="welcomeTitle">
+            Welcome, Admin
+          </h1>
+
+          <p>
+            Manage EarnNest users, KYC verification,
+            withdrawals and rewards from one place.
+          </p>
+
+        </div>
+
+
+        <div class="stats-grid">
+
+          <div class="stat-card">
+
+            <div class="stat-icon">
+              👥
+            </div>
+
+            <div class="stat-label">
+              Total Users
+            </div>
+
+            <div
+              class="stat-value"
+              id="totalUsers"
+            >
+              0
+            </div>
+
+          </div>
+
+
+          <div class="stat-card">
+
+            <div class="stat-icon">
+              🪙
+            </div>
+
+            <div class="stat-label">
+              Total Coins
+            </div>
+
+            <div
+              class="stat-value"
+              id="totalCoins"
+            >
+              0
+            </div>
+
+          </div>
+
+
+          <div class="stat-card">
+
+            <div class="stat-icon">
+              💰
+            </div>
+
+            <div class="stat-label">
+              Approved Withdrawals
+            </div>
+
+            <div
+              class="stat-value"
+              id="totalWithdrawals"
+            >
+              0
+            </div>
+
+          </div>
+
+
+          <div class="stat-card">
+
+            <div class="stat-icon">
+              🪪
+            </div>
+
+            <div class="stat-label">
+              Pending KYC
+            </div>
+
+            <div
+              class="stat-value"
+              id="pendingKyc"
+            >
+              0
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <div class="stats-grid">
+
+          <div class="stat-card">
+
+            <div class="stat-icon">
+              ⏳
+            </div>
+
+            <div class="stat-label">
+              Pending Withdrawals
+            </div>
+
+            <div
+              class="stat-value"
+              id="pendingWithdrawals"
+            >
+              0
+            </div>
+
+          </div>
+
+
+          <div class="stat-card">
+
+            <div class="stat-icon">
+              🔗
+            </div>
+
+            <div class="stat-label">
+              Total Referrals
+            </div>
+
+            <div
+              class="stat-value"
+              id="totalReferrals"
+            >
+              0
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <div class="card">
+
+          <div class="card-header">
+
+            <h2>
+              Quick Actions
+            </h2>
+
+            <button
+              class="btn btn-green"
+              onclick="loadAll()"
+            >
+              ↻ Refresh
+            </button>
+
+          </div>
+
+          <div class="card-body">
+
+            <button
+              class="btn btn-blue"
+              onclick="showPageByName('users')"
+            >
+              👥 Manage Users
+            </button>
+
+            <button
+              class="btn btn-orange"
+              onclick="showPageByName('kyc')"
+            >
+              🪪 Review KYC
+            </button>
+
+            <button
+              class="btn btn-green"
+              onclick="showPageByName('withdrawals')"
+            >
+              💰 Review Withdrawals
+            </button>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- =========================
+           USERS PAGE
+      ========================== -->
+
+      <section
+        class="page"
+        id="page-users"
+      >
+
+        <div class="card">
+
+          <div class="card-header">
+
+            <h2>
+              User Management
+            </h2>
+
+            <button
+              class="btn btn-green"
+              onclick="loadUsers()"
+            >
+              ↻ Refresh
+            </button>
+
+          </div>
+
+          <div class="card-body">
+
+            <div class="toolbar">
+
+              <input
+                type="text"
+                id="userSearch"
+                class="search"
+                placeholder="Search name, username, email..."
+                oninput="filterUsers()"
+              >
+
+            </div>
+
+          </div>
+
+          <div class="table-wrap">
+
+            <table>
+
+              <thead>
+
+                <tr>
+                  <th>Name</th>
+                  <th>Username</th>
+                  <th>Email</th>
+                  <th>Phone</th>
+                  <th>Role</th>
+                  <th>Coins</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+
+              </thead>
+
+              <tbody id="usersTable">
+
+                <tr>
+                  <td
+                    colspan="8"
+                    class="empty"
+                  >
+                    Loading users...
+                  </td>
+                </tr>
+
+              </tbody>
+
+            </table>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- =========================
+           KYC PAGE
+      ========================== -->
+
+      <section
+        class="page"
+        id="page-kyc"
+      >
+
+        <div class="card">
+
+          <div class="card-header">
+
+            <h2>
+              KYC Verification
+            </h2>
+
+            <button
+              class="btn btn-green"
+              onclick="loadKyc()"
+            >
+              ↻ Refresh
+            </button>
+
+          </div>
+
+          <div class="table-wrap">
+
+            <table>
+
+              <thead>
+
+                <tr>
+                  <th>User</th>
+                  <th>Username</th>
+                  <th>Full Name</th>
+                  <th>Document</th>
+                  <th>Number</th>
+                  <th>Status</th>
+                  <th>Submitted</th>
+                  <th>Actions</th>
+                </tr>
+
+              </thead>
+
+              <tbody id="kycTable">
+
+                <tr>
+                  <td
+                    colspan="8"
+                    class="empty"
+                  >
+                    Loading KYC...
+                  </td>
+                </tr>
+
+              </tbody>
+
+            </table>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- =========================
+           WITHDRAWALS PAGE
+      ========================== -->
+
+      <section
+        class="page"
+        id="page-withdrawals"
+      >
+
+        <div class="card">
+
+          <div class="card-header">
+
+            <h2>
+              Withdrawal Management
+            </h2>
+
+            <button
+              class="btn btn-green"
+              onclick="loadWithdrawals()"
+            >
+              ↻ Refresh
+            </button>
+
+          </div>
+
+          <div class="table-wrap">
+
+            <table>
+
+              <thead>
+
+                <tr>
+                  <th>User</th>
+                  <th>Username</th>
+                  <th>Amount</th>
+                  <th>Method</th>
+                  <th>Account</th>
+                  <th>Status</th>
+                  <th>Date</th>
+                  <th>Actions</th>
+                </tr>
+
+              </thead>
+
+              <tbody id="withdrawalsTable">
+
+                <tr>
+                  <td
+                    colspan="8"
+                    class="empty"
+                  >
+                    Loading withdrawals...
+                  </td>
+                </tr>
+
+              </tbody>
+
+            </table>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- =========================
+           STATISTICS PAGE
+      ========================== -->
+
+      <section
+        class="page"
+        id="page-statistics"
+      >
+
+        <div class="stats-grid">
+
+          <div class="stat-card">
+            <div class="stat-icon">👥</div>
+            <div class="stat-label">Users</div>
+            <div class="stat-value" id="statUsers">0</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon">🪙</div>
+            <div class="stat-label">Coins</div>
+            <div class="stat-value" id="statCoins">0</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon">💰</div>
+            <div class="stat-label">Approved Withdrawals</div>
+            <div class="stat-value" id="statWithdrawals">0</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon">🔗</div>
+            <div class="stat-label">Referrals</div>
+            <div class="stat-value" id="statReferrals">0</div>
+          </div>
+
+        </div>
+
+      </section>
+
+    </div>
 
   </main>
 
 
+  <!-- =========================
+       ACTION MODAL
+  ========================== -->
+
+  <div
+    class="modal"
+    id="actionModal"
+  >
+
+    <div class="modal-box">
+
+      <h2 id="modalTitle">
+        Confirm Action
+      </h2>
+
+      <p id="modalDescription">
+        Are you sure?
+      </p>
+
+      <textarea
+        id="modalNote"
+        class="modal-textarea"
+        placeholder="Optional note..."
+      ></textarea>
+
+      <div class="modal-actions">
+
+        <button
+          class="btn btn-gray"
+          onclick="closeModal()"
+        >
+          Cancel
+        </button>
+
+        <button
+          class="btn btn-green"
+          id="modalConfirm"
+          onclick="confirmModalAction()"
+        >
+          Confirm
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
   <script>
+    /* =====================================================
+       CONFIG
+    ===================================================== */
 
-    /* =========================
-       GET USER
-    ========================== */
+    const API_BASE = "/api";
 
-    function getUser() {
+    let allUsers = [];
 
-      try {
-
-        return JSON.parse(
-          localStorage.getItem(
-            "earnnest_user"
-          )
-        );
-
-      } catch {
-
-        return null;
-
-      }
-
-    }
+    let modalAction = null;
+    let modalId = null;
 
 
-    /* =========================
-       GET TOKEN
-    ========================== */
+    /* =====================================================
+       LOCAL STORAGE
+    ===================================================== */
 
     function getToken() {
+      return localStorage.getItem("earnnest_token");
+    }
 
-      return localStorage.getItem(
-        "earnnest_token"
-      );
-
+    function getUser() {
+      try {
+        return JSON.parse(
+          localStorage.getItem("earnnest_user")
+        );
+      } catch {
+        return null;
+      }
     }
 
 
-    /* =========================
-       AUTH CHECK
-    ========================== */
+    /* =====================================================
+       ESCAPE HTML
+    ===================================================== */
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+
+    /* =====================================================
+       STATUS
+    ===================================================== */
+
+    function showStatus(message) {
+      const box =
+        document.getElementById("status");
+
+      box.textContent = message;
+      box.style.display = "block";
+    }
+
+    function hideStatus() {
+      const box =
+        document.getElementById("status");
+
+      box.textContent = "";
+      box.style.display = "none";
+    }
+
+
+    /* =====================================================
+       API GET
+    ===================================================== */
+
+    async function apiGet(endpoint) {
+
+      const token = getToken();
+
+      const response = await fetch(
+        API_BASE + endpoint,
+        {
+          method: "GET",
+          headers: {
+            "Authorization":
+              "Bearer " + token
+          }
+        }
+      );
+
+      const data =
+        await response
+          .json()
+          .catch(() => ({}));
+
+      if (
+        response.status === 401 ||
+        response.status === 403
+      ) {
+        logout(false);
+        throw new Error(
+          data.message ||
+          "Admin authorization failed"
+        );
+      }
+
+      if (!response.ok) {
+        throw new Error(
+          data.message ||
+          data.error ||
+          "Request failed"
+        );
+      }
+
+      return data;
+    }
+
+
+    /* =====================================================
+       API POST
+    ===================================================== */
+
+    async function apiPost(
+      endpoint,
+      body
+    ) {
+
+      const token = getToken();
+
+      const response = await fetch(
+        API_BASE + endpoint,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type":
+              "application/json",
+            "Authorization":
+              "Bearer " + token
+          },
+          body: JSON.stringify(body)
+        }
+      );
+
+      const data =
+        await response
+          .json()
+          .catch(() => ({}));
+
+      if (
+        response.status === 401 ||
+        response.status === 403
+      ) {
+        logout(false);
+
+        throw new Error(
+          data.message ||
+          "Admin authorization failed"
+        );
+      }
+
+      if (!response.ok) {
+        throw new Error(
+          data.message ||
+          data.error ||
+          "Request failed"
+        );
+      }
+
+      return data;
+    }
+
+
+    /* =====================================================
+       ADMIN CHECK
+    ===================================================== */
 
     async function checkAdmin() {
 
-      const user =
-        getUser();
-
-      const token =
-        getToken();
-
+      const user = getUser();
+      const token = getToken();
 
       if (!user || !token) {
-
-        window.location.href =
-          "/";
-
+        window.location.href = "/";
         return false;
-
       }
 
-
-      if (
-        user.role !==
-        "admin"
-      ) {
-
-        alert(
-          "Admin access required."
-        );
-
-        window.location.href =
-          "/";
-
+      if (user.role !== "admin") {
+        alert("Admin access required.");
+        window.location.href = "/";
         return false;
-
       }
-
 
       document.getElementById(
-        "adminName"
+        "welcomeTitle"
       ).textContent =
         "Welcome, " +
         (user.name || "Admin");
 
+      document.getElementById(
+        "topAdminName"
+      ).textContent =
+        user.name || "Admin";
 
       document.getElementById(
-        "adminEmail"
+        "topAdminEmail"
       ).textContent =
         user.email || "";
 
-
       try {
 
-        const response =
-          await fetch(
-            "/api/admin/stats",
-            {
-
-              method: "GET",
-
-              headers: {
-
-                "Authorization":
-                  "Bearer " +
-                  token
-
-              }
-
-            }
-          );
-
-
-        if (
-          response.status ===
-            401 ||
-          response.status ===
-            403
-        ) {
-
-          localStorage.removeItem(
-            "earnnest_user"
-          );
-
-          localStorage.removeItem(
-            "earnnest_token"
-          );
-
-          window.location.href =
-            "/";
-
-          return false;
-
-        }
-
+        await apiGet(
+          "/admin/stats"
+        );
 
         return true;
 
-
       } catch (error) {
 
-        console.error(
-          error
-        );
-
-        showStatus(
-          "Unable to verify admin account."
-        );
+        console.error(error);
 
         return false;
-
       }
-
     }
 
 
-    /* =========================
-       DASHBOARD
-    ========================== */
+    /* =====================================================
+       NAVIGATION
+    ===================================================== */
 
-    async function loadDashboard() {
+    function showPage(
+      page,
+      button
+    ) {
 
-      const token =
-        getToken();
+      document
+        .querySelectorAll(".page")
+        .forEach(
+          el =>
+            el.classList.remove("active")
+        );
 
+      document
+        .getElementById(
+          "page-" + page
+        )
+        .classList.add("active");
 
-      if (!token) {
+      document
+        .querySelectorAll(".nav-btn")
+        .forEach(
+          el =>
+            el.classList.remove("active")
+        );
 
-        window.location.href =
-          "/";
-
-        return;
-
+      if (button) {
+        button.classList.add("active");
       }
 
+      const titles = {
+        dashboard: "Dashboard",
+        users: "Users",
+        kyc: "KYC Verification",
+        withdrawals: "Withdrawals",
+        statistics: "Statistics"
+      };
 
-      showStatus(
-        "Loading dashboard..."
-      );
+      document.getElementById(
+        "pageTitle"
+      ).textContent =
+        titles[page] || "Dashboard";
 
+      if (page === "users") {
+        loadUsers();
+      }
+
+      if (page === "kyc") {
+        loadKyc();
+      }
+
+      if (page === "withdrawals") {
+        loadWithdrawals();
+      }
+
+      if (page === "statistics") {
+        loadStats();
+      }
+
+      document
+        .getElementById("sidebar")
+        .classList.remove("open");
+    }
+
+
+    function showPageByName(page) {
+
+      const buttons =
+        document.querySelectorAll(
+          ".nav-btn"
+        );
+
+      let target = null;
+
+      buttons.forEach(btn => {
+
+        if (
+          btn.getAttribute("onclick") &&
+          btn.getAttribute("onclick")
+            .includes("'" + page + "'")
+        ) {
+          target = btn;
+        }
+
+      });
+
+      showPage(page, target);
+    }
+
+
+    function toggleSidebar() {
+      document
+        .getElementById("sidebar")
+        .classList.toggle("open");
+    }
+
+
+    /* =====================================================
+       LOAD STATS
+    ===================================================== */
+
+    async function loadStats() {
 
       try {
 
-        const response =
-          await fetch(
-            "/api/admin/stats",
-            {
-
-              method: "GET",
-
-              headers: {
-
-                "Authorization":
-                  "Bearer " +
-                  token
-
-              }
-
-            }
-          );
-
-
         const data =
-          await response
-            .json()
-            .catch(function() {
-              return {};
-            });
-
-
-        if (!response.ok) {
-
-          if (
-            response.status ===
-              401 ||
-            response.status ===
-              403
-          ) {
-
-            logout();
-
-            return;
-
-          }
-
-
-          showStatus(
-            data.error ||
-            data.message ||
-            "Unable to load dashboard."
+          await apiGet(
+            "/admin/stats"
           );
-
-          return;
-
-        }
-
 
         const stats =
           data.stats || {};
 
-
         document.getElementById(
           "totalUsers"
         ).textContent =
-          stats.totalUsers || 0;
-
+          Number(
+            stats.totalUsers || 0
+          ).toLocaleString();
 
         document.getElementById(
           "totalCoins"
         ).textContent =
-          stats.totalCoins || 0;
-
+          Number(
+            stats.totalCoins || 0
+          ).toLocaleString();
 
         document.getElementById(
           "totalWithdrawals"
         ).textContent =
-          stats.totalWithdrawals || 0;
-
+          Number(
+            stats.totalWithdrawals || 0
+          ).toLocaleString();
 
         document.getElementById(
           "pendingKyc"
         ).textContent =
-          stats.pendingKyc || 0;
+          Number(
+            stats.pendingKyc || 0
+          ).toLocaleString();
 
+        document.getElementById(
+          "pendingWithdrawals"
+        ).textContent =
+          Number(
+            stats.pendingWithdrawals || 0
+          ).toLocaleString();
 
-        renderUsers(
-          data.users || []
-        );
+        document.getElementById(
+          "totalReferrals"
+        ).textContent =
+          Number(
+            stats.totalReferrals || 0
+          ).toLocaleString();
 
+        document.getElementById(
+          "statUsers"
+        ).textContent =
+          Number(
+            stats.totalUsers || 0
+          ).toLocaleString();
 
-        hideStatus();
+        document.getElementById(
+          "statCoins"
+        ).textContent =
+          Number(
+            stats.totalCoins || 0
+          ).toLocaleString();
 
+        document.getElementById(
+          "statWithdrawals"
+        ).textContent =
+          Number(
+            stats.totalWithdrawals || 0
+          ).toLocaleString();
+
+        document.getElementById(
+          "statReferrals"
+        ).textContent =
+          Number(
+            stats.totalReferrals || 0
+          ).toLocaleString();
 
       } catch (error) {
 
         console.error(
-          "Dashboard error:",
+          "Stats error:",
           error
         );
 
         showStatus(
-          "Unable to connect to server."
+          error.message
         );
-
       }
-
     }
 
 
-    /* =========================
-       USERS
-    ========================== */
+    /* =====================================================
+       LOAD USERS
+    ===================================================== */
+
+    async function loadUsers() {
+
+      const table =
+        document.getElementById(
+          "usersTable"
+        );
+
+      table.innerHTML = `
+        <tr>
+          <td colspan="8" class="empty">
+            Loading users...
+          </td>
+        </tr>
+      `;
+
+      try {
+
+        const data =
+          await apiGet(
+            "/admin/users"
+          );
+
+        allUsers =
+          Array.isArray(data.users)
+            ? data.users
+            : [];
+
+        renderUsers(allUsers);
+
+      } catch (error) {
+
+        console.error(
+          "Users error:",
+          error
+        );
+
+        table.innerHTML = `
+          <tr>
+            <td colspan="8" class="empty">
+              ${escapeHtml(error.message)}
+            </td>
+          </tr>
+        `;
+      }
+    }
+
+
+    /* =====================================================
+       RENDER USERS
+    ===================================================== */
 
     function renderUsers(users) {
 
@@ -733,199 +1701,929 @@
           "usersTable"
         );
 
-
-      table.innerHTML =
-        "";
-
-
       if (!users.length) {
 
         table.innerHTML = `
-
           <tr>
-
-            <td
-              colspan="6"
-              class="empty"
-            >
+            <td colspan="8" class="empty">
               No users found.
             </td>
-
           </tr>
-
         `;
 
         return;
-
       }
 
+      table.innerHTML =
+        users.map(user => {
 
-      users.forEach(
-        function(user) {
+          const status =
+            String(
+              user.status || "active"
+            ).toLowerCase();
 
-          const row =
-            document.createElement(
-              "tr"
-            );
+          const role =
+            String(
+              user.role || "user"
+            ).toLowerCase();
 
+          let actions = "";
 
-          row.innerHTML = `
+          if (role === "admin") {
 
-            <td>
-              ${escapeHtml(
-                user.name || "-"
-              )}
-            </td>
-
-            <td>
-              ${escapeHtml(
-                user.username || "-"
-              )}
-            </td>
-
-            <td>
-              ${escapeHtml(
-                user.email || "-"
-              )}
-            </td>
-
-            <td>
-              ${escapeHtml(
-                user.phone || "-"
-              )}
-            </td>
-
-            <td>
-
-              <span class="badge">
-                ${escapeHtml(
-                  user.role || "user"
-                )}
+            actions = `
+              <span class="badge badge-approved">
+                Protected Admin
               </span>
+            `;
 
-            </td>
+          } else {
 
-            <td>
-              ${Number(
-                user.coins || 0
-              )}
-            </td>
+            if (status === "active") {
 
+              actions += `
+                <button
+                  class="btn btn-orange"
+                  onclick="openUserAction(
+                    '${escapeJs(user.id)}',
+                    'block',
+                    '${escapeJs(user.username || user.name || "user")}'
+                  )"
+                >
+                  Block
+                </button>
+              `;
+
+              actions += `
+                <button
+                  class="btn btn-red"
+                  onclick="openUserAction(
+                    '${escapeJs(user.id)}',
+                    'disable',
+                    '${escapeJs(user.username || user.name || "user")}'
+                  )"
+                >
+                  Disable
+                </button>
+              `;
+
+            } else {
+
+              actions += `
+                <button
+                  class="btn btn-green"
+                  onclick="openUserAction(
+                    '${escapeJs(user.id)}',
+                    'unblock',
+                    '${escapeJs(user.username || user.name || "user")}'
+                  )"
+                >
+                  Enable
+                </button>
+              `;
+            }
+          }
+
+          return `
+            <tr>
+
+              <td>
+                <strong>
+                  ${escapeHtml(
+                    user.name || "-"
+                  )}
+                </strong>
+              </td>
+
+              <td>
+                ${escapeHtml(
+                  user.username || "-"
+                )}
+              </td>
+
+              <td>
+                ${escapeHtml(
+                  user.email || "-"
+                )}
+              </td>
+
+              <td>
+                ${escapeHtml(
+                  user.phone || "-"
+                )}
+              </td>
+
+              <td>
+                <span class="badge badge-approved">
+                  ${escapeHtml(role)}
+                </span>
+              </td>
+
+              <td>
+                ${Number(
+                  user.coins || 0
+                ).toLocaleString()}
+              </td>
+
+              <td>
+                <span class="badge badge-${escapeHtml(status)}">
+                  ${escapeHtml(status)}
+                </span>
+              </td>
+
+              <td>
+                ${actions}
+              </td>
+
+            </tr>
           `;
 
-
-          table.appendChild(
-            row
-          );
-
-        }
-      );
-
+        }).join("");
     }
 
 
-    /* =========================
-       SECURITY
-    ========================== */
+    function escapeJs(value) {
 
-    function escapeHtml(value) {
-
-      return String(value)
-
-        .replaceAll(
-          "&",
-          "&amp;"
-        )
-
-        .replaceAll(
-          "<",
-          "&lt;"
-        )
-
-        .replaceAll(
-          ">",
-          "&gt;"
-        )
-
-        .replaceAll(
-          '"',
-          "&quot;"
-        )
-
-        .replaceAll(
-          "'",
-          "&#039;"
-        );
-
+      return String(value ?? "")
+        .replaceAll("\\", "\\\\")
+        .replaceAll("'", "\\'")
+        .replaceAll("\n", "\\n")
+        .replaceAll("\r", "\\r");
     }
 
 
-    /* =========================
-       STATUS
-    ========================== */
+    /* =====================================================
+       SEARCH USERS
+    ===================================================== */
 
-    function showStatus(
-      message
+    function filterUsers() {
+
+      const search =
+        document.getElementById(
+          "userSearch"
+        ).value
+        .trim()
+        .toLowerCase();
+
+      if (!search) {
+        renderUsers(allUsers);
+        return;
+      }
+
+      const filtered =
+        allUsers.filter(user => {
+
+          return [
+            user.name,
+            user.username,
+            user.email,
+            user.phone,
+            user.status
+          ]
+            .join(" ")
+            .toLowerCase()
+            .includes(search);
+
+        });
+
+      renderUsers(filtered);
+    }
+
+
+    /* =====================================================
+       USER ACTION MODAL
+    ===================================================== */
+
+    function openUserAction(
+      id,
+      action,
+      username
     ) {
 
-      const box =
+      modalId = id;
+      modalAction = action;
+
+      const title =
         document.getElementById(
-          "status"
+          "modalTitle"
         );
 
-      box.textContent =
-        message;
+      const description =
+        document.getElementById(
+          "modalDescription"
+        );
 
-      box.style.display =
-        "block";
+      const confirm =
+        document.getElementById(
+          "modalConfirm"
+        );
 
+      document.getElementById(
+        "modalNote"
+      ).value = "";
+
+      if (action === "block") {
+
+        title.textContent =
+          "Block User";
+
+        description.textContent =
+          `Are you sure you want to block ${username}?`;
+
+        confirm.textContent =
+          "Block User";
+
+        confirm.className =
+          "btn btn-orange";
+
+      } else if (action === "disable") {
+
+        title.textContent =
+          "Disable User";
+
+        description.textContent =
+          `Are you sure you want to disable ${username}?`;
+
+        confirm.textContent =
+          "Disable User";
+
+        confirm.className =
+          "btn btn-red";
+
+      } else {
+
+        title.textContent =
+          "Enable User";
+
+        description.textContent =
+          `Do you want to enable ${username}?`;
+
+        confirm.textContent =
+          "Enable User";
+
+        confirm.className =
+          "btn btn-green";
+      }
+
+      document
+        .getElementById("actionModal")
+        .classList.add("show");
     }
 
 
-    function hideStatus() {
+    /* =====================================================
+       CONFIRM USER ACTION
+    ===================================================== */
 
-      const box =
+    async function confirmModalAction() {
+
+      if (!modalId || !modalAction) {
+        return;
+      }
+
+      const button =
         document.getElementById(
-          "status"
+          "modalConfirm"
         );
 
-      box.textContent =
-        "";
+      button.disabled = true;
+      button.textContent =
+        "Processing...";
 
-      box.style.display =
-        "none";
+      try {
 
+        await apiPost(
+          "/admin/users",
+          {
+            id: modalId,
+            action: modalAction
+          }
+        );
+
+        closeModal();
+
+        showStatus(
+          "User status updated successfully."
+        );
+
+        await loadUsers();
+        await loadStats();
+
+        setTimeout(
+          hideStatus,
+          2500
+        );
+
+      } catch (error) {
+
+        alert(
+          error.message
+        );
+
+        button.disabled = false;
+        button.textContent =
+          "Confirm";
+      }
     }
 
 
-    /* =========================
+    function closeModal() {
+
+      document
+        .getElementById("actionModal")
+        .classList.remove("show");
+
+      modalId = null;
+      modalAction = null;
+    }
+
+
+    /* =====================================================
+       LOAD KYC
+    ===================================================== */
+
+    async function loadKyc() {
+
+      const table =
+        document.getElementById(
+          "kycTable"
+        );
+
+      table.innerHTML = `
+        <tr>
+          <td colspan="8" class="empty">
+            Loading KYC...
+          </td>
+        </tr>
+      `;
+
+      try {
+
+        const data =
+          await apiGet(
+            "/admin/kyc"
+          );
+
+        const rows =
+          Array.isArray(data.kyc)
+            ? data.kyc
+            : [];
+
+        renderKyc(rows);
+
+      } catch (error) {
+
+        console.error(
+          "KYC error:",
+          error
+        );
+
+        table.innerHTML = `
+          <tr>
+            <td colspan="8" class="empty">
+              ${escapeHtml(error.message)}
+            </td>
+          </tr>
+        `;
+      }
+    }
+
+
+    /* =====================================================
+       RENDER KYC
+    ===================================================== */
+
+    function renderKyc(rows) {
+
+      const table =
+        document.getElementById(
+          "kycTable"
+        );
+
+      if (!rows.length) {
+
+        table.innerHTML = `
+          <tr>
+            <td colspan="8" class="empty">
+              No KYC submissions found.
+            </td>
+          </tr>
+        `;
+
+        return;
+      }
+
+      table.innerHTML =
+        rows.map(row => {
+
+          const status =
+            String(
+              row.status || "pending"
+            ).toLowerCase();
+
+          let actions = "";
+
+          if (status === "pending") {
+
+            actions = `
+              <button
+                class="btn btn-green"
+                onclick="reviewKyc(
+                  '${escapeJs(row.id)}',
+                  'approve'
+                )"
+              >
+                Approve
+              </button>
+
+              <button
+                class="btn btn-red"
+                onclick="reviewKyc(
+                  '${escapeJs(row.id)}',
+                  'reject'
+                )"
+              >
+                Reject
+              </button>
+            `;
+
+          } else {
+
+            actions = `
+              <span class="badge badge-${escapeHtml(status)}">
+                ${escapeHtml(status)}
+              </span>
+            `;
+          }
+
+          return `
+            <tr>
+
+              <td>
+                ${escapeHtml(
+                  row.user_name || "-"
+                )}
+              </td>
+
+              <td>
+                ${escapeHtml(
+                  row.username || "-"
+                )}
+              </td>
+
+              <td>
+                ${escapeHtml(
+                  row.full_name || "-"
+                )}
+              </td>
+
+              <td>
+                ${escapeHtml(
+                  row.document_type || "-"
+                )}
+              </td>
+
+              <td>
+                ${escapeHtml(
+                  row.document_number || "-"
+                )}
+              </td>
+
+              <td>
+                <span class="badge badge-${escapeHtml(status)}">
+                  ${escapeHtml(status)}
+                </span>
+              </td>
+
+              <td>
+                ${formatDate(
+                  row.submitted_at
+                )}
+              </td>
+
+              <td>
+                ${actions}
+              </td>
+
+            </tr>
+          `;
+
+        }).join("");
+    }
+
+
+    /* =====================================================
+       KYC REVIEW
+    ===================================================== */
+
+    async function reviewKyc(
+      id,
+      action
+    ) {
+
+      const note =
+        prompt(
+          action === "approve"
+            ? "Optional admin note:"
+            : "Reason for rejecting KYC:"
+        );
+
+      if (
+        action === "reject" &&
+        note === null
+      ) {
+        return;
+      }
+
+      try {
+
+        await apiPost(
+          "/admin/kyc",
+          {
+            id,
+            action,
+            note: note || ""
+          }
+        );
+
+        showStatus(
+          action === "approve"
+            ? "KYC approved successfully."
+            : "KYC rejected successfully."
+        );
+
+        await loadKyc();
+        await loadStats();
+
+        setTimeout(
+          hideStatus,
+          2500
+        );
+
+      } catch (error) {
+
+        alert(
+          error.message
+        );
+      }
+    }
+
+
+    /* =====================================================
+       LOAD WITHDRAWALS
+    ===================================================== */
+
+    async function loadWithdrawals() {
+
+      const table =
+        document.getElementById(
+          "withdrawalsTable"
+        );
+
+      table.innerHTML = `
+        <tr>
+          <td colspan="8" class="empty">
+            Loading withdrawals...
+          </td>
+        </tr>
+      `;
+
+      try {
+
+        const data =
+          await apiGet(
+            "/admin/withdrawals"
+          );
+
+        const rows =
+          Array.isArray(
+            data.withdrawals
+          )
+            ? data.withdrawals
+            : [];
+
+        renderWithdrawals(rows);
+
+      } catch (error) {
+
+        console.error(
+          "Withdrawal error:",
+          error
+        );
+
+        table.innerHTML = `
+          <tr>
+            <td colspan="8" class="empty">
+              ${escapeHtml(error.message)}
+            </td>
+          </tr>
+        `;
+      }
+    }
+
+
+    /* =====================================================
+       RENDER WITHDRAWALS
+    ===================================================== */
+
+    function renderWithdrawals(rows) {
+
+      const table =
+        document.getElementById(
+          "withdrawalsTable"
+        );
+
+      if (!rows.length) {
+
+        table.innerHTML = `
+          <tr>
+            <td colspan="8" class="empty">
+              No withdrawal requests found.
+            </td>
+          </tr>
+        `;
+
+        return;
+      }
+
+      table.innerHTML =
+        rows.map(row => {
+
+          const status =
+            String(
+              row.status || "pending"
+            ).toLowerCase();
+
+          let actions = "";
+
+          if (status === "pending") {
+
+            actions = `
+              <button
+                class="btn btn-green"
+                onclick="reviewWithdrawal(
+                  '${escapeJs(row.id)}',
+                  'approve'
+                )"
+              >
+                Approve
+              </button>
+
+              <button
+                class="btn btn-red"
+                onclick="reviewWithdrawal(
+                  '${escapeJs(row.id)}',
+                  'reject'
+                )"
+              >
+                Reject
+              </button>
+            `;
+
+          } else {
+
+            actions = `
+              <span class="badge badge-${escapeHtml(status)}">
+                ${escapeHtml(status)}
+              </span>
+            `;
+          }
+
+          return `
+            <tr>
+
+              <td>
+                ${escapeHtml(
+                  row.user_name || "-"
+                )}
+              </td>
+
+              <td>
+                ${escapeHtml(
+                  row.username || "-"
+                )}
+              </td>
+
+              <td>
+                <strong>
+                  ${Number(
+                    row.amount || 0
+                  ).toLocaleString()}
+                </strong>
+              </td>
+
+              <td>
+                ${escapeHtml(
+                  row.payment_method || "-"
+                )}
+              </td>
+
+              <td>
+                ${escapeHtml(
+                  row.payment_account || "-"
+                )}
+              </td>
+
+              <td>
+                <span class="badge badge-${escapeHtml(status)}">
+                  ${escapeHtml(status)}
+                </span>
+              </td>
+
+              <td>
+                ${formatDate(
+                  row.created_at
+                )}
+              </td>
+
+              <td>
+                ${actions}
+              </td>
+
+            </tr>
+          `;
+
+        }).join("");
+    }
+
+
+    /* =====================================================
+       WITHDRAWAL REVIEW
+    ===================================================== */
+
+    async function reviewWithdrawal(
+      id,
+      action
+    ) {
+
+      let note = "";
+
+      if (action === "reject") {
+
+        note =
+          prompt(
+            "Reason for rejecting withdrawal:"
+          );
+
+        if (note === null) {
+          return;
+        }
+
+      } else {
+
+        note =
+          prompt(
+            "Optional admin note:"
+          ) || "";
+      }
+
+      try {
+
+        await apiPost(
+          "/admin/withdrawals",
+          {
+            id,
+            action,
+            note
+          }
+        );
+
+        showStatus(
+          action === "approve"
+            ? "Withdrawal approved successfully."
+            : "Withdrawal rejected and coins returned."
+        );
+
+        await loadWithdrawals();
+        await loadStats();
+
+        setTimeout(
+          hideStatus,
+          3000
+        );
+
+      } catch (error) {
+
+        alert(
+          error.message
+        );
+      }
+    }
+
+
+    /* =====================================================
+       DATE
+    ===================================================== */
+
+    function formatDate(value) {
+
+      if (!value) {
+        return "-";
+      }
+
+      try {
+
+        return new Date(
+          value
+        ).toLocaleString();
+
+      } catch {
+
+        return String(value);
+      }
+    }
+
+
+    /* =====================================================
+       LOAD EVERYTHING
+    ===================================================== */
+
+    async function loadAll() {
+
+      showStatus(
+        "Refreshing admin panel..."
+      );
+
+      try {
+
+        await loadStats();
+
+        if (
+          document
+            .getElementById(
+              "page-users"
+            )
+            .classList.contains("active")
+        ) {
+          await loadUsers();
+        }
+
+        if (
+          document
+            .getElementById(
+              "page-kyc"
+            )
+            .classList.contains("active")
+        ) {
+          await loadKyc();
+        }
+
+        if (
+          document
+            .getElementById(
+              "page-withdrawals"
+            )
+            .classList.contains("active")
+        ) {
+          await loadWithdrawals();
+        }
+
+        showStatus(
+          "Admin panel refreshed."
+        );
+
+        setTimeout(
+          hideStatus,
+          2000
+        );
+
+      } catch (error) {
+
+        showStatus(
+          error.message
+        );
+      }
+    }
+
+
+    /* =====================================================
        LOGOUT
-    ========================== */
+    ===================================================== */
 
-    async function logout() {
+    async function logout(
+      redirect = true
+    ) {
 
       const token =
         getToken();
-
 
       try {
 
         if (token) {
 
           await fetch(
-            "/api/admin/logout",
+            API_BASE + "/action",
             {
-
               method: "POST",
-
               headers: {
-
+                "Content-Type":
+                  "application/json",
                 "Authorization":
-                  "Bearer " +
-                  token
-
-              }
-
+                  "Bearer " + token
+              },
+              body: JSON.stringify({
+                action: "logout"
+              })
             }
           );
 
@@ -936,9 +2634,7 @@
         console.error(
           error
         );
-
       }
-
 
       localStorage.removeItem(
         "earnnest_user"
@@ -948,32 +2644,30 @@
         "earnnest_token"
       );
 
-
-      window.location.href =
-        "/";
-
+      if (redirect) {
+        window.location.href = "/";
+      }
     }
 
 
-    /* =========================
+    /* =====================================================
        START
-    ========================== */
+    ===================================================== */
 
     (async function() {
 
       const allowed =
         await checkAdmin();
 
-      if (allowed) {
-
-        await loadDashboard();
-
+      if (!allowed) {
+        return;
       }
+
+      await loadStats();
 
     })();
 
   </script>
 
 </body>
-
 </html>
