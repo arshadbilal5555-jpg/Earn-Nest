@@ -1,12 +1,18 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <title>EarnNest — Login & Register</title>
 
   <style>
-    *{box-sizing:border-box;margin:0;padding:0}
+    *{
+      box-sizing:border-box;
+      margin:0;
+      padding:0;
+    }
 
     body{
       font-family:"Segoe UI",Arial,sans-serif;
@@ -17,10 +23,24 @@
       padding:20px;
       overflow-x:hidden;
       position:relative;
+
       background:
-        radial-gradient(circle at 10% 10%,rgba(34,197,94,.25),transparent 30%),
-        radial-gradient(circle at 90% 90%,rgba(16,185,129,.20),transparent 30%),
-        linear-gradient(135deg,#022c22,#064e3b,#052e16);
+        radial-gradient(
+          circle at 10% 10%,
+          rgba(34,197,94,.25),
+          transparent 30%
+        ),
+        radial-gradient(
+          circle at 90% 90%,
+          rgba(16,185,129,.20),
+          transparent 30%
+        ),
+        linear-gradient(
+          135deg,
+          #022c22,
+          #064e3b,
+          #052e16
+        );
     }
 
     body::before{
@@ -67,9 +87,11 @@
       background:rgba(255,255,255,.97);
       border-radius:24px;
       padding:32px;
+
       box-shadow:
         0 30px 70px rgba(0,0,0,.32),
         0 8px 25px rgba(0,0,0,.16);
+
       border:1px solid rgba(255,255,255,.8);
     }
 
@@ -83,10 +105,18 @@
       height:72px;
       margin:0 auto 10px;
       border-radius:18px;
-      background:linear-gradient(145deg,#22c55e,#15803d);
+
+      background:
+        linear-gradient(
+          145deg,
+          #22c55e,
+          #15803d
+        );
+
       display:flex;
       align-items:center;
       justify-content:center;
+
       box-shadow:
         0 10px 25px rgba(22,163,74,.35),
         inset 0 1px 0 rgba(255,255,255,.35);
@@ -134,7 +164,7 @@
       margin-bottom:15px;
       border-radius:10px;
       font-size:13px;
-      line-height:1.4;
+      line-height:1.45;
       font-weight:600;
       word-break:break-word;
     }
@@ -170,13 +200,18 @@
     .input{
       width:100%;
       height:48px;
+
       border:1.5px solid #d1d5db;
       border-radius:11px;
+
       padding:0 14px;
+
       background:#f8fafc;
       color:#0f172a;
+
       outline:none;
       font-size:14px;
+
       transition:.2s;
     }
 
@@ -187,7 +222,9 @@
     .input:focus{
       background:#fff;
       border-color:#16a34a;
-      box-shadow:0 0 0 4px rgba(22,163,74,.10);
+
+      box-shadow:
+        0 0 0 4px rgba(22,163,74,.10);
     }
 
     .password-wrap{
@@ -202,12 +239,16 @@
       position:absolute;
       right:8px;
       top:8px;
+
       width:32px;
       height:32px;
+
       border:0;
       border-radius:7px;
+
       background:transparent;
       cursor:pointer;
+
       font-size:16px;
     }
 
@@ -237,21 +278,36 @@
     .submit{
       width:100%;
       height:50px;
+
       border:0;
       border-radius:11px;
-      background:linear-gradient(135deg,#22c55e,#15803d);
+
+      background:
+        linear-gradient(
+          135deg,
+          #22c55e,
+          #15803d
+        );
+
       color:white;
       font-size:15px;
       font-weight:800;
+
       cursor:pointer;
+
       margin-top:9px;
-      box-shadow:0 8px 18px rgba(22,163,74,.25);
+
+      box-shadow:
+        0 8px 18px rgba(22,163,74,.25);
+
       transition:.2s;
     }
 
     .submit:hover{
       transform:translateY(-1px);
-      box-shadow:0 10px 23px rgba(22,163,74,.32);
+
+      box-shadow:
+        0 10px 23px rgba(22,163,74,.32);
     }
 
     .submit:disabled{
@@ -298,18 +354,25 @@
     }
 
     @media(max-width:480px){
-      body{padding:14px}
+
+      body{
+        padding:14px;
+      }
+
       .card{
         padding:25px 20px;
         border-radius:20px;
       }
+
       .logo-box{
         width:64px;
         height:64px;
       }
+
       .logo-e{
         font-size:41px;
       }
+
       .brand-name{
         font-size:24px;
       }
@@ -326,18 +389,24 @@
   <section class="card">
 
     <div class="brand">
+
       <div class="logo-box">
         <div class="logo-e">E</div>
       </div>
 
-      <div class="brand-name">Earn Nest</div>
+      <div class="brand-name">
+        Earn Nest
+      </div>
 
       <div class="brand-tagline">
         Work Hard, Grow Your Balance
       </div>
+
     </div>
 
-    <h1 class="title" id="title">Welcome Back</h1>
+    <h1 class="title" id="title">
+      Welcome Back
+    </h1>
 
     <p class="subtitle" id="subtitle">
       Login to continue to your EarnNest account
@@ -347,8 +416,14 @@
 
     <form id="authForm">
 
+      <!-- NAME -->
+
       <div class="group signup-only">
-        <label for="name">Full Name</label>
+
+        <label for="name">
+          Full Name
+        </label>
+
         <input
           id="name"
           class="input"
@@ -356,10 +431,18 @@
           placeholder="Enter your full name"
           autocomplete="name"
         >
+
       </div>
 
+
+      <!-- USERNAME -->
+
       <div class="group signup-only">
-        <label for="username">Username</label>
+
+        <label for="username">
+          Username
+        </label>
+
         <input
           id="username"
           class="input"
@@ -367,10 +450,18 @@
           placeholder="Choose a username"
           autocomplete="username"
         >
+
       </div>
 
+
+      <!-- PHONE -->
+
       <div class="group signup-only">
-        <label for="phone">Phone Number</label>
+
+        <label for="phone">
+          Phone Number
+        </label>
+
         <input
           id="phone"
           class="input"
@@ -378,10 +469,18 @@
           placeholder="03XXXXXXXXX"
           autocomplete="tel"
         >
+
       </div>
 
+
+      <!-- EMAIL -->
+
       <div class="group">
-        <label for="email">Email Address</label>
+
+        <label for="email">
+          Email Address
+        </label>
+
         <input
           id="email"
           class="input"
@@ -390,12 +489,20 @@
           autocomplete="email"
           required
         >
+
       </div>
 
+
+      <!-- PASSWORD -->
+
       <div class="group">
-        <label for="password">Password</label>
+
+        <label for="password">
+          Password
+        </label>
 
         <div class="password-wrap">
+
           <input
             id="password"
             class="input"
@@ -410,13 +517,22 @@
             type="button"
             onclick="togglePassword('password',this)"
           >👁</button>
+
         </div>
+
       </div>
 
+
+      <!-- CONFIRM PASSWORD -->
+
       <div class="group signup-only">
-        <label for="confirmPassword">Confirm Password</label>
+
+        <label for="confirmPassword">
+          Confirm Password
+        </label>
 
         <div class="password-wrap">
+
           <input
             id="confirmPassword"
             class="input"
@@ -430,13 +546,25 @@
             type="button"
             onclick="togglePassword('confirmPassword',this)"
           >👁</button>
+
         </div>
+
       </div>
 
+
+      <!-- REFERRAL -->
+
       <div class="group signup-only">
+
         <label for="referralCode">
           Referral Code
-          <span style="text-transform:none;color:#94a3b8;font-weight:500;">
+          <span
+            style="
+              text-transform:none;
+              color:#94a3b8;
+              font-weight:500;
+            "
+          >
             (Optional)
           </span>
         </label>
@@ -447,21 +575,41 @@
           type="text"
           placeholder="Enter referral code"
         >
+
       </div>
 
-      <div class="forgot" id="forgotBox">
-        <button type="button" onclick="forgotPassword()">
+
+      <!-- FORGOT PASSWORD -->
+
+      <div
+        class="forgot"
+        id="forgotBox"
+      >
+
+        <button
+          type="button"
+          onclick="forgotPassword()"
+        >
           Forgot Password?
         </button>
+
       </div>
+
+
+      <!-- SUBMIT -->
 
       <button
         type="submit"
         class="submit"
         id="submitBtn"
-      >Login</button>
+      >
+        Login
+      </button>
 
     </form>
+
+
+    <!-- TOGGLE -->
 
     <div class="toggle">
 
@@ -473,19 +621,33 @@
         type="button"
         id="toggleBtn"
         onclick="toggleMode()"
-      >Create Account</button>
+      >
+        Create Account
+      </button>
 
     </div>
 
   </section>
 
+
   <div class="footer">
+
     © 2026 EarnNest ·
-    <a href="/privacy.html">Privacy</a> ·
-    <a href="/terms.html">Terms</a>
+
+    <a href="/privacy.html">
+      Privacy
+    </a>
+
+    ·
+
+    <a href="/terms.html">
+      Terms
+    </a>
+
   </div>
 
 </main>
+
 
 <script>
 
@@ -494,121 +656,143 @@ const API_BASE = "/api";
 let isSignUp = false;
 
 
-/* =========================
+/* =========================================================
    MESSAGE
-========================= */
+========================================================= */
 
-function showMessage(message,type){
+function showMessage(message, type){
 
-  const box=document.getElementById("message");
+  const box =
+    document.getElementById("message");
 
-  box.textContent=message;
+  box.textContent =
+    String(message || "Something went wrong.");
 
-  box.className=type;
+  box.className =
+    type === "success"
+      ? "success"
+      : "error";
 
-  box.style.display="block";
+  box.style.display = "block";
 }
 
 
 function clearMessage(){
 
-  const box=document.getElementById("message");
+  const box =
+    document.getElementById("message");
 
-  box.textContent="";
+  box.textContent = "";
 
-  box.className="";
+  box.className = "";
 
-  box.style.display="none";
+  box.style.display = "none";
 }
 
 
-/* =========================
+/* =========================================================
    MODE
-========================= */
+========================================================= */
 
 function toggleMode(){
 
-  isSignUp=!isSignUp;
+  isSignUp = !isSignUp;
 
   document
     .querySelectorAll(".signup-only")
     .forEach(function(el){
 
-      el.style.display=isSignUp ? "block" : "none";
+      el.style.display =
+        isSignUp
+          ? "block"
+          : "none";
 
     });
 
 
-  document.getElementById("title").textContent=
+  document.getElementById("title").textContent =
     isSignUp
       ? "Create Your Account"
       : "Welcome Back";
 
 
-  document.getElementById("subtitle").textContent=
+  document.getElementById("subtitle").textContent =
     isSignUp
       ? "Join EarnNest and start earning coins"
       : "Login to continue to your EarnNest account";
 
 
-  document.getElementById("submitBtn").textContent=
+  document.getElementById("submitBtn").textContent =
     isSignUp
       ? "Create Account"
       : "Login";
 
 
-  document.getElementById("toggleText").textContent=
+  document.getElementById("toggleText").textContent =
     isSignUp
       ? "Already have an account?"
       : "Don't have an account?";
 
 
-  document.getElementById("toggleBtn").textContent=
+  document.getElementById("toggleBtn").textContent =
     isSignUp
       ? "Login"
       : "Create Account";
 
 
-  document.getElementById("forgotBox").style.display=
-    isSignUp ? "none" : "block";
+  document.getElementById("forgotBox").style.display =
+    isSignUp
+      ? "none"
+      : "block";
 
 
-  document.getElementById("password").value="";
-  document.getElementById("confirmPassword").value="";
+  document.getElementById("password").value = "";
+
+  document.getElementById("confirmPassword").value = "";
 
   clearMessage();
 }
 
 
-/* =========================
+/* =========================================================
    PASSWORD
-========================= */
+========================================================= */
 
-function togglePassword(id,button){
+function togglePassword(id, button){
 
-  const input=document.getElementById(id);
+  const input =
+    document.getElementById(id);
 
-  if(input.type==="password"){
+  if(input.type === "password"){
 
-    input.type="text";
-    button.textContent="🙈";
+    input.type = "text";
+
+    button.textContent = "🙈";
 
   }else{
 
-    input.type="password";
-    button.textContent="👁";
+    input.type = "password";
+
+    button.textContent = "👁";
 
   }
 }
 
 
-/* =========================
+/* =========================================================
    API RESPONSE
-========================= */
+========================================================= */
 
 async function readApiResponse(response){
 
-  const text=await response.text();
+  const text =
+    await response.text();
+
+  console.log(
+    "API HTTP status:",
+    response.status
+  );
+
 
   if(!text){
 
@@ -617,46 +801,56 @@ async function readApiResponse(response){
     );
   }
 
+
   let data;
 
   try{
 
-    data=JSON.parse(text);
+    data = JSON.parse(text);
 
   }catch(error){
 
-    console.error("Server response:",text);
+    console.error(
+      "Invalid server response:",
+      text
+    );
 
     throw new Error(
       "Server returned an invalid response."
     );
   }
 
+
+  console.log(
+    "API response:",
+    data
+  );
+
   return data;
 }
 
 
-/* =========================
+/* =========================================================
    LOGIN
-========================= */
+========================================================= */
 
 async function loginUser(){
 
-  const emailInput=
-    document.getElementById("email");
-
-  const passwordInput=
-    document.getElementById("password");
-
-  const email=
-    emailInput.value
+  const email =
+    document
+      .getElementById("email")
+      .value
       .trim()
       .toLowerCase();
 
-  const password=
-    passwordInput.value;
 
-  const button=
+  const password =
+    document
+      .getElementById("password")
+      .value;
+
+
+  const button =
     document.getElementById("submitBtn");
 
 
@@ -671,253 +865,19 @@ async function loginUser(){
   }
 
 
-  button.disabled=true;
-  button.textContent="Logging in...";
+  button.disabled = true;
+
+  button.textContent =
+    "Logging in...";
 
   clearMessage();
 
 
   try{
 
-    const response=await fetch(API_BASE,{
-      method:"POST",
-
-      headers:{
-        "Content-Type":"application/json",
-        "Accept":"application/json"
-      },
-
-      body:JSON.stringify({
-
-        action:"login",
-
-        email:email,
-
-        login:email,
-
-        password:password
-
-      })
-    });
-
-
-    const data=
-      await readApiResponse(response);
-
-
-    console.log("Login API:",{
-      status:response.status,
-      success:data.success,
-      message:data.message
-    });
-
-
-    if(!response.ok || data.success!==true){
-
-      throw new Error(
-        data.message ||
-        data.error ||
-        "Unable to login. Please check your email and password."
-      );
-    }
-
-
-    if(!data.token || !data.user){
-
-      throw new Error(
-        "Login succeeded but the server did not return a valid session."
-      );
-    }
-
-
-    localStorage.setItem(
-      "earnnest_token",
-      String(data.token)
-    );
-
-
-    localStorage.setItem(
-      "earnnest_user",
-      JSON.stringify(data.user)
-    );
-
-
-    showMessage(
-      "Login successful. Opening dashboard...",
-      "success"
-    );
-
-
-    setTimeout(function(){
-
-      window.location.replace(
-        "/dashboard.html"
-      );
-
-    },700);
-
-
-  }catch(error){
-
-    console.error(
-      "Login error:",
-      error
-    );
-
-
-    showMessage(
-      error.message ||
-      "Unable to login. Please try again.",
-      "error"
-    );
-
-
-    button.disabled=false;
-    button.textContent="Login";
-  }
-}
-
-
-/* =========================
-   REGISTER
-========================= */
-
-async function registerUser(){
-
-  const name=
-    document.getElementById("name")
-      .value.trim();
-
-  const username=
-    document.getElementById("username")
-      .value.trim();
-
-  const phone=
-    document.getElementById("phone")
-      .value.trim();
-
-  const email=
-    document.getElementById("email")
-      .value.trim()
-      .toLowerCase();
-
-  const password=
-    document.getElementById("password")
-      .value;
-
-  const confirmPassword=
-    document.getElementById("confirmPassword")
-      .value;
-
-  const referralCode=
-    document.getElementById("referralCode")
-      .value.trim();
-
-
-  if(
-    !name ||
-    !username ||
-    !email ||
-    !password ||
-    !confirmPassword
-  ){
-
-    showMessage(
-      "Please fill all required fields.",
-      "error"
-    );
-
-    return;
-  }
-
-
-  if(password.length<6){
-
-    showMessage(
-      "Password must be at least 6 characters.",
-      "error"
-    );
-
-    return;
-  }
-
-
-  if(password!==confirmPassword){
-
-    showMessage(
-      "Passwords do not match.",
-      "error"
-    );
-
-    return;
-  }
-
-
-  const button=
-    document.getElementById("submitBtn");
-
-  button.disabled=true;
-  button.textContent="Creating Account...";
-
-  clearMessage();
-
-
-  try{
-
-    const response=await fetch(API_BASE,{
-      method:"POST",
-
-      headers:{
-        "Content-Type":"application/json",
-        "Accept":"application/json"
-      },
-
-      body:JSON.stringify({
-
-        action:"register",
-
-        name:name,
-
-        username:username,
-
-        phone:phone,
-
-        email:email,
-
-        password:password,
-
-        confirmPassword:confirmPassword,
-
-        referralCode:referralCode
-
-      })
-    });
-
-
-    const data=
-      await readApiResponse(response);
-
-
-    if(!response.ok || data.success!==true){
-
-      throw new Error(
-        data.message ||
-        data.error ||
-        "Account creation failed."
-      );
-    }
-
-
-    showMessage(
-      "Account created. Logging you in...",
-      "success"
-    );
-
-
-    /* Auto login */
-
-    const loginResponse=
+    const response =
       await fetch(API_BASE,{
+
         method:"POST",
 
         headers:{
@@ -936,269 +896,35 @@ async function registerUser(){
           password:password
 
         })
+
       });
 
 
-    const loginData=
-      await readApiResponse(
-        loginResponse
-      );
+    const data =
+      await readApiResponse(response);
 
 
     if(
-      !loginResponse.ok ||
-      loginData.success!==true ||
-      !loginData.token ||
-      !loginData.user
+      !response.ok ||
+      data.success !== true
     ){
 
+      const serverError =
+        data.error
+          ? " " + data.error
+          : "";
+
       throw new Error(
-        loginData.message ||
-        "Account created, but automatic login failed. Please login manually."
+        (
+          data.message ||
+          "Unable to login."
+        ) + serverError
       );
     }
 
 
-    localStorage.setItem(
-      "earnnest_token",
-      String(loginData.token)
-    );
-
-
-    localStorage.setItem(
-      "earnnest_user",
-      JSON.stringify(loginData.user)
-    );
-
-
-    setTimeout(function(){
-
-      window.location.replace(
-        "/dashboard.html"
-      );
-
-    },700);
-
-
-  }catch(error){
-
-    console.error(
-      "Registration error:",
-      error
-    );
-
-
-    showMessage(
-      error.message ||
-      "Registration failed. Please try again.",
-      "error"
-    );
-
-
-    button.disabled=false;
-    button.textContent="Create Account";
-  }
-}
-
-
-/* =========================
-   FORM
-========================= */
-
-document
-  .getElementById("authForm")
-  .addEventListener(
-    "submit",
-    function(event){
-
-      event.preventDefault();
-
-      if(isSignUp){
-
-        registerUser();
-
-      }else{
-
-        loginUser();
-
-      }
-    }
-  );
-
-
-/* =========================
-   FORGOT PASSWORD
-========================= */
-
-function forgotPassword(){
-
-  showMessage(
-    "Password reset is not connected yet. Please contact support.",
-    "error"
-  );
-}
-
-
-/* =========================
-   ENTER KEY
-========================= */
-
-document
-  .getElementById("password")
-  .addEventListener(
-    "keydown",
-    function(event){
-
-      if(event.key==="Enter"){
-
-        event.preventDefault();
-
-        document
-          .getElementById("authForm")
-          .requestSubmit();
-
-      }
-    }
-  );
-
-
-/* =========================
-   FALLING MONEY
-========================= */
-
-const canvas=
-  document.getElementById("moneyCanvas");
-
-const ctx=
-  canvas.getContext("2d");
-
-let money=[];
-
-
-function resizeCanvas(){
-
-  canvas.width=window.innerWidth;
-  canvas.height=window.innerHeight;
-}
-
-
-function createMoney(){
-
-  money=[];
-
-  const count=
-    window.innerWidth<600
-      ? 18
-      : 35;
-
-
-  for(let i=0;i<count;i++){
-
-    money.push({
-
-      x:
-        Math.random()*canvas.width,
-
-      y:
-        Math.random()*canvas.height,
-
-      speed:
-        .6+Math.random()*1.7,
-
-      size:
-        13+Math.random()*14,
-
-      opacity:
-        .20+Math.random()*.35,
-
-      rotation:
-        Math.random()*Math.PI*2,
-
-      rotationSpeed:
-        (Math.random()-.5)*.025
-
-    });
-  }
-}
-
-
-function animateMoney(){
-
-  ctx.clearRect(
-    0,
-    0,
-    canvas.width,
-    canvas.height
-  );
-
-
-  money.forEach(function(item){
-
-    ctx.save();
-
-    ctx.translate(
-      item.x,
-      item.y
-    );
-
-    ctx.rotate(
-      item.rotation
-    );
-
-    ctx.font=
-      "bold "+
-      item.size+
-      "px Arial";
-
-    ctx.fillStyle=
-      "rgba(134,239,172,"+
-      item.opacity+
-      ")";
-
-    ctx.fillText("$",0,0);
-
-    ctx.restore();
-
-
-    item.y+=item.speed;
-
-    item.rotation+=
-      item.rotationSpeed;
-
-
-    if(item.y>canvas.height+30){
-
-      item.y=-30;
-
-      item.x=
-        Math.random()*canvas.width;
-    }
-
-  });
-
-
-  requestAnimationFrame(
-    animateMoney
-  );
-}
-
-
-window.addEventListener(
-  "resize",
-  function(){
-
-    resizeCanvas();
-    createMoney();
-
-  }
-);
-
-
-resizeCanvas();
-createMoney();
-animateMoney();
-
-</script>
-
-</body>
-</html>
+    if(
+      !data.token ||
+      !data.user
+    ){
+```
