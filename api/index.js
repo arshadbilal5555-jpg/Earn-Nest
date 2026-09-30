@@ -30,7 +30,7 @@ const SURVEY_REWARDS = {
 
 const DAILY_BONUS_AMOUNT = 50;
 
-/* Referral rewards */
+/* Referral */
 const REFERRER_REWARD = 100;
 const NEW_USER_REFERRAL_BONUS = 50;
 
@@ -45,7 +45,10 @@ const MIN_WITHDRAWAL = 1000;
 function send(res, status, data) {
   res.statusCode = status;
 
-  res.setHeader('Content-Type', 'application/json');
+  res.setHeader(
+    'Content-Type',
+    'application/json'
+  );
 
   res.setHeader(
     'Access-Control-Allow-Origin',
@@ -67,7 +70,8 @@ function send(res, status, data) {
 
 
 function getToken(req) {
-  const auth = req.headers.authorization || '';
+  const auth =
+    req.headers.authorization || '';
 
   if (auth.startsWith('Bearer ')) {
     return auth.substring(7).trim();
@@ -94,7 +98,9 @@ async function readBody(req) {
       try {
         resolve(JSON.parse(body));
       } catch (error) {
-        reject(new Error('Invalid JSON body.'));
+        reject(
+          new Error('Invalid JSON body.')
+        );
       }
     });
 
@@ -109,31 +115,45 @@ function makeId() {
 
 
 function makeToken() {
-  return crypto.randomBytes(48).toString('hex');
+  return crypto
+    .randomBytes(48)
+    .toString('hex');
 }
 
 
 function makeReferralCode() {
-  return crypto.randomBytes(5).toString('hex').toUpperCase();
+  return crypto
+    .randomBytes(5)
+    .toString('hex')
+    .toUpperCase();
 }
 
 
 /* =========================================================
    WALLET RESPONSE
-   Supports both snake_case and camelCase.
 ========================================================= */
 
 function walletResponse(wallet) {
-  const balance = Number(wallet?.balance || 0);
-  const totalEarned = Number(wallet?.total_earned || 0);
-  const totalWithdrawn = Number(wallet?.total_withdrawn || 0);
+  const balance =
+    Number(wallet?.balance || 0);
+
+  const totalEarned =
+    Number(wallet?.total_earned || 0);
+
+  const totalWithdrawn =
+    Number(wallet?.total_withdrawn || 0);
 
   return {
     balance,
-    total_earned: totalEarned,
-    total_withdrawn: totalWithdrawn,
+
+    total_earned:
+      totalEarned,
+
+    total_withdrawn:
+      totalWithdrawn,
 
     totalEarned,
+
     totalWithdrawn
   };
 }
@@ -144,7 +164,8 @@ function walletResponse(wallet) {
 ========================================================= */
 
 async function getUserFromToken(req) {
-  const token = getToken(req);
+  const token =
+    getToken(req);
 
   if (!token) {
     return null;
@@ -162,11 +183,15 @@ async function getUserFromToken(req) {
       u.created_at,
       u.referral_code,
       u.referred_by
+
     FROM admin_sessions s
+
     JOIN users u
       ON u.id = s.user_id
+
     WHERE s.token = ${token}
       AND s.expires_at > NOW()
+
     LIMIT 1
   `;
 
@@ -179,7 +204,8 @@ async function getUserFromToken(req) {
 ========================================================= */
 
 async function getWallet(userId) {
-  const uid = String(userId);
+  const uid =
+    String(userId);
 
   const rows = await sql`
     SELECT
@@ -190,8 +216,11 @@ async function getWallet(userId) {
       total_withdrawn,
       created_at,
       updated_at
+
     FROM wallets
+
     WHERE user_id = ${uid}
+
     LIMIT 1
   `;
 
@@ -209,6 +238,7 @@ async function getWallet(userId) {
         created_at,
         updated_at
       )
+
     VALUES
       (
         ${uid},
@@ -218,6 +248,7 @@ async function getWallet(userId) {
         NOW(),
         NOW()
       )
+
     RETURNING
       id,
       user_id,
@@ -237,32 +268,48 @@ async function getWallet(userId) {
 ========================================================= */
 
 async function addCoins(userId, amount) {
-  const uid = String(userId);
-  const value = Number(amount);
+  const uid =
+    String(userId);
 
-  const wallet = await getWallet(uid);
+  const value =
+    Number(amount);
 
-  const oldBalance = Number(wallet.balance || 0);
-  const oldEarned = Number(wallet.total_earned || 0);
-  const totalWithdrawn = Number(
-    wallet.total_withdrawn || 0
-  );
+  const wallet =
+    await getWallet(uid);
 
-  const newBalance = oldBalance + value;
-  const newEarned = oldEarned + value;
+  const oldBalance =
+    Number(wallet.balance || 0);
+
+  const oldEarned =
+    Number(wallet.total_earned || 0);
+
+  const totalWithdrawn =
+    Number(
+      wallet.total_withdrawn || 0
+    );
+
+  const newBalance =
+    oldBalance + value;
+
+  const newEarned =
+    oldEarned + value;
 
   await sql`
     UPDATE wallets
+
     SET
       balance = ${newBalance},
       total_earned = ${newEarned},
       updated_at = NOW()
+
     WHERE user_id = ${uid}
   `;
 
   await sql`
     UPDATE users
+
     SET coins = ${newBalance}
+
     WHERE id = ${uid}
   `;
 
@@ -279,21 +326,23 @@ async function addCoins(userId, amount) {
 ========================================================= */
 
 async function handleLogin(body, res) {
-  const email = String(
-    body.email || ''
-  ).trim().toLowerCase();
+  const email =
+    String(body.email || '')
+      .trim()
+      .toLowerCase();
 
-  const login = String(
-    body.login || ''
-  ).trim().toLowerCase();
+  const login =
+    String(body.login || '')
+      .trim()
+      .toLowerCase();
 
-  const username = String(
-    body.username || ''
-  ).trim().toLowerCase();
+  const username =
+    String(body.username || '')
+      .trim()
+      .toLowerCase();
 
-  const password = String(
-    body.password || ''
-  );
+  const password =
+    String(body.password || '');
 
   const identifier =
     email ||
@@ -322,9 +371,12 @@ async function handleLogin(body, res) {
         created_at,
         referral_code,
         referred_by
+
       FROM users
+
       WHERE LOWER(email) = ${identifier}
          OR LOWER(username) = ${identifier}
+
       LIMIT 1
     `;
 
@@ -336,10 +388,12 @@ async function handleLogin(body, res) {
       });
     }
 
-    const dbUser = users[0];
+    const dbUser =
+      users[0];
 
     if (
-      String(dbUser.password || '') !== password
+      String(dbUser.password || '') !==
+      password
     ) {
       return send(res, 401, {
         success: false,
@@ -348,7 +402,8 @@ async function handleLogin(body, res) {
       });
     }
 
-    const token = makeToken();
+    const token =
+      makeToken();
 
     await sql`
       INSERT INTO admin_sessions
@@ -358,6 +413,7 @@ async function handleLogin(body, res) {
           expires_at,
           created_at
         )
+
       VALUES
         (
           ${String(dbUser.id)},
@@ -367,9 +423,10 @@ async function handleLogin(body, res) {
         )
     `;
 
-    const wallet = await getWallet(
-      String(dbUser.id)
-    );
+    const wallet =
+      await getWallet(
+        String(dbUser.id)
+      );
 
     const walletData =
       walletResponse(wallet);
@@ -381,33 +438,58 @@ async function handleLogin(body, res) {
       email: dbUser.email,
       phone: dbUser.phone,
       role: dbUser.role,
-      coins: walletData.balance,
-      balance: walletData.balance,
-      totalEarned: walletData.totalEarned,
-      totalWithdrawn: walletData.totalWithdrawn,
-      created_at: dbUser.created_at,
-      referral_code: dbUser.referral_code,
-      referralCode: dbUser.referral_code,
-      referred_by: dbUser.referred_by
+
+      coins:
+        walletData.balance,
+
+      balance:
+        walletData.balance,
+
+      totalEarned:
+        walletData.totalEarned,
+
+      totalWithdrawn:
+        walletData.totalWithdrawn,
+
+      created_at:
+        dbUser.created_at,
+
+      referral_code:
+        dbUser.referral_code,
+
+      referralCode:
+        dbUser.referral_code,
+
+      referred_by:
+        dbUser.referred_by
     };
 
     return send(res, 200, {
       success: true,
-      message: 'Login successful.',
+      message:
+        'Login successful.',
       token,
       user: safeUser,
       wallet: walletData
     });
 
   } catch (error) {
-    console.error('LOGIN ERROR:', error);
+    console.error(
+      'LOGIN ERROR:',
+      error
+    );
 
     return send(res, 500, {
       success: false,
-      message: 'Login database error.',
-      error: error.message || 'Unknown database error',
-      code: error.code || null,
-      detail: error.detail || null
+      message:
+        'Login database error.',
+      error:
+        error.message ||
+        'Unknown database error',
+      code:
+        error.code || null,
+      detail:
+        error.detail || null
     });
   }
 }
@@ -418,37 +500,41 @@ async function handleLogin(body, res) {
 ========================================================= */
 
 async function handleRegister(body, res) {
-  const name = String(
-    body.name || ''
-  ).trim();
+  const name =
+    String(body.name || '')
+      .trim();
 
-  const username = String(
-    body.username || ''
-  ).trim();
+  const username =
+    String(body.username || '')
+      .trim();
 
-  const email = String(
-    body.email || ''
-  ).trim().toLowerCase();
+  const email =
+    String(body.email || '')
+      .trim()
+      .toLowerCase();
 
-  const phone = String(
-    body.phone || ''
-  ).trim();
+  const phone =
+    String(body.phone || '')
+      .trim();
 
-  const password = String(
-    body.password || ''
-  );
+  const password =
+    String(body.password || '');
 
-  const confirmPassword = String(
-    body.confirmPassword ||
-    body.confirm_password ||
-    ''
-  );
+  const confirmPassword =
+    String(
+      body.confirmPassword ||
+      body.confirm_password ||
+      ''
+    );
 
-  const referralCode = String(
-    body.referralCode ||
-    body.referral_code ||
-    ''
-  ).trim().toUpperCase();
+  const referralCode =
+    String(
+      body.referralCode ||
+      body.referral_code ||
+      ''
+    )
+      .trim()
+      .toUpperCase();
 
   if (
     !name ||
@@ -483,18 +569,25 @@ async function handleRegister(body, res) {
   }
 
   try {
-    const existing = await sql`
-      SELECT
-        id,
-        email,
-        username
-      FROM users
-      WHERE LOWER(email) = ${email}
-         OR LOWER(username) = ${username.toLowerCase()}
-      LIMIT 1
-    `;
+
+    const existing =
+      await sql`
+        SELECT
+          id,
+          email,
+          username
+
+        FROM users
+
+        WHERE LOWER(email) = ${email}
+           OR LOWER(username) =
+              ${username.toLowerCase()}
+
+        LIMIT 1
+      `;
 
     if (existing.length) {
+
       if (
         String(existing[0].email || '')
           .toLowerCase() === email
@@ -513,6 +606,7 @@ async function handleRegister(body, res) {
       });
     }
 
+
     /* ---------------------------------------------
        FIND REFERRER
     --------------------------------------------- */
@@ -521,16 +615,22 @@ async function handleRegister(body, res) {
     let referredBy = null;
 
     if (referralCode) {
-      const referrerRows = await sql`
-        SELECT
-          id,
-          name,
-          username,
-          referral_code
-        FROM users
-        WHERE UPPER(referral_code) = ${referralCode}
-        LIMIT 1
-      `;
+
+      const referrerRows =
+        await sql`
+          SELECT
+            id,
+            name,
+            username,
+            referral_code
+
+          FROM users
+
+          WHERE UPPER(referral_code) =
+                ${referralCode}
+
+          LIMIT 1
+        `;
 
       if (!referrerRows.length) {
         return send(res, 400, {
@@ -540,32 +640,31 @@ async function handleRegister(body, res) {
         });
       }
 
-      referrer = referrerRows[0];
+      referrer =
+        referrerRows[0];
 
       referredBy =
         String(referrer.id);
     }
 
-    /* ---------------------------------------------
-       CREATE USER
-    --------------------------------------------- */
 
-    const userId = makeId();
+    /* ---------------------------------------------
+       UNIQUE REFERRAL CODE
+    --------------------------------------------- */
 
     let newReferralCode =
       makeReferralCode();
 
-    /*
-      Ensure referral code is unique.
-    */
+    for (let i = 0; i < 10; i++) {
 
-    for (let i = 0; i < 5; i++) {
-      const codeCheck = await sql`
-        SELECT id
-        FROM users
-        WHERE UPPER(referral_code) = ${newReferralCode}
-        LIMIT 1
-      `;
+      const codeCheck =
+        await sql`
+          SELECT id
+          FROM users
+          WHERE UPPER(referral_code) =
+                ${newReferralCode}
+          LIMIT 1
+        `;
 
       if (!codeCheck.length) {
         break;
@@ -575,47 +674,59 @@ async function handleRegister(body, res) {
         makeReferralCode();
     }
 
-    const created = await sql`
-      INSERT INTO users
-        (
+
+    /* ---------------------------------------------
+       CREATE USER
+    --------------------------------------------- */
+
+    const userId =
+      makeId();
+
+    const created =
+      await sql`
+        INSERT INTO users
+          (
+            id,
+            name,
+            username,
+            email,
+            phone,
+            password,
+            role,
+            coins,
+            created_at,
+            referral_code,
+            referred_by
+          )
+
+        VALUES
+          (
+            ${userId},
+            ${name},
+            ${username},
+            ${email},
+            ${phone},
+            ${password},
+            'user',
+            0,
+            NOW(),
+            ${newReferralCode},
+            ${referredBy}
+          )
+
+        RETURNING
           id,
           name,
           username,
           email,
           phone,
-          password,
           role,
           coins,
           created_at,
           referral_code,
           referred_by
-        )
-      VALUES
-        (
-          ${userId},
-          ${name},
-          ${username},
-          ${email},
-          ${phone},
-          ${password},
-          'user',
-          0,
-          NOW(),
-          ${newReferralCode},
-          ${referredBy}
-        )
-      RETURNING
-        id,
-        name,
-        username,
-        email,
-        phone,
-        role,
-        coins,
-        created_at,
-        referral_code,
-        referred_by
-    `;
+      `;
+
 
     /* ---------------------------------------------
        CREATE WALLET
@@ -631,6 +742,7 @@ async function handleRegister(body, res) {
           created_at,
           updated_at
         )
+
       VALUES
         (
           ${userId},
@@ -642,17 +754,12 @@ async function handleRegister(body, res) {
         )
     `;
 
+
     /* ---------------------------------------------
        REFERRAL REWARDS
     --------------------------------------------- */
 
-    let referralRewardMessage = '';
-
     if (referrer) {
-
-      /*
-        Reward the referrer.
-      */
 
       const referrerClaimKey =
         `referral_referrer_${userId}`;
@@ -660,9 +767,13 @@ async function handleRegister(body, res) {
       const referrerAlready =
         await sql`
           SELECT id
+
           FROM reward_claims
+
           WHERE reward_type = 'referral'
-            AND reference_key = ${referrerClaimKey}
+            AND reference_key =
+                ${referrerClaimKey}
+
           LIMIT 1
         `;
 
@@ -684,6 +795,7 @@ async function handleRegister(body, res) {
               amount,
               created_at
             )
+
           VALUES
             (
               ${makeId()},
@@ -697,9 +809,6 @@ async function handleRegister(body, res) {
         `;
       }
 
-      /*
-        Reward the new user.
-      */
 
       const newUserClaimKey =
         `referral_new_user_${userId}`;
@@ -707,10 +816,14 @@ async function handleRegister(body, res) {
       const newUserAlready =
         await sql`
           SELECT id
+
           FROM reward_claims
+
           WHERE user_id = ${userId}
             AND reward_type = 'referral'
-            AND reference_key = ${newUserClaimKey}
+            AND reference_key =
+                ${newUserClaimKey}
+
           LIMIT 1
         `;
 
@@ -732,6 +845,7 @@ async function handleRegister(body, res) {
               amount,
               created_at
             )
+
           VALUES
             (
               ${makeId()},
@@ -744,16 +858,15 @@ async function handleRegister(body, res) {
             )
         `;
       }
-
-      referralRewardMessage =
-        ` Referral bonus added: ${NEW_USER_REFERRAL_BONUS} coins.`;
     }
+
 
     /* ---------------------------------------------
        LOGIN SESSION
     --------------------------------------------- */
 
-    const token = makeToken();
+    const token =
+      makeToken();
 
     await sql`
       INSERT INTO admin_sessions
@@ -763,6 +876,7 @@ async function handleRegister(body, res) {
           expires_at,
           created_at
         )
+
       VALUES
         (
           ${userId},
@@ -772,6 +886,7 @@ async function handleRegister(body, res) {
         )
     `;
 
+
     const wallet =
       await getWallet(userId);
 
@@ -780,10 +895,19 @@ async function handleRegister(body, res) {
 
     const userData = {
       ...created[0],
-      coins: walletData.balance,
-      balance: walletData.balance,
-      totalEarned: walletData.totalEarned,
-      totalWithdrawn: walletData.totalWithdrawn,
+
+      coins:
+        walletData.balance,
+
+      balance:
+        walletData.balance,
+
+      totalEarned:
+        walletData.totalEarned,
+
+      totalWithdrawn:
+        walletData.totalWithdrawn,
+
       referralCode:
         created[0].referral_code
     };
@@ -792,17 +916,21 @@ async function handleRegister(body, res) {
       success: true,
 
       message:
-        'Account created successfully.' +
-        referralRewardMessage,
+        referrer
+          ? `Account created successfully. Referral bonus added: ${NEW_USER_REFERRAL_BONUS} coins.`
+          : 'Account created successfully.',
 
       token,
 
-      user: userData,
+      user:
+        userData,
 
-      wallet: walletData
+      wallet:
+        walletData
     });
 
   } catch (error) {
+
     console.error(
       'REGISTER ERROR:',
       error
@@ -830,6 +958,7 @@ async function handleRegister(body, res) {
 
 async function handleDashboard(req, res) {
   try {
+
     const user =
       await getUserFromToken(req);
 
@@ -846,9 +975,6 @@ async function handleDashboard(req, res) {
         String(user.id)
       );
 
-    const walletData =
-      walletResponse(wallet);
-
     return send(res, 200, {
       success: true,
 
@@ -860,6 +986,9 @@ async function handleDashboard(req, res) {
         phone: user.phone,
         role: user.role,
 
+        coins:
+          Number(wallet.balance || 0),
+
         referral_code:
           user.referral_code,
 
@@ -870,10 +999,12 @@ async function handleDashboard(req, res) {
           user.referred_by
       },
 
-      wallet: walletData
+      wallet:
+        walletResponse(wallet)
     });
 
   } catch (error) {
+
     console.error(
       'DASHBOARD ERROR:',
       error
@@ -896,6 +1027,7 @@ async function handleDashboard(req, res) {
 
 async function handleWallet(req, res) {
   try {
+
     const user =
       await getUserFromToken(req);
 
@@ -930,6 +1062,7 @@ async function handleWallet(req, res) {
     });
 
   } catch (error) {
+
     console.error(
       'WALLET ERROR:',
       error
@@ -956,6 +1089,7 @@ async function handleClaimReward(
   res
 ) {
   try {
+
     const user =
       await getUserFromToken(req);
 
@@ -1054,10 +1188,13 @@ async function handleClaimReward(
     const alreadyClaimed =
       await sql`
         SELECT id
+
         FROM reward_claims
+
         WHERE user_id = ${userId}
           AND reward_type = ${rewardType}
           AND reference_key = ${referenceKey}
+
         LIMIT 1
       `;
 
@@ -1089,16 +1226,20 @@ async function handleClaimReward(
 
     await sql`
       UPDATE wallets
+
       SET
         balance = ${newBalance},
         total_earned = ${newEarned},
         updated_at = NOW()
+
       WHERE user_id = ${userId}
     `;
 
     await sql`
       UPDATE users
+
       SET coins = ${newBalance}
+
       WHERE id = ${userId}
     `;
 
@@ -1113,6 +1254,7 @@ async function handleClaimReward(
           amount,
           created_at
         )
+
       VALUES
         (
           ${makeId()},
@@ -1132,22 +1274,36 @@ async function handleClaimReward(
         `You earned ${amount} coins.`,
 
       reward: {
-        type: rewardType,
-        reference_key: referenceKey,
+        type:
+          rewardType,
+
+        reference_key:
+          referenceKey,
+
         title,
+
         amount
       },
 
       wallet: {
-        balance: newBalance,
-        total_earned: newEarned,
-        total_withdrawn: totalWithdrawn,
-        totalEarned: newEarned,
+        balance:
+          newBalance,
+
+        total_earned:
+          newEarned,
+
+        total_withdrawn:
+          totalWithdrawn,
+
+        totalEarned:
+          newEarned,
+
         totalWithdrawn
       }
     });
 
   } catch (error) {
+
     console.error(
       'REWARD CLAIM ERROR:',
       error
@@ -1173,11 +1329,9 @@ async function handleClaimReward(
    DAILY BONUS
 ========================================================= */
 
-async function handleDailyBonus(
-  req,
-  res
-) {
+async function handleDailyBonus(req, res) {
   try {
+
     const user =
       await getUserFromToken(req);
 
@@ -1198,41 +1352,20 @@ async function handleDailyBonus(
         .toISOString()
         .slice(0, 10);
 
-    const already =
-      await sql`
-        SELECT id
-        FROM reward_claims
-        WHERE user_id = ${String(user.id)}
-          AND reward_type = ${rewardType}
-          AND reference_key = ${referenceKey}
-        LIMIT 1
-      `;
-
-    if (already.length) {
-      return send(res, 409, {
-        success: false,
-        message:
-          'Daily bonus already claimed today.'
-      });
-    }
-
     return handleClaimReward(
       {
-        rewardType:
-          'daily_bonus',
-
+        rewardType,
         rewardId:
           referenceKey,
-
         title:
           'Daily Bonus'
       },
-
       req,
       res
     );
 
   } catch (error) {
+
     console.error(
       'DAILY BONUS ERROR:',
       error
@@ -1253,11 +1386,9 @@ async function handleDailyBonus(
    REFERRAL STATS
 ========================================================= */
 
-async function handleReferralStats(
-  req,
-  res
-) {
+async function handleReferralStats(req, res) {
   try {
+
     const user =
       await getUserFromToken(req);
 
@@ -1279,8 +1410,11 @@ async function handleReferralStats(
           name,
           username,
           created_at
+
         FROM users
+
         WHERE referred_by = ${userId}
+
         ORDER BY created_at DESC
       `;
 
@@ -1291,7 +1425,9 @@ async function handleReferralStats(
             SUM(amount),
             0
           ) AS total
+
         FROM reward_claims
+
         WHERE user_id = ${userId}
           AND reward_type = 'referral'
       `;
@@ -1315,14 +1451,22 @@ async function handleReferralStats(
 
       referrals:
         referred.map(item => ({
-          id: item.id,
-          name: item.name,
-          username: item.username,
-          created_at: item.created_at
+          id:
+            item.id,
+
+          name:
+            item.name,
+
+          username:
+            item.username,
+
+          created_at:
+            item.created_at
         }))
     });
 
   } catch (error) {
+
     console.error(
       'REFERRAL STATS ERROR:',
       error
@@ -1341,13 +1485,23 @@ async function handleReferralStats(
 
 /* =========================================================
    KYC STATUS
+   IMPORTANT:
+   Uses existing database columns:
+   id bigint
+   user_id text
+   full_name text
+   document_type text
+   document_number text
+   document_url text
+   status text
+   admin_note text
+   submitted_at timestamptz
+   reviewed_at timestamptz
 ========================================================= */
 
-async function handleKycStatus(
-  req,
-  res
-) {
+async function handleKycStatus(req, res) {
   try {
+
     const user =
       await getUserFromToken(req);
 
@@ -1363,20 +1517,22 @@ async function handleKycStatus(
       await sql`
         SELECT
           id,
+          user_id,
           full_name,
-          cnic,
-          date_of_birth,
-          document_front,
-          document_back,
-          selfie,
+          document_type,
+          document_number,
+          document_url,
           status,
           admin_note,
-          created_at,
-          updated_at,
+          submitted_at,
           reviewed_at
+
         FROM kyc_submissions
+
         WHERE user_id = ${String(user.id)}
-        ORDER BY created_at DESC
+
+        ORDER BY submitted_at DESC
+
         LIMIT 1
       `;
 
@@ -1387,6 +1543,7 @@ async function handleKycStatus(
     });
 
   } catch (error) {
+
     console.error(
       'KYC STATUS ERROR:',
       error
@@ -1397,7 +1554,8 @@ async function handleKycStatus(
       message:
         'Unable to load KYC status.',
       error:
-        error.message
+        error.message ||
+        'Database error'
     });
   }
 }
@@ -1413,6 +1571,7 @@ async function handleSubmitKyc(
   res
 ) {
   try {
+
     const user =
       await getUserFromToken(req);
 
@@ -1431,45 +1590,49 @@ async function handleSubmitKyc(
         ''
       ).trim();
 
-    const cnic =
+    const documentType =
       String(
-        body.cnic || ''
+        body.documentType ||
+        body.document_type ||
+        'CNIC'
       ).trim();
 
-    const dateOfBirth =
+    const documentNumber =
       String(
-        body.dateOfBirth ||
-        body.date_of_birth ||
+        body.documentNumber ||
+        body.document_number ||
+        body.cnic ||
         ''
       ).trim();
 
-    const documentFront =
+    const documentUrl =
       String(
-        body.documentFront ||
-        body.document_front ||
+        body.documentUrl ||
+        body.document_url ||
         ''
       ).trim();
 
-    const documentBack =
-      String(
-        body.documentBack ||
-        body.document_back ||
-        ''
-      ).trim();
-
-    const selfie =
-      String(
-        body.selfie || ''
-      ).trim();
-
-    if (
-      !fullName ||
-      !cnic
-    ) {
+    if (!fullName) {
       return send(res, 400, {
         success: false,
         message:
-          'Full name and CNIC are required.'
+          'Full name is required.'
+      });
+    }
+
+    if (!documentNumber) {
+      return send(res, 400, {
+        success: false,
+        message:
+          'CNIC / document number is required.'
+      });
+    }
+
+    if (!documentUrl) {
+      return send(res, 400, {
+        success: false,
+        message:
+          'Document URL is required.'
       });
     }
 
@@ -1481,90 +1644,91 @@ async function handleSubmitKyc(
         SELECT
           id,
           status
+
         FROM kyc_submissions
+
         WHERE user_id = ${userId}
-        ORDER BY created_at DESC
+
+        ORDER BY submitted_at DESC
+
         LIMIT 1
       `;
 
-    if (
-      existing.length &&
-      (
-        existing[0].status === 'pending' ||
-        existing[0].status === 'approved'
-      )
-    ) {
-      return send(res, 409, {
-        success: false,
-        message:
-          existing[0].status === 'approved'
-            ? 'Your KYC is already approved.'
-            : 'Your KYC is already under review.'
-      });
-    }
+    if (existing.length) {
 
-    const kycId =
-      makeId();
+      const oldStatus =
+        String(
+          existing[0].status || ''
+        ).toLowerCase();
+
+      if (oldStatus === 'pending') {
+        return send(res, 409, {
+          success: false,
+          message:
+            'Your KYC is already under review.'
+        });
+      }
+
+      if (oldStatus === 'approved') {
+        return send(res, 409, {
+          success: false,
+          message:
+            'Your KYC is already approved.'
+        });
+      }
+    }
 
     const created =
       await sql`
         INSERT INTO kyc_submissions
           (
-            id,
             user_id,
             full_name,
-            cnic,
-            date_of_birth,
-            document_front,
-            document_back,
-            selfie,
+            document_type,
+            document_number,
+            document_url,
             status,
             admin_note,
-            created_at,
-            updated_at
+            submitted_at
           )
+
         VALUES
           (
-            ${kycId},
             ${userId},
             ${fullName},
-            ${cnic},
-            ${
-              dateOfBirth
-                ? dateOfBirth
-                : null
-            },
-            ${documentFront || null},
-            ${documentBack || null},
-            ${selfie || null},
+            ${documentType},
+            ${documentNumber},
+            ${documentUrl},
             'pending',
             NULL,
-            NOW(),
             NOW()
           )
+
         RETURNING
           id,
+          user_id,
           full_name,
-          cnic,
-          date_of_birth,
-          document_front,
-          document_back,
-          selfie,
+          document_type,
+          document_number,
+          document_url,
           status,
           admin_note,
-          created_at,
-          updated_at
+          submitted_at,
+          reviewed_at
       `;
 
     return send(res, 201, {
       success: true,
+
       message:
         'KYC submitted successfully. It is now under review.',
+
       kyc:
         created[0]
     });
 
   } catch (error) {
+
     console.error(
       'SUBMIT KYC ERROR:',
       error
@@ -1575,7 +1739,8 @@ async function handleSubmitKyc(
       message:
         'Unable to submit KYC.',
       error:
-        error.message,
+        error.message ||
+        'Database error',
       code:
         error.code || null,
       detail:
@@ -1586,20 +1751,18 @@ async function handleSubmitKyc(
 
 
 /* =========================================================
-   ADMIN KYC LIST
+   ADMIN KYC
 ========================================================= */
 
-async function handleAdminKyc(
-  req,
-  res
-) {
+async function handleAdminKyc(req, res) {
   try {
+
     const admin =
       await getUserFromToken(req);
 
     if (
       !admin ||
-      admin.role !== 'admin'
+      String(admin.role).toLowerCase() !== 'admin'
     ) {
       return send(res, 403, {
         success: false,
@@ -1607,6 +1770,11 @@ async function handleAdminKyc(
           'Admin access required.'
       });
     }
+
+
+    /* ---------------------------------------------
+       GET ALL KYC
+    --------------------------------------------- */
 
     if (req.method === 'GET') {
 
@@ -1616,15 +1784,12 @@ async function handleAdminKyc(
             k.id,
             k.user_id,
             k.full_name,
-            k.cnic,
-            k.date_of_birth,
-            k.document_front,
-            k.document_back,
-            k.selfie,
+            k.document_type,
+            k.document_number,
+            k.document_url,
             k.status,
             k.admin_note,
-            k.created_at,
-            k.updated_at,
+            k.submitted_at,
             k.reviewed_at,
 
             u.name AS user_name,
@@ -1634,24 +1799,32 @@ async function handleAdminKyc(
 
           FROM kyc_submissions k
 
-          JOIN users u
+          LEFT JOIN users u
             ON u.id = k.user_id
 
           ORDER BY
-            k.created_at DESC
+            k.submitted_at DESC
         `;
 
       return send(res, 200, {
         success: true,
-        kyc: rows
+        kyc:
+          rows
       });
     }
+
+
+    /* ---------------------------------------------
+       APPROVE / REJECT
+    --------------------------------------------- */
 
     const body =
       await readBody(req);
 
     const id =
-      String(body.id || '').trim();
+      String(
+        body.id || ''
+      ).trim();
 
     const action =
       String(
@@ -1682,33 +1855,26 @@ async function handleAdminKyc(
       return send(res, 400, {
         success: false,
         message:
-          'Invalid KYC action.'
+          'Action must be approve or reject.'
       });
     }
 
-    const status =
-      action === 'approve'
-        ? 'approved'
-        : 'rejected';
 
-    const updated =
+    const existing =
       await sql`
-        UPDATE kyc_submissions
-        SET
-          status = ${status},
-          admin_note = ${note || null},
-          updated_at = NOW(),
-          reviewed_at = NOW()
-        WHERE id = ${id}
-        RETURNING
+        SELECT
           id,
           user_id,
-          status,
-          admin_note,
-          reviewed_at
+          status
+
+        FROM kyc_submissions
+
+        WHERE id = ${id}
+
+        LIMIT 1
       `;
 
-    if (!updated.length) {
+    if (!existing.length) {
       return send(res, 404, {
         success: false,
         message:
@@ -1716,17 +1882,62 @@ async function handleAdminKyc(
       });
     }
 
+    const currentStatus =
+      String(
+        existing[0].status || ''
+      ).toLowerCase();
+
+    if (currentStatus !== 'pending') {
+      return send(res, 409, {
+        success: false,
+        message:
+          'This KYC has already been processed.'
+      });
+    }
+
+    const newStatus =
+      action === 'approve'
+        ? 'approved'
+        : 'rejected';
+
+    const updated =
+      await sql`
+        UPDATE kyc_submissions
+
+        SET
+          status = ${newStatus},
+          admin_note = ${note || null},
+          reviewed_at = NOW()
+
+        WHERE id = ${id}
+
+        RETURNING
+          id,
+          user_id,
+          full_name,
+          document_type,
+          document_number,
+          document_url,
+          status,
+          admin_note,
+          submitted_at,
+          reviewed_at
+      `;
+
     return send(res, 200, {
       success: true,
+
       message:
         action === 'approve'
           ? 'KYC approved successfully.'
           : 'KYC rejected successfully.',
+
       kyc:
         updated[0]
     });
 
   } catch (error) {
+
     console.error(
       'ADMIN KYC ERROR:',
       error
@@ -1737,14 +1948,19 @@ async function handleAdminKyc(
       message:
         'Unable to process KYC.',
       error:
-        error.message
+        error.message ||
+        'Database error',
+      code:
+        error.code || null,
+      detail:
+        error.detail || null
     });
   }
 }
 
 
 /* =========================================================
-   WITHDRAWAL REQUEST
+   WITHDRAWAL
 ========================================================= */
 
 async function handleWithdrawal(
@@ -1753,6 +1969,7 @@ async function handleWithdrawal(
   res
 ) {
   try {
+
     const user =
       await getUserFromToken(req);
 
@@ -1825,9 +2042,12 @@ async function handleWithdrawal(
     const pending =
       await sql`
         SELECT id
+
         FROM withdrawals
+
         WHERE user_id = ${userId}
           AND status = 'pending'
+
         LIMIT 1
       `;
 
@@ -1856,23 +2076,27 @@ async function handleWithdrawal(
     const newBalance =
       balance - amount;
 
-    /*
-      Reserve/deduct balance immediately.
-    */
+
+    /* Reserve coins */
 
     await sql`
       UPDATE wallets
+
       SET
         balance = ${newBalance},
         updated_at = NOW()
+
       WHERE user_id = ${userId}
     `;
 
     await sql`
       UPDATE users
+
       SET coins = ${newBalance}
+
       WHERE id = ${userId}
     `;
+
 
     const withdrawalId =
       makeId();
@@ -1889,6 +2113,7 @@ async function handleWithdrawal(
           created_at,
           updated_at
         )
+
       VALUES
         (
           ${withdrawalId},
@@ -1907,20 +2132,32 @@ async function handleWithdrawal(
 
     return send(res, 201, {
       success: true,
+
       message:
         'Withdrawal request submitted successfully.',
+
       withdrawal: {
-        id: withdrawalId,
+        id:
+          withdrawalId,
+
         amount,
-        payment_method: method,
-        payment_account: account,
-        status: 'pending'
+
+        payment_method:
+          method,
+
+        payment_account:
+          account,
+
+        status:
+          'pending'
       },
+
       wallet:
         walletResponse(newWallet)
     });
 
   } catch (error) {
+
     console.error(
       'WITHDRAWAL ERROR:',
       error
@@ -1931,7 +2168,12 @@ async function handleWithdrawal(
       message:
         'Unable to submit withdrawal request.',
       error:
-        error.message
+        error.message ||
+        'Database error',
+      code:
+        error.code || null,
+      detail:
+        error.detail || null
     });
   }
 }
@@ -1946,12 +2188,13 @@ async function handleAdminWithdrawals(
   res
 ) {
   try {
+
     const admin =
       await getUserFromToken(req);
 
     if (
       !admin ||
-      admin.role !== 'admin'
+      String(admin.role).toLowerCase() !== 'admin'
     ) {
       return send(res, 403, {
         success: false,
@@ -1959,6 +2202,9 @@ async function handleAdminWithdrawals(
           'Admin access required.'
       });
     }
+
+
+    /* GET */
 
     if (req.method === 'GET') {
 
@@ -1982,7 +2228,7 @@ async function handleAdminWithdrawals(
 
           FROM withdrawals w
 
-          JOIN users u
+          LEFT JOIN users u
             ON u.id = w.user_id
 
           ORDER BY
@@ -1991,15 +2237,22 @@ async function handleAdminWithdrawals(
 
       return send(res, 200, {
         success: true,
-        withdrawals: rows
+
+        withdrawals:
+          rows
       });
     }
+
+
+    /* POST */
 
     const body =
       await readBody(req);
 
     const id =
-      String(body.id || '').trim();
+      String(
+        body.id || ''
+      ).trim();
 
     const action =
       String(
@@ -2041,8 +2294,11 @@ async function handleAdminWithdrawals(
           user_id,
           amount,
           status
+
         FROM withdrawals
+
         WHERE id = ${id}
+
         LIMIT 1
       `;
 
@@ -2067,52 +2323,53 @@ async function handleAdminWithdrawals(
       });
     }
 
-    /* ---------------------------------------------
-       APPROVE
-    --------------------------------------------- */
+
+    /* APPROVE */
 
     if (action === 'approve') {
 
       const updated =
         await sql`
           UPDATE withdrawals
+
           SET
             status = 'approved',
             admin_note = ${note || null},
             updated_at = NOW(),
             reviewed_at = NOW()
+
           WHERE id = ${id}
+
           RETURNING *
         `;
 
-      /*
-        Total withdrawn increases only
-        after admin approval.
-      */
-
       await sql`
         UPDATE wallets
+
         SET
           total_withdrawn =
             total_withdrawn +
             ${Number(withdrawal.amount)},
+
           updated_at = NOW()
-        WHERE user_id = ${String(withdrawal.user_id)}
+
+        WHERE user_id =
+          ${String(withdrawal.user_id)}
       `;
 
       return send(res, 200, {
         success: true,
+
         message:
           'Withdrawal approved successfully.',
+
         withdrawal:
           updated[0]
       });
     }
 
-    /* ---------------------------------------------
-       REJECT
-       Return reserved coins to wallet.
-    --------------------------------------------- */
+
+    /* REJECT */
 
     const userId =
       String(withdrawal.user_id);
@@ -2126,39 +2383,49 @@ async function handleAdminWithdrawals(
 
     await sql`
       UPDATE wallets
+
       SET
         balance = ${restoredBalance},
         updated_at = NOW()
+
       WHERE user_id = ${userId}
     `;
 
     await sql`
       UPDATE users
+
       SET coins = ${restoredBalance}
+
       WHERE id = ${userId}
     `;
 
     const updated =
       await sql`
         UPDATE withdrawals
+
         SET
           status = 'rejected',
           admin_note = ${note || null},
           updated_at = NOW(),
           reviewed_at = NOW()
+
         WHERE id = ${id}
+
         RETURNING *
       `;
 
     return send(res, 200, {
       success: true,
+
       message:
         'Withdrawal rejected and coins returned.',
+
       withdrawal:
         updated[0]
     });
 
   } catch (error) {
+
     console.error(
       'ADMIN WITHDRAWAL ERROR:',
       error
@@ -2169,7 +2436,12 @@ async function handleAdminWithdrawals(
       message:
         'Unable to process withdrawal.',
       error:
-        error.message
+        error.message ||
+        'Database error',
+      code:
+        error.code || null,
+      detail:
+        error.detail || null
     });
   }
 }
@@ -2184,12 +2456,13 @@ async function handleAdminStats(
   res
 ) {
   try {
+
     const admin =
       await getUserFromToken(req);
 
     if (
       !admin ||
-      admin.role !== 'admin'
+      String(admin.role).toLowerCase() !== 'admin'
     ) {
       return send(res, 403, {
         success: false,
@@ -2200,7 +2473,9 @@ async function handleAdminStats(
 
     const users =
       await sql`
-        SELECT COUNT(*)::int AS count
+        SELECT
+          COUNT(*)::int AS count
+
         FROM users
       `;
 
@@ -2211,6 +2486,7 @@ async function handleAdminStats(
             SUM(balance),
             0
           ) AS total
+
         FROM wallets
       `;
 
@@ -2218,14 +2494,19 @@ async function handleAdminStats(
       await sql`
         SELECT
           COUNT(*)::int AS count
+
         FROM withdrawals
+
+        WHERE status = 'approved'
       `;
 
     const pendingWithdrawals =
       await sql`
         SELECT
           COUNT(*)::int AS count
+
         FROM withdrawals
+
         WHERE status = 'pending'
       `;
 
@@ -2233,7 +2514,9 @@ async function handleAdminStats(
       await sql`
         SELECT
           COUNT(*)::int AS count
+
         FROM kyc_submissions
+
         WHERE status = 'pending'
       `;
 
@@ -2241,7 +2524,9 @@ async function handleAdminStats(
       await sql`
         SELECT
           COUNT(*)::int AS count
+
         FROM users
+
         WHERE referred_by IS NOT NULL
       `;
 
@@ -2282,6 +2567,7 @@ async function handleAdminStats(
     });
 
   } catch (error) {
+
     console.error(
       'ADMIN STATS ERROR:',
       error
@@ -2292,7 +2578,8 @@ async function handleAdminStats(
       message:
         'Unable to load admin statistics.',
       error:
-        error.message
+        error.message ||
+        'Database error'
     });
   }
 }
@@ -2307,12 +2594,13 @@ async function handleAdminUsers(
   res
 ) {
   try {
+
     const admin =
       await getUserFromToken(req);
 
     if (
       !admin ||
-      admin.role !== 'admin'
+      String(admin.role).toLowerCase() !== 'admin'
     ) {
       return send(res, 403, {
         success: false,
@@ -2334,16 +2622,20 @@ async function handleAdminUsers(
           created_at,
           referral_code,
           referred_by
+
         FROM users
+
         ORDER BY created_at DESC
       `;
 
     return send(res, 200, {
       success: true,
-      users: rows
+      users:
+        rows
     });
 
   } catch (error) {
+
     console.error(
       'ADMIN USERS ERROR:',
       error
@@ -2354,7 +2646,8 @@ async function handleAdminUsers(
       message:
         'Unable to load users.',
       error:
-        error.message
+        error.message ||
+        'Database error'
     });
   }
 }
@@ -2369,12 +2662,15 @@ async function handleLogout(
   res
 ) {
   try {
+
     const token =
       getToken(req);
 
     if (token) {
+
       await sql`
         DELETE FROM admin_sessions
+
         WHERE token = ${token}
       `;
     }
@@ -2386,6 +2682,7 @@ async function handleLogout(
     });
 
   } catch (error) {
+
     console.error(
       'LOGOUT ERROR:',
       error
@@ -2396,7 +2693,8 @@ async function handleLogout(
       message:
         'Logout failed.',
       error:
-        error.message
+        error.message ||
+        'Database error'
     });
   }
 }
@@ -2434,9 +2732,7 @@ module.exports = async function handler(
         .toLowerCase();
 
 
-    /* ==========================================
-       HEALTH
-    ========================================== */
+    /* HEALTH */
 
     if (
       req.method === 'GET' &&
@@ -2444,15 +2740,15 @@ module.exports = async function handler(
     ) {
       return send(res, 200, {
         success: true,
-        service: 'EarnNest API',
-        status: 'running'
+        service:
+          'EarnNest API',
+        status:
+          'running'
       });
     }
 
 
-    /* ==========================================
-       LOGIN
-    ========================================== */
+    /* LOGIN */
 
     if (
       action === 'login' ||
@@ -2465,9 +2761,7 @@ module.exports = async function handler(
     }
 
 
-    /* ==========================================
-       REGISTER
-    ========================================== */
+    /* REGISTER */
 
     if (
       action === 'register' ||
@@ -2481,9 +2775,7 @@ module.exports = async function handler(
     }
 
 
-    /* ==========================================
-       DASHBOARD
-    ========================================== */
+    /* DASHBOARD */
 
     if (
       action === 'dashboard' ||
@@ -2497,9 +2789,7 @@ module.exports = async function handler(
     }
 
 
-    /* ==========================================
-       WALLET
-    ========================================== */
+    /* WALLET */
 
     if (
       action === 'wallet' ||
@@ -2512,9 +2802,7 @@ module.exports = async function handler(
     }
 
 
-    /* ==========================================
-       CLAIM REWARD
-    ========================================== */
+    /* REWARD */
 
     if (
       action === 'claim_reward' ||
@@ -2529,9 +2817,7 @@ module.exports = async function handler(
     }
 
 
-    /* ==========================================
-       DAILY BONUS
-    ========================================== */
+    /* DAILY BONUS */
 
     if (
       action === 'daily_bonus' ||
@@ -2544,9 +2830,7 @@ module.exports = async function handler(
     }
 
 
-    /* ==========================================
-       REFERRAL
-    ========================================== */
+    /* REFERRAL */
 
     if (
       action === 'referral_stats' ||
@@ -2559,9 +2843,7 @@ module.exports = async function handler(
     }
 
 
-    /* ==========================================
-       KYC STATUS
-    ========================================== */
+    /* KYC STATUS */
 
     if (
       action === 'kyc_status' ||
@@ -2574,9 +2856,7 @@ module.exports = async function handler(
     }
 
 
-    /* ==========================================
-       SUBMIT KYC
-    ========================================== */
+    /* SUBMIT KYC */
 
     if (
       action === 'submit_kyc' ||
@@ -2590,9 +2870,7 @@ module.exports = async function handler(
     }
 
 
-    /* ==========================================
-       WITHDRAWAL
-    ========================================== */
+    /* WITHDRAWAL */
 
     if (
       action === 'withdraw' ||
@@ -2607,9 +2885,7 @@ module.exports = async function handler(
     }
 
 
-    /* ==========================================
-       ADMIN STATS
-    ========================================== */
+    /* ADMIN STATS */
 
     if (
       action === 'admin_stats' ||
@@ -2622,9 +2898,7 @@ module.exports = async function handler(
     }
 
 
-    /* ==========================================
-       ADMIN USERS
-    ========================================== */
+    /* ADMIN USERS */
 
     if (
       action === 'admin_users' ||
@@ -2637,9 +2911,7 @@ module.exports = async function handler(
     }
 
 
-    /* ==========================================
-       ADMIN KYC
-    ========================================== */
+    /* ADMIN KYC */
 
     if (
       action === 'admin_kyc' ||
@@ -2652,9 +2924,7 @@ module.exports = async function handler(
     }
 
 
-    /* ==========================================
-       ADMIN WITHDRAWALS
-    ========================================== */
+    /* ADMIN WITHDRAWALS */
 
     if (
       action === 'admin_withdrawals' ||
@@ -2667,9 +2937,7 @@ module.exports = async function handler(
     }
 
 
-    /* ==========================================
-       LOGOUT
-    ========================================== */
+    /* LOGOUT */
 
     if (
       action === 'logout'
@@ -2681,9 +2949,7 @@ module.exports = async function handler(
     }
 
 
-    /* ==========================================
-       UNKNOWN
-    ========================================== */
+    /* UNKNOWN */
 
     return send(res, 400, {
       success: false,
