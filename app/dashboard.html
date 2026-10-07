@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -23,10 +24,6 @@
       min-height: 100vh;
       overflow-x: hidden;
     }
-
-    /* =========================
-       EARNNEST WATERMARK
-    ========================= */
 
     body::before {
       content: "EARNNEST";
@@ -62,10 +59,6 @@
       pointer-events: none;
       z-index: 0;
     }
-
-    /* =========================
-       HEADER
-    ========================= */
 
     header {
       position: relative;
@@ -112,10 +105,6 @@
       cursor: pointer;
     }
 
-    /* =========================
-       NAVIGATION
-    ========================= */
-
     nav {
       position: relative;
       z-index: 10;
@@ -155,10 +144,6 @@
       color: #b91c1c;
     }
 
-    /* =========================
-       MAIN
-    ========================= */
-
     main {
       position: relative;
       z-index: 1;
@@ -181,7 +166,6 @@
         opacity: 0;
         transform: translateY(5px);
       }
-
       to {
         opacity: 1;
         transform: translateY(0);
@@ -201,10 +185,6 @@
     .page-title p {
       color: #6b7280;
     }
-
-    /* =========================
-       CARDS
-    ========================= */
 
     .grid {
       display: grid;
@@ -241,10 +221,6 @@
       margin-bottom: 10px;
     }
 
-    /* =========================
-       HOME
-    ========================= */
-
     .welcome {
       background: linear-gradient(135deg, #1565c0, #1976d2);
       color: white;
@@ -262,10 +238,6 @@
     .welcome p {
       opacity: .92;
     }
-
-    /* =========================
-       ITEMS
-    ========================= */
 
     .item {
       background: white;
@@ -297,10 +269,6 @@
       margin-top: 7px;
       display: block;
     }
-
-    /* =========================
-       BUTTONS
-    ========================= */
 
     .btn {
       border: 0;
@@ -343,10 +311,6 @@
       cursor: not-allowed;
     }
 
-    /* =========================
-       FORMS
-    ========================= */
-
     .form-group {
       margin-bottom: 15px;
     }
@@ -380,10 +344,6 @@
       max-width: 650px;
     }
 
-    /* =========================
-       ALERTS
-    ========================= */
-
     .alert {
       display: none;
       padding: 13px 15px;
@@ -415,10 +375,6 @@
       border: 1px solid #bfdbfe;
     }
 
-    /* =========================
-       REFERRAL
-    ========================= */
-
     .referral-box {
       background: #f0fdf4;
       border: 1px solid #bbf7d0;
@@ -435,10 +391,6 @@
       letter-spacing: 3px;
       margin: 12px 0;
     }
-
-    /* =========================
-       PROFILE
-    ========================= */
 
     .profile-row {
       display: flex;
@@ -461,10 +413,6 @@
       text-align: right;
       word-break: break-word;
     }
-
-    /* =========================
-       KYC STATUS
-    ========================= */
 
     .status {
       display: inline-block;
@@ -495,14 +443,65 @@
       color: #374151;
     }
 
-    /* =========================
-       LOADING
-    ========================= */
-
     .loading {
       text-align: center;
       padding: 25px;
       color: #6b7280;
+    }
+
+    /* =========================
+       ADGEM
+    ========================= */
+
+    .adgem-card {
+      background: linear-gradient(135deg, #f0fdf4, #ffffff);
+      border: 1px solid #bbf7d0;
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 18px;
+      box-shadow: 0 5px 18px rgba(22,163,74,.08);
+    }
+
+    .adgem-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .adgem-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: #16a34a;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 25px;
+      font-weight: 900;
+    }
+
+    .adgem-title h2 {
+      color: #166534;
+      font-size: 22px;
+    }
+
+    .adgem-card p {
+      color: #6b7280;
+      line-height: 1.6;
+      margin: 10px 0 18px;
+    }
+
+    .offer-note {
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      color: #1e40af;
+      border-radius: 10px;
+      padding: 12px;
+      margin-top: 15px;
+      font-size: 13px;
+      line-height: 1.5;
     }
 
     /* =========================
@@ -580,6 +579,10 @@
         width: 100%;
       }
 
+      .adgem-card {
+        padding: 18px;
+      }
+
       body::before {
         font-size: 55px;
         letter-spacing: 5px;
@@ -596,52 +599,79 @@
 
 <body>
 
-  <!-- HEADER -->
+  <!-- ================= HEADER ================= -->
+
   <header>
     <div class="brand">
       <div class="logo">E</div>
       <span>EarnNest</span>
     </div>
 
-    <button class="menu-btn" onclick="toggleMenu()">☰</button>
+    <button
+      class="menu-btn"
+      type="button"
+      onclick="toggleMenu()"
+      aria-label="Open menu"
+    >
+      ☰
+    </button>
   </header>
 
-  <!-- NAVIGATION -->
+
+  <!-- ================= NAVIGATION ================= -->
+
   <nav id="mainNav">
 
-    <button class="nav-btn active" data-page="home" onclick="showPage('home')">
+    <button class="nav-btn active"
+            data-page="home"
+            onclick="showPage('home')">
       🏠 Home
     </button>
 
-    <button class="nav-btn" data-page="tasks" onclick="showPage('tasks')">
+    <button class="nav-btn"
+            data-page="tasks"
+            onclick="showPage('tasks')">
       📝 Tasks
     </button>
 
-    <button class="nav-btn" data-page="surveys" onclick="showPage('surveys')">
+    <button class="nav-btn"
+            data-page="surveys"
+            onclick="showPage('surveys')">
       📋 Surveys
     </button>
 
-    <button class="nav-btn" data-page="wallet" onclick="showPage('wallet')">
+    <button class="nav-btn"
+            data-page="wallet"
+            onclick="showPage('wallet')">
       💰 Wallet
     </button>
 
-    <button class="nav-btn" data-page="referral" onclick="showPage('referral')">
+    <button class="nav-btn"
+            data-page="referral"
+            onclick="showPage('referral')">
       👥 Referral
     </button>
 
-    <button class="nav-btn" data-page="kyc" onclick="showPage('kyc')">
+    <button class="nav-btn"
+            data-page="kyc"
+            onclick="showPage('kyc')">
       🪪 KYC
     </button>
 
-    <button class="nav-btn" data-page="profile" onclick="showPage('profile')">
+    <button class="nav-btn"
+            data-page="profile"
+            onclick="showPage('profile')">
       👤 Profile
     </button>
 
-    <button class="nav-btn logout" onclick="logout()">
+    <button class="nav-btn logout"
+            type="button"
+            onclick="logout()">
       🚪 Logout
     </button>
 
   </nav>
+
 
   <main>
 
@@ -650,9 +680,12 @@
     <section id="home" class="section active">
 
       <div class="welcome">
-        <h1>Welcome, <span id="welcomeName">User</span> 👋</h1>
+        <h1>
+          Welcome, <span id="welcomeName">User</span> 👋
+        </h1>
+
         <p>
-          Earn coins by completing tasks, surveys, daily bonuses and referrals.
+          Earn coins by completing offers, surveys, daily bonuses and referrals.
         </p>
       </div>
 
@@ -700,7 +733,12 @@
           Claim your daily reward once every day.
         </p>
 
-        <button class="btn green" id="dailyBonusBtn" onclick="claimDailyBonus()">
+        <button
+          class="btn green"
+          id="dailyBonusBtn"
+          type="button"
+          onclick="claimDailyBonus()"
+        >
           Claim 50 Coins
         </button>
 
@@ -708,20 +746,31 @@
 
       <br>
 
-      <div class="card">
+      <div class="adgem-card">
 
-        <h2>🚀 Start Earning</h2>
+        <div class="adgem-title">
 
-        <p style="margin:10px 0;color:#6b7280;">
-          Complete available tasks and surveys to increase your balance.
+          <div class="adgem-icon">
+            E
+          </div>
+
+          <div>
+            <h2>🎁 Earn More Coins</h2>
+          </div>
+
+        </div>
+
+        <p>
+          Complete real offers through AdGem and earn EarnNest coins.
+          Available offers and rewards may vary by country and user.
         </p>
 
-        <button class="btn" onclick="showPage('tasks')">
-          View Tasks
-        </button>
-
-        <button class="btn" onclick="showPage('surveys')" style="margin-left:7px;">
-          View Surveys
+        <button
+          class="btn green"
+          type="button"
+          onclick="openAdGem()"
+        >
+          🚀 View Offers
         </button>
 
       </div>
@@ -734,114 +783,71 @@
     <section id="tasks" class="section">
 
       <div class="page-title">
-        <h1>📝 Tasks</h1>
-        <p>Complete tasks and earn coins.</p>
+        <h1>📝 Tasks & Offers</h1>
+        <p>Complete available offers and earn EarnNest coins.</p>
       </div>
 
       <div id="tasksAlert" class="alert"></div>
 
-      <div class="item">
-        <div>
-          <h3>Daily Check-in</h3>
-          <p>Complete your daily check-in.</p>
-          <span class="reward">+50 Coins</span>
+      <div class="adgem-card">
+
+        <div class="adgem-title">
+
+          <div class="adgem-icon">
+            🎁
+          </div>
+
+          <div>
+            <h2>AdGem Offers</h2>
+          </div>
+
         </div>
 
-        <button class="btn green"
-                onclick="claimReward('task','task1',50,'Daily Check-in')">
-          Complete
+        <p>
+          Choose an offer from AdGem, complete its requirements and
+          receive your reward after AdGem confirms the completion.
+        </p>
+
+        <button
+          class="btn green"
+          type="button"
+          onclick="openAdGem()"
+        >
+          🎁 View AdGem Offers
         </button>
+
+        <div class="offer-note">
+          ℹ️ Rewards are not added just by opening an offer.
+          EarnNest will credit coins after a valid AdGem server confirmation.
+        </div>
+
       </div>
 
       <div class="item">
+
         <div>
-          <h3>Quick Task</h3>
-          <p>Complete this quick reward task.</p>
-          <span class="reward">+100 Coins</span>
+
+          <h3>🚀 Complete Offers</h3>
+
+          <p>
+            Install apps, register for services, reach offer goals
+            or complete other available requirements.
+          </p>
+
+          <span class="reward">
+            Rewards vary by offer
+          </span>
+
         </div>
 
-        <button class="btn green"
-                onclick="claimReward('task','task2',100,'Quick Task')">
-          Complete
+        <button
+          class="btn green"
+          type="button"
+          onclick="openAdGem()"
+        >
+          View Offers
         </button>
-      </div>
 
-      <div class="item">
-        <div>
-          <h3>Simple Activity</h3>
-          <p>Complete the activity and receive your reward.</p>
-          <span class="reward">+75 Coins</span>
-        </div>
-
-        <button class="btn green"
-                onclick="claimReward('task','task3',75,'Simple Activity')">
-          Complete
-        </button>
-      </div>
-
-      <div class="item">
-        <div>
-          <h3>Reward Task</h3>
-          <p>Finish this task to earn coins.</p>
-          <span class="reward">+100 Coins</span>
-        </div>
-
-        <button class="btn green"
-                onclick="claimReward('task','task4',100,'Reward Task')">
-          Complete
-        </button>
-      </div>
-
-      <div class="item">
-        <div>
-          <h3>Premium Task</h3>
-          <p>Complete this higher reward task.</p>
-          <span class="reward">+150 Coins</span>
-        </div>
-
-        <button class="btn green"
-                onclick="claimReward('task','task5',150,'Premium Task')">
-          Complete
-        </button>
-      </div>
-
-      <div class="item">
-        <div>
-          <h3>Mini Task</h3>
-          <p>Complete this mini task.</p>
-          <span class="reward">+50 Coins</span>
-        </div>
-
-        <button class="btn green"
-                onclick="claimReward('task','task6',50,'Mini Task')">
-          Complete
-        </button>
-      </div>
-
-      <div class="item">
-        <div>
-          <h3>Bonus Activity</h3>
-          <p>Complete this bonus activity.</p>
-          <span class="reward">+50 Coins</span>
-        </div>
-
-        <button class="btn green"
-                onclick="claimReward('task','task7',50,'Bonus Activity')">
-          Complete
-        </button>
-      </div>
-
-      <div class="item">
-        <div>
-          <h3>Extra Reward</h3>
-          <p>Complete this extra reward task.</p>
-          <span class="reward">+75 Coins</span>
-        </div>
-
-        <button class="btn green"
-                onclick="claimReward('task','task8',75,'Extra Reward')">
-          Complete
-        </button>
       </div>
 
     </section>
@@ -859,68 +865,30 @@
       <div id="surveysAlert" class="alert"></div>
 
       <div class="item">
+
         <div>
-          <h3>Quick Survey</h3>
-          <p>Answer a short survey.</p>
-          <span class="reward">+150 Coins</span>
+
+          <h3>📋 Surveys Coming Soon</h3>
+
+          <p>
+            Real survey providers will be connected to EarnNest.
+            Survey availability depends on your country and profile.
+          </p>
+
+          <span class="reward">
+            Real rewards only
+          </span>
+
         </div>
 
-        <button class="btn green"
-                onclick="claimReward('survey','survey1',150,'Quick Survey')">
-          Start
+        <button
+          class="btn gray"
+          type="button"
+          disabled
+        >
+          Coming Soon
         </button>
-      </div>
 
-      <div class="item">
-        <div>
-          <h3>Opinion Survey</h3>
-          <p>Share your opinion.</p>
-          <span class="reward">+200 Coins</span>
-        </div>
-
-        <button class="btn green"
-                onclick="claimReward('survey','survey2',200,'Opinion Survey')">
-          Start
-        </button>
-      </div>
-
-      <div class="item">
-        <div>
-          <h3>Consumer Survey</h3>
-          <p>Complete the consumer survey.</p>
-          <span class="reward">+250 Coins</span>
-        </div>
-
-        <button class="btn green"
-                onclick="claimReward('survey','survey3',250,'Consumer Survey')">
-          Start
-        </button>
-      </div>
-
-      <div class="item">
-        <div>
-          <h3>Premium Survey</h3>
-          <p>Complete this premium survey.</p>
-          <span class="reward">+300 Coins</span>
-        </div>
-
-        <button class="btn green"
-                onclick="claimReward('survey','survey4',300,'Premium Survey')">
-          Start
-        </button>
-      </div>
-
-      <div class="item">
-        <div>
-          <h3>Feedback Survey</h3>
-          <p>Give your feedback.</p>
-          <span class="reward">+250 Coins</span>
-        </div>
-
-        <button class="btn green"
-                onclick="claimReward('survey','survey5',250,'Feedback Survey')">
-          Start
-        </button>
       </div>
 
     </section>
@@ -940,21 +908,45 @@
       <div class="grid">
 
         <div class="card stat-card">
-          <div class="stat-label">Available Balance</div>
-          <div class="stat-value" id="walletBalance">0</div>
+
+          <div class="stat-label">
+            Available Balance
+          </div>
+
+          <div class="stat-value" id="walletBalance">
+            0
+          </div>
+
           <small>Coins</small>
+
         </div>
 
         <div class="card stat-card">
-          <div class="stat-label">Total Earned</div>
-          <div class="stat-value" id="walletEarned">0</div>
+
+          <div class="stat-label">
+            Total Earned
+          </div>
+
+          <div class="stat-value" id="walletEarned">
+            0
+          </div>
+
           <small>Coins</small>
+
         </div>
 
         <div class="card stat-card">
-          <div class="stat-label">Total Withdrawn</div>
-          <div class="stat-value" id="walletWithdrawn">0</div>
+
+          <div class="stat-label">
+            Total Withdrawn
+          </div>
+
+          <div class="stat-value" id="walletWithdrawn">
+            0
+          </div>
+
           <small>Coins</small>
+
         </div>
 
       </div>
@@ -970,36 +962,65 @@
         </p>
 
         <div class="form-group">
-          <label>Amount</label>
+
+          <label for="withdrawAmount">
+            Amount
+          </label>
+
           <input
             type="number"
             id="withdrawAmount"
             min="1000"
+            step="1"
             placeholder="Enter coins"
           >
+
         </div>
 
         <div class="form-group">
-          <label>Payment Method</label>
+
+          <label for="paymentMethod">
+            Payment Method
+          </label>
 
           <select id="paymentMethod">
-            <option value="easypaisa">EasyPaisa</option>
-            <option value="jazzcash">JazzCash</option>
-            <option value="bank">Bank Account</option>
+
+            <option value="easypaisa">
+              EasyPaisa
+            </option>
+
+            <option value="jazzcash">
+              JazzCash
+            </option>
+
+            <option value="bank">
+              Bank Account
+            </option>
+
           </select>
+
         </div>
 
         <div class="form-group">
-          <label>Payment Account</label>
+
+          <label for="paymentAccount">
+            Payment Account
+          </label>
 
           <input
             type="text"
             id="paymentAccount"
             placeholder="Mobile number / bank account"
           >
+
         </div>
 
-        <button class="btn" onclick="requestWithdrawal()">
+        <button
+          class="btn"
+          id="withdrawBtn"
+          type="button"
+          onclick="requestWithdrawal()"
+        >
           Request Withdrawal
         </button>
 
@@ -1013,21 +1034,35 @@
     <section id="referral" class="section">
 
       <div class="page-title">
+
         <h1>👥 Referral Program</h1>
-        <p>Invite friends and earn referral bonuses.</p>
+
+        <p>
+          Invite friends and earn referral bonuses.
+        </p>
+
       </div>
 
       <div id="referralAlert" class="alert"></div>
 
       <div class="referral-box">
 
-        <h3>Your Referral Code</h3>
+        <h3>
+          Your Referral Code
+        </h3>
 
-        <div class="referral-code" id="referralCode">
+        <div
+          class="referral-code"
+          id="referralCode"
+        >
           ------
         </div>
 
-        <button class="btn green" onclick="copyReferralCode()">
+        <button
+          class="btn green"
+          type="button"
+          onclick="copyReferralCode()"
+        >
           Copy Code
         </button>
 
@@ -1038,20 +1073,36 @@
         <h2>🎁 Referral Rewards</h2>
 
         <p style="margin:10px 0;color:#6b7280;">
-          Invite friends using your referral code and earn bonus coins
-          according to the EarnNest referral program.
+          Invite friends using your referral code and earn
+          bonus coins according to the EarnNest referral program.
         </p>
 
         <div class="profile-row">
-          <span class="profile-label">Your Referral Code</span>
-          <span class="profile-value" id="refCode2">------</span>
+
+          <span class="profile-label">
+            Your Referral Code
+          </span>
+
+          <span
+            class="profile-value"
+            id="refCode2"
+          >
+            ------
+          </span>
+
         </div>
 
         <div class="profile-row">
-          <span class="profile-label">Referral Bonus</span>
-          <span class="profile-value">
-            <span id="referralAmount">0</span> Coins
+
+          <span class="profile-label">
+            Referral Bonus
           </span>
+
+          <span class="profile-value">
+            <span id="referralAmount">0</span>
+            Coins
+          </span>
+
         </div>
 
       </div>
@@ -1064,24 +1115,38 @@
     <section id="kyc" class="section">
 
       <div class="page-title">
+
         <h1>🪪 KYC Verification</h1>
-        <p>Submit your identity verification details.</p>
+
+        <p>
+          Submit your identity verification details.
+        </p>
+
       </div>
 
       <div id="kycAlert" class="alert"></div>
 
       <div class="card">
 
-        <h2>Verification Status</h2>
+        <h2>
+          Verification Status
+        </h2>
 
         <div style="margin-top:15px;">
-          <span class="status none" id="kycStatus">
+
+          <span
+            class="status none"
+            id="kycStatus"
+          >
             Not Submitted
           </span>
+
         </div>
 
-        <p id="kycMessage"
-           style="margin-top:12px;color:#6b7280;">
+        <p
+          id="kycMessage"
+          style="margin-top:12px;color:#6b7280;"
+        >
           Please submit your KYC information.
         </p>
 
@@ -1089,46 +1154,77 @@
 
       <br>
 
-      <div class="card form-card" id="kycFormCard">
+      <div
+        class="card form-card"
+        id="kycFormCard"
+      >
 
-        <h2>Submit KYC</h2>
+        <h2>
+          Submit KYC
+        </h2>
 
         <p style="margin:10px 0 18px;color:#6b7280;">
-          Enter your details carefully. Your information may be reviewed
-          by EarnNest administrators.
+          Enter your details carefully. Your information may
+          be reviewed by EarnNest administrators.
         </p>
 
         <div class="form-group">
-          <label>Full Name</label>
+
+          <label for="kycFullName">
+            Full Name
+          </label>
 
           <input
             type="text"
             id="kycFullName"
             placeholder="Enter your full name"
           >
+
         </div>
 
         <div class="form-group">
-          <label>Document Type</label>
+
+          <label for="kycDocumentType">
+            Document Type
+          </label>
 
           <select id="kycDocumentType">
-            <option value="CNIC">CNIC</option>
-            <option value="Passport">Passport</option>
-            <option value="Driving License">Driving License</option>
+
+            <option value="CNIC">
+              CNIC
+            </option>
+
+            <option value="Passport">
+              Passport
+            </option>
+
+            <option value="Driving License">
+              Driving License
+            </option>
+
           </select>
+
         </div>
 
         <div class="form-group">
-          <label>Document Number</label>
+
+          <label for="kycDocumentNumber">
+            Document Number
+          </label>
 
           <input
             type="text"
             id="kycDocumentNumber"
             placeholder="Enter document number"
           >
+
         </div>
 
-        <button class="btn" onclick="submitKyc()">
+        <button
+          class="btn"
+          type="button"
+          onclick="submitKyc()"
+        >
           Submit KYC
         </button>
 
@@ -1142,42 +1238,105 @@
     <section id="profile" class="section">
 
       <div class="page-title">
+
         <h1>👤 Profile</h1>
-        <p>Your EarnNest account information.</p>
+
+        <p>
+          Your EarnNest account information.
+        </p>
+
       </div>
 
       <div class="card">
 
         <div class="profile-row">
-          <span class="profile-label">Name</span>
-          <span class="profile-value" id="profileName">-</span>
+
+          <span class="profile-label">
+            Name
+          </span>
+
+          <span
+            class="profile-value"
+            id="profileName"
+          >
+            -
+          </span>
+
         </div>
 
         <div class="profile-row">
-          <span class="profile-label">Username</span>
-          <span class="profile-value" id="profileUsername">-</span>
+
+          <span class="profile-label">
+            Username
+          </span>
+
+          <span
+            class="profile-value"
+            id="profileUsername"
+          >
+            -
+          </span>
+
         </div>
 
         <div class="profile-row">
-          <span class="profile-label">Email</span>
-          <span class="profile-value" id="profileEmail">-</span>
+
+          <span class="profile-label">
+            Email
+          </span>
+
+          <span
+            class="profile-value"
+            id="profileEmail"
+          >
+            -
+          </span>
+
         </div>
 
         <div class="profile-row">
-          <span class="profile-label">Phone</span>
-          <span class="profile-value" id="profilePhone">-</span>
+
+          <span class="profile-label">
+            Phone
+          </span>
+
+          <span
+            class="profile-value"
+            id="profilePhone"
+          >
+            -
+          </span>
+
         </div>
 
         <div class="profile-row">
-          <span class="profile-label">Referral Code</span>
-          <span class="profile-value" id="profileReferral">-</span>
+
+          <span class="profile-label">
+            Referral Code
+          </span>
+
+          <span
+            class="profile-value"
+            id="profileReferral"
+          >
+            -
+          </span>
+
         </div>
 
         <div class="profile-row">
-          <span class="profile-label">Account Status</span>
-          <span class="profile-value" id="profileStatus">
+
+          <span class="profile-label">
+            Account Status
+          </span>
+
+          <span
+            class="profile-value"
+            id="profileStatus"
+          >
             Active
           </span>
+
         </div>
 
       </div>
@@ -1190,41 +1349,57 @@
   <script>
     "use strict";
 
-    /* =========================
-       API
-    ========================= */
 
-    const API_BASE = window.EARNNEST_API || "/api";
+    /* =====================================================
+       EARNNEST API
+    ===================================================== */
+
+    const API_BASE =
+      window.EARNNEST_API || "/api";
+
 
     let currentUser = null;
     let currentToken = null;
 
 
-    /* =========================
-       STORAGE
-    ========================= */
+    /* =====================================================
+       STORAGE / SESSION
+    ===================================================== */
 
     function loadSession() {
 
       try {
-        currentToken = localStorage.getItem("earnnest_token");
 
-        const savedUser = localStorage.getItem("earnnest_user");
+        currentToken =
+          localStorage.getItem("earnnest_token");
+
+        const savedUser =
+          localStorage.getItem("earnnest_user");
 
         if (savedUser) {
-          currentUser = JSON.parse(savedUser);
+
+          currentUser =
+            JSON.parse(savedUser);
+
         }
 
       } catch (error) {
-        console.error("Session error:", error);
+
+        console.error(
+          "Session error:",
+          error
+        );
+
+        currentUser = null;
+
       }
 
     }
 
 
-    /* =========================
+    /* =====================================================
        API REQUEST
-    ========================= */
+    ===================================================== */
 
     async function apiRequest(body) {
 
@@ -1233,138 +1408,282 @@
       };
 
       if (currentToken) {
-        headers.Authorization = "Bearer " + currentToken;
+
+        headers.Authorization =
+          "Bearer " + currentToken;
+
       }
 
-      const response = await fetch(API_BASE, {
-        method: "POST",
-        headers,
-        body: JSON.stringify(body)
-      });
+      const response =
+        await fetch(API_BASE, {
+          method: "POST",
+          headers: headers,
+          body: JSON.stringify(body)
+        });
+
 
       let data;
 
       try {
-        data = await response.json();
+
+        data =
+          await response.json();
+
       } catch (error) {
-        throw new Error("Server returned an invalid response.");
+
+        throw new Error(
+          "Server returned an invalid response."
+        );
+
       }
 
-      if (!response.ok || data.success === false) {
+
+      if (
+        !response.ok ||
+        data.success === false
+      ) {
 
         throw new Error(
           data.message ||
-          "Server request failed (HTTP " + response.status + ")"
+          "Server request failed (HTTP " +
+          response.status +
+          ")"
         );
+
       }
 
+
       return data;
+
     }
 
 
-    /* =========================
+    /* =====================================================
        ALERT
-    ========================= */
+    ===================================================== */
 
-    function showAlert(id, message, type) {
+    function showAlert(
+      id,
+      message,
+      type
+    ) {
 
-      const element = document.getElementById(id);
+      const element =
+        document.getElementById(id);
 
       if (!element) return;
 
-      element.className = "alert show " + type;
-      element.textContent = message;
+      element.className =
+        "alert show " + type;
+
+      element.textContent =
+        message;
 
       setTimeout(() => {
-        element.classList.remove("show");
+
+        element.classList.remove(
+          "show"
+        );
+
       }, 5000);
+
     }
 
 
-    /* =========================
-       MENU
-    ========================= */
+    /* =====================================================
+       MOBILE MENU
+    ===================================================== */
 
     function toggleMenu() {
 
-      const nav = document.getElementById("mainNav");
+      const nav =
+        document.getElementById(
+          "mainNav"
+        );
 
-      nav.classList.toggle("open");
+      if (!nav) return;
+
+      nav.classList.toggle(
+        "open"
+      );
+
     }
 
 
-    /* =========================
+    /* =====================================================
        PAGE NAVIGATION
-    ========================= */
+    ===================================================== */
 
     function showPage(page) {
 
-      document.querySelectorAll(".section").forEach(section => {
-        section.classList.remove("active");
-      });
+      document
+        .querySelectorAll(".section")
+        .forEach(section => {
 
-      const target = document.getElementById(page);
+          section.classList.remove(
+            "active"
+          );
+
+        });
+
+
+      const target =
+        document.getElementById(page);
+
 
       if (target) {
-        target.classList.add("active");
+
+        target.classList.add(
+          "active"
+        );
+
       }
 
-      document.querySelectorAll(".nav-btn").forEach(button => {
-        button.classList.remove("active");
 
-        if (button.dataset.page === page) {
-          button.classList.add("active");
-        }
-      });
+      document
+        .querySelectorAll(".nav-btn")
+        .forEach(button => {
 
-      document.getElementById("mainNav").classList.remove("open");
+          button.classList.remove(
+            "active"
+          );
+
+
+          if (
+            button.dataset.page === page
+          ) {
+
+            button.classList.add(
+              "active"
+            );
+
+          }
+
+        });
+
+
+      const nav =
+        document.getElementById(
+          "mainNav"
+        );
+
+      if (nav) {
+
+        nav.classList.remove(
+          "open"
+        );
+
+      }
+
 
       if (page === "wallet") {
+
         loadWallet();
+
       }
+
 
       if (page === "referral") {
+
         loadReferral();
+
       }
 
+
       if (page === "kyc") {
+
         loadKycStatus();
+
       }
+
 
       window.scrollTo({
         top: 0,
         behavior: "smooth"
       });
+
     }
 
 
-    /* =========================
+    /* =====================================================
        WALLET
-    ========================= */
+    ===================================================== */
 
     async function loadWallet() {
 
       try {
 
-        const data = await apiRequest({
-          action: "wallet"
-        });
+        const data =
+          await apiRequest({
+            action: "wallet"
+          });
 
-        const wallet = data.wallet || {};
 
-        const balance = Number(wallet.balance || 0);
-        const earned = Number(wallet.total_earned || 0);
-        const withdrawn = Number(wallet.total_withdrawn || 0);
+        const wallet =
+          data.wallet || {};
 
-        document.getElementById("balance").textContent = balance;
-        document.getElementById("totalEarned").textContent = earned;
-        document.getElementById("totalWithdrawn").textContent = withdrawn;
 
-        document.getElementById("walletBalance").textContent = balance;
-        document.getElementById("walletEarned").textContent = earned;
-        document.getElementById("walletWithdrawn").textContent = withdrawn;
+        const balance =
+          Number(
+            wallet.balance || 0
+          );
+
+
+        const earned =
+          Number(
+            wallet.total_earned || 0
+          );
+
+
+        const withdrawn =
+          Number(
+            wallet.total_withdrawn || 0
+          );
+
+
+        document.getElementById(
+          "balance"
+        ).textContent =
+          balance;
+
+
+        document.getElementById(
+          "totalEarned"
+        ).textContent =
+          earned;
+
+
+        document.getElementById(
+          "totalWithdrawn"
+        ).textContent =
+          withdrawn;
+
+
+        document.getElementById(
+          "walletBalance"
+        ).textContent =
+          balance;
+
+
+        document.getElementById(
+          "walletEarned"
+        ).textContent =
+          earned;
+
+
+        document.getElementById(
+          "walletWithdrawn"
+        ).textContent =
+          withdrawn;
+
 
       } catch (error) {
+
+        console.error(
+          "Wallet error:",
+          error
+        );
+
 
         showAlert(
           "walletAlert",
@@ -1372,41 +1691,66 @@
           "error"
         );
 
+
+        const message =
+          error.message.toLowerCase();
+
+
         if (
-          error.message.toLowerCase().includes("token") ||
-          error.message.toLowerCase().includes("login") ||
-          error.message.toLowerCase().includes("unauthorized")
+          message.includes("token") ||
+          message.includes("login") ||
+          message.includes("unauthorized")
         ) {
+
           logout();
+
         }
+
       }
+
     }
 
 
-    /* =========================
+    /* =====================================================
        DAILY BONUS
-    ========================= */
+    ===================================================== */
 
     async function claimDailyBonus() {
 
-      const button = document.getElementById("dailyBonusBtn");
+      const button =
+        document.getElementById(
+          "dailyBonusBtn"
+        );
 
-      button.disabled = true;
-      button.textContent = "Processing...";
+
+      if (button) {
+
+        button.disabled = true;
+
+        button.textContent =
+          "Processing...";
+
+      }
+
 
       try {
 
-        const data = await apiRequest({
-          action: "daily_bonus"
-        });
+        const data =
+          await apiRequest({
+            action: "daily_bonus"
+          });
+
 
         showAlert(
           "homeAlert",
-          data.message || "Daily bonus claimed successfully!",
+          data.message ||
+            "Daily bonus claimed successfully!",
           "success"
         );
 
+
         await loadWallet();
+
 
       } catch (error) {
 
@@ -1418,79 +1762,173 @@
 
       } finally {
 
-        button.disabled = false;
-        button.textContent = "Claim 50 Coins";
+        if (button) {
+
+          button.disabled = false;
+
+          button.textContent =
+            "Claim 50 Coins";
+
+        }
+
       }
+
     }
 
 
-    /* =========================
-       TASK / SURVEY REWARD
-    ========================= */
+    /* =====================================================
+       ADGEM OFFERWALL
+    ===================================================== */
 
-    async function claimReward(
-      rewardType,
-      rewardId,
-      amount,
-      title
-    ) {
+    function getAdGemPlayerId() {
 
-      try {
+      if (!currentUser) {
 
-        const data = await apiRequest({
-          action: "claim_reward",
-          rewardType: rewardType,
-          rewardId: rewardId,
-          amount: amount,
-          title: title
-        });
+        return null;
 
-        const alertId =
-          rewardType === "survey"
-            ? "surveysAlert"
-            : "tasksAlert";
+      }
+
+
+      /*
+        IMPORTANT:
+
+        AdGem player ID must remain stable.
+
+        We use the database user ID first.
+        Username is only a fallback.
+      */
+
+      const playerId =
+        currentUser.id ||
+        currentUser.user_id ||
+        currentUser.username;
+
+
+      if (!playerId) {
+
+        return null;
+
+      }
+
+
+      return String(playerId);
+
+    }
+
+
+    function openAdGem() {
+
+      if (!currentToken) {
 
         showAlert(
-          alertId,
-          data.message || ("You earned " + amount + " coins!"),
-          "success"
-        );
-
-        await loadWallet();
-
-      } catch (error) {
-
-        const alertId =
-          rewardType === "survey"
-            ? "surveysAlert"
-            : "tasksAlert";
-
-        showAlert(
-          alertId,
-          error.message,
+          "tasksAlert",
+          "Please login again before opening AdGem.",
           "error"
         );
+
+        return;
+
       }
+
+
+      const playerId =
+        getAdGemPlayerId();
+
+
+      if (!playerId) {
+
+        showAlert(
+          "tasksAlert",
+          "Your EarnNest user ID could not be found. Please login again.",
+          "error"
+        );
+
+        return;
+
+      }
+
+
+      /*
+        AdGem Property/App ID:
+        33775
+      */
+
+      const adGemUrl =
+        "https://adunits.adgem.com/wall" +
+        "?appid=33775" +
+        "&playerid=" +
+        encodeURIComponent(
+          playerId
+        );
+
+
+      /*
+        Open in a new tab/window.
+
+        This keeps the EarnNest dashboard
+        available while the user completes
+        the offer.
+      */
+
+      const newWindow =
+        window.open(
+          adGemUrl,
+          "_blank"
+        );
+
+
+      if (!newWindow) {
+
+        showAlert(
+          "tasksAlert",
+          "Please allow pop-ups in your browser and try again.",
+          "error"
+        );
+
+        return;
+
+      }
+
+
+      showAlert(
+        "tasksAlert",
+        "AdGem Offers opened successfully.",
+        "success"
+      );
+
     }
 
 
-    /* =========================
+    /* =====================================================
        WITHDRAWAL
-    ========================= */
+    ===================================================== */
 
     async function requestWithdrawal() {
 
-      const amount = Number(
-        document.getElementById("withdrawAmount").value
-      );
+      const amount =
+        Number(
+          document.getElementById(
+            "withdrawAmount"
+          ).value
+        );
+
 
       const paymentMethod =
-        document.getElementById("paymentMethod").value;
+        document.getElementById(
+          "paymentMethod"
+        ).value;
+
 
       const account =
-        document.getElementById("paymentAccount").value.trim();
+        document.getElementById(
+          "paymentAccount"
+        ).value.trim();
 
-      if (!amount || amount < 1000) {
+
+      if (
+        !amount ||
+        amount < 1000
+      ) {
 
         showAlert(
           "walletAlert",
@@ -1499,7 +1937,22 @@
         );
 
         return;
+
       }
+
+
+      if (!Number.isInteger(amount)) {
+
+        showAlert(
+          "walletAlert",
+          "Withdrawal amount must be a whole number.",
+          "error"
+        );
+
+        return;
+
+      }
+
 
       if (!account) {
 
@@ -1510,27 +1963,57 @@
         );
 
         return;
+
       }
+
+
+      const button =
+        document.getElementById(
+          "withdrawBtn"
+        );
+
+
+      if (button) {
+
+        button.disabled = true;
+
+        button.textContent =
+          "Submitting...";
+
+      }
+
 
       try {
 
-        const data = await apiRequest({
-          action: "withdraw",
-          amount: amount,
-          paymentMethod: paymentMethod,
-          account: account
-        });
+        const data =
+          await apiRequest({
+            action: "withdraw",
+            amount: amount,
+            paymentMethod: paymentMethod,
+            account: account
+          });
+
 
         showAlert(
           "walletAlert",
-          data.message || "Withdrawal request submitted.",
+          data.message ||
+            "Withdrawal request submitted.",
           "success"
         );
 
-        document.getElementById("withdrawAmount").value = "";
-        document.getElementById("paymentAccount").value = "";
+
+        document.getElementById(
+          "withdrawAmount"
+        ).value = "";
+
+
+        document.getElementById(
+          "paymentAccount"
+        ).value = "";
+
 
         await loadWallet();
+
 
       } catch (error) {
 
@@ -1539,29 +2022,47 @@
           error.message,
           "error"
         );
+
+      } finally {
+
+        if (button) {
+
+          button.disabled = false;
+
+          button.textContent =
+            "Request Withdrawal";
+
+        }
+
       }
+
     }
 
 
-    /* =========================
+    /* =====================================================
        REFERRAL
-    ========================= */
+    ===================================================== */
 
     async function loadReferral() {
 
       try {
 
-        const data = await apiRequest({
-          action: "referral"
-        });
+        const data =
+          await apiRequest({
+            action: "referral"
+          });
 
-        const referral = data.referral || data;
+
+        const referral =
+          data.referral || data;
+
 
         const code =
           referral.referralCode ||
           referral.code ||
           currentUser?.referral_code ||
           "------";
+
 
         const bonus =
           Number(
@@ -1570,59 +2071,141 @@
             0
           );
 
-        document.getElementById("referralCode").textContent = code;
-        document.getElementById("refCode2").textContent = code;
-        document.getElementById("referralAmount").textContent = bonus;
-        document.getElementById("referralBonus").textContent = bonus;
+
+        document.getElementById(
+          "referralCode"
+        ).textContent =
+          code;
+
+
+        document.getElementById(
+          "refCode2"
+        ).textContent =
+          code;
+
+
+        document.getElementById(
+          "referralAmount"
+        ).textContent =
+          bonus;
+
+
+        document.getElementById(
+          "referralBonus"
+        ).textContent =
+          bonus;
+
 
         if (currentUser) {
-          currentUser.referral_code = code;
+
+          currentUser.referral_code =
+            code;
+
 
           localStorage.setItem(
             "earnnest_user",
-            JSON.stringify(currentUser)
+            JSON.stringify(
+              currentUser
+            )
           );
+
         }
+
 
       } catch (error) {
 
         const code =
-          currentUser?.referral_code || "------";
+          currentUser?.referral_code ||
+          "------";
 
-        document.getElementById("referralCode").textContent = code;
-        document.getElementById("refCode2").textContent = code;
+
+        document.getElementById(
+          "referralCode"
+        ).textContent =
+          code;
+
+
+        document.getElementById(
+          "refCode2"
+        ).textContent =
+          code;
+
 
         showAlert(
           "referralAlert",
           error.message,
           "error"
         );
+
       }
+
     }
 
 
-    /* =========================
-       COPY REFERRAL
-    ========================= */
+    /* =====================================================
+       COPY REFERRAL CODE
+    ===================================================== */
 
     async function copyReferralCode() {
 
       const code =
-        document.getElementById("referralCode").textContent;
+        document.getElementById(
+          "referralCode"
+        ).textContent;
 
-      if (!code || code === "------") {
+
+      if (
+        !code ||
+        code === "------"
+      ) {
+
         return;
+
       }
+
 
       try {
 
-        await navigator.clipboard.writeText(code);
+        if (
+          navigator.clipboard &&
+          navigator.clipboard.writeText
+        ) {
+
+          await navigator.clipboard.writeText(
+            code
+          );
+
+        } else {
+
+          const textArea =
+            document.createElement(
+              "textarea"
+            );
+
+          textArea.value =
+            code;
+
+          document.body.appendChild(
+            textArea
+          );
+
+          textArea.select();
+
+          document.execCommand(
+            "copy"
+          );
+
+          textArea.remove();
+
+        }
+
 
         showAlert(
           "referralAlert",
           "Referral code copied!",
           "success"
         );
+
 
       } catch (error) {
 
@@ -1631,74 +2214,116 @@
           "Copy failed. Please copy the code manually.",
           "error"
         );
+
       }
+
     }
 
 
-    /* =========================
+    /* =====================================================
        KYC STATUS
-    ========================= */
+    ===================================================== */
 
     async function loadKycStatus() {
 
       try {
 
-        const data = await apiRequest({
-          action: "kyc_status"
-        });
+        const data =
+          await apiRequest({
+            action: "kyc_status"
+          });
+
 
         const kyc =
           data.kyc ||
           data.submission ||
           null;
 
+
         const status =
           kyc?.status ||
           "none";
 
+
         const statusElement =
-          document.getElementById("kycStatus");
+          document.getElementById(
+            "kycStatus"
+          );
+
 
         statusElement.className =
           "status " + status;
+
 
         statusElement.textContent =
           status === "none"
             ? "Not Submitted"
             : status;
 
-        if (status === "approved") {
 
-          document.getElementById("kycMessage").textContent =
+        if (
+          status === "approved"
+        ) {
+
+          document.getElementById(
+            "kycMessage"
+          ).textContent =
             "Your KYC has been approved.";
 
-          document.getElementById("kycFormCard").style.display =
+
+          document.getElementById(
+            "kycFormCard"
+          ).style.display =
             "none";
 
-        } else if (status === "pending") {
 
-          document.getElementById("kycMessage").textContent =
+        } else if (
+          status === "pending"
+        ) {
+
+          document.getElementById(
+            "kycMessage"
+          ).textContent =
             "Your KYC is currently under review.";
 
-          document.getElementById("kycFormCard").style.display =
+
+          document.getElementById(
+            "kycFormCard"
+          ).style.display =
             "none";
 
-        } else if (status === "rejected") {
 
-          document.getElementById("kycMessage").textContent =
+        } else if (
+          status === "rejected"
+        ) {
+
+          document.getElementById(
+            "kycMessage"
+          ).textContent =
             "Your KYC was rejected. You can submit it again.";
 
-          document.getElementById("kycFormCard").style.display =
+
+          document.getElementById(
+            "kycFormCard"
+          ).style.display =
             "block";
+
 
         } else {
 
-          document.getElementById("kycMessage").textContent =
+          document.getElementById(
+            "kycMessage"
+          ).textContent =
             "Please submit your KYC information.";
 
-          document.getElementById("kycFormCard").style.display =
+
+          document.getElementById(
+            "kycFormCard"
+          ).style.display =
             "block";
+
         }
+
 
       } catch (error) {
 
@@ -1707,24 +2332,35 @@
           error.message,
           "error"
         );
+
       }
+
     }
 
 
-    /* =========================
+    /* =====================================================
        SUBMIT KYC
-    ========================= */
+    ===================================================== */
 
     async function submitKyc() {
 
       const fullName =
-        document.getElementById("kycFullName").value.trim();
+        document.getElementById(
+          "kycFullName"
+        ).value.trim();
+
 
       const documentType =
-        document.getElementById("kycDocumentType").value;
+        document.getElementById(
+          "kycDocumentType"
+        ).value;
+
 
       const documentNumber =
-        document.getElementById("kycDocumentNumber").value.trim();
+        document.getElementById(
+          "kycDocumentNumber"
+        ).value.trim();
+
 
       if (!fullName) {
 
@@ -1735,7 +2371,9 @@
         );
 
         return;
+
       }
+
 
       if (!documentNumber) {
 
@@ -1746,27 +2384,41 @@
         );
 
         return;
+
       }
+
 
       try {
 
-        const data = await apiRequest({
-          action: "submit_kyc",
-          fullName: fullName,
-          documentType: documentType,
-          documentNumber: documentNumber
-        });
+        const data =
+          await apiRequest({
+            action: "submit_kyc",
+            fullName: fullName,
+            documentType: documentType,
+            documentNumber: documentNumber
+          });
+
 
         showAlert(
           "kycAlert",
-          data.message || "KYC submitted successfully.",
+          data.message ||
+            "KYC submitted successfully.",
           "success"
         );
 
-        document.getElementById("kycFullName").value = "";
-        document.getElementById("kycDocumentNumber").value = "";
+
+        document.getElementById(
+          "kycFullName"
+        ).value = "";
+
+
+        document.getElementById(
+          "kycDocumentNumber"
+        ).value = "";
+
 
         await loadKycStatus();
+
 
       } catch (error) {
 
@@ -1775,71 +2427,114 @@
           error.message,
           "error"
         );
+
       }
+
     }
 
 
-    /* =========================
+    /* =====================================================
        PROFILE
-    ========================= */
+    ===================================================== */
 
     function loadProfile() {
 
-      if (!currentUser) return;
+      if (!currentUser) {
 
-      document.getElementById("profileName").textContent =
+        return;
+
+      }
+
+
+      document.getElementById(
+        "profileName"
+      ).textContent =
         currentUser.name || "-";
 
-      document.getElementById("profileUsername").textContent =
+
+      document.getElementById(
+        "profileUsername"
+      ).textContent =
         currentUser.username || "-";
 
-      document.getElementById("profileEmail").textContent =
+
+      document.getElementById(
+        "profileEmail"
+      ).textContent =
         currentUser.email || "-";
 
-      document.getElementById("profilePhone").textContent =
+
+      document.getElementById(
+        "profilePhone"
+      ).textContent =
         currentUser.phone || "-";
 
-      document.getElementById("profileReferral").textContent =
+
+      document.getElementById(
+        "profileReferral"
+      ).textContent =
         currentUser.referral_code || "-";
 
-      document.getElementById("profileStatus").textContent =
-        currentUser.status || "Active";
 
-      document.getElementById("welcomeName").textContent =
+      document.getElementById(
+        "profileStatus"
+      ).textContent =
+        currentUser.status ||
+        "Active";
+
+
+      document.getElementById(
+        "welcomeName"
+      ).textContent =
         currentUser.name ||
         currentUser.username ||
         "User";
+
     }
 
 
-    /* =========================
+    /* =====================================================
        LOGOUT
-    ========================= */
+    ===================================================== */
 
     function logout() {
 
-      localStorage.removeItem("earnnest_token");
-      localStorage.removeItem("earnnest_user");
+      localStorage.removeItem(
+        "earnnest_token"
+      );
 
-      window.location.href = "/";
+      localStorage.removeItem(
+        "earnnest_user"
+      );
+
+
+      window.location.href =
+        "/";
+
     }
 
 
-    /* =========================
+    /* =====================================================
        START DASHBOARD
-    ========================= */
+    ===================================================== */
 
     async function initDashboard() {
 
       loadSession();
 
+
       if (!currentToken) {
 
-        window.location.href = "/";
+        window.location.href =
+          "/";
+
         return;
+
       }
 
+
       loadProfile();
+
 
       try {
 
@@ -1847,14 +2542,24 @@
 
       } catch (error) {
 
-        console.error(error);
+        console.error(
+          "Initial wallet error:",
+          error
+        );
+
       }
+
 
       loadReferral();
 
       loadKycStatus();
+
     }
 
+
+    /* =====================================================
+       START
+    ===================================================== */
 
     initDashboard();
 
@@ -1862,3 +2567,4 @@
 
 </body>
 </html>
+```
