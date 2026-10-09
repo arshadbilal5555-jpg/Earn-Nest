@@ -1074,6 +1074,9 @@ module.exports = async function handler(req, res) {
 
   try {
     const path = normalizePath(req);
+    if (path === '/api/adgem/postback') {
+  return await handleAdGemPostback(req, res);
+}
     const adminRoutes = {
       '/api/admin/stats': handleAdminStats,
       '/admin/stats': handleAdminStats,
