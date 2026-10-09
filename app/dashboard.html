@@ -1816,89 +1816,54 @@
     }
 
 
-    function openAdGem() {
+   function openAdGem() {
+  if (!currentToken) {
+    showAlert(
+      "tasksAlert",
+      "Please login again before opening AdGem.",
+      "error"
+    );
+    return;
+  }
 
-      if (!currentToken) {
+  const playerId = getAdGemPlayerId();
 
-        showAlert(
-          "tasksAlert",
-          "Please login again before opening AdGem.",
-          "error"
-        );
+  if (!playerId) {
+    showAlert(
+      "tasksAlert",
+      "Your EarnNest user ID could not be found. Please login again.",
+      "error"
+    );
+    return;
+  }
 
-        return;
+  const adGemUrl =
+    "https://adunits.adgem.com/wall" +
+    "?appid=33775" +
+    "&playerid=" + encodeURIComponent(playerId);
 
-      }
+  // Open AdGem in a new tab first.
+  const popup = window.open(adGemUrl, "_blank");
 
-
-      const playerId =
-        getAdGemPlayerId();
-
-
-      if (!playerId) {
-
-        showAlert(
-          "tasksAlert",
-          "Your EarnNest user ID could not be found. Please login again.",
-          "error"
-        );
-
-        return;
-
-      }
-
-
-      /*
-        AdGem Property/App ID:
-        33775
-      */
-
-      const adGemUrl =
-        "https://adunits.adgem.com/wall" +
-        "?appid=33775" +
-        "&playerid=" +
-        encodeURIComponent(
-          playerId
-        );
-
-
-      /*
-        Open in a new tab/window.
-
-        This keeps the EarnNest dashboard
-        available while the user completes
-        the offer.
-      */
-
-      const newWindow =
-        window.open(
-          adGemUrl,
-          "_blank"
-        );
-
-
-      if (!newWindow) {
-
-        showAlert(
-          "tasksAlert",
-          "Please allow pop-ups in your browser and try again.",
-          "error"
-        );
-
-        return;
-
-      }
-
-
-      showAlert(
-        "tasksAlert",
-        "AdGem Offers opened successfully.",
-        "success"
-      );
-
+  if (popup) {
+    try {
+      popup.opener = null;
+    } catch (error) {
+      // Continue if the browser does not allow opener changes.
     }
 
+    showAlert(
+      "tasksAlert",
+      "AdGem Offers opened successfully.",
+      "success"
+    );
 
+    return;
+  }
+
+  // Popup blocked: open AdGem in the current tab.
+  window.location.href = adGemUrl;
+}
     /* =====================================================
        WITHDRAWAL
     ===================================================== */
