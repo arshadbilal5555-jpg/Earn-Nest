@@ -4,2532 +4,982 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
   <meta name="theme-color" content="#1565c0">
-  <meta name="description" content="EarnNest - Rewards, Tasks, Surveys and Withdrawals">
-
+  <meta name="description" content="EarnNest - Earn coins with offers, games, surveys and rewards">
   <title>EarnNest — Dashboard</title>
 
   <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --primary: #1565c0;
+      --primary-dark: #0d47a1;
+      --bg: #f4f7fb;
+      --card: #ffffff;
+      --text: #172337;
+      --muted: #68778c;
+      --border: #e4eaf2;
+      --green: #16a36a;
+      --radius: 16px;
     }
 
     body {
       font-family: Arial, Helvetica, sans-serif;
-      background: #f4f7fb;
-      color: #1f2937;
+      background: var(--bg);
+      color: var(--text);
       min-height: 100vh;
-      overflow-x: hidden;
     }
 
-    body::before {
-      content: "EARNNEST";
+    button, input, select, textarea { font: inherit; }
+    button { cursor: pointer; }
+    a { color: inherit; text-decoration: none; }
+
+    .layout { display: flex; min-height: 100vh; }
+
+    .sidebar {
+      width: 245px;
+      background: #fff;
+      border-right: 1px solid var(--border);
+      padding: 22px 14px;
       position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%) rotate(-25deg);
-      font-size: 110px;
-      font-weight: 900;
-      letter-spacing: 10px;
-      color: rgba(22, 101, 52, 0.045);
-      pointer-events: none;
-      z-index: 0;
-      white-space: nowrap;
-    }
-
-    body::after {
-      content: "E";
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%) rotate(-5deg);
-      width: 150px;
-      height: 150px;
-      border: 8px solid rgba(22, 101, 52, 0.035);
-      border-radius: 30px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 100px;
-      font-weight: 900;
-      color: rgba(22, 101, 52, 0.035);
-      pointer-events: none;
-      z-index: 0;
-    }
-
-    header {
-      position: relative;
-      z-index: 10;
-      background: linear-gradient(135deg, #1565c0, #0d47a1);
-      color: white;
-      padding: 14px 20px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      box-shadow: 0 3px 15px rgba(0,0,0,.15);
+      top: 0;
+      bottom: 0;
+      left: 0;
+      overflow-y: auto;
+      z-index: 100;
+      transition: transform .25s ease;
     }
 
     .brand {
       display: flex;
       align-items: center;
-      gap: 10px;
-      font-size: 23px;
+      gap: 11px;
+      padding: 3px 10px 24px;
+      font-size: 22px;
       font-weight: 800;
+      color: var(--primary);
     }
 
-    .logo {
+    .brand-icon {
       width: 42px;
       height: 42px;
-      background: #16a34a;
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      font-size: 28px;
-      font-weight: 900;
-      box-shadow: 0 3px 8px rgba(0,0,0,.2);
-    }
-
-    .menu-btn {
-      display: none;
-      border: 0;
-      background: rgba(255,255,255,.15);
-      color: white;
-      font-size: 25px;
-      padding: 7px 11px;
-      border-radius: 8px;
-      cursor: pointer;
-    }
-
-    nav {
-      position: relative;
-      z-index: 10;
-      background: white;
-      box-shadow: 0 2px 10px rgba(0,0,0,.08);
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-      gap: 4px;
-      padding: 8px;
-    }
-
-    nav button {
-      border: 0;
-      background: transparent;
-      color: #374151;
-      padding: 11px 15px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 14px;
-      font-weight: 600;
-      transition: .2s;
-    }
-
-    nav button:hover,
-    nav button.active {
-      background: #e8f1ff;
-      color: #1565c0;
-    }
-
-    nav button.logout {
-      color: #dc2626;
-    }
-
-    nav button.logout:hover {
-      background: #fee2e2;
-      color: #b91c1c;
-    }
-
-    main {
-      position: relative;
-      z-index: 1;
-      max-width: 1200px;
-      margin: auto;
-      padding: 25px 18px 50px;
-    }
-
-    .section {
-      display: none;
-      animation: fadeIn .25s ease;
-    }
-
-    .section.active {
-      display: block;
-    }
-
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
-        transform: translateY(5px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    .page-title {
-      margin-bottom: 20px;
-    }
-
-    .page-title h1 {
-      font-size: 28px;
-      color: #123b6d;
-      margin-bottom: 5px;
-    }
-
-    .page-title p {
-      color: #6b7280;
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 15px;
-    }
-
-    .card {
-      background: white;
-      border-radius: 14px;
-      padding: 20px;
-      box-shadow: 0 4px 15px rgba(0,0,0,.07);
-      border: 1px solid #e5e7eb;
-    }
-
-    .stat-card {
-      min-height: 130px;
-    }
-
-    .stat-label {
-      color: #6b7280;
-      font-size: 14px;
-      margin-bottom: 8px;
-    }
-
-    .stat-value {
-      font-size: 30px;
-      font-weight: 800;
-      color: #1565c0;
-    }
-
-    .stat-icon {
-      font-size: 30px;
-      margin-bottom: 10px;
-    }
-
-    .welcome {
-      background: linear-gradient(135deg, #1565c0, #1976d2);
-      color: white;
-      border-radius: 18px;
-      padding: 28px;
-      margin-bottom: 20px;
-      box-shadow: 0 8px 25px rgba(21,101,192,.2);
-    }
-
-    .welcome h1 {
-      font-size: 28px;
-      margin-bottom: 8px;
-    }
-
-    .welcome p {
-      opacity: .92;
-    }
-
-    .item {
-      background: white;
-      border: 1px solid #e5e7eb;
-      border-radius: 13px;
-      padding: 18px;
-      margin-bottom: 13px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 15px;
-      box-shadow: 0 3px 12px rgba(0,0,0,.05);
-    }
-
-    .item h3 {
-      margin-bottom: 6px;
-      color: #1f2937;
-    }
-
-    .item p {
-      color: #6b7280;
-      font-size: 14px;
-      line-height: 1.5;
-    }
-
-    .reward {
-      color: #16a34a;
-      font-weight: 800;
-      margin-top: 7px;
-      display: block;
-    }
-
-    .btn {
-      border: 0;
-      border-radius: 8px;
-      padding: 11px 17px;
-      background: #1565c0;
-      color: white;
-      font-weight: 700;
-      cursor: pointer;
-      transition: .2s;
-      white-space: nowrap;
-    }
-
-    .btn:hover {
-      background: #0d47a1;
-    }
-
-    .btn.green {
-      background: #16a34a;
-    }
-
-    .btn.green:hover {
-      background: #15803d;
-    }
-
-    .btn.red {
-      background: #dc2626;
-    }
-
-    .btn.red:hover {
-      background: #b91c1c;
-    }
-
-    .btn.gray {
-      background: #6b7280;
-    }
-
-    .btn:disabled {
-      opacity: .6;
-      cursor: not-allowed;
-    }
-
-    .form-group {
-      margin-bottom: 15px;
-    }
-
-    .form-group label {
-      display: block;
-      font-size: 14px;
-      font-weight: 700;
-      margin-bottom: 7px;
-      color: #374151;
-    }
-
-    .form-group input,
-    .form-group select {
-      width: 100%;
-      padding: 12px;
-      border: 1px solid #d1d5db;
-      border-radius: 8px;
-      outline: none;
-      font-size: 15px;
-      background: white;
-    }
-
-    .form-group input:focus,
-    .form-group select:focus {
-      border-color: #1565c0;
-      box-shadow: 0 0 0 3px rgba(21,101,192,.1);
-    }
-
-    .form-card {
-      max-width: 650px;
-    }
-
-    .alert {
-      display: none;
-      padding: 13px 15px;
-      border-radius: 8px;
-      margin-bottom: 15px;
-      font-size: 14px;
-      line-height: 1.5;
-    }
-
-    .alert.show {
-      display: block;
-    }
-
-    .alert.success {
-      background: #dcfce7;
-      color: #166534;
-      border: 1px solid #bbf7d0;
-    }
-
-    .alert.error {
-      background: #fee2e2;
-      color: #991b1b;
-      border: 1px solid #fecaca;
-    }
-
-    .alert.info {
-      background: #dbeafe;
-      color: #1e40af;
-      border: 1px solid #bfdbfe;
-    }
-
-    .referral-box {
-      background: #f0fdf4;
-      border: 1px solid #bbf7d0;
       border-radius: 12px;
-      padding: 20px;
-      text-align: center;
-      margin-bottom: 20px;
+      display: grid;
+      place-items: center;
+      background: var(--primary);
+      color: #fff;
+      font-size: 25px;
+      box-shadow: 0 5px 12px #1565c033;
     }
 
-    .referral-code {
-      font-size: 30px;
-      font-weight: 900;
-      color: #15803d;
-      letter-spacing: 3px;
-      margin: 12px 0;
-    }
-
-    .profile-row {
-      display: flex;
-      justify-content: space-between;
-      padding: 13px 0;
-      border-bottom: 1px solid #e5e7eb;
-      gap: 15px;
-    }
-
-    .profile-row:last-child {
-      border-bottom: 0;
-    }
-
-    .profile-label {
-      color: #6b7280;
-    }
-
-    .profile-value {
+    .nav-label {
+      color: #96a1b2;
+      font-size: 11px;
       font-weight: 700;
-      text-align: right;
-      word-break: break-word;
-    }
-
-    .status {
-      display: inline-block;
-      padding: 6px 10px;
-      border-radius: 20px;
-      font-size: 12px;
-      font-weight: 800;
+      letter-spacing: 1px;
+      padding: 12px 12px 8px;
       text-transform: uppercase;
     }
 
-    .status.pending {
-      background: #fef3c7;
-      color: #92400e;
-    }
-
-    .status.approved {
-      background: #dcfce7;
-      color: #166534;
-    }
-
-    .status.rejected {
-      background: #fee2e2;
-      color: #991b1b;
-    }
-
-    .status.none {
-      background: #e5e7eb;
-      color: #374151;
-    }
-
-    .loading {
-      text-align: center;
-      padding: 25px;
-      color: #6b7280;
-    }
-
-    /* =========================
-       ADGEM
-    ========================= */
-
-    .adgem-card {
-      background: linear-gradient(135deg, #f0fdf4, #ffffff);
-      border: 1px solid #bbf7d0;
-      border-radius: 16px;
-      padding: 24px;
-      margin-bottom: 18px;
-      box-shadow: 0 5px 18px rgba(22,163,74,.08);
-    }
-
-    .adgem-title {
+    .nav-link {
+      width: 100%;
       display: flex;
       align-items: center;
       gap: 12px;
-      margin-bottom: 10px;
+      border: 0;
+      background: transparent;
+      color: #58677c;
+      text-align: left;
+      padding: 12px;
+      border-radius: 11px;
+      margin: 3px 0;
+      font-weight: 600;
+      font-size: 14px;
     }
 
-    .adgem-icon {
-      width: 48px;
-      height: 48px;
-      border-radius: 12px;
-      background: #16a34a;
-      color: white;
+    .nav-link:hover, .nav-link.active {
+      background: #eaf2ff;
+      color: var(--primary);
+    }
+
+    .nav-icon { width: 23px; text-align: center; font-size: 18px; }
+
+    .main {
+      margin-left: 245px;
+      width: calc(100% - 245px);
+      min-width: 0;
+    }
+
+    .topbar {
+      background: #fff;
+      border-bottom: 1px solid var(--border);
+      min-height: 75px;
       display: flex;
       align-items: center;
-      justify-content: center;
-      font-size: 25px;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 16px 28px;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+
+    .topbar h1 { font-size: 21px; }
+    .topbar p { color: var(--muted); font-size: 12px; margin-top: 5px; }
+
+    .top-actions { display: flex; align-items: center; gap: 12px; }
+
+    .coin-pill {
+      background: #fff8df;
+      color: #946400;
+      padding: 10px 14px;
+      border-radius: 30px;
+      font-weight: 800;
+      white-space: nowrap;
+      font-size: 13px;
+    }
+
+    .menu-toggle {
+      display: none;
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      padding: 9px 12px;
+      background: white;
+    }
+
+    .content { padding: 25px 28px 45px; max-width: 1500px; margin: auto; }
+    .page { display: none; }
+    .page.active { display: block; }
+
+    .welcome {
+      background: linear-gradient(120deg, #1565c0, #4389ec);
+      border-radius: 20px;
+      padding: 29px;
+      color: white;
+      margin-bottom: 23px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .welcome:after {
+      content: "E";
+      position: absolute;
+      right: 28px;
+      top: -45px;
+      font-size: 190px;
       font-weight: 900;
+      opacity: .07;
     }
 
-    .adgem-title h2 {
-      color: #166534;
-      font-size: 22px;
+    .welcome h2 { font-size: 27px; margin-bottom: 10px; }
+    .welcome p { line-height: 1.6; max-width: 620px; opacity: .95; }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 16px;
+      margin-bottom: 27px;
     }
 
-    .adgem-card p {
-      color: #6b7280;
-      line-height: 1.6;
-      margin: 10px 0 18px;
+    .stat-card, .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 21px;
+      min-width: 0;
     }
 
-    .offer-note {
-      background: #eff6ff;
-      border: 1px solid #bfdbfe;
-      color: #1e40af;
+    .stat-top { display: flex; justify-content: space-between; gap: 10px; align-items: center; }
+    .stat-icon {
+      width: 42px; height: 42px; border-radius: 12px;
+      display: grid; place-items: center; font-size: 21px;
+      background: #eaf2ff;
+    }
+
+    .stat-card p { color: var(--muted); font-size: 13px; margin: 15px 0 8px; }
+    .stat-card h3 { font-size: 25px; overflow-wrap: anywhere; }
+    .section-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 25px 0 15px; }
+    .section-heading h2 { font-size: 20px; }
+    .section-heading p { color: var(--muted); font-size: 13px; margin-top: 5px; }
+
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 17px;
+    }
+
+    .feature-card {
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      background: #fff;
+      padding: 21px;
+      display: flex;
+      flex-direction: column;
+      min-height: 205px;
+      transition: transform .2s, box-shadow .2s;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 9px 25px #152a4810;
+    }
+
+    .feature-icon {
+      width: 49px;
+      height: 49px;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      font-size: 25px;
+      margin-bottom: 16px;
+      background: #eaf2ff;
+    }
+
+    .feature-card h3 { font-size: 17px; margin-bottom: 9px; }
+    .feature-card p { color: var(--muted); font-size: 13px; line-height: 1.55; flex: 1; }
+    .feature-bottom { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 17px; }
+
+    .status {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 800;
+      padding: 6px 9px;
+      border-radius: 30px;
+      background: #fff1d9;
+      color: #946000;
+      white-space: nowrap;
+    }
+
+    .status.available { background: #dcf8e9; color: #087443; }
+    .status.info { background: #e8f0ff; color: #1554aa; }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      padding: 11px 16px;
+      border: 0;
+      border-radius: 10px;
+      background: var(--primary);
+      color: white;
+      font-weight: 700;
+      font-size: 13px;
+      transition: background .15s;
+    }
+
+    .btn:hover { background: var(--primary-dark); }
+    .btn.secondary { background: #edf2f8; color: #33445a; }
+    .btn.secondary:hover { background: #dfe8f4; }
+    .btn.green { background: var(--green); }
+    .btn:disabled { opacity: .55; cursor: not-allowed; }
+
+    .button-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 17px; }
+    .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 15px; }
+    .field { margin-bottom: 15px; }
+    .field label { display: block; font-size: 13px; font-weight: 700; margin-bottom: 8px; }
+    .field input, .field select, .field textarea {
+      width: 100%;
+      border: 1px solid #dce4ef;
       border-radius: 10px;
       padding: 12px;
-      margin-top: 15px;
-      font-size: 13px;
-      line-height: 1.5;
+      background: white;
+      outline: none;
+      color: var(--text);
     }
 
-    /* =========================
-       RESPONSIVE
-    ========================= */
+    .field input:focus, .field select:focus, .field textarea:focus { border-color: var(--primary); }
+    .muted { color: var(--muted); font-size: 13px; line-height: 1.6; }
+    .notice { padding: 14px 16px; border-radius: 11px; background: #edf4ff; color: #234f8c; font-size: 13px; line-height: 1.6; margin: 15px 0; }
+    .notice.warning { background: #fff5df; color: #825700; }
+    .notice.success { background: #e5f8ed; color: #12683d; }
+    .divider { border: 0; border-top: 1px solid var(--border); margin: 20px 0; }
 
-    @media (max-width: 900px) {
-      .grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
+    .profile-box { display: flex; align-items: center; gap: 15px; margin-bottom: 22px; }
+    .avatar { width: 57px; height: 57px; border-radius: 50%; background: #eaf2ff; color: var(--primary); display: grid; place-items: center; font-size: 25px; font-weight: 800; }
+    .profile-box h3 { margin-bottom: 5px; }
+
+    .empty-state { text-align: center; padding: 25px 10px; }
+    .empty-state .big-icon { font-size: 40px; margin-bottom: 10px; }
+    .empty-state h3 { margin-bottom: 9px; }
+    .empty-state p { color: var(--muted); line-height: 1.6; font-size: 13px; }
+
+    .overlay { display: none; }
+    .footer { padding: 22px 0 0; text-align: center; font-size: 12px; color: #8a97a8; }
+
+    @media (max-width: 1100px) {
+      .stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .feature-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     }
 
-    @media (max-width: 650px) {
+    @media (max-width: 760px) {
+      .sidebar { transform: translateX(-100%); box-shadow: none; }
+      .sidebar.open { transform: translateX(0); box-shadow: 10px 0 35px #0002; }
+      .overlay.show { display: block; position: fixed; inset: 0; background: #10203370; z-index: 90; }
+      .main { margin-left: 0; width: 100%; }
+      .topbar { padding: 13px 15px; }
+      .topbar h1 { font-size: 18px; }
+      .topbar p { display: none; }
+      .menu-toggle { display: inline-block; }
+      .content { padding: 17px 14px 30px; }
+      .welcome { padding: 23px 19px; }
+      .welcome h2 { font-size: 23px; }
+      .welcome:after { right: 0; font-size: 120px; }
+      .stats-grid { gap: 10px; }
+      .stat-card { padding: 15px; }
+      .stat-card h3 { font-size: 21px; }
+      .stat-card p { font-size: 12px; }
+      .feature-grid { grid-template-columns: 1fr; }
+      .feature-card { min-height: 185px; }
+      .form-grid { grid-template-columns: 1fr; gap: 0; }
+      .coin-pill { padding: 9px 10px; font-size: 12px; }
+    }
 
-      header {
-        padding: 11px 14px;
-      }
-
-      .brand {
-        font-size: 19px;
-      }
-
-      .logo {
-        width: 38px;
-        height: 38px;
-        font-size: 24px;
-      }
-
-      .menu-btn {
-        display: block;
-      }
-
-      nav {
-        display: none;
-        flex-direction: column;
-        align-items: stretch;
-        padding: 10px;
-      }
-
-      nav.open {
-        display: flex;
-      }
-
-      nav button {
-        width: 100%;
-        text-align: left;
-      }
-
-      main {
-        padding: 18px 12px 40px;
-      }
-
-      .grid {
-        grid-template-columns: 1fr;
-      }
-
-      .welcome {
-        padding: 22px;
-      }
-
-      .welcome h1 {
-        font-size: 23px;
-      }
-
-      .page-title h1 {
-        font-size: 24px;
-      }
-
-      .item {
-        flex-direction: column;
-        align-items: stretch;
-      }
-
-      .item .btn {
-        width: 100%;
-      }
-
-      .adgem-card {
-        padding: 18px;
-      }
-
-      body::before {
-        font-size: 55px;
-        letter-spacing: 5px;
-      }
-
-      body::after {
-        width: 100px;
-        height: 100px;
-        font-size: 65px;
-      }
+    @media (max-width: 380px) {
+      .stats-grid { grid-template-columns: 1fr; }
+      .top-actions { gap: 7px; }
     }
   </style>
 </head>
 
 <body>
+<div class="layout">
 
-  <!-- ================= HEADER ================= -->
-
-  <header>
+  <aside class="sidebar" id="sidebar">
     <div class="brand">
-      <div class="logo">E</div>
+      <div class="brand-icon">E</div>
       <span>EarnNest</span>
     </div>
 
-    <button
-      class="menu-btn"
-      type="button"
-      onclick="toggleMenu()"
-      aria-label="Open menu"
-    >
-      ☰
-    </button>
-  </header>
+    <div class="nav-label">Main Menu</div>
+    <button class="nav-link active" data-page="home"><span class="nav-icon">🏠</span> Home</button>
+    <button class="nav-link" data-page="offers"><span class="nav-icon">🎮</span> Offers &amp; Games</button>
+    <button class="nav-link" data-page="surveys"><span class="nav-icon">📋</span> Surveys</button>
+    <button class="nav-link" data-page="receipts"><span class="nav-icon">🛍️</span> Magic Receipts</button>
+    <button class="nav-link" data-page="cashback"><span class="nav-icon">💸</span> Cashback</button>
+    <button class="nav-link" data-page="tasks"><span class="nav-icon">✅</span> Tasks</button>
 
+    <div class="nav-label">My Account</div>
+    <button class="nav-link" data-page="wallet"><span class="nav-icon">👛</span> Wallet</button>
+    <button class="nav-link" data-page="referral"><span class="nav-icon">👥</span> Referral</button>
+    <button class="nav-link" data-page="kyc"><span class="nav-icon">🪪</span> KYC Verification</button>
+    <button class="nav-link" data-page="profile"><span class="nav-icon">👤</span> Profile</button>
+    <button class="nav-link" id="logoutBtn"><span class="nav-icon">🚪</span> Logout</button>
+  </aside>
 
-  <!-- ================= NAVIGATION ================= -->
+  <div class="overlay" id="overlay"></div>
 
-  <nav id="mainNav">
-
-    <button class="nav-btn active"
-            data-page="home"
-            onclick="showPage('home')">
-      🏠 Home
-    </button>
-
-    <button class="nav-btn"
-            data-page="tasks"
-            onclick="showPage('tasks')">
-      📝 Tasks
-    </button>
-
-    <button class="nav-btn"
-            data-page="surveys"
-            onclick="showPage('surveys')">
-      📋 Surveys
-    </button>
-
-    <button class="nav-btn"
-            data-page="wallet"
-            onclick="showPage('wallet')">
-      💰 Wallet
-    </button>
-
-    <button class="nav-btn"
-            data-page="referral"
-            onclick="showPage('referral')">
-      👥 Referral
-    </button>
-
-    <button class="nav-btn"
-            data-page="kyc"
-            onclick="showPage('kyc')">
-      🪪 KYC
-    </button>
-
-    <button class="nav-btn"
-            data-page="profile"
-            onclick="showPage('profile')">
-      👤 Profile
-    </button>
-
-    <button class="nav-btn logout"
-            type="button"
-            onclick="logout()">
-      🚪 Logout
-    </button>
-
-  </nav>
-
-
-  <main>
-
-    <!-- ================= HOME ================= -->
-
-    <section id="home" class="section active">
-
-      <div class="welcome">
-        <h1>
-          Welcome, <span id="welcomeName">User</span> 👋
-        </h1>
-
-        <p>
-          Earn coins by completing offers, surveys, daily bonuses and referrals.
-        </p>
-      </div>
-
-      <div id="homeAlert" class="alert"></div>
-
-      <div class="grid">
-
-        <div class="card stat-card">
-          <div class="stat-icon">💰</div>
-          <div class="stat-label">Available Balance</div>
-          <div class="stat-value" id="balance">0</div>
-          <small>Coins</small>
-        </div>
-
-        <div class="card stat-card">
-          <div class="stat-icon">📈</div>
-          <div class="stat-label">Total Earned</div>
-          <div class="stat-value" id="totalEarned">0</div>
-          <small>Coins</small>
-        </div>
-
-        <div class="card stat-card">
-          <div class="stat-icon">💸</div>
-          <div class="stat-label">Total Withdrawn</div>
-          <div class="stat-value" id="totalWithdrawn">0</div>
-          <small>Coins</small>
-        </div>
-
-        <div class="card stat-card">
-          <div class="stat-icon">👥</div>
-          <div class="stat-label">Referral Bonus</div>
-          <div class="stat-value" id="referralBonus">0</div>
-          <small>Coins</small>
-        </div>
-
-      </div>
-
-      <br>
-
-      <div class="card">
-
-        <h2>🎁 Daily Bonus</h2>
-
-        <p style="margin:10px 0;color:#6b7280;">
-          Claim your daily reward once every day.
-        </p>
-
-        <button
-          class="btn green"
-          id="dailyBonusBtn"
-          type="button"
-          onclick="claimDailyBonus()"
-        >
-          Claim 50 Coins
-        </button>
-
-      </div>
-
-      <br>
-
-      <div class="adgem-card">
-
-        <div class="adgem-title">
-
-          <div class="adgem-icon">
-            E
-          </div>
-
-          <div>
-            <h2>🎁 Earn More Coins</h2>
-          </div>
-
-        </div>
-
-        <p>
-          Complete real offers through AdGem and earn EarnNest coins.
-          Available offers and rewards may vary by country and user.
-        </p>
-
-        <button
-          class="btn green"
-          type="button"
-          onclick="openAdGem()"
-        >
-          🚀 View Offers
-        </button>
-
-      </div>
-
-    </section>
-
-
-    <!-- ================= TASKS ================= -->
-
-    <section id="tasks" class="section">
-
-      <div class="page-title">
-        <h1>📝 Tasks & Offers</h1>
-        <p>Complete available offers and earn EarnNest coins.</p>
-      </div>
-
-      <div id="tasksAlert" class="alert"></div>
-
-      <div class="adgem-card">
-
-        <div class="adgem-title">
-
-          <div class="adgem-icon">
-            🎁
-          </div>
-
-          <div>
-            <h2>AdGem Offers</h2>
-          </div>
-
-        </div>
-
-        <p>
-          Choose an offer from AdGem, complete its requirements and
-          receive your reward after AdGem confirms the completion.
-        </p>
-
-        <button
-          class="btn green"
-          type="button"
-          onclick="openAdGem()"
-        >
-          🎁 View AdGem Offers
-        </button>
-
-        <div class="offer-note">
-          ℹ️ Rewards are not added just by opening an offer.
-          EarnNest will credit coins after a valid AdGem server confirmation.
-        </div>
-
-      </div>
-
-      <div class="item">
-
+  <main class="main">
+    <header class="topbar">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <button class="menu-toggle" id="menuToggle" aria-label="Open menu">☰</button>
         <div>
-
-          <h3>🚀 Complete Offers</h3>
-
-          <p>
-            Install apps, register for services, reach offer goals
-            or complete other available requirements.
-          </p>
-
-          <span class="reward">
-            Rewards vary by offer
-          </span>
-
+          <h1 id="pageTitle">Dashboard</h1>
+          <p>Welcome to your EarnNest account</p>
         </div>
-
-        <button
-          class="btn green"
-          type="button"
-          onclick="openAdGem()"
-        >
-          View Offers
-        </button>
-
       </div>
-
-    </section>
-
-
-    <!-- ================= SURVEYS ================= -->
-
-    <section id="surveys" class="section">
-
-      <div class="page-title">
-        <h1>📋 Surveys</h1>
-        <p>Complete surveys and earn coins.</p>
+      <div class="top-actions">
+        <div class="coin-pill">🪙 <span id="headerCoins">0</span> Coins</div>
       </div>
+    </header>
 
-      <div id="surveysAlert" class="alert"></div>
+    <div class="content">
 
-      <div class="item">
-
-        <div>
-
-          <h3>📋 Surveys Coming Soon</h3>
-
-          <p>
-            Real survey providers will be connected to EarnNest.
-            Survey availability depends on your country and profile.
-          </p>
-
-          <span class="reward">
-            Real rewards only
-          </span>
-
-        </div>
-
-        <button
-          class="btn gray"
-          type="button"
-          disabled
-        >
-          Coming Soon
-        </button>
-
-      </div>
-
-    </section>
-
-
-    <!-- ================= WALLET ================= -->
-
-    <section id="wallet" class="section">
-
-      <div class="page-title">
-        <h1>💰 Wallet</h1>
-        <p>Manage your balance and withdrawals.</p>
-      </div>
-
-      <div id="walletAlert" class="alert"></div>
-
-      <div class="grid">
-
-        <div class="card stat-card">
-
-          <div class="stat-label">
-            Available Balance
+      <!-- HOME -->
+      <section class="page active" id="page-home">
+        <div class="welcome">
+          <h2>Hello, <span id="welcomeName">EarnNest Member</span>! 👋</h2>
+          <p>Complete eligible offers, play games and explore rewards. Your confirmed rewards and wallet balance will appear here.</p>
+          <div class="button-row">
+            <button class="btn" data-goto="offers">Explore Offers →</button>
+            <button class="btn secondary" data-goto="wallet">View Wallet</button>
           </div>
+        </div>
 
-          <div class="stat-value" id="walletBalance">
-            0
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-top"><span class="stat-icon">🪙</span></div>
+            <p>Available Balance</p>
+            <h3><span id="walletBalance">0</span> Coins</h3>
           </div>
-
-          <small>Coins</small>
-
-        </div>
-
-        <div class="card stat-card">
-
-          <div class="stat-label">
-            Total Earned
+          <div class="stat-card">
+            <div class="stat-top"><span class="stat-icon">📈</span></div>
+            <p>Total Earned</p>
+            <h3><span id="totalEarned">0</span> Coins</h3>
           </div>
-
-          <div class="stat-value" id="walletEarned">
-            0
+          <div class="stat-card">
+            <div class="stat-top"><span class="stat-icon">💵</span></div>
+            <p>Total Withdrawn</p>
+            <h3><span id="totalWithdrawn">0</span> Coins</h3>
           </div>
-
-          <small>Coins</small>
-
-        </div>
-
-        <div class="card stat-card">
-
-          <div class="stat-label">
-            Total Withdrawn
+          <div class="stat-card">
+            <div class="stat-top"><span class="stat-icon">🎁</span></div>
+            <p>Referral Code</p>
+            <h3 id="homeReferralCode" style="font-size:20px;">—</h3>
           </div>
+        </div>
 
-          <div class="stat-value" id="walletWithdrawn">
-            0
+        <div class="section-heading">
+          <div><h2>Explore EarnNest</h2><p>Choose an option to get started.</p></div>
+        </div>
+
+        <div class="feature-grid">
+          <article class="feature-card">
+            <div class="feature-icon">🎮</div>
+            <h3>Offers &amp; Games</h3>
+            <p>Explore available AdGem offers and eligible games to earn rewards.</p>
+            <div class="feature-bottom"><span class="status available">Offerwall</span><button class="btn" data-goto="offers">Open</button></div>
+          </article>
+
+          <article class="feature-card">
+            <div class="feature-icon">📋</div>
+            <h3>Surveys</h3>
+            <p>Answer surveys when a supported provider is available for your account and country.</p>
+            <div class="feature-bottom"><span class="status">Setup required</span><button class="btn" data-goto="surveys">Explore</button></div>
+          </article>
+
+          <article class="feature-card">
+            <div class="feature-icon">🛍️</div>
+            <h3>Magic Receipts</h3>
+            <p>Receipt rewards may be available once a compatible receipt provider is connected.</p>
+            <div class="feature-bottom"><span class="status">Coming Soon</span><button class="btn" data-goto="receipts">Details</button></div>
+          </article>
+
+          <article class="feature-card">
+            <div class="feature-icon">💸</div>
+            <h3>Cashback</h3>
+            <p>Discover cashback rewards after an eligible cashback service is integrated.</p>
+            <div class="feature-bottom"><span class="status">Coming Soon</span><button class="btn" data-goto="cashback">Details</button></div>
+          </article>
+
+          <article class="feature-card">
+            <div class="feature-icon">✅</div>
+            <h3>Daily Tasks</h3>
+            <p>Check in daily and explore the tasks currently supported by EarnNest.</p>
+            <div class="feature-bottom"><span class="status info">Tasks</span><button class="btn" data-goto="tasks">Open</button></div>
+          </article>
+
+          <article class="feature-card">
+            <div class="feature-icon">👥</div>
+            <h3>Invite Friends</h3>
+            <p>Share your referral code and review your referral information.</p>
+            <div class="feature-bottom"><span class="status info">Referral</span><button class="btn" data-goto="referral">Invite</button></div>
+          </article>
+        </div>
+      </section>
+
+      <!-- OFFERS -->
+      <section class="page" id="page-offers">
+        <div class="section-heading">
+          <div><h2>Offers &amp; Games 🎮</h2><p>Open the connected offerwall to view available offers.</p></div>
+        </div>
+        <div class="feature-grid">
+          <article class="feature-card">
+            <div class="feature-icon">🎮</div>
+            <h3>AdGem Offerwall</h3>
+            <p>Browse games, offers and activities supplied by AdGem. Availability and rewards depend on your region and provider rules.</p>
+            <div class="feature-bottom"><span class="status available">Configured</span><button class="btn" id="adgemBtn">Open Offers ↗</button></div>
+          </article>
+        </div>
+        <div class="notice">Rewards are credited only when the provider confirms a valid completion through the configured postback. Opening an offer does not guarantee a reward.</div>
+      </section>
+
+      <!-- SURVEYS -->
+      <section class="page" id="page-surveys">
+        <div class="section-heading">
+          <div><h2>Surveys 📋</h2><p>Survey availability varies by location and eligibility.</p></div>
+        </div>
+        <div class="card">
+          <div class="empty-state">
+            <div class="big-icon">📋</div>
+            <h3>BitLabs Surveys</h3>
+            <p>BitLabs must be approved and connected to EarnNest before surveys can be opened and rewards credited.</p>
+            <div style="margin-top:15px;"><span class="status">Integration pending</span></div>
           </div>
-
-          <small>Coins</small>
-
+          <div class="notice warning">BitLabs is not activated by this dashboard code alone. Configure the official BitLabs integration and reward verification on your backend before enabling this option.</div>
         </div>
+      </section>
 
-      </div>
-
-      <br>
-
-      <div class="card form-card">
-
-        <h2>💸 Request Withdrawal</h2>
-
-        <p style="margin:10px 0 18px;color:#6b7280;">
-          Minimum withdrawal is 1000 coins.
-        </p>
-
-        <div class="form-group">
-
-          <label for="withdrawAmount">
-            Amount
-          </label>
-
-          <input
-            type="number"
-            id="withdrawAmount"
-            min="1000"
-            step="1"
-            placeholder="Enter coins"
-          >
-
+      <!-- RECEIPTS -->
+      <section class="page" id="page-receipts">
+        <div class="section-heading">
+          <div><h2>Magic Receipts 🛍️</h2><p>Shopping receipt rewards.</p></div>
         </div>
-
-        <div class="form-group">
-
-          <label for="paymentMethod">
-            Payment Method
-          </label>
-
-          <select id="paymentMethod">
-
-            <option value="easypaisa">
-              EasyPaisa
-            </option>
-
-            <option value="jazzcash">
-              JazzCash
-            </option>
-
-            <option value="bank">
-              Bank Account
-            </option>
-
-          </select>
-
+        <div class="card">
+          <div class="empty-state">
+            <div class="big-icon">🛍️</div>
+            <h3>Receipt Rewards Coming Soon</h3>
+            <p>This section is ready in the dashboard design. A supported receipt provider, eligibility rules and secure receipt validation must be configured before users can submit receipts.</p>
+            <div style="margin-top:15px;"><span class="status">Not connected</span></div>
+          </div>
         </div>
+      </section>
 
-        <div class="form-group">
-
-          <label for="paymentAccount">
-            Payment Account
-          </label>
-
-          <input
-            type="text"
-            id="paymentAccount"
-            placeholder="Mobile number / bank account"
-          >
-
+      <!-- CASHBACK -->
+      <section class="page" id="page-cashback">
+        <div class="section-heading">
+          <div><h2>Cashback 💸</h2><p>Cashback offers and eligible purchases.</p></div>
         </div>
-
-        <button
-          class="btn"
-          id="withdrawBtn"
-          type="button"
-          onclick="requestWithdrawal()"
-        >
-          Request Withdrawal
-        </button>
-
-      </div>
-
-    </section>
-
-
-    <!-- ================= REFERRAL ================= -->
-
-    <section id="referral" class="section">
-
-      <div class="page-title">
-
-        <h1>👥 Referral Program</h1>
-
-        <p>
-          Invite friends and earn referral bonuses.
-        </p>
-
-      </div>
-
-      <div id="referralAlert" class="alert"></div>
-
-      <div class="referral-box">
-
-        <h3>
-          Your Referral Code
-        </h3>
-
-        <div
-          class="referral-code"
-          id="referralCode"
-        >
-          ------
+        <div class="card">
+          <div class="empty-state">
+            <div class="big-icon">💸</div>
+            <h3>Cashback Coming Soon</h3>
+            <p>Cashback offers will appear here after a cashback network is connected and its tracking, validation and reward rules are implemented.</p>
+            <div style="margin-top:15px;"><span class="status">Not connected</span></div>
+          </div>
         </div>
+      </section>
 
-        <button
-          class="btn green"
-          type="button"
-          onclick="copyReferralCode()"
-        >
-          Copy Code
-        </button>
-
-      </div>
-
-      <div class="card">
-
-        <h2>🎁 Referral Rewards</h2>
-
-        <p style="margin:10px 0;color:#6b7280;">
-          Invite friends using your referral code and earn
-          bonus coins according to the EarnNest referral program.
-        </p>
-
-        <div class="profile-row">
-
-          <span class="profile-label">
-            Your Referral Code
-          </span>
-
-          <span
-            class="profile-value"
-            id="refCode2"
-          >
-            ------
-          </span>
-
+      <!-- TASKS -->
+      <section class="page" id="page-tasks">
+        <div class="section-heading">
+          <div><h2>Daily Tasks ✅</h2><p>Available tasks and account activities.</p></div>
         </div>
-
-        <div class="profile-row">
-
-          <span class="profile-label">
-            Referral Bonus
-          </span>
-
-          <span class="profile-value">
-            <span id="referralAmount">0</span>
-            Coins
-          </span>
-
+        <div class="feature-grid">
+          <article class="feature-card">
+            <div class="feature-icon">🎁</div>
+            <h3>Daily Check-in</h3>
+            <p>Claim your daily bonus if your account is eligible. The server controls the actual reward.</p>
+            <div class="feature-bottom"><span class="status info">Daily</span><button class="btn" id="dailyBonusBtn">Claim Bonus</button></div>
+          </article>
+          <article class="feature-card">
+            <div class="feature-icon">🎮</div>
+            <h3>AdGem Offers</h3>
+            <p>Browse available provider offers and eligible games.</p>
+            <div class="feature-bottom"><span class="status available">Offerwall</span><button class="btn" id="taskAdgemBtn">Open Offers</button></div>
+          </article>
         </div>
+        <div id="taskMessage" class="notice" style="display:none;"></div>
+      </section>
 
-      </div>
-
-    </section>
-
-
-    <!-- ================= KYC ================= -->
-
-    <section id="kyc" class="section">
-
-      <div class="page-title">
-
-        <h1>🪪 KYC Verification</h1>
-
-        <p>
-          Submit your identity verification details.
-        </p>
-
-      </div>
-
-      <div id="kycAlert" class="alert"></div>
-
-      <div class="card">
-
-        <h2>
-          Verification Status
-        </h2>
-
-        <div style="margin-top:15px;">
-
-          <span
-            class="status none"
-            id="kycStatus"
-          >
-            Not Submitted
-          </span>
-
+      <!-- WALLET -->
+      <section class="page" id="page-wallet">
+        <div class="section-heading">
+          <div><h2>My Wallet 👛</h2><p>Your current rewards balance.</p></div>
         </div>
-
-        <p
-          id="kycMessage"
-          style="margin-top:12px;color:#6b7280;"
-        >
-          Please submit your KYC information.
-        </p>
-
-      </div>
-
-      <br>
-
-      <div
-        class="card form-card"
-        id="kycFormCard"
-      >
-
-        <h2>
-          Submit KYC
-        </h2>
-
-        <p style="margin:10px 0 18px;color:#6b7280;">
-          Enter your details carefully. Your information may
-          be reviewed by EarnNest administrators.
-        </p>
-
-        <div class="form-group">
-
-          <label for="kycFullName">
-            Full Name
-          </label>
-
-          <input
-            type="text"
-            id="kycFullName"
-            placeholder="Enter your full name"
-          >
-
+        <div class="stats-grid">
+          <div class="stat-card"><div class="stat-icon">🪙</div><p>Available Coins</p><h3 id="walletPageBalance">0</h3></div>
+          <div class="stat-card"><div class="stat-icon">📈</div><p>Total Earned</p><h3 id="walletPageEarned">0</h3></div>
+          <div class="stat-card"><div class="stat-icon">💵</div><p>Total Withdrawn</p><h3 id="walletPageWithdrawn">0</h3></div>
+          <div class="stat-card"><div class="stat-icon">🔒</div><p>Account Status</p><h3 style="font-size:19px;">Protected</h3></div>
         </div>
-
-        <div class="form-group">
-
-          <label for="kycDocumentType">
-            Document Type
-          </label>
-
-          <select id="kycDocumentType">
-
-            <option value="CNIC">
-              CNIC
-            </option>
-
-            <option value="Passport">
-              Passport
-            </option>
-
-            <option value="Driving License">
-              Driving License
-            </option>
-
-          </select>
-
+        <div class="card">
+          <h3>Request Withdrawal</h3>
+          <p class="muted" style="margin:8px 0 20px;">Withdrawal requests require a valid payment method and must satisfy the server's minimum balance and account verification rules.</p>
+          <form id="withdrawForm">
+            <div class="form-grid">
+              <div class="field">
+                <label for="withdrawCoins">Coins to withdraw</label>
+                <input id="withdrawCoins" name="amount" type="number" min="1" step="1" required placeholder="Enter coin amount">
+              </div>
+              <div class="field">
+                <label for="withdrawMethod">Payment method</label>
+                <select id="withdrawMethod" name="method" required>
+                  <option value="">Select payment method</option>
+                  <option value="PayPal">PayPal</option>
+                  <option value="Bank Transfer">Bank Transfer</option>
+                  <option value="Gift Card">Gift Card</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+            </div>
+            <div class="field">
+              <label for="withdrawDetails">Payment details</label>
+              <input id="withdrawDetails" name="details" required placeholder="Enter the required payment details">
+            </div>
+            <button class="btn" type="submit">Submit Withdrawal Request</button>
+          </form>
+          <div id="walletMessage" class="notice" style="display:none;"></div>
         </div>
+      </section>
 
-        <div class="form-group">
-
-          <label for="kycDocumentNumber">
-            Document Number
-          </label>
-
-          <input
-            type="text"
-            id="kycDocumentNumber"
-            placeholder="Enter document number"
-          >
-
+      <!-- REFERRAL -->
+      <section class="page" id="page-referral">
+        <div class="section-heading">
+          <div><h2>Referral Program 👥</h2><p>Invite friends to EarnNest.</p></div>
         </div>
-
-        <button
-          class="btn"
-          type="button"
-          onclick="submitKyc()"
-        >
-          Submit KYC
-        </button>
-
-      </div>
-
-    </section>
-
-
-    <!-- ================= PROFILE ================= -->
-
-    <section id="profile" class="section">
-
-      <div class="page-title">
-
-        <h1>👤 Profile</h1>
-
-        <p>
-          Your EarnNest account information.
-        </p>
-
-      </div>
-
-      <div class="card">
-
-        <div class="profile-row">
-
-          <span class="profile-label">
-            Name
-          </span>
-
-          <span
-            class="profile-value"
-            id="profileName"
-          >
-            -
-          </span>
-
+        <div class="card">
+          <h3>Your Referral Code</h3>
+          <p class="muted" style="margin:8px 0 16px;">Share your code with friends. Referral bonuses are subject to server-side rules and eligibility.</p>
+          <div class="field">
+            <label for="referralCode">Referral code</label>
+            <input id="referralCode" readonly value="">
+          </div>
+          <div class="button-row">
+            <button class="btn" id="copyReferralBtn">Copy Code</button>
+            <button class="btn secondary" id="shareReferralBtn">Share</button>
+          </div>
+          <div id="referralMessage" class="notice" style="display:none;"></div>
         </div>
+      </section>
 
-        <div class="profile-row">
-
-          <span class="profile-label">
-            Username
-          </span>
-
-          <span
-            class="profile-value"
-            id="profileUsername"
-          >
-            -
-          </span>
-
+      <!-- KYC -->
+      <section class="page" id="page-kyc">
+        <div class="section-heading">
+          <div><h2>KYC Verification 🪪</h2><p>Review your verification status.</p></div>
         </div>
-
-        <div class="profile-row">
-
-          <span class="profile-label">
-            Email
-          </span>
-
-          <span
-            class="profile-value"
-            id="profileEmail"
-          >
-            -
-          </span>
-
+        <div class="card">
+          <h3>Identity Verification</h3>
+          <p class="muted" style="margin:10px 0;">Your verification status depends on the backend and any required identity-verification provider.</p>
+          <div id="kycStatus" class="notice">Loading verification status…</div>
+          <p class="muted">Do not submit identity documents to an unverified endpoint. Configure a secure verification workflow before collecting sensitive documents.</p>
         </div>
+      </section>
 
-        <div class="profile-row">
-
-          <span class="profile-label">
-            Phone
-          </span>
-
-          <span
-            class="profile-value"
-            id="profilePhone"
-          >
-            -
-          </span>
-
+      <!-- PROFILE -->
+      <section class="page" id="page-profile">
+        <div class="section-heading">
+          <div><h2>My Profile 👤</h2><p>Account information.</p></div>
         </div>
-
-        <div class="profile-row">
-
-          <span class="profile-label">
-            Referral Code
-          </span>
-
-          <span
-            class="profile-value"
-            id="profileReferral"
-          >
-            -
-          </span>
-
+        <div class="card">
+          <div class="profile-box">
+            <div class="avatar" id="profileAvatar">E</div>
+            <div><h3 id="profileDisplayName">EarnNest Member</h3><p class="muted">EarnNest Account</p></div>
+          </div>
+          <hr class="divider">
+          <div class="form-grid">
+            <div class="field"><label for="profileName">Full name</label><input id="profileName" readonly></div>
+            <div class="field"><label for="profileUsername">Username</label><input id="profileUsername" readonly></div>
+            <div class="field"><label for="profileEmail">Email</label><input id="profileEmail" readonly></div>
+            <div class="field"><label for="profilePhone">Phone</label><input id="profilePhone" readonly></div>
+          </div>
+          <div class="notice">Profile information is loaded from your current login session. For changes, connect this form to a validated profile-update API.</div>
         </div>
+      </section>
 
-        <div class="profile-row">
-
-          <span class="profile-label">
-            Account Status
-          </span>
-
-          <span
-            class="profile-value"
-            id="profileStatus"
-          >
-            Active
-          </span>
-
-        </div>
-
-      </div>
-
-    </section>
-
+      <div class="footer">© <span id="currentYear"></span> EarnNest. Earn smart, earn safely.</div>
+    </div>
   </main>
+</div>
 
+<script>
+(function () {
+  "use strict";
 
-  <script>
-    "use strict";
+  const API_BASE = String(window.EARNNEST_API || "/api").replace(/\/+$/, "");
+  const token = localStorage.getItem("earnnest_token") || "";
+  let user = {};
 
+  try {
+    user = JSON.parse(localStorage.getItem("earnnest_user") || "{}");
+  } catch (e) {
+    user = {};
+  }
 
-    /* =====================================================
-       EARNNEST API
-    ===================================================== */
+  const $ = id => document.getElementById(id);
 
-    const API_BASE =
-      window.EARNNEST_API || "/api";
+  function getUserName() {
+    return user.name || user.full_name || user.username || user.email || "EarnNest Member";
+  }
 
+  function numeric(value) {
+    const number = Number(value);
+    return Number.isFinite(number) ? number.toLocaleString() : "0";
+  }
 
-    let currentUser = null;
-    let currentToken = null;
+  function showMessage(id, message, type) {
+    const el = $(id);
+    if (!el) return;
+    el.textContent = message;
+    el.className = "notice" + (type ? " " + type : "");
+    el.style.display = "block";
+  }
 
+  async function apiRequest(path, options = {}) {
+    const headers = Object.assign(
+      { "Accept": "application/json" },
+      options.headers || {}
+    );
 
-    /* =====================================================
-       STORAGE / SESSION
-    ===================================================== */
+    if (token) headers.Authorization = "Bearer " + token;
 
-    function loadSession() {
-
-      try {
-
-        currentToken =
-          localStorage.getItem("earnnest_token");
-
-        const savedUser =
-          localStorage.getItem("earnnest_user");
-
-        if (savedUser) {
-
-          currentUser =
-            JSON.parse(savedUser);
-
-        }
-
-      } catch (error) {
-
-        console.error(
-          "Session error:",
-          error
-        );
-
-        currentUser = null;
-
-      }
-
+    if (options.body && !headers["Content-Type"]) {
+      headers["Content-Type"] = "application/json";
     }
 
+    const response = await fetch(API_BASE + path, {
+      ...options,
+      headers
+    });
 
-    /* =====================================================
-       API REQUEST
-    ===================================================== */
+    const contentType = response.headers.get("content-type") || "";
+    let data;
 
-    async function apiRequest(body) {
-
-      const headers = {
-        "Content-Type": "application/json"
-      };
-
-      if (currentToken) {
-
-        headers.Authorization =
-          "Bearer " + currentToken;
-
-      }
-
-      const response =
-        await fetch(API_BASE, {
-          method: "POST",
-          headers: headers,
-          body: JSON.stringify(body)
-        });
-
-
-      let data;
-
-      try {
-
-        data =
-          await response.json();
-
-      } catch (error) {
-
-        throw new Error(
-          "Server returned an invalid response."
-        );
-
-      }
-
-
-      if (
-        !response.ok ||
-        data.success === false
-      ) {
-
-        throw new Error(
-          data.message ||
-          "Server request failed (HTTP " +
-          response.status +
-          ")"
-        );
-
-      }
-
-
-      return data;
-
-    }
-
-
-    /* =====================================================
-       ALERT
-    ===================================================== */
-
-    function showAlert(
-      id,
-      message,
-      type
-    ) {
-
-      const element =
-        document.getElementById(id);
-
-      if (!element) return;
-
-      element.className =
-        "alert show " + type;
-
-      element.textContent =
-        message;
-
-      setTimeout(() => {
-
-        element.classList.remove(
-          "show"
-        );
-
-      }, 5000);
-
-    }
-
-
-    /* =====================================================
-       MOBILE MENU
-    ===================================================== */
-
-    function toggleMenu() {
-
-      const nav =
-        document.getElementById(
-          "mainNav"
-        );
-
-      if (!nav) return;
-
-      nav.classList.toggle(
-        "open"
+    if (contentType.includes("application/json")) {
+      data = await response.json();
+    } else {
+      const text = await response.text();
+      throw new Error(
+        response.ok
+          ? "The server did not return JSON. Check your API deployment."
+          : "Server error (" + response.status + "). Check your API endpoint."
       );
-
     }
 
+    if (!response.ok || data.success === false || data.ok === false) {
+      throw new Error(data.message || data.error || "Request failed.");
+    }
 
-    /* =====================================================
-       PAGE NAVIGATION
-    ===================================================== */
+    return data;
+  }
 
-    function showPage(page) {
+  function getReferralCode() {
+    return user.referralCode || user.referral_code || user.referral || "";
+  }
 
-      document
-        .querySelectorAll(".section")
-        .forEach(section => {
+  function renderUser() {
+    const name = getUserName();
+    const referral = getReferralCode();
+    const initial = name.charAt(0).toUpperCase() || "E";
 
-          section.classList.remove(
-            "active"
-          );
+    $("welcomeName").textContent = name;
+    $("profileDisplayName").textContent = name;
+    $("profileAvatar").textContent = initial;
+    $("profileName").value = user.name || user.full_name || "";
+    $("profileUsername").value = user.username || "";
+    $("profileEmail").value = user.email || "";
+    $("profilePhone").value = user.phone || user.phone_number || "";
+    $("referralCode").value = referral;
+    $("homeReferralCode").textContent = referral || "—";
+    $("currentYear").textContent = new Date().getFullYear();
 
-        });
+    const kyc = user.kycStatus || user.kyc_status || "Not verified";
+    $("kycStatus").textContent = "Current status: " + String(kyc);
+  }
 
+  function setBalance(data) {
+    const wallet = data.wallet || data.data?.wallet || data;
+    const balance = wallet.balance ?? wallet.coins ?? wallet.availableCoins ?? 0;
+    const earned = wallet.totalEarned ?? wallet.total_earned ?? wallet.earned ?? 0;
+    const withdrawn = wallet.totalWithdrawn ?? wallet.total_withdrawn ?? wallet.withdrawn ?? 0;
 
-      const target =
-        document.getElementById(page);
+    $("headerCoins").textContent = numeric(balance);
+    $("walletBalance").textContent = numeric(balance);
+    $("walletPageBalance").textContent = numeric(balance);
+    $("totalEarned").textContent = numeric(earned);
+    $("walletPageEarned").textContent = numeric(earned);
+    $("totalWithdrawn").textContent = numeric(withdrawn);
+    $("walletPageWithdrawn").textContent = numeric(withdrawn);
+  }
 
+  async function loadWallet() {
+    if (!token) return;
 
-      if (target) {
-
-        target.classList.add(
-          "active"
-        );
-
+    try {
+      const data = await apiRequest("/wallet");
+      setBalance(data);
+    } catch (firstError) {
+      // Some backend versions expose wallet information from the profile endpoint.
+      try {
+        const data = await apiRequest("/me");
+        if (data.user) {
+          user = { ...user, ...data.user };
+          localStorage.setItem("earnnest_user", JSON.stringify(user));
+          renderUser();
+        }
+        setBalance(data);
+      } catch (secondError) {
+        console.warn("Wallet could not be refreshed:", secondError.message);
       }
+    }
+  }
 
+  const pageTitles = {
+    home: "Dashboard",
+    offers: "Offers & Games",
+    surveys: "Surveys",
+    receipts: "Magic Receipts",
+    cashback: "Cashback",
+    tasks: "Daily Tasks",
+    wallet: "My Wallet",
+    referral: "Referral Program",
+    kyc: "KYC Verification",
+    profile: "My Profile"
+  };
 
-      document
-        .querySelectorAll(".nav-btn")
-        .forEach(button => {
+  function showPage(pageName) {
+    const target = $("page-" + pageName);
+    if (!target) return;
 
-          button.classList.remove(
-            "active"
-          );
+    document.querySelectorAll(".page").forEach(page => page.classList.remove("active"));
+    target.classList.add("active");
 
+    document.querySelectorAll(".nav-link[data-page]").forEach(button => {
+      button.classList.toggle("active", button.dataset.page === pageName);
+    });
 
-          if (
-            button.dataset.page === page
-          ) {
+    $("pageTitle").textContent = pageTitles[pageName] || "Dashboard";
+    closeMenu();
+    window.scrollTo({ top: 0, behavior: "smooth" });
 
-            button.classList.add(
-              "active"
-            );
+    if (pageName === "wallet") loadWallet();
+  }
 
-          }
+  document.querySelectorAll("[data-page]").forEach(button => {
+    button.addEventListener("click", () => showPage(button.dataset.page));
+  });
 
-        });
+  document.querySelectorAll("[data-goto]").forEach(button => {
+    button.addEventListener("click", () => showPage(button.dataset.goto));
+  });
 
+  function openMenu() {
+    $("sidebar").classList.add("open");
+    $("overlay").classList.add("show");
+  }
 
-      const nav =
-        document.getElementById(
-          "mainNav"
-        );
+  function closeMenu() {
+    $("sidebar").classList.remove("open");
+    $("overlay").classList.remove("show");
+  }
 
-      if (nav) {
+  $("menuToggle").addEventListener("click", () => {
+    $("sidebar").classList.contains("open") ? closeMenu() : openMenu();
+  });
+  $("overlay").addEventListener("click", closeMenu);
 
-        nav.classList.remove(
-          "open"
-        );
+  function openAdGem() {
+    const playerId = user.id || user.userId || user.user_id || user.username || user.email;
 
-      }
+    if (!playerId) {
+      alert("Please log in again before opening offers.");
+      return;
+    }
 
+    const url = new URL("https://adunits.adgem.com/wall/");
+    url.searchParams.set("appid", "33775");
+    url.searchParams.set("playerid", String(playerId));
 
-      if (page === "wallet") {
+    const popup = window.open(url.toString(), "_blank", "noopener,noreferrer");
 
-        loadWallet();
+    if (!popup) {
+      // Popup blockers may prevent a new tab. Offer an explicit link instead.
+      const proceed = confirm("Your browser blocked the offerwall popup. Open AdGem in this tab?");
+      if (proceed) window.location.href = url.toString();
+    }
+  }
 
-      }
+  $("adgemBtn").addEventListener("click", openAdGem);
+  $("taskAdgemBtn").addEventListener("click", openAdGem);
 
+  $("dailyBonusBtn").addEventListener("click", async function () {
+    const button = this;
+    button.disabled = true;
+    button.textContent = "Please wait…";
 
-      if (page === "referral") {
+    try {
+      const data = await apiRequest("/daily-bonus", { method: "POST", body: "{}" });
+      showMessage("taskMessage", data.message || "Daily bonus request completed.", "success");
+      await loadWallet();
+    } catch (error) {
+      showMessage("taskMessage", error.message || "Daily bonus is not available right now.");
+    } finally {
+      button.disabled = false;
+      button.textContent = "Claim Bonus";
+    }
+  });
 
-        loadReferral();
+  $("withdrawForm").addEventListener("submit", async function (event) {
+    event.preventDefault();
 
-      }
+    const amount = Number($("withdrawCoins").value);
+    const method = $("withdrawMethod").value;
+    const details = $("withdrawDetails").value.trim();
 
+    if (!Number.isInteger(amount) || amount <= 0) {
+      showMessage("walletMessage", "Enter a valid whole number of coins.", "warning");
+      return;
+    }
 
-      if (page === "kyc") {
+    if (!method || !details) {
+      showMessage("walletMessage", "Please complete all withdrawal fields.", "warning");
+      return;
+    }
 
-        loadKycStatus();
+    const submit = this.querySelector('button[type="submit"]');
+    submit.disabled = true;
+    submit.textContent = "Submitting…";
 
-      }
-
-
-      window.scrollTo({
-        top: 0,
-        behavior: "smooth"
+    try {
+      const data = await apiRequest("/withdraw", {
+        method: "POST",
+        body: JSON.stringify({ amount, method, details })
       });
 
-    }
-
-
-    /* =====================================================
-       WALLET
-    ===================================================== */
-
-    async function loadWallet() {
-
-      try {
-
-        const data =
-          await apiRequest({
-            action: "wallet"
-          });
-
-
-        const wallet =
-          data.wallet || {};
-
-
-        const balance =
-          Number(
-            wallet.balance || 0
-          );
-
-
-        const earned =
-          Number(
-            wallet.total_earned || 0
-          );
-
-
-        const withdrawn =
-          Number(
-            wallet.total_withdrawn || 0
-          );
-
-
-        document.getElementById(
-          "balance"
-        ).textContent =
-          balance;
-
-
-        document.getElementById(
-          "totalEarned"
-        ).textContent =
-          earned;
-
-
-        document.getElementById(
-          "totalWithdrawn"
-        ).textContent =
-          withdrawn;
-
-
-        document.getElementById(
-          "walletBalance"
-        ).textContent =
-          balance;
-
-
-        document.getElementById(
-          "walletEarned"
-        ).textContent =
-          earned;
-
-
-        document.getElementById(
-          "walletWithdrawn"
-        ).textContent =
-          withdrawn;
-
-
-      } catch (error) {
-
-        console.error(
-          "Wallet error:",
-          error
-        );
-
-
-        showAlert(
-          "walletAlert",
-          error.message,
-          "error"
-        );
-
-
-        const message =
-          error.message.toLowerCase();
-
-
-        if (
-          message.includes("token") ||
-          message.includes("login") ||
-          message.includes("unauthorized")
-        ) {
-
-          logout();
-
-        }
-
-      }
-
-    }
-
-
-    /* =====================================================
-       DAILY BONUS
-    ===================================================== */
-
-    async function claimDailyBonus() {
-
-      const button =
-        document.getElementById(
-          "dailyBonusBtn"
-        );
-
-
-      if (button) {
-
-        button.disabled = true;
-
-        button.textContent =
-          "Processing...";
-
-      }
-
-
-      try {
-
-        const data =
-          await apiRequest({
-            action: "daily_bonus"
-          });
-
-
-        showAlert(
-          "homeAlert",
-          data.message ||
-            "Daily bonus claimed successfully!",
-          "success"
-        );
-
-
-        await loadWallet();
-
-
-      } catch (error) {
-
-        showAlert(
-          "homeAlert",
-          error.message,
-          "error"
-        );
-
-      } finally {
-
-        if (button) {
-
-          button.disabled = false;
-
-          button.textContent =
-            "Claim 50 Coins";
-
-        }
-
-      }
-
-    }
-
-
-    /* =====================================================
-       ADGEM OFFERWALL
-    ===================================================== */
-
-    function getAdGemPlayerId() {
-
-      if (!currentUser) {
-
-        return null;
-
-      }
-
-
-      /*
-        IMPORTANT:
-
-        AdGem player ID must remain stable.
-
-        We use the database user ID first.
-        Username is only a fallback.
-      */
-
-      const playerId =
-        currentUser.id ||
-        currentUser.user_id ||
-        currentUser.username;
-
-
-      if (!playerId) {
-
-        return null;
-
-      }
-
-
-      return String(playerId);
-
-    }
-
-
-   function openAdGem() {
-  if (!currentToken) {
-    showAlert(
-      "tasksAlert",
-      "Please login again before opening AdGem.",
-      "error"
-    );
-    return;
-  }
-
-  const playerId = getAdGemPlayerId();
-
-  if (!playerId) {
-    showAlert(
-      "tasksAlert",
-      "Your EarnNest user ID could not be found. Please login again.",
-      "error"
-    );
-    return;
-  }
-
-  const adGemUrl =
-    "https://adunits.adgem.com/wall" +
-    "?appid=33775" +
-    "&playerid=" + encodeURIComponent(playerId);
-
-  // Open AdGem in a new tab first.
-  const popup = window.open(adGemUrl, "_blank");
-
-  if (popup) {
-    try {
-      popup.opener = null;
+      showMessage("walletMessage", data.message || "Withdrawal request submitted.", "success");
+      this.reset();
+      await loadWallet();
     } catch (error) {
-      // Continue if the browser does not allow opener changes.
+      showMessage("walletMessage", error.message || "Could not submit the withdrawal request.", "warning");
+    } finally {
+      submit.disabled = false;
+      submit.textContent = "Submit Withdrawal Request";
+    }
+  });
+
+  $("copyReferralBtn").addEventListener("click", async function () {
+    const code = $("referralCode").value;
+
+    if (!code) {
+      showMessage("referralMessage", "Your referral code is not available yet.", "warning");
+      return;
     }
 
-    showAlert(
-      "tasksAlert",
-      "AdGem Offers opened successfully.",
-      "success"
-    );
+    try {
+      await navigator.clipboard.writeText(code);
+      showMessage("referralMessage", "Referral code copied.", "success");
+    } catch (error) {
+      $("referralCode").focus();
+      $("referralCode").select();
+      showMessage("referralMessage", "Select and copy the referral code manually.", "warning");
+    }
+  });
 
-    return;
+  $("shareReferralBtn").addEventListener("click", async function () {
+    const code = $("referralCode").value;
+    if (!code) {
+      showMessage("referralMessage", "Your referral code is not available yet.", "warning");
+      return;
+    }
+
+    const shareData = {
+      title: "Join EarnNest",
+      text: "Join EarnNest and use my referral code: " + code,
+      url: window.location.origin
+    };
+
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else {
+        await navigator.clipboard.writeText(shareData.text + " " + shareData.url);
+        showMessage("referralMessage", "Referral message copied.", "success");
+      }
+    } catch (error) {
+      if (error.name !== "AbortError") {
+        showMessage("referralMessage", "Unable to share automatically. Copy your referral code instead.", "warning");
+      }
+    }
+  });
+
+  $("logoutBtn").addEventListener("click", function () {
+    if (!confirm("Are you sure you want to log out?")) return;
+
+    localStorage.removeItem("earnnest_token");
+    localStorage.removeItem("earnnest_user");
+    window.location.href = "/app/index.html";
+  });
+
+  renderUser();
+
+  // Redirect to login if there is no session token.
+  if (!token) {
+    window.location.replace("/app/index.html");
+  } else {
+    loadWallet();
   }
-
-  // Popup blocked: open AdGem in the current tab.
-  window.location.href = adGemUrl;
-}
-    /* =====================================================
-       WITHDRAWAL
-    ===================================================== */
-
-    async function requestWithdrawal() {
-
-      const amount =
-        Number(
-          document.getElementById(
-            "withdrawAmount"
-          ).value
-        );
-
-
-      const paymentMethod =
-        document.getElementById(
-          "paymentMethod"
-        ).value;
-
-
-      const account =
-        document.getElementById(
-          "paymentAccount"
-        ).value.trim();
-
-
-      if (
-        !amount ||
-        amount < 1000
-      ) {
-
-        showAlert(
-          "walletAlert",
-          "Minimum withdrawal is 1000 coins.",
-          "error"
-        );
-
-        return;
-
-      }
-
-
-      if (!Number.isInteger(amount)) {
-
-        showAlert(
-          "walletAlert",
-          "Withdrawal amount must be a whole number.",
-          "error"
-        );
-
-        return;
-
-      }
-
-
-      if (!account) {
-
-        showAlert(
-          "walletAlert",
-          "Please enter your payment account.",
-          "error"
-        );
-
-        return;
-
-      }
-
-
-      const button =
-        document.getElementById(
-          "withdrawBtn"
-        );
-
-
-      if (button) {
-
-        button.disabled = true;
-
-        button.textContent =
-          "Submitting...";
-
-      }
-
-
-      try {
-
-        const data =
-          await apiRequest({
-            action: "withdraw",
-            amount: amount,
-            paymentMethod: paymentMethod,
-            account: account
-          });
-
-
-        showAlert(
-          "walletAlert",
-          data.message ||
-            "Withdrawal request submitted.",
-          "success"
-        );
-
-
-        document.getElementById(
-          "withdrawAmount"
-        ).value = "";
-
-
-        document.getElementById(
-          "paymentAccount"
-        ).value = "";
-
-
-        await loadWallet();
-
-
-      } catch (error) {
-
-        showAlert(
-          "walletAlert",
-          error.message,
-          "error"
-        );
-
-      } finally {
-
-        if (button) {
-
-          button.disabled = false;
-
-          button.textContent =
-            "Request Withdrawal";
-
-        }
-
-      }
-
-    }
-
-
-    /* =====================================================
-       REFERRAL
-    ===================================================== */
-
-    async function loadReferral() {
-
-      try {
-
-        const data =
-          await apiRequest({
-            action: "referral"
-          });
-
-
-        const referral =
-          data.referral || data;
-
-
-        const code =
-          referral.referralCode ||
-          referral.code ||
-          currentUser?.referral_code ||
-          "------";
-
-
-        const bonus =
-          Number(
-            referral.totalBonus ||
-            referral.bonus ||
-            0
-          );
-
-
-        document.getElementById(
-          "referralCode"
-        ).textContent =
-          code;
-
-
-        document.getElementById(
-          "refCode2"
-        ).textContent =
-          code;
-
-
-        document.getElementById(
-          "referralAmount"
-        ).textContent =
-          bonus;
-
-
-        document.getElementById(
-          "referralBonus"
-        ).textContent =
-          bonus;
-
-
-        if (currentUser) {
-
-          currentUser.referral_code =
-            code;
-
-
-          localStorage.setItem(
-            "earnnest_user",
-            JSON.stringify(
-              currentUser
-            )
-          );
-
-        }
-
-
-      } catch (error) {
-
-        const code =
-          currentUser?.referral_code ||
-          "------";
-
-
-        document.getElementById(
-          "referralCode"
-        ).textContent =
-          code;
-
-
-        document.getElementById(
-          "refCode2"
-        ).textContent =
-          code;
-
-
-        showAlert(
-          "referralAlert",
-          error.message,
-          "error"
-        );
-
-      }
-
-    }
-
-
-    /* =====================================================
-       COPY REFERRAL CODE
-    ===================================================== */
-
-    async function copyReferralCode() {
-
-      const code =
-        document.getElementById(
-          "referralCode"
-        ).textContent;
-
-
-      if (
-        !code ||
-        code === "------"
-      ) {
-
-        return;
-
-      }
-
-
-      try {
-
-        if (
-          navigator.clipboard &&
-          navigator.clipboard.writeText
-        ) {
-
-          await navigator.clipboard.writeText(
-            code
-          );
-
-        } else {
-
-          const textArea =
-            document.createElement(
-              "textarea"
-            );
-
-          textArea.value =
-            code;
-
-          document.body.appendChild(
-            textArea
-          );
-
-          textArea.select();
-
-          document.execCommand(
-            "copy"
-          );
-
-          textArea.remove();
-
-        }
-
-
-        showAlert(
-          "referralAlert",
-          "Referral code copied!",
-          "success"
-        );
-
-
-      } catch (error) {
-
-        showAlert(
-          "referralAlert",
-          "Copy failed. Please copy the code manually.",
-          "error"
-        );
-
-      }
-
-    }
-
-
-    /* =====================================================
-       KYC STATUS
-    ===================================================== */
-
-    async function loadKycStatus() {
-
-      try {
-
-        const data =
-          await apiRequest({
-            action: "kyc_status"
-          });
-
-
-        const kyc =
-          data.kyc ||
-          data.submission ||
-          null;
-
-
-        const status =
-          kyc?.status ||
-          "none";
-
-
-        const statusElement =
-          document.getElementById(
-            "kycStatus"
-          );
-
-
-        statusElement.className =
-          "status " + status;
-
-
-        statusElement.textContent =
-          status === "none"
-            ? "Not Submitted"
-            : status;
-
-
-        if (
-          status === "approved"
-        ) {
-
-          document.getElementById(
-            "kycMessage"
-          ).textContent =
-            "Your KYC has been approved.";
-
-
-          document.getElementById(
-            "kycFormCard"
-          ).style.display =
-            "none";
-
-
-        } else if (
-          status === "pending"
-        ) {
-
-          document.getElementById(
-            "kycMessage"
-          ).textContent =
-            "Your KYC is currently under review.";
-
-
-          document.getElementById(
-            "kycFormCard"
-          ).style.display =
-            "none";
-
-
-        } else if (
-          status === "rejected"
-        ) {
-
-          document.getElementById(
-            "kycMessage"
-          ).textContent =
-            "Your KYC was rejected. You can submit it again.";
-
-
-          document.getElementById(
-            "kycFormCard"
-          ).style.display =
-            "block";
-
-
-        } else {
-
-          document.getElementById(
-            "kycMessage"
-          ).textContent =
-            "Please submit your KYC information.";
-
-
-          document.getElementById(
-            "kycFormCard"
-          ).style.display =
-            "block";
-
-        }
-
-
-      } catch (error) {
-
-        showAlert(
-          "kycAlert",
-          error.message,
-          "error"
-        );
-
-      }
-
-    }
-
-
-    /* =====================================================
-       SUBMIT KYC
-    ===================================================== */
-
-    async function submitKyc() {
-
-      const fullName =
-        document.getElementById(
-          "kycFullName"
-        ).value.trim();
-
-
-      const documentType =
-        document.getElementById(
-          "kycDocumentType"
-        ).value;
-
-
-      const documentNumber =
-        document.getElementById(
-          "kycDocumentNumber"
-        ).value.trim();
-
-
-      if (!fullName) {
-
-        showAlert(
-          "kycAlert",
-          "Please enter your full name.",
-          "error"
-        );
-
-        return;
-
-      }
-
-
-      if (!documentNumber) {
-
-        showAlert(
-          "kycAlert",
-          "Please enter your document number.",
-          "error"
-        );
-
-        return;
-
-      }
-
-
-      try {
-
-        const data =
-          await apiRequest({
-            action: "submit_kyc",
-            fullName: fullName,
-            documentType: documentType,
-            documentNumber: documentNumber
-          });
-
-
-        showAlert(
-          "kycAlert",
-          data.message ||
-            "KYC submitted successfully.",
-          "success"
-        );
-
-
-        document.getElementById(
-          "kycFullName"
-        ).value = "";
-
-
-        document.getElementById(
-          "kycDocumentNumber"
-        ).value = "";
-
-
-        await loadKycStatus();
-
-
-      } catch (error) {
-
-        showAlert(
-          "kycAlert",
-          error.message,
-          "error"
-        );
-
-      }
-
-    }
-
-
-    /* =====================================================
-       PROFILE
-    ===================================================== */
-
-    function loadProfile() {
-
-      if (!currentUser) {
-
-        return;
-
-      }
-
-
-      document.getElementById(
-        "profileName"
-      ).textContent =
-        currentUser.name || "-";
-
-
-      document.getElementById(
-        "profileUsername"
-      ).textContent =
-        currentUser.username || "-";
-
-
-      document.getElementById(
-        "profileEmail"
-      ).textContent =
-        currentUser.email || "-";
-
-
-      document.getElementById(
-        "profilePhone"
-      ).textContent =
-        currentUser.phone || "-";
-
-
-      document.getElementById(
-        "profileReferral"
-      ).textContent =
-        currentUser.referral_code || "-";
-
-
-      document.getElementById(
-        "profileStatus"
-      ).textContent =
-        currentUser.status ||
-        "Active";
-
-
-      document.getElementById(
-        "welcomeName"
-      ).textContent =
-        currentUser.name ||
-        currentUser.username ||
-        "User";
-
-    }
-
-
-    /* =====================================================
-       LOGOUT
-    ===================================================== */
-
-    function logout() {
-
-      localStorage.removeItem(
-        "earnnest_token"
-      );
-
-      localStorage.removeItem(
-        "earnnest_user"
-      );
-
-
-      window.location.href =
-        "/";
-
-    }
-
-
-    /* =====================================================
-       START DASHBOARD
-    ===================================================== */
-
-    async function initDashboard() {
-
-      loadSession();
-
-
-      if (!currentToken) {
-
-        window.location.href =
-          "/";
-
-        return;
-
-      }
-
-
-      loadProfile();
-
-
-      try {
-
-        await loadWallet();
-
-      } catch (error) {
-
-        console.error(
-          "Initial wallet error:",
-          error
-        );
-
-      }
-
-
-      loadReferral();
-
-      loadKycStatus();
-
-    }
-
-
-    /* =====================================================
-       START
-    ===================================================== */
-
-    initDashboard();
-
-  </script>
-
+})();
+</script>
 </body>
 </html>
 ```
