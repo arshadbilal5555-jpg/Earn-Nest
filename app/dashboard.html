@@ -565,27 +565,26 @@
         </div>
         <div class="card">
           <h3>Request Withdrawal</h3>
-          <p class="muted" style="margin:8px 0 20px;">Withdrawal requests require a valid payment method and must satisfy the server's minimum balance and account verification rules.</p>
+          <p class="muted" style="margin:8px 0 20px;">Minimum withdrawal: 1,000 coins. Choose EasyPaisa, JazzCash or Bank Transfer. Requests are submitted for admin review; payment is not automatic.</p>
           <form id="withdrawForm">
             <div class="form-grid">
               <div class="field">
                 <label for="withdrawCoins">Coins to withdraw</label>
-                <input id="withdrawCoins" name="amount" type="number" min="1" step="1" required placeholder="Enter coin amount">
+                <input id="withdrawCoins" name="amount" type="number" min="1000" step="1" required placeholder="Minimum 1,000 coins">
               </div>
               <div class="field">
                 <label for="withdrawMethod">Payment method</label>
                 <select id="withdrawMethod" name="method" required>
                   <option value="">Select payment method</option>
-                  <option value="PayPal">PayPal</option>
-                  <option value="Bank Transfer">Bank Transfer</option>
-                  <option value="Gift Card">Gift Card</option>
-                  <option value="Other">Other</option>
+                  <option value="easypaisa">EasyPaisa</option>
+                  <option value="jazzcash">JazzCash</option>
+                  <option value="bank">Bank Transfer</option>
                 </select>
               </div>
             </div>
             <div class="field">
-              <label for="withdrawDetails">Payment details</label>
-              <input id="withdrawDetails" name="details" required placeholder="Enter the required payment details">
+              <label for="withdrawDetails" id="withdrawDetailsLabel">Payment account / details</label>
+              <input id="withdrawDetails" name="details" required autocomplete="off" placeholder="Select a payment method first">
             </div>
             <button class="btn" type="submit">Submit Withdrawal Request</button>
           </form>
@@ -879,6 +878,30 @@
     }
   });
 
+  $("withdrawMethod").addEventListener("change", function () {
+    const method = this.value;
+    const field = $("withdrawDetails");
+    const label = $("withdrawDetailsLabel");
+
+    if (method === "easypaisa") {
+      label.textContent = "EasyPaisa mobile number";
+      field.placeholder = "Enter your EasyPaisa mobile number";
+      field.inputMode = "tel";
+    } else if (method === "jazzcash") {
+      label.textContent = "JazzCash mobile number";
+      field.placeholder = "Enter your JazzCash mobile number";
+      field.inputMode = "tel";
+    } else if (method === "bank") {
+      label.textContent = "Bank account details";
+      field.placeholder = "Enter account title, bank name and IBAN/account number";
+      field.inputMode = "text";
+    } else {
+      label.textContent = "Payment account / details";
+      field.placeholder = "Select a payment method first";
+      field.inputMode = "text";
+    }
+  });
+
   $("withdrawForm").addEventListener("submit", async function (event) {
     event.preventDefault();
 
@@ -886,8 +909,8 @@
     const method = $("withdrawMethod").value;
     const details = $("withdrawDetails").value.trim();
 
-    if (!Number.isInteger(amount) || amount <= 0) {
-      showMessage("walletMessage", "Enter a valid whole number of coins.", "warning");
+    if (!Number.isInteger(amount) || amount < 1000) {
+      showMessage("walletMessage", "Minimum withdrawal is 1,000 coins. Enter a valid whole number.", "warning");
       return;
     }
 
@@ -903,7 +926,7 @@
     try {
       const data = await apiRequest("/withdraw", {
         method: "POST",
-        body: JSON.stringify({ amount, method, details })
+        body: JSON.stringify({ amount, method, account: details })
       });
 
       showMessage("walletMessage", data.message || "Withdrawal request submitted.", "success");
