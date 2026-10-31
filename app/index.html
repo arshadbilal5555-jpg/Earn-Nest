@@ -1,15 +1,19 @@
-
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#064e3b">
-  <meta name="description" content="Login or register for your EarnNest rewards account">
+  <meta name="description" content="EarnNest rewards, tasks and surveys account">
   <title>EarnNest — Login & Register</title>
 
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
     body {
       min-height: 100vh;
@@ -24,7 +28,10 @@
         linear-gradient(135deg, #022c22, #064e3b, #052e16);
     }
 
-    .page { width: 100%; max-width: 440px; position: relative; z-index: 5; }
+    .page {
+      width: 100%;
+      max-width: 440px;
+    }
 
     .card {
       background: rgba(255,255,255,.98);
@@ -33,7 +40,10 @@
       box-shadow: 0 30px 70px rgba(0,0,0,.32);
     }
 
-    .brand { text-align: center; margin-bottom: 24px; }
+    .brand {
+      text-align: center;
+      margin-bottom: 24px;
+    }
 
     .logo {
       width: 72px;
@@ -49,10 +59,24 @@
       background: linear-gradient(145deg,#22c55e,#15803d);
     }
 
-    .brand-name { color: #166534; font-size: 27px; font-weight: 800; }
-    .tagline { margin-top: 4px; color: #64748b; font-size: 13px; }
+    .brand-name {
+      color: #166534;
+      font-size: 27px;
+      font-weight: 800;
+    }
 
-    h1 { text-align: center; color: #0f172a; font-size: 22px; margin-bottom: 6px; }
+    .tagline {
+      margin-top: 4px;
+      color: #64748b;
+      font-size: 13px;
+    }
+
+    h1 {
+      text-align: center;
+      color: #0f172a;
+      font-size: 22px;
+      margin-bottom: 6px;
+    }
 
     .subtitle {
       margin-bottom: 20px;
@@ -64,10 +88,10 @@
     #message {
       display: none;
       margin-bottom: 15px;
-      padding: 11px 13px;
+      padding: 12px;
       border-radius: 10px;
       font-size: 13px;
-      line-height: 1.45;
+      line-height: 1.5;
       font-weight: 600;
       overflow-wrap: anywhere;
     }
@@ -86,8 +110,20 @@
       border: 1px solid #fca5a5;
     }
 
-    .field { margin-bottom: 15px; }
-    .signup-only { display: none; }
+    #message.info {
+      display: block;
+      color: #1e40af;
+      background: #dbeafe;
+      border: 1px solid #93c5fd;
+    }
+
+    .field {
+      margin-bottom: 15px;
+    }
+
+    .signup-only {
+      display: none;
+    }
 
     label {
       display: block;
@@ -116,8 +152,13 @@
       box-shadow: 0 0 0 4px rgba(22,163,74,.10);
     }
 
-    .password-box { position: relative; }
-    .password-box input { padding-right: 50px; }
+    .password-box {
+      position: relative;
+    }
+
+    .password-box input {
+      padding-right: 50px;
+    }
 
     .eye {
       position: absolute;
@@ -132,9 +173,14 @@
       font-size: 16px;
     }
 
-    .forgot { margin-top: -5px; margin-bottom: 6px; text-align: right; }
+    .forgot {
+      margin-top: -5px;
+      margin-bottom: 6px;
+      text-align: right;
+    }
 
-    .forgot button, .toggle button {
+    .forgot button,
+    .toggle button {
       border: 0;
       background: transparent;
       color: #15803d;
@@ -142,7 +188,9 @@
       font-weight: 700;
     }
 
-    .forgot button { font-size: 12px; }
+    .forgot button {
+      font-size: 12px;
+    }
 
     .submit {
       width: 100%;
@@ -158,11 +206,22 @@
       cursor: pointer;
     }
 
-    .submit:hover { opacity: .92; }
-    .submit:disabled { opacity: .65; cursor: wait; }
+    .submit:disabled {
+      opacity: .65;
+      cursor: wait;
+    }
 
-    .toggle { margin-top: 20px; text-align: center; color: #64748b; font-size: 13px; }
-    .toggle button { margin-left: 4px; font-size: 13px; }
+    .toggle {
+      margin-top: 20px;
+      text-align: center;
+      color: #64748b;
+      font-size: 13px;
+    }
+
+    .toggle button {
+      margin-left: 4px;
+      font-size: 13px;
+    }
 
     .footer {
       margin-top: 16px;
@@ -171,20 +230,40 @@
       font-size: 11px;
     }
 
-    .footer a { color: white; text-decoration: none; font-weight: 600; }
+    .footer a {
+      color: white;
+      text-decoration: none;
+      font-weight: 600;
+    }
 
     @media (max-width: 480px) {
-      body { padding: 14px; }
-      .card { padding: 25px 20px; border-radius: 20px; }
-      .logo { width: 64px; height: 64px; font-size: 41px; }
-      .brand-name { font-size: 24px; }
+      body {
+        padding: 14px;
+      }
+
+      .card {
+        padding: 25px 20px;
+        border-radius: 20px;
+      }
+
+      .logo {
+        width: 64px;
+        height: 64px;
+        font-size: 41px;
+      }
+
+      .brand-name {
+        font-size: 24px;
+      }
     }
   </style>
 </head>
 
 <body>
+
   <main class="page">
     <section class="card">
+
       <div class="brand">
         <div class="logo">E</div>
         <div class="brand-name">Earn Nest</div>
@@ -192,10 +271,15 @@
       </div>
 
       <h1 id="title">Welcome Back</h1>
-      <p class="subtitle" id="subtitle">Login to continue to your EarnNest account</p>
+
+      <p class="subtitle" id="subtitle">
+        Login to continue to your EarnNest account
+      </p>
+
       <div id="message" role="status" aria-live="polite"></div>
 
       <form id="authForm" novalidate>
+
         <div class="field signup-only">
           <label for="name">Full Name</label>
           <input id="name" type="text" placeholder="Enter your full name" autocomplete="name">
@@ -218,17 +302,19 @@
 
         <div class="field">
           <label for="password">Password</label>
+
           <div class="password-box">
             <input id="password" type="password" placeholder="Enter your password" autocomplete="current-password">
-            <button type="button" class="eye" id="passwordEye" aria-label="Show password">👁</button>
+            <button type="button" class="eye" id="passwordEye">👁</button>
           </div>
         </div>
 
         <div class="field signup-only">
           <label for="confirmPassword">Confirm Password</label>
+
           <div class="password-box">
             <input id="confirmPassword" type="password" placeholder="Confirm your password" autocomplete="new-password">
-            <button type="button" class="eye" id="confirmEye" aria-label="Show confirm password">👁</button>
+            <button type="button" class="eye" id="confirmEye">👁</button>
           </div>
         </div>
 
@@ -241,30 +327,31 @@
           <button type="button" id="forgotBtn">Forgot Password?</button>
         </div>
 
-        <button type="submit" class="submit" id="submitBtn">Login</button>
+        <button type="submit" class="submit" id="submitBtn">
+          Login
+        </button>
+
       </form>
 
       <div class="toggle">
         <span id="toggleText">Don't have an account?</span>
         <button type="button" id="toggleBtn">Create Account</button>
       </div>
+
     </section>
 
     <div class="footer">
       © 2026 EarnNest ·
-      <a href="/privacy.html">Privacy</a> ·
-      <a href="/terms.html">Terms</a>
+      <a href="https://earn-nest-gamma.vercel.app/privacy.html">Privacy</a> ·
+      <a href="https://earn-nest-gamma.vercel.app/terms.html">Terms</a>
     </div>
+
   </main>
 
   <script>
     "use strict";
 
-    /*
-      IMPORTANT:
-      Use the real Vercel API origin, not a relative /api URL.
-      This is required for the Capacitor Android app.
-    */
+    // Live Vercel API
     const API_BASE = "https://earn-nest-gamma.vercel.app/api";
 
     let isSignUp = false;
@@ -276,13 +363,15 @@
 
     function showMessage(message, type = "error") {
       const box = get("message");
+
       box.textContent = String(message || "Something went wrong.");
-      box.className = type === "success" ? "success" : "error";
+      box.className = type;
       box.style.display = "block";
     }
 
     function clearMessage() {
       const box = get("message");
+
       box.textContent = "";
       box.className = "";
       box.style.display = "none";
@@ -290,21 +379,18 @@
 
     function setButton(text, disabled) {
       const button = get("submitBtn");
+
       button.textContent = text;
       button.disabled = disabled;
     }
 
-    /*
-      API REQUEST:
-      - Connects to the live Vercel API.
-      - Detects HTML/non-JSON responses.
-      - Shows an HTTP status when the server returns an error.
-      - Does not treat an HTML error page as a successful response.
-    */
+    // Safely read server response
     async function apiRequest(payload) {
+
       let response;
 
       try {
+
         response = await fetch(API_BASE, {
           method: "POST",
           headers: {
@@ -313,37 +399,43 @@
           },
           body: JSON.stringify(payload)
         });
+
       } catch (error) {
+
         console.error("EarnNest network error:", error);
 
         throw new Error(
-          "Could not connect to EarnNest server. Please check your internet connection and try again."
+          "Could not connect to EarnNest server. Check your internet connection."
         );
       }
 
       const responseText = await response.text();
+
       let data;
 
       try {
+
         data = responseText ? JSON.parse(responseText) : {};
+
       } catch (error) {
-        console.error(
-          "EarnNest returned non-JSON data. HTTP status:",
-          response.status,
-          "Response preview:",
-          responseText.slice(0, 250)
-        );
+
+        console.error("EarnNest invalid server response:", {
+          status: response.status,
+          url: response.url,
+          contentType: response.headers.get("content-type"),
+          response: responseText.slice(0, 500)
+        });
 
         throw new Error(
-          "The server returned an invalid response (HTTP " +
-          response.status +
-          "). Please check the Vercel API configuration."
+          "API ERROR | HTTP " + response.status +
+          " | URL: " + response.url +
+          " | TYPE: " + response.headers.get("content-type") +
+          " | RESPONSE: " + responseText.slice(0, 300)
         );
       }
 
-      console.log("EarnNest API status:", response.status);
-
       if (!response.ok) {
+
         throw new Error(
           data.message ||
           data.error ||
@@ -355,10 +447,11 @@
     }
 
     function getUserRole(user) {
-      return String(user?.role || "").trim().toLowerCase();
+      return String(user && user.role || "").trim().toLowerCase();
     }
 
     function saveSession(data) {
+
       if (!data || !data.token || !data.user) {
         return false;
       }
@@ -370,26 +463,33 @@
     }
 
     function redirectAfterLogin(user) {
+
       const role = getUserRole(user);
+
       const isAndroidLocal =
         location.hostname === "localhost" ||
         location.hostname === "127.0.0.1";
 
       if (role === "admin") {
-        /*
-          Capacitor's copied app file is Admin.html.
-          Use its exact filename case on Android.
-        */
+
         window.location.replace(
-          isAndroidLocal ? "/Admin.html" : "/admin.html"
+          isAndroidLocal
+            ? "/Admin.html"
+            : "https://earn-nest-gamma.vercel.app/admin.html"
         );
+
         return;
       }
 
-      window.location.replace("/dashboard.html");
+      window.location.replace(
+        isAndroidLocal
+          ? "/dashboard.html"
+          : "https://earn-nest-gamma.vercel.app/app/dashboard.html"
+      );
     }
 
     async function loginUser() {
+
       if (isBusy) return;
 
       const email = get("email").value.trim().toLowerCase();
@@ -408,10 +508,12 @@
       }
 
       isBusy = true;
+
       clearMessage();
       setButton("Logging in...", true);
 
       try {
+
         const data = await apiRequest({
           action: "login",
           email: email,
@@ -419,17 +521,26 @@
           password: password
         });
 
-        if (data.success !== true || !data.token || !data.user) {
+        if (
+          data.success !== true ||
+          !data.token ||
+          !data.user
+        ) {
+
           throw new Error(
             data.message ||
             data.error ||
-            "Login failed. The server did not return a valid user session."
+            "Login failed. Invalid user session."
           );
         }
 
         saveSession(data);
 
-        showMessage("Login successful. Opening dashboard...", "success");
+        showMessage(
+          "Login successful. Opening dashboard...",
+          "success"
+        );
+
         setButton("Opening Dashboard...", true);
 
         setTimeout(function() {
@@ -437,14 +548,20 @@
         }, 700);
 
       } catch (error) {
+
         console.error("EarnNest login error:", error);
-        showMessage(error.message || "Unable to login. Please try again.");
+
+        showMessage(
+          error.message || "Unable to login. Please try again."
+        );
+
         setButton("Login", false);
         isBusy = false;
       }
     }
 
     async function registerUser() {
+
       if (isBusy) return;
 
       const name = get("name").value.trim();
@@ -479,13 +596,7 @@
         return;
       }
 
-      if (!password) {
-        showMessage("Please create a password.");
-        get("password").focus();
-        return;
-      }
-
-      if (password.length < 6) {
+      if (!password || password.length < 6) {
         showMessage("Password must be at least 6 characters.");
         get("password").focus();
         return;
@@ -498,10 +609,12 @@
       }
 
       isBusy = true;
+
       clearMessage();
       setButton("Creating Account...", true);
 
       try {
+
         const data = await apiRequest({
           action: "register",
           name: name,
@@ -514,6 +627,7 @@
         });
 
         if (data.success !== true) {
+
           throw new Error(
             data.message ||
             data.error ||
@@ -522,8 +636,14 @@
         }
 
         if (data.token && data.user) {
+
           saveSession(data);
-          showMessage("Account created successfully. Opening dashboard...", "success");
+
+          showMessage(
+            "Account created successfully. Opening dashboard...",
+            "success"
+          );
+
           setButton("Opening Dashboard...", true);
 
           setTimeout(function() {
@@ -533,11 +653,10 @@
           return;
         }
 
-        /*
-          Some APIs create the account but don't automatically log in.
-          In that case, return to the login form.
-        */
-        showMessage("Account created successfully. Please login.", "success");
+        showMessage(
+          "Account created successfully. Please login.",
+          "success"
+        );
 
         isSignUp = false;
         updateMode();
@@ -545,18 +664,29 @@
         get("password").value = "";
         get("confirmPassword").value = "";
 
+        showMessage(
+          "Account created successfully. Please login.",
+          "success"
+        );
+
         setButton("Login", false);
         isBusy = false;
 
       } catch (error) {
+
         console.error("EarnNest registration error:", error);
-        showMessage(error.message || "Unable to create account. Please try again.");
+
+        showMessage(
+          error.message || "Unable to create account."
+        );
+
         setButton("Create Account", false);
         isBusy = false;
       }
     }
 
     function updateMode() {
+
       document.querySelectorAll(".signup-only").forEach(function(element) {
         element.style.display = isSignUp ? "block" : "none";
       });
@@ -569,53 +699,68 @@
         ? "Join EarnNest and start earning coins"
         : "Login to continue to your EarnNest account";
 
-      get("submitBtn").textContent = isSignUp ? "Create Account" : "Login";
+      get("submitBtn").textContent = isSignUp
+        ? "Create Account"
+        : "Login";
 
       get("toggleText").textContent = isSignUp
         ? "Already have an account?"
         : "Don't have an account?";
 
-      get("toggleBtn").textContent = isSignUp ? "Login" : "Create Account";
+      get("toggleBtn").textContent = isSignUp
+        ? "Login"
+        : "Create Account";
 
-      get("forgotBox").style.display = isSignUp ? "none" : "block";
+      get("forgotBox").style.display = isSignUp
+        ? "none"
+        : "block";
 
       clearMessage();
     }
 
     function toggleMode() {
+
       if (isBusy) return;
 
       isSignUp = !isSignUp;
+
       get("password").value = "";
       get("confirmPassword").value = "";
+
       updateMode();
     }
 
     function togglePassword(inputId, buttonId) {
+
       const input = get(inputId);
       const button = get(buttonId);
 
       if (input.type === "password") {
+
         input.type = "text";
         button.textContent = "🙈";
-        button.setAttribute("aria-label", "Hide password");
+
       } else {
+
         input.type = "password";
         button.textContent = "👁";
-        button.setAttribute("aria-label", "Show password");
       }
     }
 
     function forgotPassword() {
+
       showMessage(
-        "Password reset is not connected yet. Please contact support."
+        "Password reset is not connected yet. Please contact support.",
+        "info"
       );
     }
 
     document.addEventListener("DOMContentLoaded", function() {
+
       const form = get("authForm");
 
       form.addEventListener("submit", function(event) {
+
         event.preventDefault();
         event.stopPropagation();
 
@@ -626,47 +771,26 @@
         }
       });
 
-      get("toggleBtn").addEventListener("click", function(event) {
-        event.preventDefault();
+      get("toggleBtn").addEventListener("click", function() {
         toggleMode();
       });
 
-      get("passwordEye").addEventListener("click", function(event) {
-        event.preventDefault();
+      get("passwordEye").addEventListener("click", function() {
         togglePassword("password", "passwordEye");
       });
 
-      get("confirmEye").addEventListener("click", function(event) {
-        event.preventDefault();
+      get("confirmEye").addEventListener("click", function() {
         togglePassword("confirmPassword", "confirmEye");
       });
 
-      get("forgotBtn").addEventListener("click", function(event) {
-        event.preventDefault();
+      get("forgotBtn").addEventListener("click", function() {
         forgotPassword();
-      });
-
-      [
-        "email",
-        "password",
-        "name",
-        "username",
-        "phone",
-        "confirmPassword",
-        "referralCode"
-      ].forEach(function(id) {
-        const field = get(id);
-
-        field.addEventListener("keydown", function(event) {
-          if (event.key === "Enter") {
-            event.preventDefault();
-            form.requestSubmit();
-          }
-        });
       });
 
       updateMode();
     });
   </script>
+
 </body>
 </html>
+```
