@@ -1061,6 +1061,44 @@ async function handleAdGemPostback(req, res) {
   }
 }
 
+
+async function handleCpxWall(req, res) {
+  if (req.method !== 'GET') {
+    return send(res, 405, { success: false, message: 'CPX wall requires GET' });
+  }
+
+  const user = await getUserFromToken(req);
+  if (!user) {
+    return send(res, 401, { success: false, message: 'Please log in to open CPX Research' });
+  }
+
+  const appSecret = process.env.CPX_APP_SECURITY_HASH;
+  if (!appSecret) {
+    console.error('CPX_APP_SECURITY_HASH is not configured');
+    return send(res, 503, { success: false, message: 'CPX Research is not configured' });
+  }
+
+  try {
+    const userId = String(user.id);
+    const secureHash = crypto
+      .createHash('md5')
+      .update(`${userId}-${appSecret}`)
+      .digest('hex');
+
+    const wallUrl = new URL('https://offers.cpx-research.com/index.php');
+    wallUrl.searchParams.set('app_id', '36505');
+    wallUrl.searchParams.set('ext_user_id', userId);
+    wallUrl.searchParams.set('secure_hash', secureHash);
+    if (user.username) wallUrl.searchParams.set('username', String(user.username));
+    if (user.email) wallUrl.searchParams.set('email', String(user.email));
+
+    return send(res, 200, { success: true, url: wallUrl.toString() });
+  } catch (error) {
+    console.error('CPX WALL URL ERROR:', error);
+    return send(res, 500, { success: false, message: 'Could not prepare CPX Research' });
+  }
+}
+
 async function handleCpxPostback(req, res) {
   if (req.method !== 'GET') {
     return send(res, 405, {
@@ -1163,6 +1201,20 @@ async function handleCpxPostback(req, res) {
         });
       }
     }
+
+    // Ensure the idempotency ledger exists before processing provider callbacks.
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS cpx_transactions (
+        transaction_id TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL,
+        amount BIGINT NOT NULL,
+        status SMALLINT NOT NULL DEFAULT 1,
+        transaction_type TEXT,
+        amount_usd NUMERIC,
+        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        reversed_at TIMESTAMPTZ
+      )
+    `);
 
     client = await pool.connect();
     await client.query('BEGIN');
@@ -1350,6 +1402,9 @@ module.exports = async function handler(req, res) {
 
   try {
     const path = normalizePath(req);
+    if (path === '/api/cpx/wall') {
+      return await handleCpxWall(req, res);
+    }
     if (path === '/api/cpx/postback') {
       return await handleCpxPostback(req, res);
     }
