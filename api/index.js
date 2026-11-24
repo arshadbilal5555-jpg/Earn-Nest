@@ -1060,6 +1060,282 @@ async function handleAdGemPostback(req, res) {
     });
   }
 }
+
+async function handleCpxPostback(req, res) {
+  if (req.method !== 'GET') {
+    return send(res, 405, {
+      success: false,
+      message: 'CPX postback requires GET'
+    });
+  }
+
+  const appSecret = process.env.CPX_APP_SECURITY_HASH;
+  if (!appSecret) {
+    console.error('CPX_APP_SECURITY_HASH is not configured');
+    return send(res, 503, {
+      success: false,
+      message: 'CPX Research postback is not configured'
+    });
+  }
+
+  let client;
+  try {
+    const params = new URL(req.url, 'http://localhost').searchParams;
+
+    const transactionId = String(params.get('trans_id') || '').trim();
+    const userId = String(params.get('user_id') || '').trim();
+    const receivedHash = String(
+      params.get('hash') || params.get('secure_hash') || ''
+    ).trim().toLowerCase();
+
+    const statusText = String(params.get('status') || '').trim();
+    const status = Number(statusText);
+    const type = String(params.get('type') || '').trim().toLowerCase();
+    const amountText = params.get('amount_local');
+    const amount = amountText === null ? NaN : Number(amountText);
+    const amountUsdText = params.get('amount_usd');
+    const amountUsd = amountUsdText === null || amountUsdText === ''
+      ? null
+      : Number(amountUsdText);
+
+    if (
+      !transactionId ||
+      transactionId.length > 200 ||
+      !userId ||
+      userId.length > 200 ||
+      !['1', '2'].includes(statusText) ||
+      !receivedHash
+    ) {
+      return send(res, 422, {
+        success: false,
+        message: 'Missing or invalid CPX postback parameters'
+      });
+    }
+
+    // CPX signature: MD5(trans_id + "-" + App Security Hash).
+    // The app secret remains server-side and is never sent to the browser.
+    const expectedHash = crypto
+      .createHash('md5')
+      .update(`${transactionId}-${appSecret}`)
+      .digest('hex');
+
+    const expectedBuffer = Buffer.from(expectedHash, 'hex');
+    const receivedBuffer = Buffer.from(receivedHash, 'hex');
+
+    if (
+      !/^[a-f0-9]{32}$/.test(receivedHash) ||
+      expectedBuffer.length !== receivedBuffer.length ||
+      !crypto.timingSafeEqual(expectedBuffer, receivedBuffer)
+    ) {
+      console.error('CPX postback hash verification failed');
+      return send(res, 403, {
+        success: false,
+        message: 'Invalid CPX postback hash'
+      });
+    }
+
+    // Screen-outs are not rewarded. Only completed and bonus events
+    // with status=1 are credited.
+    if (status === 1 && type === 'return out') {
+      return send(res, 200, {
+        success: true,
+        credited: false,
+        message: 'CPX screen-out recorded; no reward credited'
+      });
+    }
+
+    if (status === 1) {
+      if (!['complete', 'bonus'].includes(type)) {
+        return send(res, 422, {
+          success: false,
+          message: 'Unsupported CPX transaction type'
+        });
+      }
+
+      if (
+        !Number.isSafeInteger(amount) ||
+        amount <= 0 ||
+        (amountUsd !== null && (!Number.isFinite(amountUsd) || amountUsd < 0))
+      ) {
+        return send(res, 422, {
+          success: false,
+          message: 'Invalid CPX reward amount'
+        });
+      }
+    }
+
+    client = await pool.connect();
+    await client.query('BEGIN');
+
+    // Lock the user first for both credit and reversal paths. This keeps
+    // wallet updates serialized and avoids inconsistent concurrent callbacks.
+    const userResult = await client.query(
+      'SELECT id FROM users WHERE id = $1 FOR UPDATE',
+      [userId]
+    );
+
+    if (!userResult.rows.length) {
+      await client.query('ROLLBACK');
+      return send(res, 422, {
+        success: false,
+        message: 'EarnNest user not found'
+      });
+    }
+
+    if (status === 1) {
+      const inserted = await client.query(
+        `INSERT INTO cpx_transactions
+          (transaction_id, user_id, amount, status, transaction_type, amount_usd)
+         VALUES ($1, $2, $3, 1, $4, $5)
+         ON CONFLICT (transaction_id) DO NOTHING
+         RETURNING transaction_id`,
+        [transactionId, userId, amount, type, amountUsd]
+      );
+
+      if (!inserted.rows.length) {
+        await client.query('ROLLBACK');
+        return send(res, 200, {
+          success: true,
+          duplicate: true,
+          message: 'CPX transaction already processed'
+        });
+      }
+
+      await client.query(
+        `INSERT INTO wallets
+          (user_id, balance, total_earned, total_withdrawn)
+         VALUES ($1, 0, 0, 0)
+         ON CONFLICT (user_id) DO NOTHING`,
+        [userId]
+      );
+
+      await client.query(
+        `UPDATE users
+         SET coins = COALESCE(coins, 0) + $1
+         WHERE id = $2`,
+        [amount, userId]
+      );
+
+      const walletUpdate = await client.query(
+        `UPDATE wallets
+         SET balance = COALESCE(balance, 0) + $1,
+             total_earned = COALESCE(total_earned, 0) + $1,
+             updated_at = NOW()
+         WHERE user_id = $2
+         RETURNING balance`,
+        [amount, userId]
+      );
+
+      if (!walletUpdate.rows.length) {
+        throw new Error('Could not update EarnNest wallet for CPX reward');
+      }
+
+      await client.query('COMMIT');
+      console.log('CPX reward credited:', { transactionId, userId, amount });
+
+      return send(res, 200, {
+        success: true,
+        credited: true,
+        amount,
+        message: 'CPX reward credited successfully'
+      });
+    }
+
+    // status=2: reverse only a previously credited transaction.
+    // Use the original stored amount, never the amount supplied by the
+    // reversal callback. A reversal can make the balance negative if coins
+    // were already spent; the withdrawal handler will then block withdrawals.
+    const transactionResult = await client.query(
+      `SELECT transaction_id, user_id, amount, status
+       FROM cpx_transactions
+       WHERE transaction_id = $1
+       FOR UPDATE`,
+      [transactionId]
+    );
+
+    if (!transactionResult.rows.length) {
+      await client.query('COMMIT');
+      return send(res, 200, {
+        success: true,
+        reversed: false,
+        message: 'No credited CPX transaction found; nothing to reverse'
+      });
+    }
+
+    const transaction = transactionResult.rows[0];
+
+    if (String(transaction.user_id) !== userId) {
+      await client.query('ROLLBACK');
+      return send(res, 403, {
+        success: false,
+        message: 'CPX transaction user does not match'
+      });
+    }
+
+    if (Number(transaction.status) === 2) {
+      await client.query('COMMIT');
+      return send(res, 200, {
+        success: true,
+        duplicate: true,
+        reversed: true,
+        message: 'CPX transaction was already reversed'
+      });
+    }
+
+    const originalAmount = Number(transaction.amount);
+    if (!Number.isSafeInteger(originalAmount) || originalAmount <= 0) {
+      throw new Error('Stored CPX transaction amount is invalid');
+    }
+
+    await client.query(
+      `UPDATE users
+       SET coins = COALESCE(coins, 0) - $1
+       WHERE id = $2`,
+      [originalAmount, userId]
+    );
+
+    await client.query(
+      `UPDATE wallets
+       SET balance = COALESCE(balance, 0) - $1,
+           updated_at = NOW()
+       WHERE user_id = $2`,
+      [originalAmount, userId]
+    );
+
+    await client.query(
+      `UPDATE cpx_transactions
+       SET status = 2, reversed_at = NOW()
+       WHERE transaction_id = $1 AND status <> 2`,
+      [transactionId]
+    );
+
+    await client.query('COMMIT');
+    console.log('CPX reward reversed:', {
+      transactionId,
+      userId,
+      amount: originalAmount
+    });
+
+    return send(res, 200, {
+      success: true,
+      reversed: true,
+      amount: originalAmount,
+      message: 'CPX reward reversed successfully'
+    });
+  } catch (error) {
+    if (client) {
+      try { await client.query('ROLLBACK'); } catch {}
+    }
+    console.error('CPX POSTBACK ERROR:', error);
+    return send(res, 500, {
+      success: false,
+      message: 'CPX postback processing failed'
+    });
+  } finally {
+    if (client) client.release();
+  }
+}
+
 function normalizePath(req) {
   const path = String(req.url || '/').split('?')[0].replace(/\/+$/, '') || '/';
   return path;
@@ -1074,6 +1350,9 @@ module.exports = async function handler(req, res) {
 
   try {
     const path = normalizePath(req);
+    if (path === '/api/cpx/postback') {
+      return await handleCpxPostback(req, res);
+    }
     if (path === '/api/adgem/postback') {
   return await handleAdGemPostback(req, res);
 }
