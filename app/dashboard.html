@@ -805,6 +805,73 @@
     }
   }
 
+  // CPX Research wall: request a user-specific, server-signed URL.
+  let cpxWallLoaded = false;
+  let cpxWallLoading = false;
+
+  async function loadCpxWall(forceReload = false) {
+    const frame = $("cpxFrame");
+    const status = $("cpxStatus");
+    if (!frame || !status || cpxWallLoading) return;
+    if (cpxWallLoaded && !forceReload) return;
+
+    if (!token) {
+      status.className = "notice warning";
+      status.textContent = "Please log in again to access CPX Research.";
+      frame.style.display = "none";
+      return;
+    }
+
+    cpxWallLoading = true;
+    status.className = "notice";
+    status.textContent = "Connecting securely to CPX Research…";
+    frame.style.display = "none";
+    frame.removeAttribute("src");
+
+    try {
+      const data = await apiRequest("/cpx/wall");
+      if (!data.url || typeof data.url !== "string") {
+        throw new Error("CPX Research did not return a survey link.");
+      }
+
+      const wallUrl = new URL(data.url);
+      if (wallUrl.protocol !== "https:" || wallUrl.hostname !== "offers.cpx-research.com") {
+        throw new Error("The server returned an invalid CPX Research link.");
+      }
+
+      frame.onload = function () {
+        status.className = "notice success";
+        status.textContent = "CPX Research opened. Available surveys will appear below.";
+        frame.style.display = "block";
+        cpxWallLoaded = true;
+      };
+      frame.onerror = function () {
+        cpxWallLoaded = false;
+        status.className = "notice warning";
+        status.textContent = "CPX Research could not be displayed. Please try again.";
+      };
+      frame.src = wallUrl.toString();
+      frame.style.display = "block";
+      status.textContent = "Opening CPX Research…";
+    } catch (error) {
+      console.error("CPX Research connection error:", error);
+      cpxWallLoaded = false;
+      status.className = "notice warning";
+      status.textContent = "CPX Research could not load: " + (error.message || "Please try again.");
+
+      const retry = document.createElement("button");
+      retry.type = "button";
+      retry.className = "btn";
+      retry.textContent = "Try Again";
+      retry.style.marginTop = "12px";
+      retry.addEventListener("click", function () { loadCpxWall(true); });
+      status.appendChild(document.createElement("br"));
+      status.appendChild(retry);
+    } finally {
+      cpxWallLoading = false;
+    }
+  }
+
   const pageTitles = {
     home: "Dashboard",
     offers: "Offers & Games",
@@ -835,6 +902,7 @@
     window.scrollTo({ top: 0, behavior: "smooth" });
 
     if (pageName === "wallet") loadWallet();
+    if (pageName === "cpx") loadCpxWall();
   }
 
   document.querySelectorAll("[data-page]").forEach(button => {
